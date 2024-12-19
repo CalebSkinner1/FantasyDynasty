@@ -7,6 +7,7 @@
 
 # load data
 library("here")
+library("tidymodels")
 data_path <- "FantasyDynasty/"
 source(here(data_path, "Scraping.R"))
 
@@ -79,10 +80,10 @@ defenses <- def_sleeper_points %>%
 
 # load player info
 player_info <- read_csv(here(data_path, "player_info.csv")) %>%
-  select(name, player_id, position) %>%
+  select(name, player_id, position, age) %>%
   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
   # remove duplicate names
-  filter(player_id != 4634) %>%
+  filter(player_id != 4634, player_id != 748) %>%
   bind_rows(defenses) %>%
   name_correction()
 
@@ -100,7 +101,7 @@ starters <- map(matchups, ~.x %>%
   unnest(cols = c(starters, starters_points)) %>%
   filter(starters != 0) %>%
   left_join(player_info, by = join_by(starters == player_id)) %>%
-  select(-starters))
+  select(-starters, -age))
 
 # find bench players
 bench <- pmap(list(matchups, starters, projections_list), function(m, s, p){
@@ -112,7 +113,7 @@ bench <- pmap(list(matchups, starters, projections_list), function(m, s, p){
     left_join(p %>% select(-week), by = join_by(name)) %>%
     mutate(projection = replace_na(projection, 0),
            type = "bench") %>%
-    select(-players)
+    select(-players, -age)
 })
 
 # find top waiver picks
@@ -124,7 +125,8 @@ waiver <- pmap(list(projections_list, bench, starters),
          anti_join(b %>% select(name), by = join_by(name)) %>%
          anti_join(s %>% select(name), by = join_by(name)) %>%
          mutate(type = "waiver") %>%
-         arrange(position, desc(projection))
+         arrange(position, desc(projection)) %>%
+         select(-age)
      })
 
 # replacement
@@ -240,11 +242,14 @@ value_added <- map2(starters_revamp, weighted_mean_replacements, ~{
   rbindlist() %>%
   as_tibble()
 
-value_added %>%
-  group_by(roster_id, position, name) %>%
-  summarize(total_value_added = sum(value_added)) %>%
-  arrange(desc(total_value_added)) %>%
-  print(n=30)
+season_value_added <- value_added %>%
+  group_by(position, name) %>%
+  summarize(
+    total_value_added = sum(value_added),
+    total_points = sum(points)) %>%
+  arrange(desc(total_value_added))
+
+season_value_added %>% print(n=30)
 
 value_added %>%
   group_by(roster_id, position, name) %>%
@@ -252,12 +257,114 @@ value_added %>%
   ggplot() +
   geom_jitter(aes(x = roster_id, y = total_value_added, color = position), width = .1, height = 0)
 
-value_added %>%
-  group_by(roster_id, position, name) %>%
-  summarize(total_value_added = sum(value_added)) %>%
+season_value_added %>%
   ggplot() +
   geom_violin(aes(position, total_value_added))
 
+season_value_added %>%
+  ggplot() +
+  geom_point(aes(x = total_points, y = total_value_added, color = position))
+
 value_added %>%
-  filter(name == "Jonathan Taylor")
+  filter(str_detect(name, "Swift"))
+
+# Future Value vs Total Value ---------------------------------------------
+
+historical_ktc <- read_csv(here(data_path,"ktc_value121824")) %>%
+  filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
+  name_correction()
+
+hktc_data <- historical_ktc %>%
+  rename("historical_value" = "value") %>%
+  left_join(season_value_added, by = join_by(name)) %>%
+  select(-position, -total_points) %>%
+  mutate(
+    total_value_added = replace_na(total_value_added, 0),
+    # adjust total value added to account for two missing games
+    tva_adj = case_when(
+      total_value_added < 0 ~ total_value_added,
+      .default = total_value_added * 17/max(sleeper_points$week))) %>%
+  left_join(keep_trade_cut, by = join_by(name)) %>%
+  rename("ktc_value" = value) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  select(-player_id)
+
+hktc_data_list <- hktc_data %>%
+  group_by(position) %>%
+  reframe(position = list(tibble(name, historical_value, total_value_added, tva_adj, ktc_value, position, age))) %>%
+  deframe()
+
+lm_spec <- linear_reg() %>%
+  set_mode("regression") %>%
+  set_engine("lm")
+
+compute_fit <- function(data, recipe){
+  wf <- workflow() %>%
+    add_model(lm_spec) %>%
+    add_recipe(recipe)
+  
+  fit(wf, data = data)
+}
+visualize_fit <- function(data, fit, range, quantity){
+  quantities <- fit$pre$actions$recipe$recipe$template %>% colnames()
+  
+  regression_lines <- bind_cols(
+    augment(fit, new_data = range),
+    predict(fit, new_data = range, type = "conf_int"))
+  
+  data %>%
+    select(all_of(quantities)) %>%
+    rename_with(~paste0("X"), last_col()) %>%
+    ggplot(aes(historical_value, X)) +
+    facet_wrap(~age) +
+    geom_point(color = "cadetblue3") +
+    geom_line(aes(y = .pred), color = "darkgreen",
+              data = regression_lines) +
+    geom_line(aes(y = .pred_lower), data = regression_lines, 
+              linetype = "dashed", color = "indianred4") +
+    geom_line(aes(y = .pred_upper), data = regression_lines, 
+              linetype = "dashed", color = "indianred4") +
+    labs(y = quantity, x = "Historical Value")
+}
+fit_viz <- function(data, short_quantity, quantity, type, hv_degree = 3, age_degree = 2,
+                    knots = list(knots = 2500, 5000, 7500)){
+  formula <- as.formula(str_c(short_quantity, " ~ age + historical_value"))
+  
+  # recipe
+  if(type == "poly"){
+    recipe <- recipe(formula, data = data) %>%
+      step_poly(historical_value, degree = hv_degree) %>%
+      step_poly(age, degree = age_degree)
+  }else if(type == "spline"){
+    recipe <- recipe(formula, data = data) %>%
+      step_bs(historical_value, options = knots) %>%
+      step_bs(age)}
+  
+  # value range for new data set
+  value_range <- crossing(historical_value = seq(min(data$historical_value),
+                                                 max(data$historical_value), length.out = 500),
+                          age = seq(min(data$age), max(data$age)))
+  
+  fit <- data %>% compute_fit(recipe)
+  
+  p <- data %>% visualize_fit(fit, value_range, quantity)
+  
+  return(list(p, fit))}
+
+# Goal 1: use historical ktc to predict season value added
+map(hktc_data_list, ~fit_viz(.x, "tva_adj", "Total Value Added (Adj)", "poly", age_degree = 3)) #slightly better
+map(hktc_data_list, ~fit_viz(.x, "tva_adj", "Total Value Added (Adj)", "spline"))
+
+# Goal 2: use historical ktc to predict current ktc
+map(hktc_data_list, ~fit_viz(.x, "ktc_value", "Current KTC Value", "poly", age_degree = 3)) #slightly better
+map(hktc_data_list, ~fit_viz(.x, "ktc_value", "Current KTC Value", "spline", age_degree = 3))
+
+# Second stage
+# simulate 5 years and average
+
+
+
+
+
+
 
