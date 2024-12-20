@@ -80,10 +80,15 @@ defenses <- def_sleeper_points %>%
 
 # load player info
 player_info <- read_csv(here(data_path, "player_info.csv")) %>%
-  select(name, player_id, position, age) %>%
+  select(name, player_id, position, birth_date) %>%
   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
   # remove duplicate names
-  filter(player_id != 4634, player_id != 748) %>%
+  filter(player_id != 4634, player_id != 748, player_id != 232) %>%
+  mutate(
+    position = case_when(
+      name == "Taysom Hill" ~ "TE",
+      .default = position)) %>%
+  distinct() %>%
   bind_rows(defenses) %>%
   name_correction()
 
@@ -101,7 +106,7 @@ starters <- map(matchups, ~.x %>%
   unnest(cols = c(starters, starters_points)) %>%
   filter(starters != 0) %>%
   left_join(player_info, by = join_by(starters == player_id)) %>%
-  select(-starters, -age))
+  select(-starters, -birth_date))
 
 # find bench players
 bench <- pmap(list(matchups, starters, projections_list), function(m, s, p){
@@ -113,7 +118,7 @@ bench <- pmap(list(matchups, starters, projections_list), function(m, s, p){
     left_join(p %>% select(-week), by = join_by(name)) %>%
     mutate(projection = replace_na(projection, 0),
            type = "bench") %>%
-    select(-players, -age)
+    select(-players, -birth_date)
 })
 
 # find top waiver picks
@@ -126,7 +131,7 @@ waiver <- pmap(list(projections_list, bench, starters),
          anti_join(s %>% select(name), by = join_by(name)) %>%
          mutate(type = "waiver") %>%
          arrange(position, desc(projection)) %>%
-         select(-age)
+         select(-birth_date)
      })
 
 # replacement
@@ -270,7 +275,7 @@ value_added %>%
 
 # Future Value vs Total Value ---------------------------------------------
 
-historical_ktc <- read_csv(here(data_path,"ktc_value121824")) %>%
+historical_ktc <- read_csv(here(data_path,"ktc_value082324")) %>%
   filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
   name_correction()
 
@@ -287,7 +292,9 @@ hktc_data <- historical_ktc %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   rename("ktc_value" = value) %>%
   left_join(player_info, by = join_by(name)) %>%
-  select(-player_id)
+  select(-player_id) %>%
+  mutate(
+    age = interval(birth_date, ymd("2024-08-23"))/years(1))
 
 hktc_data_list <- hktc_data %>%
   group_by(position) %>%
@@ -315,6 +322,7 @@ visualize_fit <- function(data, fit, range, quantity){
   data %>%
     select(all_of(quantities)) %>%
     rename_with(~paste0("X"), last_col()) %>%
+    mutate(age = round(age, digits = 0)) %>%
     ggplot(aes(historical_value, X)) +
     facet_wrap(~age) +
     geom_point(color = "cadetblue3") +
@@ -343,7 +351,7 @@ fit_viz <- function(data, short_quantity, quantity, type, hv_degree = 3, age_deg
   # value range for new data set
   value_range <- crossing(historical_value = seq(min(data$historical_value),
                                                  max(data$historical_value), length.out = 500),
-                          age = seq(min(data$age), max(data$age)))
+                          age = seq(round(min(data$age), 0), round(max(data$age), 0)))
   
   fit <- data %>% compute_fit(recipe)
   
@@ -351,16 +359,26 @@ fit_viz <- function(data, short_quantity, quantity, type, hv_degree = 3, age_deg
   
   return(list(p, fit))}
 
+
 # Goal 1: use historical ktc to predict season value added
-map(hktc_data_list, ~fit_viz(.x, "tva_adj", "Total Value Added (Adj)", "poly", age_degree = 3)) #slightly better
-map(hktc_data_list, ~fit_viz(.x, "tva_adj", "Total Value Added (Adj)", "spline"))
+pred_va <- map(hktc_data_list, ~fit_viz(.x, "tva_adj", "Total Value Added (Adj)", "poly", age_degree = 3, hv_degree = 2)) #slightly better
+# map(hktc_data_list, ~fit_viz(.x, "tva_adj", "Total Value Added (Adj)", "spline"))
 
 # Goal 2: use historical ktc to predict current ktc
-map(hktc_data_list, ~fit_viz(.x, "ktc_value", "Current KTC Value", "poly", age_degree = 3)) #slightly better
-map(hktc_data_list, ~fit_viz(.x, "ktc_value", "Current KTC Value", "spline", age_degree = 3))
+pred_ktc <- map(hktc_data_list, ~fit_viz(.x, "ktc_value", "Current KTC Value", "poly", age_degree = 3)) #slightly better
+# map(hktc_data_list, ~fit_viz(.x, "ktc_value", "Current KTC Value", "spline"))
 
 # Second stage
 # simulate 5 years and average
+# goal is to convert current ktc value into estimated future points
+# don't really care about variance quantification, so for now, just take expectations.
+# In future... definitely need to draw samples
+
+# expected value added next year
+eva_next_year <- function(){
+  
+}
+
 
 
 
