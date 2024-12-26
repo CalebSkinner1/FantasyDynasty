@@ -277,7 +277,10 @@ value_added %>%
 
 historical_ktc <- read_csv(here(data_path,"ktc_value082324")) %>%
   filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
-  name_correction()
+  name_correction() %>%
+  group_by(name) %>%
+  summarize(value = max(value)) %>%
+  arrange(desc(value))
 
 hktc_data <- historical_ktc %>%
   rename("historical_value" = "value") %>%
@@ -374,11 +377,60 @@ pred_ktc <- map(hktc_data_list, ~fit_viz(.x, "ktc_value", "Current KTC Value", "
 # don't really care about variance quantification, so for now, just take expectations.
 # In future... definitely need to draw samples
 
-# expected value added next year
-eva_next_year <- function(){
+# expected values for next year
+exp_next_year <- function(player_data, fit){
+  pos0 <- player_data %>% select(position) %>% pull()
   
+  pos <- case_when(
+    pos0 == "QB" ~ 1,
+    pos0 == "RB" ~ 2,
+    pos0 == "TE" ~ 3,
+    pos0 == "WR" ~ 4,
+    .default = NA)
+  
+  player_data %>%
+    rename_with(~paste0("historical_value"), contains("ktc")) %>%
+    select(historical_value, age) %>%
+    augment(fit[[pos]][[2]], new_data = .) %>%
+    select(.pred)
 }
 
+complete_next_year <- function(player_data){
+  year <- player_data %>%
+    mutate(year = year(birth_date + dyears(age)) + 1) %>%
+    pull()
+  
+  #first compute next year eva
+  eva <- player_data %>% exp_next_year(pred_va) %>%
+    rename_with(~paste0("eva_", year))
+  
+  #next compute next year value
+  ektc <- player_data %>% exp_next_year(pred_ktc) %>%
+    rename_with(~paste0("ektc_", year))
+  
+  # create tibble of estimated values for next year
+  player_data %>%
+    select(name, position, birth_date, age) %>%
+    bind_cols(eva, ektc) %>%
+    mutate(age = age + 1)
+}
+
+# list of the data by player name
+hktc_ln <- hktc_data %>%
+  distinct() %>%
+  group_by(name) %>%
+  reframe(
+    name = list(tibble(name, ktc_value, position, birth_date, age))) %>%
+  deframe()
+# here!
+map(hktc_ln, complete_next_year) %>%
+  map(., complete_next_year)
+
+hktc_data %>% filter(name == "Cooper Kupp")
+
+hktc_data %>% exp_next_year("Cooper Kupp", pred_va)
+
+hktc_data %>% exp_next_year("Cooper Kupp", pred_ktc)
 
 
 
