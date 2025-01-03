@@ -299,6 +299,8 @@ hktc_data <- historical_ktc %>%
   mutate(
     age = interval(birth_date, ymd("2024-08-23"))/years(1))
 
+# Frequentist
+
 hktc_data_list <- hktc_data %>%
   group_by(position) %>%
   reframe(position = list(tibble(name, historical_value, total_value_added, tva_adj, ktc_value, position, age))) %>%
@@ -315,6 +317,11 @@ compute_fit <- function(data, recipe){
   
   fit(wf, data = data)
 }
+
+recipe <- recipe(tva_adj ~ age + historical_value, data = hktc_data_list[[1]]) %>%
+  step_poly(historical_value, degree = 2) %>%
+  step_poly(age, degree = 2)
+
 visualize_fit <- function(data, fit, range, quantity){
   quantities <- fit$pre$actions$recipe$recipe$template %>% colnames()
   
@@ -361,6 +368,55 @@ fit_viz <- function(data, short_quantity, quantity, type, hv_degree = 3, age_deg
   p <- data %>% visualize_fit(fit, value_range, quantity)
   
   return(list(p, fit))}
+
+# Bayesian
+scale_this <- function(x) as.vector(scale(x))
+
+# y <- hktc_data %>% select(tva_adj) %>% pull()
+# N <- length(y)
+# K <- 5
+# 
+# group <- hktc_data %>%
+#   transmute(position = as.factor(position) %>% as.numeric) %>%
+#   pull()
+# J <- unique(group) %>% length()
+#   
+# x1 <- hktc_data %>% select(historical_value) %>% pull() %>% scale_this()
+# x2 <- hktc_data %>% select(age) %>% pull() %>% scale_this()
+# 
+# hierarchical_data <- list(N = N, K = K, J = J,
+#                           group = group,
+#                           x1 = x1, x2 = x2, y = y)
+
+y <- hktc_data_list[[1]] %>% select(tva_adj) %>% pull()
+N <- length(y)
+K <- 6
+
+x1 <- hktc_data_list[[1]] %>% select(historical_value) %>% pull() %>% scale_this()
+x2 <- hktc_data_list[[1]] %>% select(age) %>% pull() %>% scale_this()
+
+polynomial_data <- list(N = N, K = K,
+                        x1 = x1, x2 = x2, y = y,
+                        N_new = N,
+                        x1_new = x1, x2_new = x2)
+
+library("rstan")
+
+fit <- stan(
+  file = here(data_path, "polynomial.stan"),  # Path to Stan model file
+  data = polynomial_data,                         # Data list
+  iter = 4000,                         # Number of iterations
+  chains = 4,                          # Number of chains
+  seed = 123,                          # Seed for reproducibility
+)
+
+hktc_data_list[[1]] %>% slice(29)
+
+extract(fit)$y_pred
+
+plot(fit)
+pairs(fit, pars = c("beta", "sigma"))
+traceplot(fit, pars = c("beta", "sigma"))
 
 
 # Goal 1: use historical ktc to predict season value added
