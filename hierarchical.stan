@@ -6,9 +6,11 @@ data {
   int<lower=1> K; // number of coefficients
   int<lower=1> J; // number of groups
   int<lower=1> group[N]; // group indicator for each observation
-  vector[N] x1; // first predictor values
-  vector[N] x2; // second predictor values
+  matrix[N, K] X; // design matrix for predictors
   vector[N] y; // outcome vector
+  
+  int<lower=0> N_new; // number of new observations
+  matrix[N_new, K] X_new; // design matrix for new data
 }
 parameters {
   matrix[J, K] beta; // group-level regression coefficients
@@ -19,24 +21,26 @@ parameters {
 
 model {
   // priors
-  mu_beta ~ normal(0, 5); // weakly informative prior
-  tau_beta ~ cauchy(0, 2.5); // weakly informative prior
-  sigma ~ cauchy(0, 2.5); // weakly informative prior
+  mu_beta ~ normal(0, 10); // weakly informative prior
+  tau_beta ~ student_t(3, 0, 2); // weakly informative prior
+  sigma ~ student_t(3, 0, 30); // weakly informative prior
   
   // Hierarchical priors for group-level coefficients
-  for (k in 1:K) {
-    beta[, k] ~ normal(mu_beta[k], tau_beta[k]);
+  for(j in 1:J){
+    for (k in 1:K) {
+      beta[j, k] ~ normal(mu_beta[k], tau_beta[k]);
+    }
   }
-  
+
   // Likelihood
   for (n in 1:N) {
-    real poly_pred = beta[group[n], 1]                   // Intercept
-                   + beta[group[n], 2] * x1[n]           // x1
-                   + beta[group[n], 3] * square(x1[n])   // x1^2
-                   + beta[group[n], 4] * x2[n]           // x2
-                   + beta[group[n], 5] * square(x2[n]);   // x2^2
-    
-    y[n] ~ normal(poly_pred, sigma);
+    y[n] ~ normal(dot_product(X[n], beta[group[n]]), sigma);
   }
+}
+
+generated quantities {
+  vector[N_new] y_pred;    // predictions for new data
+  for (n in 1:N_new)
+    y_pred[n] = normal_rng(dot_product(X_new[n], beta[group[n]]), sigma);
 }
 

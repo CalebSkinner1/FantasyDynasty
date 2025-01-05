@@ -20,13 +20,13 @@ box_score_def <- calculate_stats(summary_level = "week", stat_type = "team")
 league_id <- "1066207868321370112"
 
 # matchups CHECK
-matchups <- map(1:15, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/matchups/", .x) %>%
+matchups <- map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/matchups/", .x) %>%
                   parse_api())
 # matchups[[1]]$players
 # matchups[[1]]$starters
 
 # transactions (this includes trades)
-transactions <- map(1:15, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/transactions/", .x) %>%
+transactions <- map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/transactions/", .x) %>%
                       parse_api())
 # transactions[[10]] %>% filter(type == "trade") %>% select(draft_picks)
 
@@ -73,7 +73,7 @@ rm(draft_urls)
 # need weekly player ranking for above replacement metric
 # https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=1&PosID=10&LeagueID=208518
 
-projections <- map(1:15, ~combine_week(.x)) %>%
+projections <- map(1:17, ~combine_week(.x)) %>%
   rbindlist() %>%
   as_tibble() %>%
   name_correction()
@@ -204,5 +204,7 @@ keep_trade_cut <- map(0:9, ~str_c("https://keeptradecut.com/dynasty-rankings?pag
   name_correction()
 
 # periodically save
-# keep_trade_cut %>% write_csv(here(data_path, "ktc_value121924"))
+keep_trade_cut %>% write_csv(here(data_path, "ktc_value010525"))
 
+# remove objects and functions to declutter environment
+rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value)

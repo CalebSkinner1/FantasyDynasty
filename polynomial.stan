@@ -4,13 +4,11 @@
 data {
   int<lower=1> N; // number of samples
   int<lower=1> K; // number of coefficients
-  vector[N] x1; // first predictor values
-  vector[N] x2; // second predictor values
+  matrix[N, K] X; // design matrix for predictors
   vector[N] y; // outcome vector
   
   int<lower=0> N_new; // number of new observations
-  vector[N_new] x1_new; // first predictor values
-  vector[N_new] x2_new; // first predictor values
+  matrix[N_new, K] X_new; // design matrix for new data
 }
 
 parameters {
@@ -24,24 +22,12 @@ model {
   sigma ~ cauchy(0, 2.5); // weakly informative prior
   
   // Likelihood
-  for (n in 1:N) {
-    real poly_pred = beta[1]                   // Intercept
-                   + beta[2] * x1[n]           // x1
-                   + beta[3] * square(x1[n])   // x1^2
-                   + beta[4] * x2[n]           // x2
-                   + beta[5] * square(x2[n])   // x2^2
-                   + beta[6] * x1[n] * x2[n];
-                   
-    
-    y[n] ~ normal(poly_pred, sigma);
-  }
+  y ~ normal(X * beta, sigma);
 }
 
 generated quantities {
-  vector[N_new] y_pred;    // Predictions for new data
+  vector[N_new] y_pred;    // predictions for new data
   for (n in 1:N_new)
-    y_pred[n] = normal_rng(beta[1] + beta[2] * x1_new[n] + beta[3] * square(x2_new[n]) +
-                           beta[4] * x2_new[n] + beta[5] * square(x2_new[n]), sigma) +
-                           beta[6] * x1[n] * x2[n];
+    y_pred[n] = normal_rng(dot_product(X_new[n], beta), sigma);
 }
 
