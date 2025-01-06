@@ -204,7 +204,7 @@ keep_trade_cut <- map(0:9, ~str_c("https://keeptradecut.com/dynasty-rankings?pag
   name_correction()
 
 # periodically save
-keep_trade_cut %>% write_csv(here(data_path, "ktc_value010525"))
+# keep_trade_cut %>% write_csv(here(data_path, "ktc_value010525"))
 
 # remove objects and functions to declutter environment
 rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value)

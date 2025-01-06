@@ -1,5 +1,5 @@
-
-
+// hierarchical polynomial regression model
+// this model works for predicting tva
 
 data {
   int<lower=1> N; // number of samples

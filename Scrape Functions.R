@@ -66,6 +66,7 @@ name_correction <- function(df){
         name == "Ezekiel Elliot" ~ "Ezekiel Elliott",
         name == "AJ Dillon" ~ "A.J. Dillon",
         name == "DJ Chark" ~ "D.J. Chark Jr.",
+        name == "D.J. Chark" ~ "D.J. Chark Jr.",
         name == "Odell Beckham" ~ "Odell Beckham Jr.",
         name == "Erick All" ~ "Erick All Jr.",
         name == "John Metchie" ~ "John Metchie III",
@@ -76,6 +77,9 @@ name_correction <- function(df){
         name == "Donald Parham" ~ "Donald Parham Jr.",
         name == "Frank Gore" ~ "Frank Gore Jr.", #player_id == "11573"
         name == "Terrace Marshall" ~ "Terrace Marshall Jr.",
+        name == "Marquise Brown" ~ "Hollywood Brown",
+        name == "Gabriel Davis" ~ "Gabe Davis",
+        name == "Jeffery Wilson" ~ "Jeff Wilson Jr.",
         .default = name))}
 
 # Sleeper API -------------------------------------------------------------

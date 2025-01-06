@@ -46,16 +46,16 @@ scale_this <- function(x) as.vector(scale(x))
 
 # runs bayesian hierarchical model to find parameters for
 # total value added polynomial regression model
-find_tva_parameters <- function(hktc_data){
-  y <- hktc_data %>% select(tva_adj) %>% pull()
+find_tva_parameters <- function(data){
+  y <- data %>% select(tva_adj) %>% pull()
   N <- length(y)
   
-  group <- hktc_data %>%
+  group <- data %>%
     transmute(position = as.factor(position) %>% as.numeric) %>%
     pull()
   J <- unique(group) %>% length()
   
-  X <- hktc_data %>%
+  X <- data %>%
     select(historical_value, age) %>%
     mutate(
       x1_2 = historical_value^2,
@@ -73,7 +73,7 @@ find_tva_parameters <- function(hktc_data){
                             N_new = N, X_new = X)
   
   hierarchical_fit <- stan(
-    file = here(data_path, "hierarchical.stan"),  # Path to Stan model file
+    file = here(data_path, "hierarchical_tva.stan"),  # Path to Stan model file
     data = hierarchical_data,                         # Data list
     iter = 6000,                         # Number of iterations
     chains = 6,                          # Number of chains
@@ -95,8 +95,73 @@ find_tva_parameters <- function(hktc_data){
   return(posterior_samples)
 }
 
-# tva model parameter values
+# tva model parameter values sample
 tva_parameter_values <- find_tva_parameters(hktc_data)
+
+# Predict Keep Trade Cut Value after season ends
+find_ktc_parameters <- function(data){
+  min_ktc <- min(data$ktc_value, na.rm = TRUE)
+  
+  # fill in NA ktc values
+  data <- data %>%
+    rowwise() %>% 
+    mutate(
+      ktc_value = case_when(
+        is.na(ktc_value) ~ runif(1, min = 0, max = min_ktc),
+        .default = ktc_value)) %>%
+    ungroup()
+  
+  y <- data %>% select(ktc_value) %>% pull()
+  N <- length(y)
+  
+  group <- data %>%
+    transmute(position = as.factor(position) %>% as.numeric) %>%
+    pull()
+  J <- unique(group) %>% length()
+  
+  X <- data %>%
+    select(historical_value, age, tva_adj) %>%
+    mutate(
+      x1_2 = historical_value^2,
+      x2_2 = age^2,
+      x1_x2 = historical_value*age,
+      x2_x3 = age*tva_adj,
+      across(everything(), ~.x %>% scale_this()),
+      intercept = 1) %>%
+    relocate(intercept) %>%
+    as.matrix()
+  
+  K <- ncol(X)
+  
+  hierarchical_data <- list(N = N, K = K, J = J, X = X, y = y,
+                            group = group,
+                            N_new = N, X_new = X)
+  
+  hierarchical_fit <- stan(
+    file = here(data_path, "hierarchical_ktc.stan"),  # Path to Stan model file
+    data = hierarchical_data,                         # Data list
+    iter = 6000,                         # Number of iterations
+    chains = 6,                          # Number of chains
+    seed = 123)                          # Seed for reproducibility
+  
+  # errors, but at this point its good enough. All the individual players converge
+  
+  # h_summary <- summary(hierarchical_fit)
+  
+  # a <- h_summary$summary[, "Rhat"]
+  # a[order(a)]
+  
+  # plot(hierarchical_fit)
+  # pairs(hierarchical_fit, pars = c("beta", "sigma"))
+  # traceplot(hierarchical_fit, pars = "sigma")
+  
+  posterior_samples <- rstan::extract(hierarchical_fit)
+  
+  return(posterior_samples)
+}
+
+# ktc model parameter values sample
+ktc_parameter_values <- find_ktc_parameters(hktc_data)
 
 # draw a new y value from the model with certain beta and sigma values
 draw_new_y <- function(beta_samples, sigma_samples, X_new, group) {
@@ -124,9 +189,13 @@ extract_new_samples <- function(parameter_samples, new_data_matrix, new_data_gro
   return(y_new_samples)
 }
 
-# projected tva values
+# projected tva values for 2025 season
+hktc_data %>%
+
 extract_new_samples(tva_parameter_values, X, group)
 
+# projected tva values
+extract_new_samples(tva_parameter_values, X, group)
 
 
 

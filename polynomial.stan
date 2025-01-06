@@ -1,4 +1,5 @@
-
+// polynomial regression model
+// this model is obsolete - sorry :/
 
 
 data {
@@ -19,7 +20,7 @@ parameters {
 model {
   // priors
   beta ~ normal(0, 5); // weakly informative prior
-  sigma ~ cauchy(0, 2.5); // weakly informative prior
+  sigma ~ student_t(3, 0, 1); // weakly informative prior
   
   // Likelihood
   y ~ normal(X * beta, sigma);

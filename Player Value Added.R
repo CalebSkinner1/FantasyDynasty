@@ -69,7 +69,8 @@ def_sleeper_points <- box_score_def %>%
   mutate(name = recode(name, "LA" = "LAR"))
 
 sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper_points) %>%
-  name_correction()
+  name_correction() %>%
+  filter(week != 18)
 
 # all 32 defenses
 defenses <- def_sleeper_points %>%
@@ -256,22 +257,20 @@ season_value_added <- value_added %>%
 
 season_value_added %>% print(n=30)
 
-value_added %>%
-  group_by(roster_id, position, name) %>%
-  summarize(total_value_added = sum(value_added)) %>%
-  ggplot() +
-  geom_jitter(aes(x = roster_id, y = total_value_added, color = position), width = .1, height = 0)
+# value_added %>%
+#   group_by(roster_id, position, name) %>%
+#   summarize(total_value_added = sum(value_added)) %>%
+#   ggplot() +
+#   geom_jitter(aes(x = roster_id, y = total_value_added, color = position), width = .1, height = 0)
 
-season_value_added %>%
-  ggplot() +
-  geom_violin(aes(position, total_value_added))
+# season_value_added %>%
+#   ggplot() +
+#   geom_violin(aes(position, total_value_added))
 
-season_value_added %>%
-  ggplot() +
-  geom_point(aes(x = total_points, y = total_value_added, color = position))
+# season_value_added %>%
+#   ggplot() +
+#   geom_point(aes(x = total_points, y = total_value_added, color = position))
 
-value_added %>%
-  filter(str_detect(name, "Swift"))
 
 # remove objects and functions to declutter environment
 rm(top_replacement, find_score, clean_replacements, super_flex, flex,
