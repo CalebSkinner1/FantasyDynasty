@@ -196,15 +196,22 @@ projections <- map(1:17, ~combine_week(.x)) %>%
 
 
 # instantaneous keep_trade_cut value
-keep_trade_cut <- map(0:9, ~str_c("https://keeptradecut.com/dynasty-rankings?page=", .x, "&filters=QB|WR|RB|TE|RDP&format=2") %>%
-      player_value()) %>%
-  rbindlist() %>%
-  as_tibble() %>%
-  mutate(value = as.numeric(value)) %>%
-  name_correction()
+ktc_rows <- 0
+
+while(ktc_rows != 500){
+  keep_trade_cut <- map(0:9, ~str_c("https://keeptradecut.com/dynasty-rankings?page=", .x, "&filters=QB|WR|RB|TE|RDP&format=2") %>%
+                          player_value()) %>%
+    rbindlist() %>%
+    as_tibble() %>%
+    mutate(value = as.numeric(value)) %>%
+    name_correction()
+  
+  ktc_rows <- keep_trade_cut %>% distinct(name) %>% nrow()
+}
+
 
 # periodically save
 # keep_trade_cut %>% write_csv(here(data_path, "ktc_value010525"))
 
 # remove objects and functions to declutter environment
-rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value)
+rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows)

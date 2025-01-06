@@ -46,6 +46,37 @@ scale_this <- function(x) as.vector(scale(x))
 
 # runs bayesian hierarchical model to find parameters for
 # total value added polynomial regression model
+prep_data_tva <- function(data){
+  matrix <- data %>%
+    select(historical_value, age) %>%
+    mutate(
+      x1_2 = historical_value^2,
+      x2_2 = age^2,
+      x1_x2 = historical_value*age,
+      across(everything(), ~.x %>% scale_this()),
+      intercept = 1) %>%
+    relocate(intercept) %>%
+    as.matrix()
+  
+  return(matrix)
+}
+
+prep_data_ktc <- function(data){
+  matrix <- data %>%
+    select(historical_value, age, tva_adj) %>%
+    mutate(
+      x1_2 = historical_value^2,
+      x2_2 = age^2,
+      x1_x2 = historical_value*age,
+      x2_x3 = age*tva_adj,
+      across(everything(), ~.x %>% scale_this()),
+      intercept = 1) %>%
+    relocate(intercept) %>%
+    as.matrix()
+  
+  return(matrix)
+}
+
 find_tva_parameters <- function(data){
   y <- data %>% select(tva_adj) %>% pull()
   N <- length(y)
@@ -56,15 +87,7 @@ find_tva_parameters <- function(data){
   J <- unique(group) %>% length()
   
   X <- data %>%
-    select(historical_value, age) %>%
-    mutate(
-      x1_2 = historical_value^2,
-      x2_2 = age^2,
-      x1_x2 = historical_value*age,
-      across(everything(), ~.x %>% scale_this()),
-      intercept = 1) %>%
-    relocate(intercept) %>%
-    as.matrix()
+    prep_data_tva()
   
   K <- ncol(X)
   
@@ -190,12 +213,41 @@ extract_new_samples <- function(parameter_samples, new_data_matrix, new_data_gro
 }
 
 # projected tva values for 2025 season
-hktc_data %>%
 
-extract_new_samples(tva_parameter_values, X, group)
+# this value is the group (position) for each player in the data set
+constant_group <- hktc_data %>%
+  transmute(position = as.factor(position) %>% as.numeric) %>%
+  pull()
+
+next_year <- function(data){
+  
+}
+
+tva_2025 <- hktc_data %>%
+  # assign random ktc value to players with super low ktc value
+  rowwise() %>% 
+  mutate(
+    ktc_value = case_when(
+      is.na(ktc_value) ~ runif(1, min = 0, max = min_ktc),
+      .default = ktc_value)) %>%
+  ungroup() %>%
+  mutate(historical_value = ktc_value,
+         age = age + 1) %>%
+  prep_data_tva() %>%
+  extract_new_samples(tva_parameter_values, ., constant_group)
+
+# project ktc values for after 2025 season
+ktc_2025 <- hktc_data %>%
+  # assign random ktc value to players with super low ktc value
+  rowwise() %>% 
+  mutate(
+    ktc_value = case_when(
+      is.na(ktc_value) ~ runif(1, min = 0, max = min_ktc),
+      .default = ktc_value)) %>%
+  ungroup() %>%
 
 # projected tva values
-extract_new_samples(tva_parameter_values, X, group)
+extract_new_samples(ktc_parameter_values, X, constant_group)
 
 
 
