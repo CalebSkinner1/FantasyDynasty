@@ -89,37 +89,26 @@ constant_group <- hktc_data %>%
   transmute(position = as.factor(position) %>% as.numeric) %>%
   pull()
 
-# takes about 25 minutes for 10000 observations
-tic()
-simulations <- hktc_data %>% simulate_future_value(15, 10000)
-toc()
+# takes about 27 minutes for 10000 observations
+# simulations <- hktc_data %>% simulate_future_value(15, 10000)
 # save(simulations, file = here(data_path, "Data/simulations.RData"))
 load(here(data_path, "Data/simulations.RData"))
 
 # now, I need to convert this list of each simulation into a list of each player with all their simulations
+player_simulations <- bind_rows(simulations, .id = "simulation_id") %>%
+  group_by(name) %>%
+  group_split()
 
-# Convert simulations to data.table for efficiency
-tic()
-simulations_dt <- lapply(simulations, as.data.table)
-toc()
-
-process_player <- function(player_name, simulations_dt) {
-  rbindlist(lapply(simulations_dt, function(sim) sim[name == player_name]))
-}
-
-tic()
-plan(multisession) # enable parallel procession
-player_simulations <- future_map(
-  names,
-  ~process_player(.x, simulations_dt),
-  .progress = TRUE,
-  .options = furrr_options(seed = TRUE)
-)
-toc()
-
-
-
-
+# compute median future value
+median_values <- map_dfr(player_simulations, ~.x %>%
+                           group_by(name) %>%
+                           summarize(
+                             median = median(future_value),
+                             sd = sd(future_value),
+                             mean = mean(future_value),
+                             q2.5 = quantile(future_value, .025),
+                             q97.5 = quantile(future_value, .975))) %>%
+  arrange(desc(median))
 
 
 # tic()

@@ -7,7 +7,6 @@
 
 # load data
 library("here")
-library("tidymodels")
 data_path <- "FantasyDynasty/"
 source(here(data_path, "Scraping.R")) #run data
 
@@ -80,7 +79,7 @@ defenses <- def_sleeper_points %>%
          position = "DST")
 
 # load player info
-player_info <- read_csv(here(data_path, "player_info.csv")) %>%
+player_info <- read_csv(here(data_path, "Data/player_info.csv")) %>%
   select(name, player_id, position, birth_date) %>%
   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
   # remove duplicate names
@@ -254,6 +253,8 @@ season_value_added <- value_added %>%
     total_value_added = sum(value_added),
     total_points = sum(points)) %>%
   arrange(desc(total_value_added))
+
+# write_csv(season_value_added, here(data_path, "Data/sva_2024.csv"))
 
 season_value_added %>% print(n=30)
 

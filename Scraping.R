@@ -63,7 +63,7 @@ draft_trades <- map(draft_trades, parse_api)
 #   rbindlist(fill = TRUE) %>%
 #   as_tibble()
 
-# write_csv(player_information, here(data_path, "player_info.csv"))
+# write_csv(player_information, here(data_path, "Data/player_info.csv"))
 
 rm(draft_urls)
 
@@ -183,15 +183,7 @@ projections <- map(1:17, ~combine_week(.x)) %>%
 #             724, 790, 493, 425, 1439, 731.8,
 #             172, 960, 902, 678.0))
 
-# bind_rows(t50, b51) %>% write_csv(here(data_path, "ktc_value082324"))
-
-
-
-
-
-
-
-
+# bind_rows(t50, b51) %>% write_csv(here(data_path, "Data/ktc_value082324"))
 
 # instantaneous keep_trade_cut value
 ktc_rows <- 0
