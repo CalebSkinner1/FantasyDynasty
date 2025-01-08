@@ -23,7 +23,7 @@ model {
   // priors
   mu_beta ~ normal(0, 10); // weakly informative prior
   tau_beta ~ student_t(3, 0, 1000); // weakly informative prior
-  sigma ~ student_t(3, 0, 2000); // weakly informative prior
+  sigma ~ student_t(3, 0, 1000); // weakly informative prior
   
   // Hierarchical priors for group-level coefficients
   for(j in 1:J){

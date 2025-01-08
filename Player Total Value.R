@@ -1,6 +1,8 @@
 # Future Value and Total Value
 library("rstan")
 library("here")
+library("tictoc")
+library("furrr")
 data_path <- "FantasyDynasty/"
 
 source(here(data_path, "Player Value Added.R")) # grab value added
@@ -221,12 +223,15 @@ ktc_parameter_values <- find_ktc_parameters(hktc_data)
 
 # draw a new y value from the model with certain beta and sigma values
 draw_new_y <- function(beta_samples, sigma_samples, X_new, group) {
+  # Randomly select a posterior sample index
+  sample_idx <- sample(seq_len(dim(beta_samples)[1]), 1)
+  
   # Choose a random sample of parameters from the posterior
-  beta_sample <- sample(beta_samples[group], 1)
-  sigma_sample <- sample(sigma_samples, 1)
+  beta_sample <- beta_samples[sample_idx, c(group), ] # sample row of betas
+  sigma_sample <- sigma_samples[sample_idx] # sample sigma
   
   # Generate the new outcome (y_new) based on the model
-  return(rnorm(1, mean = sum(X_new * beta_sample), sd = sigma_sample))
+  return(rnorm(1, mean = sum(X_new * beta_sample), sd = sigma_sample)) 
 }
 
 # extract new samples
@@ -253,6 +258,8 @@ constant_group <- hktc_data %>%
   pull()
 
 next_year <- function(data){
+  year <- year(data$birth_date[1] + dyears(data$age[1]))
+  
   min_ktc <- min(data$ktc_value, na.rm = TRUE)
   
   updated_data <- data %>%
@@ -262,41 +269,92 @@ next_year <- function(data){
       ktc_value = case_when(
         is.na(ktc_value) ~ runif(1, min = 0, max = min_ktc),
         .default = ktc_value)) %>%
-    ungroup()
+    ungroup() %>%
+    mutate(
+      # update values
+      historical_value = ktc_value,
+      age = age + 1)
   
   ny_tva <- updated_data %>%
-    mutate(historical_value = ktc_value,
-           age = age + 1) %>%
     prep_data_tva() %>%
-    extract_new_samples(tva_parameter_values, ., constant_group)
+    extract_new_samples(tva_parameter_values, ., constant_group) %>%
+    bind_cols(select(updated_data, ktc_value)) %>%
+    # ktc_value = 0 if retired/out, must stay out
+    mutate(value = if_else(ktc_value == 0, 0, value)) %>%
+    select(value)
   
-  ny_ktc <- updated_data %>% 
-    mutate(
-      historical_value = ktc_value,
-      age = age + 1) %>%
+  ny_ktc <- updated_data %>%
     prep_data_ktc() %>%
-    extract_new_samples(ktc_parameter_values, ., constant_group)
+    extract_new_samples(ktc_parameter_values, ., constant_group) %>%
+    bind_cols(select(updated_data, ktc_value)) %>%
+    # ktc_value = 0 if retired/out, must stay out
+    mutate(value = if_else(ktc_value == 0, 0, value)) %>%
+    select(value)
+  
+  # values are not on normal 9999 to 1 scale. I need to scale them to return
+  # this is ok because value is relative anyway
+  # conditional min-max scaling
+  
+  new_ny_ktc <- ny_ktc %>%
+    mutate(
+      # return 0s to 0. Interpret these as essentially done
+      value = if_else(value < 0, 0, value))
+  
+  # force max to 9999, allows for ktc value to drop, but not exceed
+  if(max(ny_ktc) > 9999){
+    new_ny_ktc <- new_ny_ktc %>% mutate(value = value * 9999/max(ny_ktc))}
+  
+  new_data <- updated_data %>%
+    select(name, position, birth_date, age, contains("proj_tva")) %>%
+    mutate(
+      tva_adj = ny_tva$value,
+      ktc_value = new_ny_ktc$value,
+      proj_tva = ny_tva$value) %>%
+    rename_with(~paste0(.x, "_", (year + 1)), ends_with("proj_tva")) %>%
+    relocate(contains("proj_tva"), .after = last_col())
+  
+  return(new_data)
 }
 
-# project ktc values for after 2025 season
-ktc_2025 <- hktc_data %>%
-  # assign random ktc value to players with super low ktc value
-  rowwise() %>% 
-  mutate(
-    ktc_value = case_when(
-      is.na(ktc_value) ~ runif(1, min = 0, max = min_ktc),
-      .default = ktc_value)) %>%
-  ungroup() %>%
-  mutate(
-    historical_value = ktc_value,
-    age = age + 1) %>%
-  prep_data_ktc() %>%
-  extract_new_samples(ktc_parameter_values, ., constant_group)
+next_years <- function(data, n_years){
+  for(i in 1:n_years){
+    data <- data %>% next_year()
+  }
+  final_df <- data %>% arrange(desc(ktc_value)) %>%
+    select(-tva_adj)
+  return(final_df)
+}
 
-# projected tva values
-extract_new_samples(ktc_parameter_values, X, constant_group)
+compile_future <- function(future_years_df){
+  
+  future_years <- future_years_df %>%
+    rowwise() %>%
+    mutate(
+      # cap total value added min at -20
+      across(contains("proj_tva"), ~pmax(.x, -20)),
+      future_value = sum(c_across(contains("proj_tva")))) %>%
+    ungroup() %>%
+    arrange(desc(future_value))
+  
+    return(future_years)
+}
 
+simulate_future_value <- function(data, n_years, simulations){
+  plan(multisession)
+  
+  future_values_list <- future_map(
+    1:simulations,
+    ~data %>%
+      next_years(n_years) %>%
+      compile_future(),
+    .progress = TRUE,
+    .options = furrr_options(seed = TRUE)
+  )
+  return(future_values_list)}
 
+tic()
+simlations <- hktc_data %>% simulate_future_value(15, 10000)
+toc()
 
 
 
