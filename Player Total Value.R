@@ -5,14 +5,15 @@ library("tictoc")
 library("furrr")
 data_path <- "FantasyDynasty/"
 
-source(here(data_path, "Scraping.R")) # grab data (this scrapes live ktc values) ~45 seconds
+# source(here(data_path, "Player Value Added.R")) # grab updated value added ~50 seconds
 source(here(data_path, "Player Total Value Functions.R")) # grab functions
-# source(here(data_path, "Player Value Added.R")) # grab value added
-season_value_added <- read_csv(here(data_path, "sva_2024")) #shortcut
+season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv")) # shortcut
+player_info <- read_csv(here(data_path, "Data/player_info.csv"))
+keep_trade_cut <- read_csv(here(data_path, "Data/ktc_value010825.csv"))
 
 # organize data sets
 
-historical_ktc <- read_csv(here(data_path,"ktc_value082324")) %>%
+historical_ktc <- read_csv(here(data_path,"Data/ktc_value082324.csv")) %>%
   filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
   name_correction() %>%
   group_by(name) %>%
@@ -71,26 +72,29 @@ sds <- summaries %>%
   select(contains("sd")) %>%
   unlist(use.names = FALSE)
 
+# tva model parameter values sample (can rerun or load from files)
 
+# tva_parameter_values <- find_tva_parameters(hktc_data) # OR
+# save(tva_parameter_values, file = here(data_path, "Data/tva_parameter_values.RData"))
+load(here(data_path, "Data/tva_parameter_values.RData"))
 
-# tva model parameter values sample
-tva_parameter_values <- find_tva_parameters(hktc_data)
 
 # ktc model parameter values sample
-ktc_parameter_values <- find_ktc_parameters(hktc_data)
+# ktc_parameter_values <- find_ktc_parameters(hktc_data) #OR
+# save(ktc_parameter_values, file = here(data_path, "Data/ktc_parameter_values.RData"))
+load(here(data_path, "Data/ktc_parameter_values.RData"))
 
 # this value is the group (position) for each player in the data set
 constant_group <- hktc_data %>%
   transmute(position = as.factor(position) %>% as.numeric) %>%
   pull()
 
-
-
 # takes about 25 minutes for 10000 observations
 tic()
 simulations <- hktc_data %>% simulate_future_value(15, 10000)
 toc()
-
+# save(simulations, file = here(data_path, "Data/simulations.RData"))
+load(here(data_path, "Data/simulations.RData"))
 
 # now, I need to convert this list of each simulation into a list of each player with all their simulations
 

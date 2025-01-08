@@ -6,7 +6,6 @@ library("httr")
 library("rvest")
 library("data.table")
 
-
 # Misc --------------------------------------------------------------------
 `%!in%` = Negate(`%in%`)
 

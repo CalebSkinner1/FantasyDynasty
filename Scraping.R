@@ -6,8 +6,6 @@ data_path <- "FantasyDynasty/"
 
 source(here(data_path, "Scrape Functions.R"))
 
-
-
 # load box score data from NFL 2024
 # https://www.nflfastr.com
 box_score_off <- load_player_stats(seasons = 2024, stat_type = "offense")
@@ -211,7 +209,7 @@ while(ktc_rows != 500){
 
 
 # periodically save
-# keep_trade_cut %>% write_csv(here(data_path, "ktc_value010525"))
+# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc_value010825.csv"))
 
 # remove objects and functions to declutter environment
 rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows)
