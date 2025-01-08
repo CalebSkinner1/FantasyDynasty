@@ -353,8 +353,31 @@ simulate_future_value <- function(data, n_years, simulations){
   return(future_values_list)}
 
 tic()
-simlations <- hktc_data %>% simulate_future_value(15, 10000)
+simulations <- hktc_data %>% simulate_future_value(15, 10000)
 toc()
+
+names <- season_value_added$name
+
+tic()
+simulation_splits <- future_map(simulations, ~split(.x, .x$name),
+                                .progress = TRUE,
+                                .options = furr_options(seed = TRUE))
+toc()
+
+
+tic()
+plan(multisession) # enable parallel procession
+
+player_simulations <- future_map(names, ~{
+  player_name = .x
+  map_dfr(simulation_splits, ~.x[[player_name]])},
+  .progress = TRUE,
+  .options = furrr_options(seed = TRUE)
+  )
+names(player_simulations) <- names
+toc()
+
+
 
 
 
