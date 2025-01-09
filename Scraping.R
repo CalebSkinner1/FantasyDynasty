@@ -17,6 +17,16 @@ box_score_def <- calculate_stats(summary_level = "week", stat_type = "team")
 
 league_id <- "1066207868321370112"
 
+# users
+users <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id, "/rosters")) %>%
+  select(owner_id, roster_id) %>%
+  left_join(
+    parse_api(str_c("https://api.sleeper.app/v1/league/", league_id, "/users")) %>%
+      select(display_name, user_id),
+    by = join_by(owner_id == user_id))
+
+# write_csv(users, here(data_path, "Data/users.csv"))
+
 # matchups CHECK
 matchups <- map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/matchups/", .x) %>%
                   parse_api())
@@ -41,13 +51,15 @@ draft_urls <- str_c("https://api.sleeper.app/v1/league/", league_id, "/drafts") 
   pull()
 
 # Get all draft trade urls for a league
-draft_trades <- draft_urls %>% str_replace("/picks", "/traded_picks")
+draft_trades_urls <- draft_urls %>% str_replace("/picks", "/traded_picks")
 
 # Get picks in a draft
 draft_picks <- map(draft_urls, parse_api)
+# save(draft_picks, file = here(data_path, "Data/draft_picks.RData"))
+
 
 # Get trades in a draft
-draft_trades <- map(draft_trades, parse_api)
+draft_trades <- map(draft_trades_urls, parse_api)
 
 # # player information
 # player_info2 <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
@@ -204,4 +216,5 @@ while(ktc_rows != 500){
 # keep_trade_cut %>% write_csv(here(data_path, "Data/ktc_value010825.csv"))
 
 # remove objects and functions to declutter environment
-rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows)
+rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
+   draft_trades_urls)

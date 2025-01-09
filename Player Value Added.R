@@ -8,7 +8,7 @@
 # load data
 library("here")
 data_path <- "FantasyDynasty/"
-source(here(data_path, "Scraping.R")) #run data
+source(here(data_path, "Scraping.R")) #run data ~45 seconds
 
 # Sleeper Score -----------------------------------------------------------
 
@@ -248,13 +248,29 @@ value_added <- map2(starters_revamp, weighted_mean_replacements, ~{
     rename(points = "starters_points") %>%
     select(roster_id, name, position, week, points, value_added)}) %>%
   rbindlist() %>%
-  as_tibble()
+  as_tibble() %>%
+  rename("sleeper_points" = "points") %>%
+  mutate(type = "starter") %>%
+  # add with bench players
+  bind_rows(
+    bind_rows(bench, .id = "week") %>%
+      select(-projection) %>%
+      mutate(week = as.numeric(week)) %>%
+      left_join(select(sleeper_points, -season), by = join_by(name, week)) %>%
+      mutate(
+        sleeper_points = replace_na(sleeper_points, 0),
+        # obviously they have 0 value added
+        value_added = 0)) %>%
+  # add projections
+  left_join(projections, by = join_by(name, week)) %>%
+  # give projected 0 if didn't play
+  mutate(projection = replace_na(projection, 0))
 
 season_value_added <- value_added %>%
   group_by(position, name) %>%
   summarize(
     total_value_added = sum(value_added),
-    total_points = sum(points)) %>%
+    total_points = sum(sleeper_points)) %>%
   arrange(desc(total_value_added))
 
 # write_csv(value_added, here(data_path, "Data/va_2024.csv"))
