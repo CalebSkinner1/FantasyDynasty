@@ -71,6 +71,9 @@ sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper
   name_correction() %>%
   filter(week != 18)
 
+# write_csv(sleeper_points, here(data_path, "Data/sleeper_points24.csv"))
+
+
 # all 32 defenses
 defenses <- def_sleeper_points %>%
   select(name) %>%
@@ -254,6 +257,7 @@ season_value_added <- value_added %>%
     total_points = sum(points)) %>%
   arrange(desc(total_value_added))
 
+# write_csv(value_added, here(data_path, "Data/va_2024.csv"))
 # write_csv(season_value_added, here(data_path, "Data/sva_2024.csv"))
 
 season_value_added %>% print(n=30)

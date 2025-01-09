@@ -3,13 +3,16 @@ library("rstan")
 library("here")
 library("tictoc")
 library("furrr")
+library("tidyverse")
 data_path <- "FantasyDynasty/"
 
 # source(here(data_path, "Player Value Added.R")) # grab updated value added ~50 seconds
 source(here(data_path, "Player Total Value Functions.R")) # grab functions
+source(here(data_path, "Scrape Functions.R")) # grab functions
 season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv")) # shortcut
-player_info <- read_csv(here(data_path, "Data/player_info.csv"))
-keep_trade_cut <- read_csv(here(data_path, "Data/ktc_value010825.csv"))
+player_info <- read_csv(here(data_path, "Data/player_info.csv")) # shortcut 
+keep_trade_cut <- read_csv(here(data_path, "Data/ktc_value010825.csv")) # shortcut
+sleeper_points <- read_csv(here(data_path, "Data/sleeper_points24.csv")) # shortcut
 
 # organize data sets
 
@@ -78,7 +81,6 @@ sds <- summaries %>%
 # save(tva_parameter_values, file = here(data_path, "Data/tva_parameter_values.RData"))
 load(here(data_path, "Data/tva_parameter_values.RData"))
 
-
 # ktc model parameter values sample
 # ktc_parameter_values <- find_ktc_parameters(hktc_data) #OR
 # save(ktc_parameter_values, file = here(data_path, "Data/ktc_parameter_values.RData"))
@@ -100,37 +102,36 @@ player_simulations <- bind_rows(simulations, .id = "simulation_id") %>%
   group_split()
 
 # compute median future value
-median_values <- map_dfr(player_simulations, ~.x %>%
-                           group_by(name) %>%
-                           summarize(
-                             median = median(future_value),
-                             sd = sd(future_value),
-                             mean = mean(future_value),
-                             q2.5 = quantile(future_value, .025),
-                             q97.5 = quantile(future_value, .975))) %>%
+median_values <- map_dfr(player_simulations, ~{
+  # weights for devaluing future
+  weights <- .95^(1:15)
+  data <- .x %>% select(contains("proj_tva"))
+  
+  .x %>%
+    # weighted future_value (each year is valued .99 of previous year)
+    mutate(
+      future_value = rowSums(data * weights)) %>%
+  group_by(name) %>%
+    summarize(
+      median = median(future_value),
+      sd = sd(future_value),
+      mean = mean(future_value),
+      q2.5 = quantile(future_value, .025),
+      q97.5 = quantile(future_value, .975))}) %>%
   arrange(desc(median))
 
+player_total_value <- median_values %>%
+  rename(future_value = median) %>%
+  select(name, future_value) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  left_join(season_value_added, by = join_by(name, position)) %>%
+  left_join(keep_trade_cut, by = join_by(name)) %>%
+  mutate(
+    sva_2024 = replace_na(total_value_added, 0),
+    ktc_value = value) %>%
+  select(name, player_id, birth_date, position, sva_2024, ktc_value, future_value)
 
-# tic()
-# plan(multisession) # enable parallel procession
-# simulation_splits <- future_map(simulations, ~split(.x, .x$name),
-#                                 .progress = TRUE,
-#                                 .options = furrr_options(seed = TRUE))
-# toc()
-# 
-# tic()
-# player_simulations <- future_map(names, ~{
-#   player_name = .x
-#   map_dfr(simulation_splits, ~.x[[player_name]])},
-#   .progress = TRUE,
-#   .options = furrr_options(seed = TRUE)
-#   )
-# names(player_simulations) <- names
-# toc()
-
-
-
-
+# write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
 
 # Older Methods --------------------------------------------------------
 
