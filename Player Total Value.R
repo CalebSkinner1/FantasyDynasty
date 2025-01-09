@@ -3,7 +3,7 @@ library("rstan")
 library("here")
 library("tictoc")
 library("furrr")
-library("tidyverse")
+library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
 # source(here(data_path, "Player Value Added.R")) # grab updated value added ~50 seconds
@@ -11,6 +11,7 @@ source(here(data_path, "Player Total Value Functions.R")) # grab functions
 source(here(data_path, "Scrape Functions.R")) # grab functions
 season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv")) # shortcut
 player_info <- read_csv(here(data_path, "Data/player_info.csv")) # shortcut 
+
 keep_trade_cut <- read_csv(here(data_path, "Data/ktc_value010825.csv")) # shortcut
 sleeper_points <- read_csv(here(data_path, "Data/sleeper_points24.csv")) # shortcut
 
@@ -26,7 +27,7 @@ historical_ktc <- read_csv(here(data_path,"Data/ktc_value082324.csv")) %>%
 hktc_data <- historical_ktc %>%
   rename("historical_value" = "value") %>%
   left_join(season_value_added, by = join_by(name)) %>%
-  select(-position, -total_points) %>%
+  select(-total_points) %>%
   mutate(
     total_value_added = replace_na(total_value_added, 0),
     # adjust total value added to account for two missing games
@@ -35,8 +36,8 @@ hktc_data <- historical_ktc %>%
       .default = total_value_added * 17/max(sleeper_points$week))) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   rename("ktc_value" = value) %>%
-  left_join(player_info, by = join_by(name)) %>%
-  select(-player_id) %>%
+  left_join(player_info, by = join_by(name, position)) %>%
+  select(-player_id, -position) %>%
   mutate(
     age = interval(birth_date, ymd("2024-08-23"))/years(1))
 
@@ -87,14 +88,28 @@ load(here(data_path, "Data/tva_parameter_values.RData"))
 load(here(data_path, "Data/ktc_parameter_values.RData"))
 
 # this value is the group (position) for each player in the data set
-constant_group <- hktc_data %>%
-  transmute(position = as.factor(position) %>% as.numeric) %>%
-  pull()
+# constant_group <- hktc_data %>%
+#   transmute(position = as.factor(position) %>% as.numeric) %>%
+#   pull()
 
 # takes about 27 minutes for 10000 observations
-# simulations <- hktc_data %>% simulate_future_value(15, 10000)
-# save(simulations, file = here(data_path, "Data/simulations.RData"))
-load(here(data_path, "Data/simulations.RData"))
+
+keep_trade_cut %>%
+  left_join(player_info, by = join_by(name)) %>%
+  group_by(name) %>%
+  summarize(c = n()) %>%
+  filter(c > 1)
+
+
+simulations <- keep_trade_cut %>%
+  rename(ktc_value = value) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  mutate(age = interval(birth_date, ymd("2024-08-23"))/years(1)) %>% #just because age needs to be age at this point in the season
+  select(name, position, ktc_value, birth_date, age) %>%
+  filter(position %in% c("QB", "RB", "WR", "TE")) %>%
+  simulate_future_value(15, 10000)
+save(simulations, file = here(data_path, "Data/simulations.RData"))
+# load(here(data_path, "Data/simulations.RData"))
 
 # now, I need to convert this list of each simulation into a list of each player with all their simulations
 player_simulations <- bind_rows(simulations, .id = "simulation_id") %>%
@@ -121,14 +136,20 @@ median_values <- map_dfr(player_simulations, ~{
   arrange(desc(median))
 
 player_total_value <- median_values %>%
+  full_join(season_value_added, by = join_by(name)) %>%
   rename(future_value = median) %>%
-  select(name, future_value) %>%
-  left_join(player_info, by = join_by(name)) %>%
-  left_join(season_value_added, by = join_by(name, position)) %>%
+  select(name, position, total_value_added, future_value) %>%
+  left_join(player_info, by = join_by(name, position)) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   mutate(
     sva_2024 = replace_na(total_value_added, 0),
-    ktc_value = value) %>%
+    ktc_value = case_when(
+      position %in% c("K", "DST") ~ 0,
+      .default = value),
+    future_value = case_when(
+      position %in% c("K", "DST") ~ 0,
+      is.na(future_value) ~ 0,
+      .default = future_value)) %>%
   select(name, player_id, birth_date, position, sva_2024, ktc_value, future_value)
 
 # write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))

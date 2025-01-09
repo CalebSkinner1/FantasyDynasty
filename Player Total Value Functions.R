@@ -190,6 +190,10 @@ next_year <- function(data){
       historical_value = ktc_value,
       age = age + 1)
   
+  constant_group <- updated_data %>%
+    transmute(position = as.factor(position) %>% as.numeric) %>%
+    pull()
+  
   ny_tva <- updated_data %>%
     prep_data_tva() %>%
     extract_new_samples(tva_parameter_values, ., constant_group) %>%

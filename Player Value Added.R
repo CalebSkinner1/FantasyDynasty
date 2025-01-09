@@ -73,7 +73,6 @@ sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper
 
 # write_csv(sleeper_points, here(data_path, "Data/sleeper_points24.csv"))
 
-
 # all 32 defenses
 defenses <- def_sleeper_points %>%
   select(name) %>%
@@ -94,6 +93,8 @@ player_info <- read_csv(here(data_path, "Data/player_info.csv")) %>%
   distinct() %>%
   bind_rows(defenses) %>%
   name_correction()
+
+# write_csv(player_info, here(data_path, "Data/player_info.csv"))
 
 # Find Value at Replacement -----------------------------------------------
 
@@ -263,7 +264,7 @@ value_added <- map2(starters_revamp, weighted_mean_replacements, ~{
         value_added = 0)) %>%
   # add projections
   left_join(projections, by = join_by(name, week)) %>%
-  # give projected 0 if didn't play
+  # give projected 0 if not present
   mutate(projection = replace_na(projection, 0))
 
 season_value_added <- value_added %>%
