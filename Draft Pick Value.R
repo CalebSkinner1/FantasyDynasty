@@ -13,7 +13,8 @@ player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv")) %
   mutate(
     total_value = sva_2024 + future_value,
     player_id = as.character(player_id)) %>%
-  select(name, player_id, position, total_value, sva_2024)
+  select(name, player_id, position, total_value, sva_2024, contains("ny"))
+player_info <- read_csv(here(data_path, "Data/player_info.csv"))
 
 # find value of all players in rookie drafts
 rookie_drafts <- bind_rows(draft_picks, .id = "draft_id") %>%
@@ -28,7 +29,9 @@ rookie_drafts <- bind_rows(draft_picks, .id = "draft_id") %>%
   left_join(player_total_value %>% select(-player_id, -position), by = join_by(name)) %>%
   mutate(
     total_value = replace_na(total_value, 0),
-    sva_2024 = replace_na(sva_2024, 0))
+    sva_2024 = replace_na(sva_2024, 0),
+    ny = replace_na(ny, 0),
+    ny2 = replace_na(ny2, 0))
 
 rookie_drafts %>%
   ggplot() +
@@ -54,7 +57,7 @@ tv_fit %>% augment(rookie_drafts) %>%
   geom_point(aes(y = total_value)) +
   geom_line(aes(y = .pred))
 
-# plot residuals against pick_no
+# plot residuals against pick_no, looks ok enough
 tv_fit %>%
   augment(rookie_drafts) %>%
   ggplot(aes(x = pick_no)) +
@@ -66,7 +69,7 @@ tv_fit %>%
 rec_va <- recipe(sva_2024 ~ pick_no, data = rookie_drafts) %>%
   step_mutate(pick_no2 = sqrt(pick_no))
 
-va_wf<- workflow() %>%
+va_wf <- workflow() %>%
   add_model(lm_spec) %>%
   add_recipe(rec_va)
 
@@ -153,7 +156,7 @@ rookie_draft_values <- augment(tv_fit, new_data = tibble(pick_no = 1:36)) %>%
   rename(exp_value_added_ny3 = .pred) %>%
   relocate(pick_no)
 
-write_csv(rookie_draft_values, here(data_path, "Data/rookie_draft_values.csv"))
+# write_csv(rookie_draft_values, here(data_path, "Data/rookie_draft_values.csv"))
 
 
 

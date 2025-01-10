@@ -93,7 +93,7 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
     type = if_else(season_id == 1, "veteran", "rookie")) %>%
   select(-season_id)
 
-# # player information don't run a lot because it takes a lot of time/memory
+# player information don't run a lot because it takes a lot of time/memory
 # player_info2 <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
 # 
 # player_information <- map(player_info2, ~{
@@ -106,10 +106,32 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
 #     weight = .x$weight)}) %>%
 #   rbindlist(fill = TRUE) %>%
 #   as_tibble()
-
-# UPDATED AGAIN LATER in Player Value Added.R FIX!
-
-# write_csv(player_information, here(data_path, "Data/player_info.csv"))
+# 
+# # all 32 defenses
+# defenses <- box_score_def %>%
+#   rename(name = team) %>%
+#   select(name) %>%
+#   distinct() %>%
+#   mutate(
+#     name = recode(name, "LA" = "LAR"),
+#     player_id = name,
+#     position = "DST")
+# 
+# # load player info
+# player_info <- player_information %>%
+#   select(name, player_id, position, birth_date) %>%
+#   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
+#   # remove duplicate names
+#   filter(player_id != 4634, player_id != 748, player_id != 232) %>%
+#   mutate(
+#     position = case_when(
+#       name == "Taysom Hill" ~ "TE",
+#       .default = position)) %>%
+#   distinct() %>%
+#   bind_rows(defenses) %>%
+#   name_correction()
+# 
+# write_csv(player_info, here(data_path, "Data/player_info.csv"))
 
 rm(draft_urls)
 

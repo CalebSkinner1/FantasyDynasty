@@ -73,29 +73,6 @@ sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper
 
 # write_csv(sleeper_points, here(data_path, "Data/sleeper_points24.csv"))
 
-# all 32 defenses
-defenses <- def_sleeper_points %>%
-  select(name) %>%
-  distinct() %>%
-  mutate(player_id = name,
-         position = "DST")
-
-# load player info
-player_info <- read_csv(here(data_path, "Data/player_info.csv")) %>%
-  select(name, player_id, position, birth_date) %>%
-  filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
-  # remove duplicate names
-  filter(player_id != 4634, player_id != 748, player_id != 232) %>%
-  mutate(
-    position = case_when(
-      name == "Taysom Hill" ~ "TE",
-      .default = position)) %>%
-  distinct() %>%
-  bind_rows(defenses) %>%
-  name_correction()
-
-# write_csv(player_info, here(data_path, "Data/player_info.csv"))
-
 # Find Value at Replacement -----------------------------------------------
 
 # get projections in list format

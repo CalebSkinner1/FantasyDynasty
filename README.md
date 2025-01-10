@@ -18,6 +18,10 @@ They are listed roughly in order of creation.
 
 # Scraping
 
+These two files host most of the web scraping and data wrangling I employ to obtain the data in this project.
+For convenience, I place functions in Scrape Functions. First, I use nflfastR to obtain box score data for the players.
+
+
 # Player Value Added
 
 # Player Total Value
@@ -31,6 +35,8 @@ They are listed roughly in order of creation.
 # Fantasy Teams
 
 # References
+
+1. [NFL Box Score Data](https://www.nflfastr.com)
 
 # weekly update
 

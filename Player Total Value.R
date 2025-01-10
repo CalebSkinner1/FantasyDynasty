@@ -105,9 +105,9 @@ sim_df <- keep_trade_cut %>%
   select(name, position, ktc_value, birth_date, age) %>%
   filter(position %in% c("QB", "RB", "WR", "TE"))
 
-simulations <- sim_df %>% simulate_future_value(15, 10000)
-save(simulations, file = here(data_path, "Data/simulations.RData"))
-# load(here(data_path, "Data/simulations.RData"))
+# simulations <- sim_df %>% simulate_future_value(15, 10000)
+# save(simulations, file = here(data_path, "Data/simulations.RData"))
+load(here(data_path, "Data/simulations.RData"))
 
 # now, I need to convert this list of each simulation into a list of each player with all their simulations
 player_simulations <- bind_rows(simulations, .id = "simulation_id") %>%
@@ -156,7 +156,7 @@ player_total_value <- median_values %>%
       .default = future_value)) %>%
   select(name, player_id, birth_date, position, sva_2024, ktc_value, future_value, contains("ny"))
 
-# write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
+write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
 
 # Older Methods --------------------------------------------------------
 
