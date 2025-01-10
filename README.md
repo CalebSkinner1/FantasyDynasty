@@ -20,6 +20,16 @@ They are listed roughly in order of creation.
 
 # Player Value Added
 
+# Player Total Value
+
+## Stan Files
+
+# Draft Pick Value
+
+# Individual Players
+
+# Fantasy Teams
+
 # References
 
 # weekly update
