@@ -114,14 +114,16 @@ player_simulations <- bind_rows(simulations, .id = "simulation_id") %>%
   group_by(name) %>%
   group_split()
 
-# compute median future value
+# compute median future value, only keep next 8 years
 median_values <- map_dfr(player_simulations, ~{
   # weights for devaluing future
-  weights <- .95^(1:15)
-  data <- .x %>% select(contains("proj_tva"))
+  weights <- .95^(1:8)
+  data <- .x %>%
+    # select(contains("proj_tva")) %>%
+    select(proj_tva_2025:proj_tva_2032)
   
   .x %>%
-    # weighted future_value (each year is valued .99 of previous year)
+    # weighted future_value (each year is valued .95 of previous year)
     mutate(
       future_value = rowSums(data * weights)) %>%
   group_by(name) %>%
@@ -130,13 +132,17 @@ median_values <- map_dfr(player_simulations, ~{
       sd = sd(future_value),
       mean = mean(future_value),
       q2.5 = quantile(future_value, .025),
-      q97.5 = quantile(future_value, .975))}) %>%
+      q97.5 = quantile(future_value, .975)) %>%
+    mutate(
+      ny = median(data[,1] %>% pull()),
+      ny2 = median(data[,2] %>% pull()))
+    }) %>%
   arrange(desc(median))
 
 player_total_value <- median_values %>%
   full_join(season_value_added, by = join_by(name)) %>%
   rename(future_value = median) %>%
-  select(name, position, total_value_added, future_value) %>%
+  select(name, position, total_value_added, future_value, contains("ny")) %>%
   left_join(player_info, by = join_by(name, position)) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   mutate(
@@ -148,7 +154,7 @@ player_total_value <- median_values %>%
       position %in% c("K", "DST") ~ 0,
       is.na(future_value) ~ 0,
       .default = future_value)) %>%
-  select(name, player_id, birth_date, position, sva_2024, ktc_value, future_value)
+  select(name, player_id, birth_date, position, sva_2024, ktc_value, future_value, contains("ny"))
 
 # write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
 

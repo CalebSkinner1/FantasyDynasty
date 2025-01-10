@@ -172,9 +172,6 @@ extract_new_samples <- function(parameter_samples, new_data_matrix, new_data_gro
   return(y_new_samples)
 }
 
-extract_new_samples(tva_parameter_values, updated_data %>% prep_data_tva(), constant_group)
-
-
 next_year <- function(data){
   year <- year(data$birth_date[1] + dyears(data$age[1])) - 1
   
@@ -219,12 +216,16 @@ next_year <- function(data){
   
   new_ny_ktc <- ny_ktc %>%
     mutate(
-      # return 0s to 0. Interpret these as essentially done
-      value = if_else(value < 0, 0, value))
+      # return 0s to 0. Interpret these as essentially retired
+      value = case_when(
+        value < 0 ~ 0,
+        value > 9999 ~ 9999, # cap ktc at 9999
+        .default = value
+        ))
   
   # force max to 9999, allows for ktc value to drop, but not exceed
-  if(max(ny_ktc) > 9999){
-    new_ny_ktc <- new_ny_ktc %>% mutate(value = value * 9999/max(ny_ktc))}
+  # if(max(ny_ktc) > 9999){
+  #   new_ny_ktc <- new_ny_ktc %>% mutate(value = value * 9999/max(ny_ktc))}
   
   new_data <- updated_data %>%
     select(name, position, birth_date, age, contains("proj_tva")) %>%
