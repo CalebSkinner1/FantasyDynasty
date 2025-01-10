@@ -36,8 +36,9 @@ hktc_data <- historical_ktc %>%
       .default = total_value_added * 17/max(sleeper_points$week))) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   rename("ktc_value" = value) %>%
-  left_join(player_info, by = join_by(name, position)) %>%
-  select(-player_id, -position) %>%
+  select(-position) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  select(-player_id) %>%
   mutate(
     age = interval(birth_date, ymd("2024-08-23"))/years(1))
 
@@ -94,20 +95,17 @@ load(here(data_path, "Data/ktc_parameter_values.RData"))
 
 # takes about 27 minutes for 10000 observations
 
-keep_trade_cut %>%
-  left_join(player_info, by = join_by(name)) %>%
-  group_by(name) %>%
-  summarize(c = n()) %>%
-  filter(c > 1)
+# NEED TO FIX THESE
 
-
-simulations <- keep_trade_cut %>%
+sim_df <- keep_trade_cut %>%
   rename(ktc_value = value) %>%
   left_join(player_info, by = join_by(name)) %>%
-  mutate(age = interval(birth_date, ymd("2024-08-23"))/years(1)) %>% #just because age needs to be age at this point in the season
+  mutate(
+    age = interval(birth_date, ymd("2025-08-23"))/years(1)) %>% # just because age needs to be age at this point in the season
   select(name, position, ktc_value, birth_date, age) %>%
-  filter(position %in% c("QB", "RB", "WR", "TE")) %>%
-  simulate_future_value(15, 10000)
+  filter(position %in% c("QB", "RB", "WR", "TE"))
+
+simulations <- sim_df %>% simulate_future_value(15, 10000)
 save(simulations, file = here(data_path, "Data/simulations.RData"))
 # load(here(data_path, "Data/simulations.RData"))
 

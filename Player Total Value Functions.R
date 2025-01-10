@@ -172,8 +172,11 @@ extract_new_samples <- function(parameter_samples, new_data_matrix, new_data_gro
   return(y_new_samples)
 }
 
+extract_new_samples(tva_parameter_values, updated_data %>% prep_data_tva(), constant_group)
+
+
 next_year <- function(data){
-  year <- year(data$birth_date[1] + dyears(data$age[1]))
+  year <- year(data$birth_date[1] + dyears(data$age[1])) - 1
   
   min_ktc <- min(data$ktc_value, na.rm = TRUE)
   
@@ -187,8 +190,7 @@ next_year <- function(data){
     ungroup() %>%
     mutate(
       # update values
-      historical_value = ktc_value,
-      age = age + 1)
+      historical_value = ktc_value)
   
   constant_group <- updated_data %>%
     transmute(position = as.factor(position) %>% as.numeric) %>%
@@ -203,6 +205,7 @@ next_year <- function(data){
     select(value)
   
   ny_ktc <- updated_data %>%
+    mutate(tva_adj = ny_tva$value) %>%
     prep_data_ktc() %>%
     extract_new_samples(ktc_parameter_values, ., constant_group) %>%
     bind_cols(select(updated_data, ktc_value)) %>%
@@ -228,7 +231,8 @@ next_year <- function(data){
     mutate(
       tva_adj = ny_tva$value,
       ktc_value = new_ny_ktc$value,
-      proj_tva = ny_tva$value) %>%
+      proj_tva = ny_tva$value,
+      age = age + 1) %>%
     rename_with(~paste0(.x, "_", (year + 1)), ends_with("proj_tva")) %>%
     relocate(contains("proj_tva"), .after = last_col())
   
