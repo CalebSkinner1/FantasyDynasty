@@ -156,7 +156,7 @@ player_total_value <- median_values %>%
       .default = future_value)) %>%
   select(name, player_id, birth_date, position, sva_2024, ktc_value, future_value, contains("ny"))
 
-write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
+# write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
 
 # Older Methods --------------------------------------------------------
 

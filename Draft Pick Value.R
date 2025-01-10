@@ -11,7 +11,7 @@ data_path <- "FantasyDynasty/"
 load(here(data_path, "Data/draft_picks.RData"))
 player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv")) %>%
   mutate(
-    total_value = sva_2024 + future_value,
+    total_value = sva_2024 + future_value*.95, # devalue the future
     player_id = as.character(player_id)) %>%
   select(name, player_id, position, total_value, sva_2024, contains("ny"))
 player_info <- read_csv(here(data_path, "Data/player_info.csv"))
@@ -157,8 +157,6 @@ rookie_draft_values <- augment(tv_fit, new_data = tibble(pick_no = 1:36)) %>%
   relocate(pick_no)
 
 # write_csv(rookie_draft_values, here(data_path, "Data/rookie_draft_values.csv"))
-
-
 
 
 

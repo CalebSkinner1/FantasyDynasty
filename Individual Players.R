@@ -12,7 +12,6 @@ season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv"))
 users <- read_csv(here(data_path, "Data/users.csv")) %>%
   select(-owner_id)
 
-
 # plots players median future value over next fifteen years
 plot_future_value <- function(enter_name){
   bind_rows(simulations, .id = "simulation_id") %>%
@@ -50,8 +49,9 @@ plot_future_value <- function(enter_name){
 
 # examples:
 
-plot_future_value("Josh Allen")
-plot_future_value("Amon-Ra St. Brown")
+# plot_future_value("Josh Allen")
+# plot_future_value("Amon-Ra St. Brown")
+# plot_future_value("Caleb Williams")
 # plot_future_value("Trey Benson")
 # plot_future_value("Bijan Robinson")
 # plot_future_value("Malik Nabers")
