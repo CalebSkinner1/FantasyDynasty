@@ -90,8 +90,10 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
     season = case_when(
       season_id < 3 ~ 2024,
       .default = 2022 + season_id),
-    type = if_else(season_id == 1, "veteran", "rookie")) %>%
+    type = if_else(season_id == 2, "veteran", "rookie")) %>%
   select(-season_id)
+
+# write_csv(draft_order, here(data_path, "Data/draft_order.csv"))
 
 # player information don't run a lot because it takes a lot of time/memory
 # player_info2 <- parse_api_list("https://api.sleeper.app/v1/players/nfl")

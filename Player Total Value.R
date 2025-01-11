@@ -142,8 +142,8 @@ median_values <- map_dfr(player_simulations, ~{
 player_total_value <- median_values %>%
   full_join(season_value_added, by = join_by(name)) %>%
   rename(future_value = median) %>%
-  select(name, position, total_value_added, future_value, contains("ny")) %>%
-  left_join(player_info, by = join_by(name, position)) %>%
+  select(name, total_value_added, future_value, contains("ny")) %>%
+  left_join(player_info, by = join_by(name)) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   mutate(
     sva_2024 = replace_na(total_value_added, 0),
