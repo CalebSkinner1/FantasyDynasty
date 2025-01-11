@@ -25,8 +25,6 @@ position_levels <- c("QB", "RB", "WR", "TE", "K", "DST")
 
 future_draft_picks <- read_csv(here(data_path, "Data/future_draft_picks.csv"))
 
-
-
 # picks that we known the draft order
 known_draft_picks <- future_draft_picks %>%
   filter(!is.na(draft_order)) %>%
@@ -53,6 +51,8 @@ unknown_draft_picks <- future_draft_picks %>%
   filter(is.na(draft_order)) %>%
   left_join(exp_draft_values, by = join_by(season, round, pick_slot == roster_id)) %>%
   select(roster_id, season, round, exp_total_value, pick_slot)
+
+# write_csv(unknown_draft_picks, here(data_path, "Data/unknown_draft_picks.csv"))
 
 # draft picks
 draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) %>%

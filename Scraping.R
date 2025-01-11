@@ -52,9 +52,11 @@ matchups <- map(all_league_ids, ~{
 transactions <- map(all_league_ids, ~{
   league_id <- .x
   map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/transactions/", .x) %>%
-                      parse_api())
-  })
-# transactions[[10]] %>% filter(type == "trade") %>% select(draft_picks)
+                      parse_api)
+  }) %>%
+  bind_rows()
+
+# save(transactions, file = here(data_path, "Data/transactions.RData"))
 
 # drafts CHECK
 

@@ -118,7 +118,6 @@ ny2_fit %>%
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
 
-
 # Polynomial Regression - 3 Years Value Added -----------------------------
 
 # this is kinda confusing, from perspective of rookie_drafts, ny2 is three years after drafted
