@@ -44,7 +44,9 @@ For convenience, I place functions in Scrape Functions. First, I use nflfastR to
 
 # future goals
 1. zero-inflated model to predict value added (especially for rookie next year production)
-2. use bayesian model to predict rookie values (allow for variation when drawing samples)
+2. update bayesian model with correct hyperpriors (https://arxiv.org/pdf/2110.10565)
+3. use bayesian model to predict rookie values (allow for variation when drawing samples)
+
 
 
 # To Do

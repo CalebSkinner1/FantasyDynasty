@@ -52,7 +52,10 @@ unknown_draft_picks <- future_draft_picks %>%
   left_join(exp_draft_values, by = join_by(season, round, pick_slot == roster_id)) %>%
   select(roster_id, season, round, exp_total_value, pick_slot)
 
-# write_csv(unknown_draft_picks, here(data_path, "Data/unknown_draft_picks.csv"))
+future_draft_pick_values <- known_draft_picks %>% select(-roster_id) %>%
+  bind_rows(unknown_draft_picks)
+
+# write_csv(future_draft_pick_values, here(data_path, "Data/future_draft_pick_values.csv"))
 
 # draft picks
 draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) %>%
