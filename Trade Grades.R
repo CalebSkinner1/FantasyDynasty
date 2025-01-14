@@ -186,6 +186,8 @@ comparison %>%
 # what is trade 9
 total_trade_value[[9]]
 
+# what is trade 20
+total_trade_value[[20]]
 
 # by fantasy owner
 overall_trade_winners <- comparison %>%
