@@ -17,13 +17,12 @@ player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"))
 value_added <- read_csv(here(data_path, "Data/va_2024.csv"))
 draft_order <- read_csv(here(data_path, "Data/draft_order.csv"))
 
-
+# references
 player_info <- read_csv(here(data_path, "Data/player_info.csv")) %>%
   select(-birth_date)
+users <- read_csv(here(data_path, "Data/users.csv")) %>%
+  select(-owner_id)
 
-temp <- transactions %>%
-  filter(type == "trade") %>%
-  split(seq_len(nrow(.)))
 
 realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
   group_by(draft_id) %>%
@@ -36,10 +35,11 @@ realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
   left_join(draft_order %>% filter(type == "rookie"), by = join_by(season, draft_slot == draft_order)) %>%
   rename(original_owner = roster_id.y) %>%
   select(season, round, player_id, original_owner)
-  
 
-
-total_trade_value <- map(temp, ~{
+total_trade_value <- transactions %>%
+  filter(type == "trade") %>%
+  split(seq_len(nrow(.))) %>%
+  map(., ~{
   this_week <- .x$week %>% as.numeric() #week of transaction
   
   # gained
@@ -63,7 +63,8 @@ total_trade_value <- map(temp, ~{
   total_player_value_gained <- adds %>%
     left_join(player_total_value, by = join_by(player_id)) %>% # future value
     select(roster_id, name, position, future_value) %>%
-    left_join(realized_value_gained, by = join_by(name, position))
+    left_join(realized_value_gained, by = join_by(name, position)) %>%
+    mutate(realized_value = replace_na(realized_value, 0)) # if no realized value
   
   # lost
   drops <- .x$drops %>%
@@ -86,7 +87,8 @@ total_trade_value <- map(temp, ~{
   total_player_value_lost <- drops %>%
     left_join(player_total_value, by = join_by(player_id)) %>% # future value
     select(roster_id, name, position, future_value) %>%
-    left_join(realized_value_lost, by = join_by(name, position))
+    left_join(realized_value_lost, by = join_by(name, position)) %>%
+    mutate(realized_value = replace_na(realized_value, 0)) # if no realized value
   
   traded_picks0 <- .x$draft_picks[[1]]
   
@@ -183,11 +185,8 @@ comparison <- map(total_trade_value,
 comparison %>%
   arrange(desc(total_trade_value))
 
-# what is trade 9
-total_trade_value[[9]]
-
-# what is trade 20
-total_trade_value[[20]]
+total_trade_value[[9]] # what is trade 9
+total_trade_value[[20]] # what is trade 20
 
 # by fantasy owner
 overall_trade_winners <- comparison %>%
