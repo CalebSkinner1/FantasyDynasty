@@ -44,8 +44,11 @@ For convenience, I place functions in Scrape Functions. First, I use nflfastR to
 
 # future goals
 1. zero-inflated model to predict value added (especially for rookie next year production)
-2. update bayesian model with correct hyperpriors (https://arxiv.org/pdf/2110.10565)
-3. use bayesian model to predict rookie values (allow for variation when drawing samples)
+2. update hierarchical model with correct hyperpriors (https://arxiv.org/pdf/2110.10565)
+3. box-cox transformation for hierarchical model? (age, hktc_value)
+4. posterior predictive check for hierarchical model
+5. use bayesian model to predict rookie values (allow for variation when drawing samples)
+
 
 
 
@@ -53,9 +56,6 @@ For convenience, I place functions in Scrape Functions. First, I use nflfastR to
 
 ## content
 1. fantasy teams
-2. draft grades
-3. trade grades
-4. transaction grades
 
 ## website
 1. shiny stuff

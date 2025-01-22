@@ -16,8 +16,7 @@ users <- read_csv(here(data_path, "Data/users.csv")) %>%
 
 player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv")) %>%
   select(name, player_id, birth_date, position, sva_2024, future_value) %>%
-  mutate(total_value = sva_2024 + .95*future_value) %>% # devalue future
-  select(-sva_2024, -future_value)
+  mutate(total_value = sva_2024 + .95*future_value) # devalue future
 player_info <- read_csv(here(data_path, "Data/player_info.csv"))
 
 # because drafting a kicker gave rookie draft order, I need to account for the rookie draft order
@@ -49,10 +48,11 @@ draft_values <- map(draft_picks, ~{
     left_join(player_info, by = join_by(player_id)) %>%
     select(player_id, roster_id, draft_slot, name, position) %>% 
     left_join(player_total_value, by = join_by(player_id, name, position)) %>%
+    rename(realized_value = sva_2024) %>%
     mutate(
       pick_no = row_number(),
-      total_value = replace_na(total_value, 0)) %>%
-    select(roster_id, pick_no, name, position, total_value)
+      across(contains("_value"), ~replace_na(., 0))) %>%
+    select(roster_id, pick_no, name, position, realized_value, future_value, total_value)
   
   if(nrow(draft_values) > 50){
     kicker_selected <- draft_values %>% filter(position == "K") %>%
@@ -124,7 +124,8 @@ initial_draft_expectations <- init_fit %>% augment(initial_draft_data) %>%
 # best picks - lol we vastly undervalued rookie picks
 init_vs_expectation <- draft_values[[2]] %>%
   group_by(pick_no) %>%
-  summarize(total_value = sum(total_value)) %>%
+  summarize(
+    total_value = sum(total_value)) %>%
   left_join(
     draft_values[[2]] %>%
       group_by(pick_no) %>%
@@ -138,16 +139,17 @@ init_vs_expectation <- draft_values[[2]] %>%
       .default = total_value)) %>%
   left_join(initial_draft_expectations, by = join_by(pick_no)) %>%
   mutate(value_over_expected = total_value - exp_total_value) %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  select(display_name, pick_no, name, position, total_value, value_over_expected)
+  select(roster_id, pick_no, name, position, realized_value, future_value, total_value, value_over_expected)
 
 # best picks- lol we vastly undervalued rookie picks
 init_vs_expectation %>% 
   arrange(desc(value_over_expected)) %>%
   slice(1:30) %>%
+  left_join(users, by = join_by(roster_id)) %>%
+  select(-roster_id) %>%
   gt() %>%
   gt_theme_538() %>%
-  fmt_number(columns = c(value_over_expected, total_value), decimals = 2) %>%
+  fmt_number(columns = c(realized_value, future_value, value_over_expected, total_value), decimals = 2) %>%
   cols_label(display_name = "Team Name", pick_no = "Pick", total_value = "total value",
              value_over_expected = "Value Over Expected") %>%
   tab_header(title = "Best Picks")
@@ -156,6 +158,8 @@ init_vs_expectation %>%
 init_vs_expectation %>% 
   arrange(value_over_expected) %>%
   slice(1:30) %>%
+  left_join(users, by = join_by(roster_id)) %>%
+  select(-roster_id) %>%
   gt() %>%
   gt_theme_538() %>%
   fmt_number(columns = c(value_over_expected, total_value), decimals = 2) %>%
@@ -167,21 +171,29 @@ init_vs_expectation %>%
 initial_draft_value <- draft_values[[2]] %>%
   group_by(roster_id) %>%
   summarize(
-    total_draft_value = sum(total_value)) %>%
+    total_draft_value = sum(total_value),
+    total_realized_value = sum(realized_value, na.rm = TRUE),
+    total_future_value = sum(future_value, na.rm = TRUE)) %>%
   left_join(users, by = join_by(roster_id)) %>%
   arrange(desc(total_draft_value))
 
-# rookie draft rankings
-rookie_draft_value <- draft_values[-2] %>%
+# rookie draft individual picks vs expectation
+rookie_vs_expecations <- draft_values[-2] %>%
   map(~{
     .x %>%
       left_join(rookie_draft_pick_values, by = join_by(pick_no)) %>%
-      mutate(value_over_expected = total_value - exp_total_value) %>%
+      mutate(value_over_expected = total_value - exp_total_value)})
+
+# rookie draft rankings
+rookie_draft_value <- rookie_vs_expecations %>%
+  map(~{
+    .x %>%
       group_by(roster_id) %>%
       summarize(
         value_over_expected = sum(value_over_expected),
-        total_draft_value = sum(total_value)
-      ) %>%
+        total_draft_value = sum(total_value),
+        total_realized_value = sum(realized_value),
+        total_future_value = sum(future_value)) %>%
       left_join(users, by = join_by(roster_id)) %>%
       arrange(desc(value_over_expected))
   })
@@ -196,4 +208,3 @@ bind_rows(rookie_draft_value) %>%
   fmt_number(columns = value_over_expected, decimals = 2) %>%
   cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected") %>%
   tab_header(title = "Draft Grades")
-
