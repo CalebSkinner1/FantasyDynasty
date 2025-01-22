@@ -42,7 +42,7 @@ For convenience, I place functions in Scrape Functions. First, I use nflfastR to
 
 # yearly update
 
-# future goals
+# future goals/updates
 1. zero-inflated model to predict value added (especially for rookie next year production)
 2. update hierarchical model with correct hyperpriors (https://arxiv.org/pdf/2110.10565)
 3. box-cox transformation for hierarchical model? (age, hktc_value)
@@ -55,7 +55,7 @@ For convenience, I place functions in Scrape Functions. First, I use nflfastR to
 # To Do
 
 ## content
-1. fantasy teams
+DONE
 
 ## website
 1. shiny stuff
