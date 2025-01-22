@@ -93,8 +93,47 @@ value_added <- read_csv(here(data_path, "Data/va_2024.csv")) %>%
   left_join(users, by = join_by(roster_id)) %>%
   rename(team_name = display_name)
 
-# total_assets %>% arrange(desc(future_value)) %>%
-#   print(n=30)
+player_avenues <- total_assets %>%
+  left_join(
+    bind_rows(total_transaction_value) %>% #transactions
+      filter(type == "add") %>%
+      mutate(transaction_avenue = str_c(season, " W", week, " transaction")) %>%
+      group_by(name, position) %>%
+      slice_max((season + as.numeric(week)/20), n = 1) %>%
+      select(-contains("value"), -type, -season, -week),
+    by = join_by(name, position, team_name)) %>%
+  left_join(
+    bind_rows(total_trade_value) %>% # trades
+      filter(type == "add") %>%
+      mutate(trade_avenue = str_c(season, " W", week, " trade")) %>%
+      group_by(name, position) %>%
+      slice_max(season + as.numeric(week)/20, n = 1) %>%
+      select(-contains("value"), -type, -season, -week),
+    by = join_by(name, position, team_name)) %>%
+  left_join(
+    bind_rows(rookie_vs_expecations, .id = "season") %>% # rookie draft
+      mutate(rookie_draft_avenue = str_c(as.numeric(season) + 2023, " rookie draft pick ", pick_no)) %>%
+      select(name, position, roster_id, rookie_draft_avenue),
+    by = join_by(name, position, roster_id)) %>%
+  left_join(
+    init_vs_expectation %>% # initial draft
+      mutate(initial_draft_avenue = str_c("initial draft pick ", pick_no)) %>%
+      select(name, position, roster_id, initial_draft_avenue),
+    by = join_by(name, position, roster_id)) %>%
+  mutate(
+    t_avenue = case_when(
+      is.na(transaction_avenue) ~ trade_avenue,
+      is.na(trade_avenue) ~ transaction_avenue,
+      as.numeric(str_extract(trade_avenue, "\\d{4}")) + as.numeric(str_extract(trade_avenue, "(?<=W)\\d+"))/20 >
+        as.numeric(str_extract(transaction_avenue, "\\d{4}")) + as.numeric(str_extract(transaction_avenue, "(?<=W)\\d+"))/20 ~ trade_avenue,
+      .default = transaction_avenue),
+    avenue = coalesce(t_avenue, rookie_draft_avenue, initial_draft_avenue)) %>%
+  select(roster_id, player_id, name, position, future_value, avenue) %>%
+  mutate(avenue = case_when(
+    is.na(avenue) & position == "K" ~ "initial draft",
+    is.na(avenue) & str_detect(name, "Draft Pick") ~ "own pick",
+    .default = avenue
+  ))
 
 grab_team_assets <- function(enter_roster_id){
   team_name <- users %>%
@@ -103,17 +142,20 @@ grab_team_assets <- function(enter_roster_id){
     slice(1)
   
   total_assets %>%
+    left_join(player_avenues %>%
+                select(name, position, roster_id, avenue),
+              by = join_by(roster_id, name, position)) %>%
     filter(roster_id == enter_roster_id) %>%
     arrange(desc(future_value)) %>%
-    select(name, position, future_value) %>%
+    select(name, position, future_value, avenue) %>%
     gt() %>%
     gt_theme_538() %>%
     fmt_number(columns = future_value, decimals = 2) %>%
-    cols_label(future_value = "Future Value") %>%
+    cols_label(future_value = "Future Value", avenue = "Acquired") %>%
     tab_header(title = str_c(team_name, " Future Value"))
 }
 
-# grab_team_assets(7)
+grab_team_assets(7)
 
 # position outlook
 position_outlook <- function(enter_roster_id){
@@ -249,22 +291,137 @@ overall_grades <- function(value_avenues_df, enter_roster_id){
 
 # value_avenues %>% overall_grades(11)
 
+# acquisitions
+
+acquisitions <- bind_rows(
+  init_vs_expectation %>% # initial draft
+    mutate(avenue = str_c("initial draft pick ", pick_no)) %>%
+    select(-pick_no),
+  bind_rows(rookie_vs_expecations, .id = "season") %>% # rookie drafts
+    mutate(avenue = str_c(as.numeric(season) + 2023, " rookie draft pick ", pick_no)) %>%
+    select(-exp_total_value, -pick_no, -season),
+  
+  comparison %>% # trades
+    rename(
+      realized_value = "total_realized_value",
+      total_value = "total_trade_value",
+      future_value = "total_future_value") %>%
+    left_join(users, by = join_by(team_name == display_name)) %>%
+    group_by(trade_id) %>%
+    mutate(other_teams = list(setdiff(team_name, pick(team_name)))) %>%
+    ungroup() %>%
+    rowwise() %>%
+    mutate(
+      other_teams = list(setdiff(other_teams, team_name))) %>%
+    ungroup() %>%
+    mutate(
+      other_teams2 = map_chr(other_teams, ~str_c(.x, collapse = ", "))) %>%
+    left_join(bind_rows(total_trade_value, .id = "trade_id") %>% #add info about this trade
+                filter(type == "add") %>%
+                group_by(trade_id, team_name) %>%
+                slice_max(total_value) %>%
+                select(trade_id, team_name, name, position, week),
+              by = join_by(trade_id, team_name)) %>%
+    mutate(
+      value_over_expected = total_value,
+      avenue = str_c(season, " W", week, " trade with ", other_teams2)) %>%
+    select(roster_id, name, position, realized_value, future_value, total_value, value_over_expected, avenue),
+  
+  transaction_comparison %>% # transactions
+    rename(
+      realized_value = "total_realized_value",
+      total_value = "total_transaction_value",
+      future_value = "total_future_value") %>%
+    left_join(users, by = join_by(team_name == display_name)) %>%
+    left_join(
+      bind_rows(total_transaction_value, .id = "transaction_id") %>%
+        left_join(users, by = join_by(team_name == display_name)) %>%
+        filter(type == "add") %>%
+        group_by(transaction_id) %>%
+        slice_max(total_value) %>%
+        select(transaction_id, team_name, name, position, season, week),
+      by = join_by(transaction_id, team_name)) %>%
+    filter(!is.na(name)) %>%
+    mutate(
+      avenue = str_c(season, " Week ", week, " transaction"),
+      value_over_expected = total_value) %>%
+    select(roster_id, name, position, realized_value, future_value, total_value, value_over_expected, avenue)
+)
+
 # top acquisitions
-init_vs_expectation %>%
-  mutate(avenue = str_c("initial draft pick ", pick_no)) %>%
-  select(-pick_no)
+top_acquisitions <- function(acquisitions_df, enter_roster_id, enter_avenue = " ") {
+  team_name <- users %>%
+    filter(roster_id == enter_roster_id) %>%
+    select(display_name) %>%
+    slice(1)
+  
+  acquisitions %>%
+    filter(str_detect(avenue, enter_avenue), roster_id == enter_roster_id) %>%
+    slice_max(value_over_expected, n = 5) %>%
+    select(-roster_id, -total_value) %>%
+    gt() %>%
+    gt_theme_538() %>%
+    fmt_number(columns = c(realized_value, future_value, value_over_expected), decimals = 2) %>%
+    cols_label(realized_value = "Realized Value", future_value = "Future Value", value_over_expected = "Value Over Expected") %>%
+    tab_header(title = str_c(team_name, " Top Acquisitions"))
+}
 
-bind_rows(rookie_vs_expecations, .id = "season") %>%
-  mutate(avenue = str_c(as.numeric(season) + 2023, " rookie draft pick ", pick_no)) %>%
-  select(-exp_total_value, -pick_no, -season)
-
-# add trades and transactions here
+# acquisitions %>% top_acquisitions(4)
+# acquisitions %>% top_acquisitions(4, "initial draft")
+# acquisitions %>% top_acquisitions(4, "transaction")
+# acquisitions %>% top_acquisitions(4, "trade")
+# acquisitions %>% top_acquisitions(4, "rookie draft")
 
 # worst acquisitions
+worst_acquisitions <- function(acquisitions_df, enter_roster_id, enter_avenue = " ") {
+  team_name <- users %>%
+    filter(roster_id == enter_roster_id) %>%
+    select(display_name) %>%
+    slice(1)
+  
+  acquisitions %>%
+    filter(str_detect(avenue, enter_avenue), roster_id == enter_roster_id) %>%
+    slice_min(value_over_expected, n = 5) %>%
+    select(-roster_id, -total_value) %>%
+    gt() %>%
+    gt_theme_538() %>%
+    fmt_number(columns = c(realized_value, future_value, value_over_expected), decimals = 2) %>%
+    cols_label(realized_value = "Realized Value", future_value = "Future Value", value_over_expected = "Value Over Expected") %>%
+    tab_header(title = str_c(team_name, " Worst Acquisitions"))
+}
+
+acquisitions %>% worst_acquisitions(4)
+# acquisitions %>% worst_acquisitions(4, "initial draft")
+# acquisitions %>% worst_acquisitions(4, "transaction")
+# acquisitions %>% worst_acquisitions(4, "trade")
+# acquisitions %>% worst_acquisitions(4, "rookie draft")
 
 # team composition
 
-# recent trades/transactions 
+team_composition <- function(player_avenues_df, enter_roster_id){
+  team_name <- users %>%
+    filter(roster_id == enter_roster_id) %>%
+    select(display_name) %>%
+    slice(1)
+  
+  player_avenues %>%
+    filter(roster_id == enter_roster_id) %>%
+    mutate(
+      avenue_type = case_when(
+        str_detect(avenue, "initial draft") ~ "initial draft",
+        str_detect(avenue, "rookie draft") ~ "rookie draft",
+        str_detect(avenue, "transaction") ~ "transaction",
+        str_detect(avenue, "trade") ~ "trade",
+        str_detect(avenue, "own pick") ~ "own pick",
+        .default = NA)) %>%
+    group_by(avenue_type) %>%
+    summarize(future_value = sum(future_value)) %>%
+    mutate(proportion = scales::percent(future_value/sum(future_value), accuracy = .01)) %>%
+    gt() %>%
+    gt_theme_538() %>%
+    fmt_number(columns = c(future_value), decimals = 2) %>%
+    cols_label(avenue_type = "Avenue", future_value = "Future Value") %>%
+    tab_header(title = str_c(team_name, " Team Composition"))
+}
 
-# trade value adjustment!!!
-
+player_avenues %>% team_composition(7)
