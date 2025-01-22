@@ -8,7 +8,7 @@
 # load data
 library("here")
 data_path <- "FantasyDynasty/"
-source(here(data_path, "Scraping.R")) #run data ~45 seconds
+source(here(data_path, "Data Manipulation/Scraping.R")) #run data ~45 seconds
 
 # Sleeper Score -----------------------------------------------------------
 

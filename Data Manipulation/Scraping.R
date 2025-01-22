@@ -4,7 +4,7 @@ library("nflfastR")
 library("here")
 data_path <- "FantasyDynasty/"
 
-source(here(data_path, "Scrape Functions.R"))
+source(here(data_path, "Data Manipulation/Scrape Functions.R"))
 
 # load box score data from NFL 2024
 # https://www.nflfastr.com

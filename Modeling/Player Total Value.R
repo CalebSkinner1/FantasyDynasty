@@ -6,9 +6,9 @@ library("furrr")
 library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
-# source(here(data_path, "Player Value Added.R")) # grab updated value added ~50 seconds
-source(here(data_path, "Player Total Value Functions.R")) # grab functions
-source(here(data_path, "Scrape Functions.R")) # grab functions
+# source(here(data_path, "Modeling/Player Value Added.R")) # grab updated value added ~50 seconds
+source(here(data_path, "Modeling/Player Total Value Functions.R")) # grab functions
+source(here(data_path, "Data Manipulation/Scrape Functions.R")) # grab functions
 season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv")) # shortcut
 player_info <- read_csv(here(data_path, "Data/player_info.csv")) # shortcut 
 
