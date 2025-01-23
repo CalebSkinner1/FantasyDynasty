@@ -11,14 +11,22 @@ data_path <- "FantasyDynasty/"
 # load data
 tic()
 load(here(data_path, "Data/transactions.RData")) #transactions, including trades
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"))
-value_added <- read_csv(here(data_path, "Data/va_2024.csv"))
+player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE)
+value_added <- read_csv(here(data_path, "Data/va_2024.csv"), show_col_types = FALSE)
 
-player_info <- read_csv(here(data_path, "Data/player_info.csv")) %>%
+player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE) %>%
   select(-birth_date)
 
-users <- read_csv(here(data_path, "Data/users.csv")) %>%
+users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
+
+# function to edit tables for shiny
+shiny_edit_tables <- function(df){
+  df %>%
+    mutate(across(where(is.numeric), ~round(.x, 2))) %>%
+    rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
+    rename_with(~str_to_title(.x), everything())
+}
 
 total_transaction_value <- transactions %>%
   filter(type %in% c("waiver", "free_agent")) %>%
@@ -146,7 +154,8 @@ marginal_transaction_value <- total_transaction_value %>%
   bind_rows() %>%
   filter(position != "K", position != "DST") %>%
   group_by(season, type) %>%
-  summarize(total_value_added = mean(total_value))
+  summarize(total_value_added = mean(total_value),
+            .groups = "keep")
 
 # write_csv(marginal_transaction_value, here(data_path, "Data/marginal_transaction_value.csv"))
 

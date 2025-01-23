@@ -11,22 +11,29 @@ library("tictoc")
 data_path <- "FantasyDynasty/"
 
 load(here(data_path, "Data/transactions.RData")) #transactions, including trades
-future_draft_pick_values <- read_csv(here(data_path, "Data/future_draft_pick_values.csv")) #future draft pick values
+future_draft_pick_values <- read_csv(here(data_path, "Data/future_draft_pick_values.csv"), show_col_types = FALSE) #future draft pick values
 
 load(here(data_path, "Data/draft_picks.RData")) # draft results
 
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"))
-value_added <- read_csv(here(data_path, "Data/va_2024.csv"))
-draft_order <- read_csv(here(data_path, "Data/draft_order.csv"))
+player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE)
+value_added <- read_csv(here(data_path, "Data/va_2024.csv"), show_col_types = FALSE)
+draft_order <- read_csv(here(data_path, "Data/draft_order.csv"), show_col_types = FALSE)
 
-marginal_transaction_value <- read_csv(here(data_path, "Data/marginal_transaction_value.csv"))
+marginal_transaction_value <- read_csv(here(data_path, "Data/marginal_transaction_value.csv"), show_col_types = FALSE)
 
 # references
-player_info <- read_csv(here(data_path, "Data/player_info.csv")) %>%
+player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE) %>%
   select(-birth_date)
-users <- read_csv(here(data_path, "Data/users.csv")) %>%
+users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
+# function to edit tables for shiny
+shiny_edit_tables <- function(df){
+  df %>%
+    mutate(across(where(is.numeric), ~round(.x, 2))) %>%
+    rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
+    rename_with(~str_to_title(.x), everything())
+}
 
 realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
   group_by(draft_id) %>%

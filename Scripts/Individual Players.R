@@ -8,9 +8,17 @@ library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
 load(here(data_path, "Data/simulations.RData"))
-season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv"))
-users <- read_csv(here(data_path, "Data/users.csv")) %>%
+season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv"), show_col_types = FALSE)
+users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
+
+# function to edit tables for shiny
+shiny_edit_tables <- function(df){
+  df %>%
+    mutate(across(where(is.numeric), ~round(.x, 2))) %>%
+    rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
+    rename_with(~str_to_title(.x), everything())
+}
 
 # plots players median future value over next fifteen years
 plot_future_value <- function(enter_name){
@@ -65,14 +73,14 @@ plot_future_value <- function(enter_name){
 
 # points for each team table
 # data, in future add more seasons here
-value_added_24 <- read_csv(here(data_path, "Data/va_2024.csv")) %>%
+value_added_24 <- read_csv(here(data_path, "Data/va_2024.csv"), show_col_types = FALSE) %>%
   mutate(season = 2024) %>%
   left_join(users, by = join_by(roster_id)) %>%
   select(-roster_id) %>%
   arrange(season, week, desc(type), display_name)
 
-tabulate_realized_value <- function(va_data, enter_name, enter_season){
-  va_data %>%
+tabulate_realized_value <- function(va_data, enter_name, enter_season, shiny = FALSE){
+  df <- va_data %>%
     filter(name == enter_name) %>%
     filter(season == enter_season) %>%
     group_by(display_name) %>%
@@ -84,15 +92,25 @@ tabulate_realized_value <- function(va_data, enter_name, enter_season){
       `total value added` = sum(value_added),
       `mean fantasy points` = sum(sleeper_points)/healthy) %>%
     arrange(start_week) %>%
-    select(-start_week) %>%
-    gt() %>%
-    gt_theme_538() %>%
-    fmt_number(columns = c(`total value added`, `mean fantasy points`), decimals = 2) %>%
-    cols_label(display_name = "Team") %>%
-    tab_header(title = str_c(enter_name, ": ", enter_season, " Season"))
+    select(-start_week)
+  
+  if(shiny){
+    df %>%
+      shiny_edit_tables() %>%
+      rename("Team" = display_name) %>%
+      return()
+  }
+  else{
+    df %>%
+      gt() %>%
+      gt_theme_538() %>%
+      fmt_number(columns = c(`total value added`, `mean fantasy points`), decimals = 2) %>%
+      cols_label(display_name = "Team") %>%
+      tab_header(title = str_c(enter_name, ": ", enter_season, " Season"))
+  }
 }
 
-value_added_24 %>% tabulate_realized_value("Patrick Mahomes", 2024)
+# value_added_24 %>% tabulate_realized_value("Caleb Williams", 2024, shiny = TRUE)
 
 # points by week compared with projected
 weekly_results <- function(va_data, enter_name, enter_season){
@@ -112,4 +130,4 @@ weekly_results <- function(va_data, enter_name, enter_season){
       name = "")
 }
 
-value_added_24 %>% weekly_results("James Cook", 2024)
+# value_added_24 %>% weekly_results("James Cook", 2024)

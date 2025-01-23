@@ -11,20 +11,28 @@ data_path <- "FantasyDynasty/"
 # load data
 load(here(data_path, "Data/draft_picks.RData"))
 
-users <- read_csv(here(data_path, "Data/users.csv")) %>%
+users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv")) %>%
+player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE) %>%
   select(name, player_id, birth_date, position, sva_2024, future_value) %>%
   mutate(total_value = sva_2024 + .95*future_value) # devalue future
-player_info <- read_csv(here(data_path, "Data/player_info.csv"))
+player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE)
 
 # because drafting a kicker gave rookie draft order, I need to account for the rookie draft order
 # when grading the initial draft
 # rookie expected values per pick
-rookie_draft_pick_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv")) %>%
+rookie_draft_pick_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"), show_col_types = FALSE) %>%
   select(pick_no, exp_total_value)
   
+# function to edit tables for shiny
+shiny_edit_tables <- function(df){
+  df %>%
+    mutate(across(where(is.numeric), ~round(.x, 2))) %>%
+    rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
+    rename_with(~str_to_title(.x), everything())
+}
+
 rookie_draft_values <- rookie_draft_pick_values %>%
   mutate(
     draft_slot = pick_no%%12,
@@ -33,7 +41,7 @@ rookie_draft_values <- rookie_draft_pick_values %>%
   summarize(total_value = sum(exp_total_value))
 
 # this tibble holds the expected value gained from rookie draft order
-rookie_draft_order_value <- read_csv(here(data_path, "Data/draft_order.csv")) %>%
+rookie_draft_order_value <- read_csv(here(data_path, "Data/draft_order.csv"), show_col_types = FALSE) %>%
   filter(season == 2024, type == "rookie") %>%
   # now compute expected value gained from draft order only
   left_join(rookie_draft_values, by = join_by(draft_order == draft_slot)) %>%
@@ -141,31 +149,8 @@ init_vs_expectation <- draft_values[[2]] %>%
   mutate(value_over_expected = total_value - exp_total_value) %>%
   select(roster_id, pick_no, name, position, realized_value, future_value, total_value, value_over_expected)
 
-# best picks- lol we vastly undervalued rookie picks
-init_vs_expectation %>% 
-  arrange(desc(value_over_expected)) %>%
-  slice(1:30) %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  select(-roster_id) %>%
-  gt() %>%
-  gt_theme_538() %>%
-  fmt_number(columns = c(realized_value, future_value, value_over_expected, total_value), decimals = 2) %>%
-  cols_label(display_name = "Team Name", pick_no = "Pick", total_value = "total value",
-             value_over_expected = "Value Over Expected") %>%
-  tab_header(title = "Best Picks")
 
-# worst picks - some massive first round busts
-init_vs_expectation %>% 
-  arrange(value_over_expected) %>%
-  slice(1:30) %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  select(-roster_id) %>%
-  gt() %>%
-  gt_theme_538() %>%
-  fmt_number(columns = c(value_over_expected, total_value), decimals = 2) %>%
-  cols_label(display_name = "Team Name", pick_no = "Pick", total_value = "total value",
-             value_over_expected = "Value Over Expected") %>%
-  tab_header(title = "Worst Picks")
+
 
 # initial draft rankings
 initial_draft_value <- draft_values[[2]] %>%
@@ -198,13 +183,108 @@ rookie_draft_value <- rookie_vs_expecations %>%
       arrange(desc(value_over_expected))
   })
 
-# total rookie draft rankings
-bind_rows(rookie_draft_value) %>%
-  group_by(display_name) %>%
-  summarize(value_over_expected = sum(value_over_expected)) %>%
-  arrange(desc(value_over_expected)) %>%
-  gt() %>%
-  gt_theme_538() %>%
-  fmt_number(columns = value_over_expected, decimals = 2) %>%
-  cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected") %>%
-  tab_header(title = "Draft Grades")
+# best picks- lol we vastly undervalued rookie picks
+best_picks <- function(enter_draft, shiny){
+  enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
+  
+  df <- init_vs_expectation %>%
+    bind_rows(.,rookie_vs_expecations, .id = "draft_id") %>%
+    mutate(
+      draft = case_when(
+        draft_id == "1" ~ "initial draft",
+        .default = str_c(as.numeric(draft_id) + 2022, " rookie draft"))) %>%
+    filter(str_detect(draft, enter_draft)) %>%
+    left_join(users, by = join_by(roster_id)) %>%
+    select(display_name, pick_no, name, position, realized_value, future_value, value_over_expected) %>%
+    arrange(desc(value_over_expected))
+  
+  if(shiny){
+    df %>%
+      rename(
+        team_name = display_name,
+        pick = pick_no) %>%
+      shiny_edit_tables()
+  }
+  else{
+    df %>%
+      gt() %>%
+      gt_theme_538() %>%
+      fmt_number(columns = c(value_over_expected, realized_value, future_value), decimals = 2) %>%
+      cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected",
+                 realized_value = "Realized Value", future_value = "Future Value", pick_no = "Pick") %>%
+      tab_header(title = str_c(str_to_title(enter_draft), " Best Picks"))
+  }
+}
+
+# best_picks("initial draft", shiny = TRUE)
+
+# worst picks - some massive first round busts
+worst_picks <- function(enter_draft, shiny){
+  enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
+  
+  df <- init_vs_expectation %>%
+    bind_rows(.,rookie_vs_expecations, .id = "draft_id") %>%
+    mutate(
+      draft = case_when(
+        draft_id == "1" ~ "initial draft",
+        .default = str_c(as.numeric(draft_id) + 2022, " rookie draft"))) %>%
+    filter(str_detect(draft, enter_draft)) %>%
+    left_join(users, by = join_by(roster_id)) %>%
+    select(display_name, pick_no, name, position, realized_value, future_value, value_over_expected) %>%
+    arrange(value_over_expected)
+  
+  if(shiny){
+    df %>%
+      rename(
+        team_name = display_name,
+        pick = pick_no) %>%
+      shiny_edit_tables()
+  }
+  else{
+    df %>%
+      gt() %>%
+      gt_theme_538() %>%
+      fmt_number(columns = c(value_over_expected, realized_value, future_value), decimals = 2) %>%
+      cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected",
+                 realized_value = "Realized Value", future_value = "Future Value", pick_no = "Pick") %>%
+      tab_header(title = str_c(str_to_title(enter_draft), " Worst Picks"))
+  }
+}
+
+# worst_picks("initial draft", shiny = TRUE)
+
+draft_rankings <- function(enter_draft, shiny){
+  enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
+  
+  df <- init_vs_expectation %>%
+    bind_rows(.,rookie_vs_expecations, .id = "draft_id") %>%
+    mutate(
+      draft = case_when(
+        draft_id == "1" ~ "initial draft",
+        .default = str_c(as.numeric(draft_id) + 2022, " rookie draft"))) %>%
+    filter(str_detect(draft, enter_draft)) %>%
+    left_join(users, by = join_by(roster_id)) %>%
+    group_by(display_name) %>%
+    summarize(
+      realized_value = sum(realized_value, na.rm = TRUE),
+      future_value = sum(future_value, na.rm = TRUE),
+      value_over_expected = sum(value_over_expected, na.rm = TRUE)) %>%
+    arrange(desc(value_over_expected))
+  
+  if(shiny){
+    df %>%
+      rename(team_name = display_name) %>%
+      shiny_edit_tables()
+  }
+  else{
+    df %>%
+      gt() %>%
+      gt_theme_538() %>%
+      fmt_number(columns = c(value_over_expected, realized_value, future_value), decimals = 2) %>%
+      cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected",
+                 realized_value = "Realized Value", future_value = "Future Value") %>%
+      tab_header(title = str_c(str_to_title(enter_draft), " Draft Grades"))
+  }
+}
+
+# draft_rankings("initial draft", shiny = TRUE)
