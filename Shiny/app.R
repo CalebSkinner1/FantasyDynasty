@@ -137,23 +137,18 @@ ui <- dashboardPage(
         tabName = "trade",
         h2("Trade Grades"),
         
-        
+        # here!
         
         selectizeInput(
           inputId = "trade_selection", 
           label = "Enter Trade Number", 
-          choices = c("2024 rookie draft", "initial draft", "All"),
+          choices = c(1:25),
           # multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
             maxOptions = 3  # Limit the number of suggestions shown
-          )),
-        uiOutput("draft_ranking_title"),
-        DTOutput("draft_ranking"),
-        uiOutput("best_picks_title"),
-        DTOutput("best_picks"),
-        uiOutput("worst_picks_title"),
-        DTOutput("worst_picks")
+          ))
+      )
     )
   )
 )
