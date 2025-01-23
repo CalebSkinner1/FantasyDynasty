@@ -6,6 +6,7 @@ library("here")
 library("gt")
 library("gtExtras")
 library("tidymodels")
+library("janitor")
 library("tidyverse"); theme_set(theme_minimal())
 library("tictoc")
 data_path <- "FantasyDynasty/"
@@ -46,10 +47,6 @@ realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
   left_join(draft_order %>% filter(type == "rookie"), by = join_by(season, draft_slot == draft_order)) %>%
   rename(original_owner = roster_id.y) %>%
   select(season, round, player_id, original_owner)
-
-temp <- transactions %>%
-  filter(type == "trade") %>%
-  split(seq_len(nrow(.)))
 
 total_trade_value <- transactions %>%
   filter(type == "trade") %>%
@@ -123,6 +120,7 @@ total_trade_value <- transactions %>%
     mutate(deficit = drops - adds) %>%
     filter(deficit != 0) %>%
     nrow()
+  
   if(adjustment_needed != 0){
     value_adjustment <- total_player_value_lost %>%
       bind_rows(total_player_value_gained) %>%
@@ -239,22 +237,88 @@ comparison <- map(total_trade_value,
   bind_rows(.id = "trade_id")
 
 # most egregiously favorable trades
-comparison %>%
-  arrange(desc(total_trade_value))
+individual_trades <- comparison %>%
+  rename(
+    realized_value = "total_realized_value",
+    total_value = "total_trade_value",
+    future_value = "total_future_value") %>%
+  left_join(users, by = join_by(team_name == display_name)) %>%
+  group_by(trade_id) %>%
+  mutate(other_teams = list(setdiff(team_name, pick(team_name)))) %>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(
+    other_teams = list(setdiff(other_teams, team_name))) %>%
+  ungroup() %>%
+  mutate(
+    other_teams2 = map_chr(other_teams, ~str_c(.x, collapse = ", "))) %>%
+  left_join(bind_rows(total_trade_value, .id = "trade_id") %>% #add info about this trade
+              filter(type == "add") %>%
+              group_by(trade_id, team_name) %>%
+              slice_max(total_value) %>%
+              select(trade_id, team_name, name, position, week),
+            by = join_by(trade_id, team_name)) %>%
+  mutate(
+    value_over_expected = total_value,
+    avenue = str_c(season, " W", week, " trade with ", other_teams2)) %>%
+  select(trade_id, roster_id, name, position, realized_value, future_value, total_value, value_over_expected, avenue)
+  
+lopsided_trades <- individual_trades %>%
+  arrange(desc(total_value)) %>%
+  left_join(users, by = join_by(roster_id)) %>%
+  select(-value_over_expected, -roster_id) %>%
+  rename(
+    team_name = display_name,
+    trade_details = "avenue",
+    top_asset_acquired = name) %>%
+  relocate(c(team_name, trade_details))
 
-total_trade_value[[9]] # what is trade 9
-total_trade_value[[20]] # what is trade 20
-total_trade_value[[7]] # what is trade 7
-total_trade_value[[4]] # what is trade 4
+inspect_individual_trade <- function(trade_id, shiny = FALSE){
+  title <- total_trade_value[[trade_id]] %>% select(team_name) %>% distinct() %>%
+    map_chr(~str_c(.x, collapse = ", ")) %>%
+    str_c(total_trade_value[[trade_id]]$season[1], " W",
+          total_trade_value[[trade_id]]$week[1], " Trade between ", .)
+  
+  df <- total_trade_value[[trade_id]] %>%
+    filter(type == "add" | name == "roster size adjustment") %>%
+    select(-season, -week, -type) %>%
+    group_by(team_name) %>%
+    group_map(~ .x %>% adorn_totals("row"),
+              .keep = TRUE) %>%
+    bind_rows()
+  
+  if(shiny){
+    df %>%
+      shiny_edit_tables() %>%
+      return()
+  }
+  else{
+    df %>%
+      gt() %>%
+      gt_theme_538() %>%
+      fmt_number(columns = c(future_value, realized_value, total_value), decimals = 2) %>%
+      cols_label(team_name = "Team", future_value = "Future Value", realized_value = "Realized Value",
+                 total_value = "Total Value") %>%
+      tab_header(title = title)
+  }
+    
+}
 
-# by fantasy owner
+# inspect_individual_trade(9) # what is trade 9
+# inspect_individual_trade(20) # what is trade 20
+# inspect_individual_trade(7) # what is trade 7
+# inspect_individual_trade(4) # what is trade 4
+
+# by fantasy owner, totals don't add up because of value adjustment and future devaluation
 overall_trade_winners <- comparison %>%
   group_by(team_name) %>%
   summarize(
+    trades = n(),
     total_trade_value = sum(total_trade_value),
     total_future_value = sum(total_future_value),
     total_realized_value = sum(total_realized_value)) %>%
   arrange(desc(total_trade_value)) %>%
-  left_join(users, by = join_by(team_name == display_name))
+  left_join(users, by = join_by(team_name == display_name)) %>%
+  select(team_name, trades, total_realized_value, total_future_value, total_trade_value)
 
 rm(value_added)

@@ -5,6 +5,7 @@ library("here")
 library("gt")
 library("gtExtras")
 library("tidymodels")
+library("janitor")
 library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
@@ -130,24 +131,72 @@ transaction_comparison <- map(total_transaction_value,
                     )) %>%
   bind_rows(.id = "transaction_id")
 
+individual_transactions <- transaction_comparison %>% # transactions
+  rename(
+    realized_value = "total_realized_value",
+    total_value = "total_transaction_value",
+    future_value = "total_future_value") %>%
+  left_join(users, by = join_by(team_name == display_name)) %>%
+  left_join(
+    bind_rows(total_transaction_value, .id = "transaction_id") %>%
+      left_join(users, by = join_by(team_name == display_name)) %>%
+      filter(type == "add") %>%
+      group_by(transaction_id) %>%
+      slice_max(total_value) %>%
+      select(transaction_id, team_name, name, position, season, week),
+    by = join_by(transaction_id, team_name)) %>%
+  filter(!is.na(name)) %>%
+  mutate(
+    avenue = str_c(season, " Week ", week, " transaction"),
+    value_over_expected = total_value) %>%
+  select(transaction_id, roster_id, name, position, realized_value, future_value, total_value, value_over_expected, avenue)
+
 # most valuable transactions
-# transaction_comparison %>%
-#   arrange(desc(total_transaction_value))
-# 
-# total_transaction_value[[32]] # Sam Darnold
-# total_transaction_value[[48]] # Tyrone Tracy
-# total_transaction_value[[201]] # Khalil Shakir
-# total_transaction_value[[193]] # Jalen McMillan
+top_transactions <- individual_transactions %>%
+  arrange(desc(total_value)) %>%
+  left_join(users, by = join_by(roster_id)) %>%
+  select(-value_over_expected, -roster_id) %>%
+  rename(
+    team_name = display_name,
+    transaction_details = "avenue") %>%
+  relocate(c(team_name, transaction_details))
 
+inspect_individual_transaction <- function(transaction_id, shiny = FALSE){
+  title <- total_transaction_value[[transaction_id]]$team_name[1] %>%
+    str_c(., "'s ", total_transaction_value[[transaction_id]]$season[1], " W",
+          total_transaction_value[[transaction_id]]$week[1], " Transaction")
+  
+  df <- total_transaction_value[[transaction_id]] %>%
+    mutate(action = if_else(type == "add", "+", "-")) %>%
+    select(action, name, position, realized_value, future_value, total_value) %>%
+    adorn_totals("row")
+  
+  if(shiny){
+    df %>%
+      shiny_edit_tables() %>%
+      return()
+  }
+  else{
+    df %>%
+      gt() %>%
+      gt_theme_538() %>%
+      fmt_number(columns = c(future_value, realized_value, total_value), decimals = 2) %>%
+      cols_label(future_value = "Future Value", realized_value = "Realized Value",
+                 total_value = "Total Value") %>%
+      tab_header(title = title)
+  }
+}
 
-# wrost transactions
-# transaction_comparison %>%
-#   arrange(total_transaction_value)
+# inspect_individual_transaction(32) # Sam Darnold
+# inspect_individual_transaction(48) # Tyrone Tracy
+# inspect_individual_transaction(201) # Khalil Shakir
+# inspect_individual_transaction(193) # Jalen McMillan
+
 # 
-# total_transaction_value[[49]] # Sam Darnold
-# total_transaction_value[[108]] # Michael Penix
-# total_transaction_value[[359]] # Jalen McMillan
-# total_transaction_value[[16]] # Cade Otton
+# inspect_individual_transaction(49) # Sam Darnold
+# inspect_individual_transaction(108) # Michael Penix
+# inspect_individual_transaction(359) # Jalen McMillan
+# inspect_individual_transaction(16) # Cade Otton
 
 # mean add/drop value (mean value gained from adding/dropping a player)
 marginal_transaction_value <- total_transaction_value %>%
@@ -163,11 +212,13 @@ marginal_transaction_value <- total_transaction_value %>%
 overall_transaction_winners <- transaction_comparison %>%
   group_by(team_name) %>%
   summarize(
+    transactions = n(),
     total_transaction_value = sum(total_transaction_value),
     total_future_value = sum(total_future_value),
     total_realized_value = sum(total_realized_value)) %>%
   arrange(desc(total_transaction_value)) %>%
-  left_join(users, by = join_by(team_name == display_name))
+  left_join(users, by = join_by(team_name == display_name)) %>%
+  select(team_name, transactions, total_realized_value, total_future_value, total_transaction_value)
 
 rm(value_added)
 

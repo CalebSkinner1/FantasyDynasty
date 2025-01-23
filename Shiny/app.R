@@ -14,17 +14,19 @@ source(here(data_path, "Scripts/Individual Players.R")) # Individual Players
 
 # Define UI
 ui <- dashboardPage(
+  skin = "black",
   dashboardHeader(title = "Fantasy Football Dynasty League"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Home", tabName = "home", icon = icon("home")),
-      menuItem("Individual Players", tabName = "players", icon = icon("chart-line")),
-      menuItem("Fantasy Teams", tabName = "teams", icon = icon("sliders-h")),
-      menuItem("Draft Grades", tabName = "draft", icon = icon("sliders-h")),
-      menuItem("Trade Grades", tabName = "trade", icon = icon("sliders-h")),
-      menuItem("Transaction Grades", tabName = "transaction", icon = icon("sliders-h")),
+      menuItem("Individual Players", tabName = "players", icon = icon("helmet-un")),
+      menuItem("Fantasy Teams", tabName = "teams", icon = icon("user-plus")),
+      menuItem("Draft Grades", tabName = "draft", icon = icon("calendar")),
+      menuItem("Trade Grades", tabName = "trade", icon = icon("handshake")),
+      menuItem("Transaction Grades", tabName = "transaction", icon = icon("arrow-right")),
       menuItem("Future Standings", tabName = "standings", icon = icon("sliders-h")),
-      menuItem("Player Rankings", tabName = "rankings", icon = icon("sliders-h")))
+      menuItem("Player Rankings", tabName = "rankings", icon = icon("sliders-h")),
+      menuItem("Modeling", tabName = "modeling", icon = icon("sliders-h")))
   ),
   dashboardBody(
     tabItems(
@@ -32,7 +34,7 @@ ui <- dashboardPage(
         # Home Tab
         tabName = "home",
         h2("Welcome to the Home Page"),
-        p("This is a static page with general information.")
+        p("This is a static page that eventually will store more information.")
       ),
       tabItem( # Page 1 Tab
         tabName = "players",
@@ -136,18 +138,55 @@ ui <- dashboardPage(
       tabItem( # Page 4 Tab
         tabName = "trade",
         h2("Trade Grades"),
-        
-        # here!
-        
+        uiOutput("trade_winners_title"),
+        DTOutput("trade_winners"),
+        uiOutput("trade_lopsided_title"),
+        DTOutput("trade_lopsided"),
         selectizeInput(
           inputId = "trade_selection", 
-          label = "Enter Trade Number", 
-          choices = c(1:25),
+          label = "Enter Trade ID", 
+          choices = unique(comparison$trade_id),
           # multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
             maxOptions = 3  # Limit the number of suggestions shown
-          ))
+          )),
+        uiOutput("individual_trade_title"),
+        DTOutput("individual_trade")
+      ),
+      tabItem( # Page 5 Tab
+        tabName = "transaction",
+        h2("Transaction Grades"),
+        uiOutput("transaction_winners_title"),
+        DTOutput("transaction_winners"),
+        uiOutput("top_transaction_title"),
+        DTOutput("top_transaction"),
+        selectizeInput(
+          inputId = "transaction_selection", 
+          label = "Enter Transaction ID", 
+          choices = unique(transaction_comparison$transaction_id),
+          # multiple = TRUE, #enable multiple selections
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 3  # Limit the number of suggestions shown
+          )),
+        uiOutput("individual_transaction_title"),
+        DTOutput("individual_transaction")
+      ),
+      tabItem( # Page 6 Tab
+        tabName = "standings",
+        h2("Future Standings"),
+        p("This is a static page that will be completed at a later date.")
+      ),
+      tabItem( # Page 7 Tab
+        tabName = "rankings",
+        h2("Player Rankings"),
+        p("This is a static page that will be completed at a later date.")
+      ),
+      tabItem( # Page 8 Tab
+        tabName = "modeling",
+        h2("Model Explanations and Fit"),
+        p("This is a static page that will be completed at a later date.")
       )
     )
   )
@@ -361,7 +400,7 @@ server <- function(input, output, session) {
     h3(str_c(str_to_title(input$draft_selection), " Best Picks"))
   })
   
-  output$best_picks <- renderDT({ #table 1
+  output$best_picks <- renderDT({ #table 2
     req(input$draft_selection) # require input
     best_picks(input$draft_selection, shiny = TRUE) %>%
       datatable(
@@ -378,12 +417,121 @@ server <- function(input, output, session) {
     h3(str_c(str_to_title(input$draft_selection), " Worst Picks"))
   })
   
-  output$worst_picks <- renderDT({ #table 1
+  output$worst_picks <- renderDT({ #table 3
     req(input$draft_selection) # require input
     worst_picks(input$draft_selection, shiny = TRUE) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
+          autoWidth = TRUE,       # Adjust column width automatically
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  # Reactivity for Page 4
+  
+  output$trade_winners_title <- renderUI({ #title
+    h3("Trade Winners")
+  })
+  
+  output$trade_winners <- renderDT({ #table 1
+    overall_trade_winners %>%
+      shiny_edit_tables() %>%
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          autoWidth = TRUE,       # Adjust column width automatically
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$trade_lopsided_title <- renderUI({ #title
+    h3("Lopsided Trades")
+  })
+  
+  output$trade_lopsided <- renderDT({ #table 2
+    lopsided_trades %>%
+      shiny_edit_tables() %>%
+      rename("Trade ID" = "Trade Id") %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          autoWidth = TRUE,       # Adjust column width automatically
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$individual_trade_title <- renderUI({ #title
+    req(input$trade_selection) #require input
+    h3(total_trade_value[[input$trade_selection]] %>% select(team_name) %>% distinct() %>%
+         map_chr(~str_c(.x, collapse = ", ")) %>%
+         str_c(total_trade_value[[input$trade_selection]]$season[1], " W",
+               total_trade_value[[input$trade_selection]]$week[1], " Trade between ", .))
+  })
+  
+  output$individual_trade <- renderDT({ #table 3
+    req(input$trade_selection) #require input
+    inspect_individual_trade(input$trade_selection, shiny = TRUE) %>%
+      datatable(
+        options = list(
+          pageLength = 11,         # Set the initial number of rows per page
+          autoWidth = TRUE,       # Adjust column width automatically
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  # Reactivity for Page 5
+  
+  output$transaction_winners_title <- renderUI({ #title
+    h3("Transaction Winners")
+  })
+  
+  output$transaction_winners <- renderDT({ #table 1
+    overall_transaction_winners %>%
+      shiny_edit_tables() %>%
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          autoWidth = TRUE,       # Adjust column width automatically
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$top_transaction_title <- renderUI({ #title
+    h3("Top Transactions")
+  })
+  
+  output$top_transaction <- renderDT({ #table 2
+    top_transactions %>%
+      shiny_edit_tables() %>%
+      rename("Transaction ID" = "Transaction Id") %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          autoWidth = TRUE,       # Adjust column width automatically
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$individual_transaction_title <- renderUI({ #title
+    req(input$transaction_selection) #require input
+    h3(total_transaction_value[[input$transaction_selection]]$team_name[1] %>%
+         str_c(., "'s ", total_transaction_value[[input$transaction_selection]]$season[1], " W",
+               total_transaction_value[[input$transaction_selection]]$week[1], " Transaction"))
+  })
+  
+  output$individual_transaction <- renderDT({ #table 3
+    req(input$transaction_selection) #require input
+    inspect_individual_transaction(input$transaction_selection, shiny = TRUE) %>%
+      datatable(
+        options = list(
+          pageLength = 2,         # Set the initial number of rows per page
           autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
