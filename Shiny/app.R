@@ -15,7 +15,7 @@ source(here(data_path, "Scripts/Individual Players.R")) # Individual Players
 # Define UI
 ui <- dashboardPage(
   skin = "black",
-  dashboardHeader(title = "Fantasy Football Dynasty League"),
+  dashboardHeader(title = "Baylor Seniors"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Home", tabName = "home", icon = icon("home")),
@@ -23,22 +23,51 @@ ui <- dashboardPage(
       menuItem("Fantasy Teams", tabName = "teams", icon = icon("user-plus")),
       menuItem("Draft Grades", tabName = "draft", icon = icon("calendar")),
       menuItem("Trade Grades", tabName = "trade", icon = icon("handshake")),
-      menuItem("Transaction Grades", tabName = "transaction", icon = icon("arrow-right")),
-      menuItem("Future Standings", tabName = "standings", icon = icon("sliders-h")),
-      menuItem("Player Rankings", tabName = "rankings", icon = icon("sliders-h")),
-      menuItem("Modeling", tabName = "modeling", icon = icon("sliders-h")))
+      menuItem("Transaction Grades", tabName = "transaction", icon = icon("right-left")),
+      menuItem("Matchups", tabName = "matchups", icon = icon("calendar-days")),
+      menuItem("Current Standings", tabName = "current_standings", icon = icon("ranking-star")),
+      menuItem("Future Standings", tabName = "future_standings", icon = icon("circle-question")),
+      menuItem("Player Rankings", tabName = "rankings", icon = icon("arrow-trend-up")),
+      menuItem("Modeling", tabName = "modeling", icon = icon("chart-simple")))
   ),
   dashboardBody(
     tabItems(
       tabItem(
         # Home Tab
         tabName = "home",
-        h2("Welcome to the Home Page"),
-        p("This is a static page that eventually will store more information.")
+        titlePanel("Fantasy Football Dynasty League"),
+        p("Hello! This website hosts results and analysis for the Baylor Seniors Fantasy Football Dynasty League. The foundation of the analysis
+        rests on the novel", strong("value added"), "metric. From here, I model player's future success and organize data in an (hopefully)
+        accessible method. This website is intended to contain relevant and niche information that informs the twelve users within
+        the league. It is not intended to compete with popular fantasy player valuing websites like Keep Trade Cut or Dynasty Daddy.
+        In fact, several of my models are derived from these popular ratings. That being said, I firmly take credit for any success
+        or newfound knowledge any fantasy users derive from this website. You're Welcome."),
+        h4("Value Added"),
+        p("A fantasy players' value added is intended to represent a fantasy player's actual value contributed to an user. Players yield
+        no benefits on the bench; a team with two quality QBs needs a third less than a team with one quality QB. I measure a players' value
+        added as the difference in his fantasy output with the output of a replacement level player of
+        their position. Players only contribute (or lose) value added if started in the lineup. Thus, a fantasy player in the Baylor Seniors
+        league may have a different value added than the same fantasy player in a different league."),
+        p("Each position's replacement level player is defined as the top bench player or free agent at every position. The replacement level
+           output is the average of these twelve players. Ultimately, a players' value added can change drastically depending on the 
+          player's position and the team's composition. For example, if a user starts three RBs in one particular week, then all three RB's
+          replacement level output is actually the top bench or free agent FLEX player. However, if the following week, the user starts only two RBs,
+          then the RB's replacement level output is the top bench or free agent RB. This is intentional; this dynamic rating system aims to adjust
+          players' value to the fantasy team's composition."),
+        h4("Future Value"),
+        p("Put simply, a player's ", strong("future value"), " is his expected value added in future seasons. It's difficult to project this
+        directly, so I measure a player's future value as a function of his position, age, and current keep trade cut value. I employ a
+        bayesian hierarchical polynomial regression model to predict each player's value added in future years.
+        (It's much more complicated than this. If you want to know more please see my ",
+        a("GitHub", href = "https://github.com/CalebSkinner1/FantasyDynasty", target = "_blank"), "for more information).
+        With this model, I am able to draw samples from future years and simulate each player's career. I total the results from these
+        simulations to compute a player's future value. In line with common financial and economic models,
+        I discount the future value of each successive year by 5%.")
+        
       ),
       tabItem( # Page 1 Tab
         tabName = "players",
-        h2("Individual Players"),
+        titlePanel("Individual Players"),
         selectizeInput(
           inputId = "player_name", 
           label = "Enter a Player's Name", 
@@ -47,11 +76,12 @@ ui <- dashboardPage(
             placeholder = "Start typing...",
             maxOptions = 5  # Limit the number of suggestions shown
           )),
+        DTOutput("player_basic_info"),
         plotOutput("plot_future_value"),
         selectizeInput(
           inputId = "player_season", 
           label = "Enter Season", 
-          choices = "2024",
+          choices = c(2024),
           multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -63,7 +93,7 @@ ui <- dashboardPage(
       ),
       tabItem( # Page 2 Tab
         tabName = "teams",
-        h2("Fantasy Teams"),
+        titlePanel("Fantasy Teams"),
         selectizeInput(
           inputId = "team_name", 
           label = "Enter a Team's Name", 
@@ -118,7 +148,7 @@ ui <- dashboardPage(
       ),
       tabItem( # Page 3 Tab
         tabName = "draft",
-        h2("Draft Grades"),
+        titlePanel("Draft Grades"),
         selectizeInput(
           inputId = "draft_selection", 
           label = "Enter Draft", 
@@ -156,7 +186,7 @@ ui <- dashboardPage(
       ),
       tabItem( # Page 5 Tab
         tabName = "transaction",
-        h2("Transaction Grades"),
+        titlePanel("Transaction Grades"),
         uiOutput("transaction_winners_title"),
         DTOutput("transaction_winners"),
         uiOutput("top_transaction_title"),
@@ -175,17 +205,27 @@ ui <- dashboardPage(
       ),
       tabItem( # Page 6 Tab
         tabName = "standings",
-        h2("Future Standings"),
+        titlePanel("Matchups"),
         p("This is a static page that will be completed at a later date.")
       ),
       tabItem( # Page 7 Tab
-        tabName = "rankings",
-        h2("Player Rankings"),
+        tabName = "current_standings",
+        titlePanel("Current Standings"),
         p("This is a static page that will be completed at a later date.")
       ),
       tabItem( # Page 8 Tab
+        tabName = "future_standings",
+        titlePanel("Future Standings"),
+        p("This is a static page that will be completed at a later date.")
+      ),
+      tabItem( # Page 9 Tab
+        tabName = "rankings",
+        titlePanel("Player Rankings"),
+        p("This is a static page that will be completed at a later date.")
+      ),
+      tabItem( # Page 10 Tab
         tabName = "modeling",
-        h2("Model Explanations and Fit"),
+        titlePanel("Model Explanations and Fit"),
         p("This is a static page that will be completed at a later date.")
       )
     )
@@ -196,27 +236,38 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   # Reactivity for Page 1
   
-  output$plot_future_value <- renderPlot({ #first plot
-    plot_future_value(input$player_name)
+  output$player_basic_info <- renderDT({ #table 1
+    req(input$player_name)
+    basic_info(input$player_name) %>%
+      datatable(
+        options = list(
+          pageLength = 1,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
   })
   
+  output$plot_future_value <- renderPlot({ #first plot
+    req(input$player_name)
+    plot_future_value(input$player_name)
+  })
   
   output$tabulate_realized_value_title <- renderUI({ #title
     req(input$player_name, input$player_season) #require input
     h3(str_c(input$player_name, " Seasons"))
   })
   
-  output$tabulate_realized_value <- renderDT({ #table
+  output$tabulate_realized_value <- renderDT({ #table 2
     req(input$player_season)
     tabulate_realized_value(value_added_24, input$player_name, input$player_season, shiny = TRUE) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
   })
+  
   output$weekly_results <- renderPlot({ #second plot
     req(input$player_season) #require input
     weekly_results(value_added_24, input$player_name, input$player_season)
@@ -237,7 +288,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -256,7 +306,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -275,7 +324,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -294,7 +342,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -313,7 +360,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -332,7 +378,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -351,7 +396,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -370,7 +414,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -389,7 +432,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 12,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -406,7 +448,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -423,7 +464,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -441,7 +481,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 12,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -458,7 +497,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -478,7 +516,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 11,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -496,7 +533,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 12,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -513,7 +549,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -532,7 +567,6 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 2,         # Set the initial number of rows per page
-          autoWidth = TRUE,       # Adjust column width automatically
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
@@ -542,3 +576,4 @@ server <- function(input, output, session) {
 
 # Run the App
 shinyApp(ui, server)
+

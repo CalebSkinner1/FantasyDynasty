@@ -11,6 +11,10 @@ load(here(data_path, "Data/simulations.RData"))
 season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv"), show_col_types = FALSE)
 users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
+player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE)
+player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE) %>%
+  select(name, player_id, birth_date, position, sva_2024, future_value) %>%
+  mutate(total_value = sva_2024 + .95*future_value) # devalue future
 
 # function to edit tables for shiny
 shiny_edit_tables <- function(df){
@@ -18,6 +22,17 @@ shiny_edit_tables <- function(df){
     mutate(across(where(is.numeric), ~round(.x, 2))) %>%
     rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
     rename_with(~str_to_title(.x), everything())
+}
+
+basic_info <- function(enter_name){
+  player_info %>%
+    left_join(player_total_value %>% select(-name, -position, -birth_date),
+              by = join_by(player_id)) %>%
+    filter(name == enter_name) %>%
+    mutate(age = interval(birth_date, today())%/% years(1)) %>%
+    select(position, age, sva_2024, future_value, total_value) %>%
+    rename(value_added_2024 = sva_2024) %>%
+    shiny_edit_tables()
 }
 
 # plots players median future value over next fifteen years

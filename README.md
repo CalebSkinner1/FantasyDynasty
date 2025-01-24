@@ -1,5 +1,5 @@
 # FantasyDynasty
-This repository is designed to host a website for my Dynasty Fantasy Football League. In this repository,
+This repository is designed to host a website for my Fantasy Football Dynasty League. In this repository,
 I combine my interest in fantasy football with Bayesian Hierarchical Modeling, RShiny, intense data
 wrangling, and creative modeling.
 
