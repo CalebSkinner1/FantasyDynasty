@@ -4,6 +4,7 @@ library("shinydashboard")
 library("here")
 library("DT")
 library("tidyverse"); theme_set(theme_minimal())
+data_path <- "FantasyDynasty"
 
 # Specify the folder containing the R scripts
 folder_path <- "FantasyDynasty/Scripts/"
