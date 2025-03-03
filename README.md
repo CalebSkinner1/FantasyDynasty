@@ -42,12 +42,14 @@ For convenience, I place functions in Scrape Functions. First, I use nflfastR to
 
 # yearly update
 
-# future goals/updates
+# future goals/updates - ideas
 1. zero-inflated model to predict value added (especially for rookie next year production)
-2. update hierarchical model with correct hyperpriors (https://arxiv.org/pdf/2110.10565)
+2. update hierarchical model with correct hyperpriors (https://arxiv.org/pdf/2110.10565) and gprior
 3. box-cox transformation for hierarchical model? (age, hktc_value)
-4. posterior predictive check for hierarchical model
-5. use bayesian model to predict rookie values (allow for variation when drawing samples)
+4. split age into three categories and use hierarchy on this
+5. posterior predictive check for hierarchical model
+6. try bayesian mixture linear model instead of hierarchical
+7. use bayesian model to predict rookie values (allow for variation when drawing samples)
 
 
 
