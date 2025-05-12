@@ -18,11 +18,15 @@ They are listed roughly in order of creation.
 
 # Scraping
 
-These two files host most of the web scraping and data wrangling I employ to obtain the data in this project.
-For convenience, I place functions in Scrape Functions. First, I use nflfastR to obtain box score data for the players.
+These two files perform most of the web scraping and data wrangling I employ to obtain the data in this project.
+For convenience, I place functions in Scrape Support.R. First, I use nflfastR to obtain box score data for the players. Then, I use
+Sleeper API's to acquire information about the league (ownership, trades, acquisitions, drafts, etc.). I scrape player projections from
+Fantasy Football Today and player value from Keep Trade Cut.
 
 
 # Player Value Added
+
+
 
 # Player Total Value
 
@@ -37,6 +41,9 @@ For convenience, I place functions in Scrape Functions. First, I use nflfastR to
 # References
 
 1. [NFL Box Score Data](https://www.nflfastr.com)
+2. [Sleeper API](https://docs.sleeper.com)
+3. [Keep Trade Cut](https://keeptradecut.com)
+4. [Fantasy Football Today](https://www.fftoday.com/rankings)
 
 # weekly update
 

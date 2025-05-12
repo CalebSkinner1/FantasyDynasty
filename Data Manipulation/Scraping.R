@@ -4,7 +4,7 @@ library("nflfastR")
 library("here")
 data_path <- "FantasyDynasty/"
 
-source(here(data_path, "Data Manipulation/Scrape Functions.R"))
+source(here(data_path, "Data Manipulation/Scrape Support.R"))
 
 # load box score data from NFL 2024
 # https://www.nflfastr.com
@@ -173,14 +173,25 @@ future_draft_picks <- assigned_picks %>%
 
 # Scrape Projections ----------------------------------------------------
 # need weekly player ranking for above replacement metric
-# https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=1&PosID=10&LeagueID=208518
+# https://www.fftoday.com/rankings/playerwkproj.php?Season=2025&GameWeek=1&PosID=10&LeagueID=208518
 
-projections <- map(1:17, ~combine_week(.x)) %>%
-  rbindlist() %>%
-  as_tibble() %>%
-  name_correction()
+# projections24 <- map(1:17, ~combine_week(.x, 2024)) %>%
+#   rbindlist() %>%
+#   as_tibble() %>%
+#   name_correction()
 
-# write_csv(projections, here(data_path, "Data/projections24.csv"))
+# when projections start, run this one
+# projections25 <- map(list(1), ~combine_week(.x, 2025)) %>%
+#   rbindlist() %>%
+#   as_tibble() %>%
+#   name_correction()
+
+# projections25 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
+
+# write_csv(projections25, here(data_path, "Data/projections25.csv"))
+projections24 <- read_csv(here(data_path, "Data/projections24.csv"))
+
+projections <- list(projections24, projections25)
 
 # Scrape Future Value -----------------------------------------------------
 # https://keeptradecut.com/dynasty-rankings
@@ -307,8 +318,8 @@ while(ktc_rows != 500){
 
 
 # periodically save
-# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc_value010825.csv"))
+# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc_value051025.csv"))
 
 # remove objects and functions to declutter environment
-rm(league_id, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
+rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
    draft_trades_urls)

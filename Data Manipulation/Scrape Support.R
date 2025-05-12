@@ -178,18 +178,18 @@ grab_rankings <- function(fftoday_page_html, wk){
 # combine them into one function
 # make sure url doesn't change for some reason
 # QB URL: "https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=1&PosID=10&LeagueID=208518"
-combine_week <- function(week){
-  kick_def_rankings <- str_c("https://www.fftoday.com/rankings/playerwkrank.php?GameWeek=",
+combine_week <- function(week, season){
+  kick_def_rankings <- str_c("https://www.fftoday.com/rankings/playerwkrank.php?Season=", season, "&GGameWeek=",
                              week, "&PosID=80&LeagueID=208518") %>%
     grab_rankings(week)
   
   
-  rb_wr <- map(c(20,30), ~str_c("https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=",
+  rb_wr <- map(c(20,30), ~str_c("https://www.fftoday.com/rankings/playerwkproj.php?Season=", season, "&GameWeek=",
                                 week, "&PosID=", .x, "&LeagueID=208518&order_by=FFPts&sort_order=DESC&cur_page=1") %>%
                  grab_projection(week)) %>%
     append(kick_def_rankings)
   
-  map(c(10, 20, 30, 40), ~str_c("https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=",
+  map(c(10, 20, 30, 40), ~str_c("https://www.fftoday.com/rankings/playerwkproj.php?Season=", season, "&GameWeek=",
                                 week, "&PosID=", .x, "&LeagueID=208518") %>%
         grab_projection(week)) %>%
     append(rb_wr) %>%

@@ -10,6 +10,8 @@ library("here")
 data_path <- "FantasyDynasty/"
 source(here(data_path, "Data Manipulation/Scraping.R")) #run data ~45 seconds
 
+player_info <- read_csv(here(data_path, "Data/player_info.csv"))
+
 # Sleeper Score -----------------------------------------------------------
 
 # compute fantasy score for non kickers and defenses
@@ -76,44 +78,64 @@ sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper
 # Find Value at Replacement -----------------------------------------------
 
 # get projections in list format
-projections_list <- projections %>%
+projections_list <- map(projections, ~.x %>%
   group_by(week) %>%
   reframe(week = list(tibble(name, projection, week))) %>%
-  deframe()
+  deframe())
 
 # first find each player that started in the week
-starters <- map(matchups, ~.x %>%
-                  select(roster_id, starters, starters_points) %>%
-                  unnest(cols = c(starters, starters_points)) %>%
-                  filter(starters != 0) %>%
-                  left_join(player_info, by = join_by(starters == player_id)) %>%
-                  select(-starters, -birth_date))
-
+starters <- map(
+  matchups, ~.x %>%
+    map(~{
+      if(nrow(.x) != 0){
+        .x %>%
+          select(roster_id, starters, starters_points) %>%
+          unnest(cols = c(starters, starters_points)) %>%
+          filter(starters != 0) %>%
+          left_join(player_info, by = join_by(starters == player_id)) %>%
+          select(-starters, -birth_date)}else{
+            tibble()
+          }
+    })
+)
+  
 # find bench players
 bench <- pmap(list(matchups, starters, projections_list), function(m, s, p){
-  m %>%
-    select(roster_id, players) %>%
-    unnest(cols = players) %>%
-    left_join(player_info, by = join_by(players == player_id)) %>%
-    anti_join(s %>% select(name), by = join_by(name)) %>%
-    left_join(p %>% select(-week), by = join_by(name)) %>%
-    mutate(projection = replace_na(projection, 0),
-           type = "bench") %>%
-    select(-players, -birth_date)
+  pmap(list(m, s, p), function(m, s, p){
+    if(nrow(m) == 0){
+      tibble()} else{
+      m %>%
+        select(roster_id, players) %>%
+        unnest(cols = players) %>%
+        left_join(player_info, by = join_by(players == player_id)) %>%
+        anti_join(s %>% select(name), by = join_by(name)) %>%
+        left_join(p %>% select(-week), by = join_by(name)) %>%
+        mutate(projection = replace_na(projection, 0),
+               type = "bench") %>%
+        select(-players, -birth_date)
+    }
+  })
 })
+  
+
 
 # find top waiver picks
 
-waiver <- pmap(list(projections_list, bench, starters),
-               function(p, b, s){
-                 p %>% left_join(player_info %>% select(-player_id), by = join_by(name),
-                                 relationship = "many-to-many") %>%
-                   anti_join(b %>% select(name), by = join_by(name)) %>%
-                   anti_join(s %>% select(name), by = join_by(name)) %>%
-                   mutate(type = "waiver") %>%
-                   arrange(position, desc(projection)) %>%
-                   select(-birth_date)
-               })
+waiver <- pmap(list(projections_list, bench, starters), function(p, b, s){
+  pmap(list(p, b, s), function(p, b, s){
+    if(nrow(b) == 0){
+      tibble()
+    }else{
+      p %>% left_join(player_info %>% select(-player_id), by = join_by(name),
+                      relationship = "many-to-many") %>%
+        anti_join(b %>% select(name), by = join_by(name)) %>%
+        anti_join(s %>% select(name), by = join_by(name)) %>%
+        mutate(type = "waiver") %>%
+        arrange(position, desc(projection)) %>%
+        select(-birth_date)
+    }
+  })
+})
 
 # replacement
 top_replacement <- function(bench, waiver, pos, roster){
@@ -155,27 +177,37 @@ super_flex <- append(flex, "QB")
 all_positions <- list("QB", "RB", "WR", "TE", flex, super_flex, "K", "DST")
 
 all_replacements <- map2(bench, waiver, ~{
-  b <- .x
-  w <- .y
-  wk <- .y$week[[1]]
-  map(all_positions, ~clean_replacements(b, w, .x, wk))})
+  map2(.x, .y, ~{
+    if(nrow(.x) == 0){
+      list()
+    }else{
+      b <- .x
+      w <- .y
+      wk <- .y$week[[1]]
+      map(all_positions, ~clean_replacements(b, w, .x, wk))}
+  })
+})
 
 # replacement's fantasy score
-find_score <- function(player, wk){
+find_score <- function(player, season, wk){
   sleeper_points %>%
-    filter(week == wk, name == player) %>%
+    filter(week == wk, name == player, season  == season) %>%
     select(sleeper_points) %>%
     pull()
 }
 
-mean_replacements <- map(all_replacements, ~map(.x, ~{
-  r <- .x[[1]]
-  p <- .x[[2]]
-  wk <- .x[[3]]
-  tibble(mean_replacement = map(r, ~find_score(.x, wk)) %>%
-           unlist() %>% sum()/12, pos = p, week = wk)}) %>%
+mean_replacements <- map(all_replacements, ~map(.x, ~map(.x, ~{
+  if(length(.x) == 0){
+    list()
+  }else{
+    r <- .x[[1]]
+    p <- .x[[2]]
+    wk <- .x[[3]]
+    tibble(mean_replacement = map(r, ~find_score(.x, wk)) %>%
+             unlist() %>% sum()/12, pos = p, week = wk)}}) %>%
     rbindlist() %>%
-    as_tibble())
+    as_tibble()
+))
 
 # tone down outliers
 overall_mean <- mean_replacements %>%
