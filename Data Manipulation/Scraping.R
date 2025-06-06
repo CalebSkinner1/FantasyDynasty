@@ -186,7 +186,7 @@ future_draft_picks <- assigned_picks %>%
 #   as_tibble() %>%
 #   name_correction()
 
-# projections25 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
+projections25 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
 
 # write_csv(projections25, here(data_path, "Data/projections25.csv"))
 projections24 <- read_csv(here(data_path, "Data/projections24.csv"))
@@ -316,9 +316,8 @@ while(ktc_rows != 500){
   ktc_rows <- keep_trade_cut %>% distinct(name) %>% nrow()
 }
 
-
 # periodically save
-# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc_value051025.csv"))
+# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc_value060425.csv"))
 
 # remove objects and functions to declutter environment
 rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
