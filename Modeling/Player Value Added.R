@@ -196,18 +196,22 @@ find_score <- function(player, season, wk){
     pull()
 }
 
-mean_replacements <- map(all_replacements, ~map(.x, ~map(.x, ~{
-  if(length(.x) == 0){
+mean_replacements <- imap(seq_len(length(all_replacements)), ~{
+  s <- .x + 2023 # season
+  map(all_replacements[[.x]], ~map(.x, ~{
+  if(length(.x) == 0){ #catch if empty (week has not played yet)
     list()
   }else{
     r <- .x[[1]]
     p <- .x[[2]]
     wk <- .x[[3]]
-    tibble(mean_replacement = map(r, ~find_score(.x, wk)) %>%
-             unlist() %>% sum()/12, pos = p, week = wk)}}) %>%
+    tibble(mean_replacement = map(r, ~find_score(.x, s, wk)) %>%
+             unlist() %>% sum()/12, pos = p, season = s, week = wk)}}) %>%
     rbindlist() %>%
     as_tibble()
-))
+)})
+
+# HERE!
 
 # tone down outliers
 overall_mean <- mean_replacements %>%

@@ -8,9 +8,10 @@ source(here(data_path, "Data Manipulation/Scrape Support.R"))
 
 # load box score data from NFL 2024
 # https://www.nflfastr.com
-box_score_off <- load_player_stats(seasons = 2024, stat_type = "offense")
-box_score_kicking <- load_player_stats(seasons = 2024, stat_type = "kicking")
-box_score_def <- calculate_stats(summary_level = "week", stat_type = "team")
+box_score_off <- nflfastR::load_player_stats(seasons = 2024, stat_type = "offense")
+box_score_kicking <- nflfastR::load_player_stats(seasons = 2024, stat_type = "kicking")
+box_score_def <- nflfastR::calculate_stats(seasons = 2024, summary_level = "week", stat_type = "team", season_type = "REG")
+
 
 # Sleeper API ----------------------------------------------------
 # https://docs.sleeper.com
@@ -114,28 +115,28 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
 #   as_tibble()
 # 
 # # all 32 defenses
-# defenses <- box_score_def %>%
-#   rename(name = team) %>%
-#   select(name) %>%
-#   distinct() %>%
-#   mutate(
-#     name = recode(name, "LA" = "LAR"),
-#     player_id = name,
-#     position = "DST")
-# 
+defenses <- box_score_def %>%
+  rename(name = team) %>%
+  select(name) %>%
+  distinct() %>%
+  mutate(
+    name = recode(name, "LA" = "LAR"),
+    player_id = name,
+    position = "DST")
+
 # # load player info
-# player_info <- player_information %>%
-#   select(name, player_id, position, birth_date) %>%
-#   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
-#   # remove duplicate names
-#   filter(player_id != 4634, player_id != 748, player_id != 232) %>%
-#   mutate(
-#     position = case_when(
-#       name == "Taysom Hill" ~ "TE",
-#       .default = position)) %>%
-#   distinct() %>%
-#   bind_rows(defenses) %>%
-#   name_correction()
+player_info <- player_information %>%
+  select(name, player_id, position, birth_date) %>%
+  filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
+  # remove duplicate names
+  filter(player_id != 4634, player_id != 748, player_id != 232) %>%
+  mutate(
+    position = case_when(
+      name == "Taysom Hill" ~ "TE",
+      .default = position)) %>%
+  distinct() %>%
+  bind_rows(defenses) %>%
+  name_correction()
 # 
 # write_csv(player_info, here(data_path, "Data/player_info.csv"))
 
@@ -317,7 +318,7 @@ while(ktc_rows != 500){
 }
 
 # periodically save
-# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc_value060425.csv"))
+keep_trade_cut %>% write_csv(here(data_path, "Data/ktc values/ktc_value060825.csv"))
 
 # remove objects and functions to declutter environment
 rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
