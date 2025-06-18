@@ -117,8 +117,6 @@ bench <- pmap(list(matchups, starters, projections_list), function(m, s, p){
   })
 })
   
-
-
 # find top waiver picks
 
 waiver <- pmap(list(projections_list, bench, starters), function(p, b, s){
@@ -168,7 +166,7 @@ clean_replacements <- function(bench, waiver, pos, wk){
     pos <- "flex"
   }
   
-  list(replacements, pos, wk) %>%
+  list("replacements" = replacements, "position" = pos, "week" = wk) %>%
     return()
 }
 
@@ -178,7 +176,7 @@ all_positions <- list("QB", "RB", "WR", "TE", flex, super_flex, "K", "DST")
 
 all_replacements <- map2(bench, waiver, ~{
   map2(.x, .y, ~{
-    if(nrow(.x) == 0){
+    if(!is.numeric(.x$projection[1])){
       list()
     }else{
       b <- .x
@@ -190,10 +188,15 @@ all_replacements <- map2(bench, waiver, ~{
 
 # replacement's fantasy score
 find_score <- function(player, season, wk){
-  sleeper_points %>%
-    filter(week == wk, name == player, season  == season) %>%
+  return <- sleeper_points %>%
+    filter(week == wk, name == player, season == season) %>%
     select(sleeper_points) %>%
     pull()
+  
+  if(length(return) == 0){
+    return <- 0
+  }
+  return
 }
 
 mean_replacements <- imap(seq_len(length(all_replacements)), ~{
@@ -202,93 +205,125 @@ mean_replacements <- imap(seq_len(length(all_replacements)), ~{
   if(length(.x) == 0){ #catch if empty (week has not played yet)
     list()
   }else{
-    r <- .x[[1]]
-    p <- .x[[2]]
-    wk <- .x[[3]]
-    tibble(mean_replacement = map(r, ~find_score(.x, s, wk)) %>%
-             unlist() %>% sum()/12, pos = p, season = s, week = wk)}}) %>%
+    r <- .x$replacements
+    p <- .x$position
+    wk <- .x$week
+    
+    mr <- map_dbl(r, ~find_score(.x, s, wk)) %>% mean()
+    tibble(mean_replacement = mr, pos = p, season = s, week = wk)}}) %>%
     rbindlist() %>%
     as_tibble()
 )})
 
-# HERE!
-
 # tone down outliers
-overall_mean <- mean_replacements %>%
-  rbindlist() %>%
-  as_tibble() %>%
-  group_by(pos) %>%
-  summarize(overall_mean = mean(mean_replacement))
+overall_mean <- map(mean_replacements, ~{
+  if(length(.x[[1]]) == 0){
+    tibble()
+  }else{
+    .x %>%
+      rbindlist() %>%
+      as_tibble() %>%
+      group_by(pos) %>%
+      summarize(overall_mean = mean(mean_replacement))
+  }})
 
-weighted_mean_replacements <- map(mean_replacements, ~.x %>%
-                                    left_join(overall_mean, by = join_by(pos)) %>%
-                                    mutate(weighted_mean = overall_mean*.3 + mean_replacement*.7) %>%
-                                    select(pos, week, weighted_mean))
+weighted_mean_replacements <- imap(seq_len(length(mean_replacements)), ~{
+  s <- .x
+  mean_replacements[[s]] %>% map(~{
+    if(length(.x) == 0){
+      tibble()
+    }else{
+      .x %>%
+        left_join(overall_mean[[s]], by = join_by(pos)) %>%
+        mutate(weighted_mean = overall_mean*.3 + mean_replacement*.7) %>%
+        select(pos, week, weighted_mean)}})
+    })
 
-# find value above mean replacement
-starters_revamp <- map(starters, ~.x %>%
-                         group_by(roster_id) %>%
-                         reframe(
-                           roster_id = list(tibble(starters_points, name, position, roster_id))) %>%
-                         deframe())
+# find value above mean replacement - starters points by roster
+starters_revamp <- map(starters, ~.x %>% map(~{
+  if(sum(.x$starters_points) == 0){
+    tibble()
+  }else{
+    .x %>%
+      group_by(roster_id) %>%
+      reframe(
+        roster_id = list(tibble(starters_points, name, position, roster_id))) %>%
+      deframe()
+  }
+}))
 
 # compute value added
-value_added <- map2(starters_revamp, weighted_mean_replacements, ~{
-  s <- .x
-  mr <- .y
-  map(s, ~{
-    
-    qb <- sum(.x$position == "QB")
-    wr <- sum(.x$position == "WR")
-    rb <- sum(.x$position == "RB")
-    te <- sum(.x$position == "TE")
-    
-    .x %>%
+value_added <- imap_dfr(seq_len(length(starters_revamp)), ~{
+  sr <- starters_revamp[[.x]]
+  wmr <- weighted_mean_replacements[[.x]]
+  
+  value_added_tbl <- map2_dfr(sr, wmr, ~{
+    if(length(.x) == 0){
+      tibble()
+    }
+    else{
+      s <- .x
+      mr <- .y
+      map_dfr(s, ~{
+        
+        qb <- sum(.x$position == "QB")
+        wr <- sum(.x$position == "WR")
+        rb <- sum(.x$position == "RB")
+        te <- sum(.x$position == "TE")
+        
+        .x %>%
+          mutate(
+            replacement_need = case_when(
+              position == "QB" & qb == 2 ~ "super_flex",
+              position == "RB" & rb > 2 & qb == 1 ~ "super_flex",
+              position == "RB" & rb > 2 ~ "flex",
+              position == "WR" & wr > 2 & qb == 1 ~ "super_flex",
+              position == "WR" & wr > 2 ~ "flex",
+              position == "TE" & te > 1 & qb == 1 ~ "super_flex",
+              position == "TE" & te > 1 ~ "flex",
+              .default = position)) %>%
+          left_join(mr, by = join_by(replacement_need == pos)) %>%
+          mutate(
+            value_added = starters_points - weighted_mean)}) %>%
+        rename(points = "starters_points") %>%
+        select(roster_id, name, position, week, points, value_added)
+    }})
+  if(length(value_added_tbl) == 0){
+    tibble()
+  }else{
+    value_added_tbl %>% 
+      rename("sleeper_points" = "points") %>%
+      mutate(type = "starter") %>%
+      # add with bench players
+      bind_rows(
+        bind_rows(bench[[s]], .id = "week") %>%
+          select(-projection) %>%
+          mutate(week = as.numeric(week)) %>%
+          left_join(select(sleeper_points, -season), by = join_by(name, week)) %>%
+          mutate(
+            sleeper_points = replace_na(sleeper_points, 0),
+            # obviously they have 0 value added
+            value_added = 0)) %>%
+      # add projections
+      left_join(projections[[s]], by = join_by(name, week)) %>%
+      # give projected 0 if not present
       mutate(
-        replacement_need = case_when(
-          position == "QB" & qb == 2 ~ "super_flex",
-          position == "RB" & rb > 2 & qb == 1 ~ "super_flex",
-          position == "RB" & rb > 2 ~ "flex",
-          position == "WR" & wr > 2 & qb == 1 ~ "super_flex",
-          position == "WR" & wr > 2 ~ "flex",
-          position == "TE" & te > 1 & qb == 1 ~ "super_flex",
-          position == "TE" & te > 1 ~ "flex",
-          .default = position)) %>%
-      left_join(mr, by = join_by(replacement_need == pos)) %>%
-      mutate(
-        value_added = starters_points - weighted_mean)}) %>%
-    rbindlist() %>%
-    as_tibble() %>%
-    rename(points = "starters_points") %>%
-    select(roster_id, name, position, week, points, value_added)}) %>%
-  rbindlist() %>%
-  as_tibble() %>%
-  rename("sleeper_points" = "points") %>%
-  mutate(type = "starter") %>%
-  # add with bench players
-  bind_rows(
-    bind_rows(bench, .id = "week") %>%
-      select(-projection) %>%
-      mutate(week = as.numeric(week)) %>%
-      left_join(select(sleeper_points, -season), by = join_by(name, week)) %>%
-      mutate(
-        sleeper_points = replace_na(sleeper_points, 0),
-        # obviously they have 0 value added
-        value_added = 0)) %>%
-  # add projections
-  left_join(projections, by = join_by(name, week)) %>%
-  # give projected 0 if not present
-  mutate(projection = replace_na(projection, 0))
+        projection = replace_na(projection, 0),
+        season = s + 2023)
+  }
+})
+  
 
 season_value_added <- value_added %>%
-  group_by(position, name) %>%
+  group_by(season, position, name) %>%
   summarize(
     total_value_added = sum(value_added),
-    total_points = sum(sleeper_points)) %>%
+    total_points = sum(sleeper_points),
+    .groups = "keep") %>%
   arrange(desc(total_value_added))
 
-# write_csv(value_added, here(data_path, "Data/va_2024.csv"))
-# write_csv(season_value_added, here(data_path, "Data/sva_2024.csv"))
+write_csv(value_added, here(data_path, "Data/va.csv"))
+write_csv(season_value_added, here(data_path, "Data/sva.csv"))
 
 season_value_added %>% print(n=30)
 
