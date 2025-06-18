@@ -4,6 +4,8 @@ library("nflfastR")
 library("here")
 data_path <- "FantasyDynasty/"
 
+options(nflreadr.verbose = FALSE)
+
 source(here(data_path, "Data Manipulation/Scrape Support.R"))
 
 # load box score data from NFL 2024
@@ -113,7 +115,9 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
 #     weight = .x$weight)}) %>%
 #   rbindlist(fill = TRUE) %>%
 #   as_tibble()
-# 
+
+player_in
+
 # # all 32 defenses
 defenses <- box_score_def %>%
   rename(name = team) %>%
@@ -125,18 +129,18 @@ defenses <- box_score_def %>%
     position = "DST")
 
 # # load player info
-player_info <- player_information %>%
-  select(name, player_id, position, birth_date) %>%
-  filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
-  # remove duplicate names
-  filter(player_id != 4634, player_id != 748, player_id != 232) %>%
-  mutate(
-    position = case_when(
-      name == "Taysom Hill" ~ "TE",
-      .default = position)) %>%
-  distinct() %>%
-  bind_rows(defenses) %>%
-  name_correction()
+# player_info <- player_information %>%
+#   select(name, player_id, position, birth_date) %>%
+#   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
+#   # remove duplicate names
+#   filter(player_id != 4634, player_id != 748, player_id != 232) %>%
+#   mutate(
+#     position = case_when(
+#       name == "Taysom Hill" ~ "TE",
+#       .default = position)) %>%
+#   distinct() %>%
+#   bind_rows(defenses) %>%
+#   name_correction()
 # 
 # write_csv(player_info, here(data_path, "Data/player_info.csv"))
 
@@ -318,7 +322,7 @@ while(ktc_rows != 500){
 }
 
 # periodically save
-keep_trade_cut %>% write_csv(here(data_path, "Data/ktc values/ktc_value060825.csv"))
+keep_trade_cut %>% write_csv(here(data_path, "Data/ktc values/ktc_value061725.csv"))
 
 # remove objects and functions to declutter environment
 rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
