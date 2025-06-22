@@ -66,7 +66,7 @@ find_tva_parameters <- function(data){
                             N_new = N, X_new = X)
   
   hierarchical_fit <- stan(
-    file = here(data_path, "hierarchical_tva.stan"),  # Path to Stan model file
+    file = here(data_path, "Modeling/hierarchical_tva.stan"),  # Path to Stan model file
     data = hierarchical_data,                         # Data list
     iter = 6000,                         # Number of iterations
     chains = 6,                          # Number of chains
@@ -119,7 +119,7 @@ find_ktc_parameters <- function(data){
                             N_new = N, X_new = X)
   
   hierarchical_fit <- stan(
-    file = here(data_path, "hierarchical_ktc.stan"),  # Path to Stan model file
+    file = here(data_path, "Modeling/hierarchical_ktc.stan"),  # Path to Stan model file
     data = hierarchical_data,                         # Data list
     iter = 6000,                         # Number of iterations
     chains = 6,                          # Number of chains

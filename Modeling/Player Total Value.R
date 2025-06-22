@@ -8,16 +8,16 @@ data_path <- "FantasyDynasty/"
 
 # source(here(data_path, "Modeling/Player Value Added.R")) # grab updated value added ~50 seconds
 source(here(data_path, "Modeling/Player Total Value Functions.R")) # grab functions
-source(here(data_path, "Data Manipulation/Scrape Functions.R")) # grab functions
-season_value_added <- read_csv(here(data_path, "Data/sva_2024.csv")) # shortcut
+source(here(data_path, "Data Manipulation/Scrape Support.R")) # grab functions
+season_value_added <- read_csv(here(data_path, "Data/sva.csv")) # shortcut
 player_info <- read_csv(here(data_path, "Data/player_info.csv")) # shortcut 
 
-keep_trade_cut <- read_csv(here(data_path, "Data/ktc_value010825.csv")) # shortcut
+keep_trade_cut <- read_csv(here(data_path, "Data/ktc values/ktc_value061725.csv")) # shortcut
 sleeper_points <- read_csv(here(data_path, "Data/sleeper_points24.csv")) # shortcut
 
 # organize data sets
 
-historical_ktc <- read_csv(here(data_path,"Data/ktc_value082324.csv")) %>%
+historical_ktc <- read_csv(here(data_path,"Data/ktc values/ktc_value082324.csv")) %>%
   filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
   name_correction() %>%
   group_by(name) %>%
@@ -79,14 +79,14 @@ sds <- summaries %>%
 
 # tva model parameter values sample (can rerun or load from files)
 
-# tva_parameter_values <- find_tva_parameters(hktc_data) # OR
-# save(tva_parameter_values, file = here(data_path, "Data/tva_parameter_values.RData"))
-load(here(data_path, "Data/tva_parameter_values.RData"))
+tva_parameter_values <- find_tva_parameters(hktc_data) # OR
+save(tva_parameter_values, file = here(data_path, "Data/tva_parameter_values.RData"))
+# load(here(data_path, "Data/tva_parameter_values.RData"))
 
 # ktc model parameter values sample
-# ktc_parameter_values <- find_ktc_parameters(hktc_data) #OR
-# save(ktc_parameter_values, file = here(data_path, "Data/ktc_parameter_values.RData"))
-load(here(data_path, "Data/ktc_parameter_values.RData"))
+ktc_parameter_values <- find_ktc_parameters(hktc_data) #OR
+save(ktc_parameter_values, file = here(data_path, "Data/ktc_parameter_values.RData"))
+# load(here(data_path, "Data/ktc_parameter_values.RData"))
 
 # this value is the group (position) for each player in the data set
 # constant_group <- hktc_data %>%
