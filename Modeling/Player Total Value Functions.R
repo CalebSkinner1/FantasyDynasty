@@ -4,7 +4,7 @@
 # Prep data for and run bayesian hierarchical model
 
 # prep data with transformations and interactions
-prep_data_tva <- function(data){
+prep_data_tva <- function(data, means, sds){
   # remove tva stuff
   means <- means[-c(3, 7)]
   sds <- sds[-c(3, 7)]
@@ -27,7 +27,7 @@ prep_data_tva <- function(data){
 }
 
 # prep data with transformations and interactions
-prep_data_ktc <- function(data){
+prep_data_ktc <- function(data, means, sds){
   df <- data %>%
     select(historical_value, age, tva_adj) %>%
     mutate(
@@ -47,8 +47,8 @@ prep_data_ktc <- function(data){
 }
 
 # uses hierarchical_tva.stan to estimate parameters
-find_tva_parameters <- function(data){
-  y <- data %>% select(tva_adj) %>% pull()
+find_tva_parameters <- function(data, means, sds){
+  y <- data %>% pull(tva_adj)
   N <- length(y)
   
   group <- data %>%
@@ -56,8 +56,7 @@ find_tva_parameters <- function(data){
     pull()
   J <- unique(group) %>% length()
   
-  X <- data %>%
-    prep_data_tva()
+  X <- data %>% prep_data_tva(means, sds)
   
   K <- ncol(X)
   
@@ -89,7 +88,7 @@ find_tva_parameters <- function(data){
 }
 
 # Predict Keep Trade Cut Value after season ends, uses hierarchical_tva.stan to estimate parameters
-find_ktc_parameters <- function(data){
+find_ktc_parameters <- function(data, means, sds){
   min_ktc <- min(data$ktc_value, na.rm = TRUE)
   
   # fill in NA ktc values
@@ -101,7 +100,7 @@ find_ktc_parameters <- function(data){
         .default = ktc_value)) %>%
     ungroup()
   
-  y <- data %>% select(ktc_value) %>% pull()
+  y <- data %>% pull(ktc_value)
   N <- length(y)
   
   group <- data %>%
@@ -109,8 +108,7 @@ find_ktc_parameters <- function(data){
     pull()
   J <- unique(group) %>% length()
   
-  X <- data %>%
-    prep_data_ktc()
+  X <- data %>% prep_data_ktc(means, sds)
   
   K <- ncol(X)
   

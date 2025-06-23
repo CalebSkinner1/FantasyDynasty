@@ -79,14 +79,14 @@ sds <- summaries %>%
 
 # tva model parameter values sample (can rerun or load from files)
 
-tva_parameter_values <- find_tva_parameters(hktc_data) # OR
-save(tva_parameter_values, file = here(data_path, "Data/tva_parameter_values.RData"))
-# load(here(data_path, "Data/tva_parameter_values.RData"))
+# tva_parameter_values <- find_tva_parameters(hktc_data) # OR
+# save(tva_parameter_values, file = here(data_path, "Data/tva_parameter_values.RData"))
+load(here(data_path, "Data/tva_parameter_values.RData"))
 
 # ktc model parameter values sample
-ktc_parameter_values <- find_ktc_parameters(hktc_data) #OR
-save(ktc_parameter_values, file = here(data_path, "Data/ktc_parameter_values.RData"))
-# load(here(data_path, "Data/ktc_parameter_values.RData"))
+# ktc_parameter_values <- find_ktc_parameters(hktc_data) #OR
+# save(ktc_parameter_values, file = here(data_path, "Data/ktc_parameter_values.RData"))
+load(here(data_path, "Data/ktc_parameter_values.RData"))
 
 # this value is the group (position) for each player in the data set
 # constant_group <- hktc_data %>%
