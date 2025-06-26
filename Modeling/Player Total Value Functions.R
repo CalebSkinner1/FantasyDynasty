@@ -3,38 +3,49 @@
 
 # Prep data for and run bayesian hierarchical model
 
-# prep data with transformations and interactions
-prep_data_tva <- function(data, means, sds){
-  # remove tva stuff
-  means <- means[-c(3, 7)]
-  sds <- sds[-c(3, 7)]
-  
-  df <- data %>%
+interaction_terms_tva <- function(data){
+  data %>%
     select(historical_value, age) %>%
     mutate(
       x1_2 = historical_value^2,
       x2_2 = age^2,
       x1_x2 = historical_value*age)
+}
+
+# prep data with transformations and interactions
+prep_data_tva <- function(data, means, sds){
+  df <- data %>% interaction_terms_tva()
   
-  matrix <- pmap(list(df, means, sds), function(df, means, sds){
+  means <- means[colnames(df)]
+  sds <- sds[colnames(df)]
+  
+  pmap(list(df, means, sds), function(df, means, sds){
     (df - means)/sds}) %>%
     bind_rows() %>%
     mutate(intercept = 1) %>%
     relocate(intercept) %>%
     as.matrix()
-  
-  return(matrix)
 }
 
-# prep data with transformations and interactions
-prep_data_ktc <- function(data, means, sds){
-  df <- data %>%
+interaction_terms_ktc <- function(data){
+  data %>%
     select(historical_value, age, tva_adj) %>%
     mutate(
       x1_2 = historical_value^2,
       x2_2 = age^2,
       x1_x2 = historical_value*age,
-      x2_x3 = age*tva_adj)
+      x2_x3 = age*tva_adj,
+      age_24 = if_else(age < 24, 1, 0),
+      age_30 = if_else(age > 30, 1, 0)
+    )
+}
+
+# prep data with transformations and interactions
+prep_data_ktc <- function(data, means, sds){
+  df <- data %>% interaction_terms_ktc()
+  
+  means <- means[colnames(df)]
+  sds <- sds[colnames(df)]
   
   matrix <- pmap(list(df, means, sds), function(df, means, sds){
     (df - means)/sds}) %>%

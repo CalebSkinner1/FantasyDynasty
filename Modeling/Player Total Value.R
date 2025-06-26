@@ -17,6 +17,7 @@ sleeper_points <- read_csv(here(data_path, "Data/sleeper_points24.csv")) # short
 
 # organize data sets
 
+# get ktc value from beginning of 2024 season
 historical_ktc <- read_csv(here(data_path,"Data/ktc values/ktc_value082324.csv")) %>%
   filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
   name_correction() %>%
@@ -24,6 +25,7 @@ historical_ktc <- read_csv(here(data_path,"Data/ktc values/ktc_value082324.csv")
   summarize(value = max(value)) %>%
   arrange(desc(value))
 
+# create data matrix
 hktc_data <- historical_ktc %>%
   rename("historical_value" = "value") %>%
   left_join(season_value_added, by = join_by(name)) %>%
@@ -42,10 +44,10 @@ hktc_data <- historical_ktc %>%
   mutate(
     age = interval(birth_date, ymd("2024-08-23"))/years(1))
 
-hktc_data_list <- hktc_data %>%
-  group_by(position) %>%
-  reframe(position = list(tibble(name, historical_value, total_value_added, tva_adj, ktc_value, position, age))) %>%
-  deframe()
+# hktc_data_list <- hktc_data %>%
+#   group_by(position) %>%
+#   reframe(position = list(tibble(name, historical_value, total_value_added, tva_adj, ktc_value, position, age))) %>%
+#   deframe()
 
 # Bayesian methodology, using hierarchical polynomial regression
 
@@ -58,24 +60,74 @@ hktc_data_list <- hktc_data %>%
 # total value added polynomial regression model
 
 # means and standard deviations that I used to scale the predictors
-summaries <- hktc_data %>%
-  select(historical_value, age, tva_adj) %>%
-  mutate(
-    x1_2 = historical_value^2,
-    x2_2 = age^2,
-    x1_x2 = historical_value*age,
-    x2_x3 = age*tva_adj) %>%
-  group_by() %>%
-  summarize(
-    across(everything(), list(mean = ~mean(.), sd = ~sd(.))))
+summaries <- hktc_data %>% interaction_terms_ktc()
 
-means <- summaries %>%
-  select(contains("mean")) %>%
-  unlist(use.names = FALSE)
+means <- colMeans(summaries)
 
-sds <- summaries %>%
-  select(contains("sd")) %>%
-  unlist(use.names = FALSE)
+sds <- sapply(summaries, sd)
+
+X_ktc <- hktc_data %>% prep_data_ktc(means, sds)
+# fill in NA ktc values
+Y_ktc <- if_else(is.na(hktc_data$ktc_value),
+                 runif(1, min = 0, max = min(hktc_data$ktc_value, na.rm = TRUE)),
+                 hktc_data$ktc_value)/100
+group_ktc <- hktc_data$position %>% factor() %>% as.numeric()
+
+library("tidymodels")
+library("parsnip")
+library("dbarts")
+library("vip")
+
+ktc_data <- as_tibble(X_ktc) %>%
+  mutate(Y = Y_ktc)
+
+split <- ktc_data %>% initial_split(prop = .8)
+train_data <- training(split)
+test_data <- testing(split)
+
+# Preprocessing recipe
+rec <- recipe(Y ~ ., data = train_data)
+
+# Specify BART model
+bart_spec <- parsnip::bart(mode = "regression", trees = 1000) %>%
+  set_engine("dbarts")
+
+# Create a bart workflow
+bart_workflow <- workflow() %>%
+  add_model(bart_spec) %>%
+  add_recipe(rec)
+
+# Fit the model
+bart_fit <- fit(bart_workflow, data = train_data)
+
+# Predict on test set
+augment(bart_fit, test_data) %>%
+  rmse(Y, .pred)
+
+dbarts_model <- extract_fit_engine(bart_fit)
+
+# Generate posterior predictive samples
+posterior_samples <- predict(dbarts_model, newdata = test_data)
+dim(posterior_samples)
+
+# HERE
+
+
+# Posterior mean and 95% CI for first observation
+posterior_1 <- posterior_samples[, 1]
+mean(posterior_1)
+quantile(posterior_1, probs = c(0.025, 0.975))
+
+
+
+
+
+
+X_tva <- hktc_data %>% prep_data_tva(means, sds)
+Y_tva <- hktc_data$tva_adj
+group_tva <- hktc_data$position %>% factor() %>% as.numeric()
+
+
 
 # tva model parameter values sample (can rerun or load from files)
 
