@@ -1,7 +1,17 @@
 # Player Total Value Functions
 # this file stores all the functions needed for the Player Total Value Page
 
-# Prep data for and run bayesian hierarchical model
+library("tidyverse"); theme_set(theme_minimal())
+library("tidymodels")
+library("parsnip")
+library("dbarts")
+library("vip")
+library("here")
+library("tictoc")
+library("furrr")
+
+
+# Prep Data ---------------------------------------------------------------
 
 interaction_terms_tva <- function(data){
   data %>%
@@ -12,19 +22,32 @@ interaction_terms_tva <- function(data){
       x1_x2 = historical_value*age)
 }
 
+# identify the appropriate values to scale
+compute_tva_scales <- function(data){
+  summaries <- data %>% interaction_terms_tva()
+  
+  means <- colMeans(summaries)
+  
+  sds <- sapply(summaries, sd)
+  
+  list("means" = means, "sds" = sds)
+}
+
 # prep data with transformations and interactions
-prep_data_tva <- function(data, means, sds){
+prep_data_tva <- function(data, scales, split_prop = .8){
   df <- data %>% interaction_terms_tva()
   
-  means <- means[colnames(df)]
-  sds <- sds[colnames(df)]
+  means <- scales$means[colnames(df)]
+  sds <- scales$sds[colnames(df)]
   
-  pmap(list(df, means, sds), function(df, means, sds){
+  data_split <- pmap_dfr(list(df, means, sds), function(df, means, sds){
     (df - means)/sds}) %>%
-    bind_rows() %>%
-    mutate(intercept = 1) %>%
-    relocate(intercept) %>%
-    as.matrix()
+    mutate(position = data$position,
+           Y = data$tva_adj) %>%
+    initial_split(prop = split_prop)
+  
+  list("train_data" = training(data_split),
+       "test_data" = testing(data_split))
 }
 
 interaction_terms_ktc <- function(data){
@@ -34,121 +57,98 @@ interaction_terms_ktc <- function(data){
       x1_2 = historical_value^2,
       x2_2 = age^2,
       x1_x2 = historical_value*age,
-      x2_x3 = age*tva_adj,
-      age_24 = if_else(age < 24, 1, 0),
-      age_30 = if_else(age > 30, 1, 0)
+      x2_x3 = age*tva_adj
     )
 }
 
+# identify the appropriate values to scale
+compute_ktc_scales <- function(data){
+  summaries <- data %>% interaction_terms_ktc()
+  
+  means <- colMeans(summaries)
+  
+  sds <- sapply(summaries, sd)
+  
+  list("means" = means, "sds" = sds)
+}
+
 # prep data with transformations and interactions
-prep_data_ktc <- function(data, means, sds){
+prep_data_ktc <- function(data, scales, split_prop = .8){
   df <- data %>% interaction_terms_ktc()
   
-  means <- means[colnames(df)]
-  sds <- sds[colnames(df)]
+  means <- scales$means[colnames(df)]
+  sds <- scales$sds[colnames(df)]
   
-  matrix <- pmap(list(df, means, sds), function(df, means, sds){
+  data_split <- pmap_dfr(list(df, means, sds), function(df, means, sds){
     (df - means)/sds}) %>%
-    bind_rows() %>%
-    mutate(intercept = 1) %>%
-    relocate(intercept) %>%
-    as.matrix()
-  
-  return(matrix)
-}
-
-# uses hierarchical_tva.stan to estimate parameters
-find_tva_parameters <- function(data, means, sds){
-  y <- data %>% pull(tva_adj)
-  N <- length(y)
-  
-  group <- data %>%
-    transmute(position = as.factor(position) %>% as.numeric) %>%
-    pull()
-  J <- unique(group) %>% length()
-  
-  X <- data %>% prep_data_tva(means, sds)
-  
-  K <- ncol(X)
-  
-  hierarchical_data <- list(N = N, K = K, J = J, X = X, y = y,
-                            group = group,
-                            N_new = N, X_new = X)
-  
-  hierarchical_fit <- stan(
-    file = here(data_path, "Modeling/hierarchical_tva.stan"),  # Path to Stan model file
-    data = hierarchical_data,                         # Data list
-    iter = 6000,                         # Number of iterations
-    chains = 6,                          # Number of chains
-    seed = 123)                          # Seed for reproducibility
-  
-  # errors, but at this point its good enough. All the individual players converge
-  
-  # h_summary <- summary(hierarchical_fit)
-  
-  # a <- h_summary$summary[, "Rhat"]
-  # a[order(a)]
-  
-  # plot(hierarchical_fit)
-  # pairs(hierarchical_fit, pars = c("beta", "sigma"))
-  # traceplot(hierarchical_fit, pars = "sigma")
-  
-  posterior_samples <- rstan::extract(hierarchical_fit)
-  
-  return(posterior_samples)
-}
-
-# Predict Keep Trade Cut Value after season ends, uses hierarchical_tva.stan to estimate parameters
-find_ktc_parameters <- function(data, means, sds){
-  min_ktc <- min(data$ktc_value, na.rm = TRUE)
-  
-  # fill in NA ktc values
-  data <- data %>%
-    rowwise() %>% 
     mutate(
-      ktc_value = case_when(
-        is.na(ktc_value) ~ runif(1, min = 0, max = min_ktc),
-        .default = ktc_value)) %>%
-    ungroup()
+      position = data$position,
+      Y = if_else(is.na(data$ktc_value),
+                  runif(1, min = 0, max = min(data$ktc_value, na.rm = TRUE)),
+                  data$ktc_value)) %>%
+    initial_split(prop = split_prop)
   
-  y <- data %>% pull(ktc_value)
-  N <- length(y)
-  
-  group <- data %>%
-    transmute(position = as.factor(position) %>% as.numeric) %>%
-    pull()
-  J <- unique(group) %>% length()
-  
-  X <- data %>% prep_data_ktc(means, sds)
-  
-  K <- ncol(X)
-  
-  hierarchical_data <- list(N = N, K = K, J = J, X = X, y = y,
-                            group = group,
-                            N_new = N, X_new = X)
-  
-  hierarchical_fit <- stan(
-    file = here(data_path, "Modeling/hierarchical_ktc.stan"),  # Path to Stan model file
-    data = hierarchical_data,                         # Data list
-    iter = 6000,                         # Number of iterations
-    chains = 6,                          # Number of chains
-    seed = 123)                          # Seed for reproducibility
-  
-  # errors, but at this point its good enough. All the individual players converge
-  
-  # h_summary <- summary(hierarchical_fit)
-  
-  # a <- h_summary$summary[, "Rhat"]
-  # a[order(a)]
-  
-  # plot(hierarchical_fit)
-  # pairs(hierarchical_fit, pars = c("beta", "sigma"))
-  # traceplot(hierarchical_fit, pars = "sigma")
-  
-  posterior_samples <- rstan::extract(hierarchical_fit)
-  
-  return(posterior_samples)
+  list("train_data" = training(data_split),
+       "test_data" = testing(data_split))
 }
+
+# BART --------------------------------------------------------------------
+
+fit_bart <- function(train_data, tune_grid = 20){
+  # cross validation
+  df_folds <- vfold_cv(train_data)
+  
+  # Preprocessing recipe
+  rec <- recipe(Y ~ ., data = train_data)
+  
+  # Specify BART model
+  bart_spec <- parsnip::bart(
+    trees = tune(),
+    prior_terminal_node_coef = tune(),
+    prior_terminal_node_expo = tune()) %>%
+    set_engine("dbarts") %>%
+    set_mode("regression")
+  
+  # parameters object
+  parameters_object <- workflow() %>%
+    add_model(bart_spec) %>%
+    add_recipe(rec) %>%
+    extract_parameter_set_dials() %>%
+    update(
+      prior_terminal_node_coef = prior_terminal_node_coef(range = c(.4, .9)),
+      prior_terminal_node_expo = prior_terminal_node_expo(range = c(1, 3))) %>%
+    finalize(train_data)
+  
+  # tune model parameters
+  tune_object <- workflow() %>%
+    add_model(bart_spec) %>%
+    add_recipe(rec) %>%
+    tune_grid(
+      df_folds,
+      grid = tune_grid,
+      param_info = parameters_object,
+      metrics = metric_set(rmse)
+    )
+  
+  # select best parameters
+  best_param <- select_best(tune_object, metric = "rmse") %>% 
+    select(-.config)
+  
+  # Create a bart workflow
+  workflow_object <- workflow() %>%
+    add_model(bart_spec) %>%
+    add_recipe(rec) %>%
+    finalize_workflow(best_param)
+  
+  # Fit the model
+  fit(workflow_object, data = train_data)
+}
+
+model_accuracy <- function(fit, test_data){
+  augment(fit, test_data) %>%
+    rmse(Y, .pred)
+}
+
 
 # Simulation Stuff
 
