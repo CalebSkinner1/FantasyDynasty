@@ -11,13 +11,13 @@ library("tictoc")
 # https://arxiv.org/pdf/2110.10565
 
 # simulated
-n <- 200; p <- 8; J <- 4
-X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
-group <- map(1:J, ~rep(.x, n/J)) %>% unlist()
-b <- MASS::mvrnorm(J, c(rep(1, p/2), rep(-1, p/2)), diag(nrow = p))
-X_g <- map(1:J, ~X[group == .x,]) # X matrix by group
-
-Y <- map(1:J, ~{X_g[[.x]]%*%b[.x,] + rnorm(n/J, mean = 0, sd = 1)}) %>% unlist()
+# n <- 200; p <- 8; J <- 4
+# X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
+# group <- map(1:J, ~rep(.x, n/J)) %>% unlist()
+# b <- MASS::mvrnorm(J, c(rep(1, p/2), rep(-1, p/2)), diag(nrow = p))
+# X_g <- map(1:J, ~X[group == .x,]) # X matrix by group
+# 
+# Y <- map(1:J, ~{X_g[[.x]]%*%b[.x,] + rnorm(n/J, mean = 0, sd = 1)}) %>% unlist()
 
 # hierarchical linear regression gibbs sampler
 hlr_gibbs_sampler <- function(Y, X, group, iter = 2000, burn_in = 1000, thin = 5, g, mu_0, Lambda_0, eta_0, S_0, nu_0 = 1, a_0 = 1, b_0){
@@ -122,26 +122,16 @@ hlr_gibbs_sampler <- function(Y, X, group, iter = 2000, burn_in = 1000, thin = 5
   list("beta_j" = beta_j, "beta" = beta, "invSigma" = invSigma, "invsigma_j" = invsigma_j, "zeta" = zeta, "new_y" = new_y)
 }
 
-tic()
-samples <- hlr_gibbs_sampler(Y_ktc, X_ktc, group_ktc, iter = 10000, burn_in = 3000, thin = 2)
-toc()
-
-resid <- map_dbl(seq_len(length(Y_ktc)), ~(median(samples$new_y[.x,])-Y_ktc[.x]))
-
-# x1^2, x2^2, x1_x2, x2_x3: 472
-sqrt(mean(resid^2))
-
-resid %>%
-  as_tibble() %>%
-  ggplot() +
-  geom_density(aes(x = value))
-
-# BART --------------------------------------------------------------------
-
-
-
-
-
-# tva_sampler <- function(X){
-#   
-# }
+# tic()
+# samples <- hlr_gibbs_sampler(Y_ktc, X_ktc, group_ktc, iter = 10000, burn_in = 3000, thin = 2)
+# toc()
+# 
+# resid <- map_dbl(seq_len(length(Y_ktc)), ~(median(samples$new_y[.x,])-Y_ktc[.x]))
+# 
+# # x1^2, x2^2, x1_x2, x2_x3: 472
+# sqrt(mean(resid^2))
+# 
+# resid %>%
+#   as_tibble() %>%
+#   ggplot() +
+#   geom_density(aes(x = value))
