@@ -40,14 +40,16 @@ prep_data_tva <- function(data, scales, split_prop = .8){
   means <- scales$means[colnames(df)]
   sds <- scales$sds[colnames(df)]
   
-  data_split <- pmap_dfr(list(df, means, sds), function(df, means, sds){
+  scaled_data <- pmap_dfr(list(df, means, sds), function(df, means, sds){
     (df - means)/sds}) %>%
     mutate(position = data$position,
-           Y = data$tva_adj) %>%
-    initial_split(prop = split_prop)
+           Y = data$tva_adj)
+  
+  data_split <- initial_split(scaled_data, prop = split_prop)
   
   list("train_data" = training(data_split),
-       "test_data" = testing(data_split))
+       "test_data" = testing(data_split),
+       "full_data" = scaled_data)
 }
 
 interaction_terms_ktc <- function(data){
@@ -76,25 +78,31 @@ compute_ktc_scales <- function(data){
 prep_data_ktc <- function(data, scales, split_prop = .8){
   df <- data %>% interaction_terms_ktc()
   
+  min_ktc <- min(data$ktc_value, na.rm = TRUE)
+  
+  ktc <- if_else(is.na(data$ktc_value),
+                runif(1, min = 0, max = min_ktc),
+                data$ktc_value)
+  
   means <- scales$means[colnames(df)]
   sds <- scales$sds[colnames(df)]
   
-  data_split <- pmap_dfr(list(df, means, sds), function(df, means, sds){
+  scaled_data <- pmap_dfr(list(df, means, sds), function(df, means, sds){
     (df - means)/sds}) %>%
     mutate(
       position = data$position,
-      Y = if_else(is.na(data$ktc_value),
-                  runif(1, min = 0, max = min(data$ktc_value, na.rm = TRUE)),
-                  data$ktc_value)) %>%
-    initial_split(prop = split_prop)
+      Y = ktc)
+  
+  data_split <- initial_split(scaled_data, prop = split_prop)
   
   list("train_data" = training(data_split),
-       "test_data" = testing(data_split))
+       "test_data" = testing(data_split),
+       "full_data" = scaled_data)
 }
 
 # BART --------------------------------------------------------------------
 
-fit_bart <- function(train_data, tune_grid = 20){
+fit_bart <- function(train_data, tune_grid = 20, samples){
   # cross validation
   df_folds <- vfold_cv(train_data)
   
@@ -107,6 +115,9 @@ fit_bart <- function(train_data, tune_grid = 20){
     prior_terminal_node_coef = tune(),
     prior_terminal_node_expo = tune()) %>%
     set_engine("dbarts") %>%
+               # control = dbarts::bartControl(
+               #   n.samples = 200,   # posterior samples (after burn-in)
+               #   n.burn = 100       # optional burn-in samples
     set_mode("regression")
   
   # parameters object
@@ -149,113 +160,137 @@ model_accuracy <- function(fit, test_data){
     rmse(Y, .pred)
 }
 
-
-# Simulation Stuff
-
-# draw a new y value from the model with certain beta and sigma values
-draw_new_y <- function(beta_samples, sigma_samples, X_new, group) {
-  # Randomly select a posterior sample index
-  sample_idx <- sample(seq_len(dim(beta_samples)[1]), 1)
-  
-  # Choose a random sample of parameters from the posterior
-  beta_sample <- beta_samples[sample_idx, c(group), ] # sample row of betas
-  sigma_sample <- sigma_samples[sample_idx] # sample sigma
-  
-  # Generate the new outcome (y_new) based on the model
-  return(rnorm(1, mean = sum(X_new * beta_sample), sd = sigma_sample)) 
+graph_residuals <- function(fit, test_data){
+  augment(fit, test_data) %>%
+    mutate(resid = Y - .pred) %>%
+    ggplot() +
+    geom_density(aes(resid))
 }
 
-# extract new samples
-extract_new_samples <- function(parameter_samples, new_data_matrix, new_data_groups){
-  beta_samples <- parameter_samples$beta     # Group-level coefficients
-  sigma_samples <- parameter_samples$sigma   # Observation noise
+# Simulate Future Value ---------------------------------------------------------------
+
+# draw posterior samples from model fit
+generate_samples <- function(fit, data){
+  model <- extract_fit_engine(fit)
   
-  N_new <- length(new_data_matrix)
-  X <- t(new_data_matrix) %>% as.data.frame() %>% as.list()
-  groups <- new_data_groups %>% as.list()
-  
-  y_new_samples <- map2(X, groups, ~draw_new_y(beta_samples, sigma_samples, .x, .y)) %>%
-    unlist() %>%
-    as_tibble()
-  
-  return(y_new_samples)
+  # Generate posterior predictive samples
+  predict(model, newdata = data, n.samples = samples)
 }
 
-next_year <- function(data){
-  year <- year(data$birth_date[1] + dyears(data$age[1])) - 1
-  
+# this function updates the data so its ready for the next year
+update_data_year <- function(data){
   min_ktc <- min(data$ktc_value, na.rm = TRUE)
   
-  updated_data <- data %>%
-    # assign random ktc value to players with super low ktc value
-    rowwise() %>% 
+  hv <- if_else(is.na(data$ktc_value),
+                              runif(1, min = 0, max = min_ktc),
+                              data$ktc_value)
+  
+  data %>%
     mutate(
-      ktc_value = case_when(
-        is.na(ktc_value) ~ runif(1, min = 0, max = min_ktc),
-        .default = ktc_value)) %>%
-    ungroup() %>%
-    mutate(
-      # update values
-      historical_value = ktc_value)
-  
-  constant_group <- updated_data %>%
-    transmute(position = as.factor(position) %>% as.numeric) %>%
-    pull()
-  
-  ny_tva <- updated_data %>%
-    prep_data_tva() %>%
-    extract_new_samples(tva_parameter_values, ., constant_group) %>%
-    bind_cols(select(updated_data, ktc_value)) %>%
-    # ktc_value = 0 if retired/out, must stay out
-    mutate(value = if_else(ktc_value == 0, 0, value)) %>%
-    select(value)
-  
-  ny_ktc <- updated_data %>%
-    mutate(tva_adj = ny_tva$value) %>%
-    prep_data_ktc() %>%
-    extract_new_samples(ktc_parameter_values, ., constant_group) %>%
-    bind_cols(select(updated_data, ktc_value)) %>%
-    # ktc_value = 0 if retired/out, must stay out
-    mutate(value = if_else(ktc_value == 0, 0, value)) %>%
-    select(value)
-  
-  # values are not on normal 9999 to 1 scale. I need to scale them to return
-  # this is ok because value is relative anyway
-  # conditional min-max scaling
-  
-  new_ny_ktc <- ny_ktc %>%
-    mutate(
-      # return 0s to 0. Interpret these as essentially retired
-      value = case_when(
-        value < 0 ~ 0,
-        value > 9999 ~ 9999, # cap ktc at 9999
-        .default = value
-        ))
-  
-  # force max to 9999, allows for ktc value to drop, but not exceed
-  # if(max(ny_ktc) > 9999){
-  #   new_ny_ktc <- new_ny_ktc %>% mutate(value = value * 9999/max(ny_ktc))}
-  
-  new_data <- updated_data %>%
-    select(name, position, birth_date, age, contains("proj_tva")) %>%
-    mutate(
-      tva_adj = ny_tva$value,
-      ktc_value = new_ny_ktc$value,
-      proj_tva = ny_tva$value,
-      age = age + 1) %>%
-    rename_with(~paste0(.x, "_", (year + 1)), ends_with("proj_tva")) %>%
-    relocate(contains("proj_tva"), .after = last_col())
-  
-  return(new_data)
+      age = age + 1,
+      season = season + 1,
+      historical_value = hv,
+      tva_adj = 0,
+      ktc_value = 0) %>%
+    select(name, historical_value, season, position, birth_date, age, tva_adj, ktc_value)
 }
 
-next_years <- function(data, n_years){
-  for(i in 1:n_years){
-    data <- data %>% next_year()
+# compute quantiles from samples
+compute_quantiles <- function(samples){
+  # compute quantiles
+  quant <- apply(samples, 2, quantile, probs = seq(.05, .95, by = .05)) %>% t()
+  
+  # split into list
+  split(quant, col(quant))
+}
+
+# this function bounds value according to domain knowledge
+bound_tva <- function(samples_list, data){
+  if(length(data) == 1){ #i.e. origin
+    map(samples_list, ~{
+      tv <- if_else(data[[1]]$historical_value == 0, 0, .x) #set to 0 if ktc is 0
+      
+      data[[1]] %>% mutate(tva_adj = tv)
+    })
+  }else{
+    map2(samples_list, data, ~{
+      tv <- if_else(.y$historical_value == 0, 0, .x) #set to 0 if ktc is 0
+      
+      .y %>% mutate(tva_adj = tv)
+    })
   }
-  final_df <- data %>% arrange(desc(ktc_value)) %>%
-    select(-tva_adj)
-  return(final_df)
+}
+
+bound_ktc <- function(samples_list, tva_data_list){
+  map2(samples_list, tva_data_list, ~{
+    ktcv <- case_when(
+      .y$historical_value == 0 ~ 0, #if out, then stay out
+      .x < 0 ~ 0,
+      .x > 9999 ~ 9999, # cap ktc at 9999
+      .default = .x
+    )
+    # values are not on normal 9999 to 1 scale. I need to scale them to return
+    # this is ok because value is relative anyway
+    # conditional min-max scaling
+    
+    .y %>% mutate(ktc_value = ktcv)
+  })
+}
+
+next_year <- function(data_list, seasons_list, tva_scales, ktc_scales, tva_fit, ktc_fit){
+  if(length(data_list) != 19){
+    data_list <- list("origin" = data_list)
+  }
+  # update data (add year to age, shift historical value)
+  updated_data <- map(data_list, update_data_year)
+  
+  # prep tva modeling
+  tva_prep <- map(updated_data, ~prep_data_tva(.x, tva_scales)$full_data)
+  
+  # list of tva samples (for each quantile)
+  tva_data_list <- map(tva_prep, ~{
+    generate_samples(tva_fit, .x)
+  }) %>% do.call(rbind, .) %>% #bind lists together
+    compute_quantiles() %>% #compute quantiles
+    bound_tva(updated_data) # add with updated data
+  
+  # prep ktc modeling
+  ktc_prep <- map(tva_data_list, ~{
+     prep_data_ktc(.x, ktc_scales)$full_data
+  })
+  
+  # list of ktc samples (for each quantile)
+  ktc_data_list <- map(ktc_prep, ~{
+    generate_samples(ktc_fit, .x)
+  }) %>% do.call(rbind, .) %>% #bind lists together
+    compute_quantiles() %>% # compute quantiles
+    bound_ktc(tva_data_list)
+  
+  compile <- imap(seq_along(ktc_data_list), ~{
+    df <- tibble(ktc_data_list[[.x]]$tva_adj)
+    
+    perc <- as.numeric(names(ktc_data_list)[.x])*5
+    
+    colnames(df) <- paste0("proj_tva_", perc)
+    
+    df
+  }) %>% bind_cols() %>%
+    mutate(name = updated_data[[1]]$name) %>%
+    relocate(name)
+  
+  seasons_list <- c(seasons_list, setNames(list(compile), paste0(updated_data[[1]]$season[1])))
+  
+  list("data" = ktc_data_list, "seasons_list" = seasons_list)
+}
+
+next_years <- function(origin_data, n_years, tva_scales, ktc_scales, tva_fit, ktc_fit){
+  updating_list <- list("data" = origin_data, "seasons_list" = list())
+  
+  for(i in 1:n_years){
+    updating_list <- next_year(updating_list$data, updating_list$seasons_list, tva_scales, ktc_scales, tva_fit, ktc_fit)
+  }
+  
+  updating_list$seasons_list
 }
 
 compile_future <- function(future_years_df){

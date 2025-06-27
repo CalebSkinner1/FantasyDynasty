@@ -104,7 +104,7 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
 
 # player information don't run a lot because it takes a lot of time/memory
 # player_info2 <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
-# 
+
 # player_information <- map(player_info2, ~{
 #   tibble(
 #     name = .x$full_name,
@@ -116,17 +116,15 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
 #   rbindlist(fill = TRUE) %>%
 #   as_tibble()
 
-player_in
-
 # # all 32 defenses
-defenses <- box_score_def %>%
-  rename(name = team) %>%
-  select(name) %>%
-  distinct() %>%
-  mutate(
-    name = recode(name, "LA" = "LAR"),
-    player_id = name,
-    position = "DST")
+# defenses <- box_score_def %>%
+#   rename(name = team) %>%
+#   select(name) %>%
+#   distinct() %>%
+#   mutate(
+#     name = recode(name, "LA" = "LAR"),
+#     player_id = name,
+#     position = "DST")
 
 # # load player info
 # player_info <- player_information %>%
@@ -137,7 +135,11 @@ defenses <- box_score_def %>%
 #   mutate(
 #     position = case_when(
 #       name == "Taysom Hill" ~ "TE",
-#       .default = position)) %>%
+#       .default = position),
+#     birth_date = case_when(
+#       name == "Efton Chism" ~ "2001-10-26",
+#       name == "Isaiah Bond" ~ "2004-03-15",
+#       .default = birth_date)) %>%
 #   distinct() %>%
 #   bind_rows(defenses) %>%
 #   name_correction()
@@ -322,7 +324,7 @@ while(ktc_rows != 500){
 }
 
 # periodically save
-keep_trade_cut %>% write_csv(here(data_path, "Data/ktc values/ktc_value061725.csv"))
+# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc values/ktc_value062725.csv"))
 
 # remove objects and functions to declutter environment
 rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,

@@ -95,6 +95,36 @@ find_ktc_parameters <- function(data, means, sds){
   return(posterior_samples)
 }
 
+# draw a new y value from the model with certain beta and sigma values
+draw_new_y <- function(beta_samples, sigma_samples, X_new, group) {
+  # Randomly select a posterior sample index
+  sample_idx <- sample(seq_len(dim(beta_samples)[1]), 1)
+  
+  # Choose a random sample of parameters from the posterior
+  beta_sample <- beta_samples[sample_idx, c(group), ] # sample row of betas
+  sigma_sample <- sigma_samples[sample_idx] # sample sigma
+  
+  # Generate the new outcome (y_new) based on the model
+  return(rnorm(1, mean = sum(X_new * beta_sample), sd = sigma_sample)) 
+}
+
+# extract new samples
+extract_new_samples <- function(parameter_samples, new_data_matrix, new_data_groups){
+  beta_samples <- parameter_samples$beta     # Group-level coefficients
+  sigma_samples <- parameter_samples$sigma   # Observation noise
+  
+  N_new <- length(new_data_matrix)
+  X <- t(new_data_matrix) %>% as.data.frame() %>% as.list()
+  groups <- new_data_groups %>% as.list()
+  
+  y_new_samples <- map2(X, groups, ~draw_new_y(beta_samples, sigma_samples, .x, .y)) %>%
+    unlist() %>%
+    as_tibble()
+  
+  return(y_new_samples)
+}
+
+
 # Older Methods --------------------------------------------------------
 
 # non hierarchical - estimates are much much worse

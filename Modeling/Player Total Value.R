@@ -9,7 +9,7 @@ source(here(data_path, "Modeling/Player Total Value Functions.R")) # grab functi
 season_value_added <- read_csv(here(data_path, "Data/sva.csv")) # shortcut
 player_info <- read_csv(here(data_path, "Data/player_info.csv")) # shortcut 
 
-keep_trade_cut <- read_csv(here(data_path, "Data/ktc values/ktc_value061725.csv")) # shortcut
+keep_trade_cut <- read_csv(here(data_path, "Data/ktc values/ktc_value062725.csv")) # shortcut
 sleeper_points <- read_csv(here(data_path, "Data/sleeper_points24.csv")) # shortcut
 
 # organize data sets
@@ -56,13 +56,18 @@ tva_scales <- hktc_data %>% compute_tva_scales()
 # prep data
 tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 
-# run model
+# run model ~88 seconds
 tic()
 tva_fit <- fit_bart(tva_data$train_data)
 toc()
 
 # compute accuracy (RMSE)
-augment(tva_fit, tva_data$test_data)
+model_accuracy(tva_fit, tva_data$test_data)
+
+# graph residuals
+graph_residuals(tva_fit, tva_data$test_data)
+
+# tva_samples <- generate_samples(tva_fit, tva_data$full_data)
 
 # Model KTC Value for next season -----------------------------------------
 
@@ -72,70 +77,38 @@ ktc_scales <- hktc_data %>% compute_ktc_scales()
 # prep data
 ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 
-# run model
+# run model ~90 seconds
 tic()
 ktc_fit <- fit_bart(ktc_data$train_data)
 toc()
 
 # compute accuracy (RMSE)
-augment(ktc_fit, ktc_data$test_data)
+model_accuracy(ktc_fit, ktc_data$test_data)
 
-dbarts_model <- extract_fit_engine(ktc_fit)
+# graph residuals
+graph_residuals(ktc_fit, ktc_data$test_data)
 
-# Generate posterior predictive samples
-posterior_samples <- predict(dbarts_model, newdata = test_data)
-dim(posterior_samples)
+# ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
+
 
 # HERE
 
 
-# Posterior mean and 95% CI for first observation
-posterior_1 <- posterior_samples[, 1]
-mean(posterior_1)
-quantile(posterior_1, probs = c(0.025, 0.975))
-
-
-
-
-
-
-X_tva <- hktc_data %>% prep_data_tva(means, sds)
-Y_tva <- hktc_data$tva_adj
-group_tva <- hktc_data$position %>% factor() %>% as.numeric()
-
-
-
-# tva model parameter values sample (can rerun or load from files)
-
-# tva_parameter_values <- find_tva_parameters(hktc_data) # OR
-# save(tva_parameter_values, file = here(data_path, "Data/tva_parameter_values.RData"))
-load(here(data_path, "Data/tva_parameter_values.RData"))
-
-# ktc model parameter values sample
-# ktc_parameter_values <- find_ktc_parameters(hktc_data) #OR
-# save(ktc_parameter_values, file = here(data_path, "Data/ktc_parameter_values.RData"))
-load(here(data_path, "Data/ktc_parameter_values.RData"))
-
-# this value is the group (position) for each player in the data set
-# constant_group <- hktc_data %>%
-#   transmute(position = as.factor(position) %>% as.numeric) %>%
-#   pull()
-
-# takes about 27 minutes for 10000 observations
-
-# NEED TO FIX THESE
-
+# origin data set, set at beginning of last year
 sim_df <- keep_trade_cut %>%
   rename(ktc_value = value) %>%
   left_join(player_info, by = join_by(name)) %>%
   mutate(
-    age = interval(birth_date, ymd("2025-08-23"))/years(1)) %>% # just because age needs to be age at this point in the season
-  select(name, position, ktc_value, birth_date, age) %>%
+    age = interval(birth_date, ymd("2024-08-23"))/years(1),  # just because age needs to be age at this point in the season
+    season = 2024) %>%
+  select(name, position, ktc_value, birth_date, age, season) %>%
   filter(position %in% c("QB", "RB", "WR", "TE"))
 
-# simulations <- sim_df %>% simulate_future_value(15, 10000)
-# save(simulations, file = here(data_path, "Data/simulations.RData"))
-load(here(data_path, "Data/simulations.RData"))
+tic()
+temp <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales, tva_fit = tva_fit, ktc_fit = ktc_fit)
+toc()
+
+# HERE
 
 # now, I need to convert this list of each simulation into a list of each player with all their simulations
 player_simulations <- bind_rows(simulations, .id = "simulation_id") %>%
