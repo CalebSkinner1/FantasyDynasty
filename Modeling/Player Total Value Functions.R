@@ -293,29 +293,16 @@ next_years <- function(origin_data, n_years, tva_scales, ktc_scales, tva_fit, kt
   updating_list$seasons_list
 }
 
-compile_future <- function(future_years_df){
+compute_future_value <- function(seasons_list, years = 15, weight = .95){
+  future_value <- imap(1:years, ~{
+    seasons_list[[.x]]$proj_tva_50*weight^(.x - 1)
+  }) %>% as.data.frame() %>%
+    rowSums()
   
-  future_years <- future_years_df %>%
-    rowwise() %>%
-    mutate(
-      # cap total value added min at -20
-      across(contains("proj_tva"), ~pmax(.x, -20)),
-      future_value = sum(c_across(contains("proj_tva")))) %>%
-    ungroup() %>%
+  tibble(
+    name = seasons_list[[1]]$name,
+    future_value = future_value) %>%
     arrange(desc(future_value))
-  
-  return(future_years)
 }
 
-simulate_future_value <- function(data, n_years, simulations){
-  plan(multisession)
-  
-  future_values_list <- future_map(
-    1:simulations,
-    ~data %>%
-      next_years(n_years) %>%
-      compile_future(),
-    .progress = TRUE,
-    .options = furrr_options(seed = TRUE)
-  )
-  return(future_values_list)}
+

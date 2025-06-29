@@ -131,7 +131,7 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
 #   select(name, player_id, position, birth_date) %>%
 #   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
 #   # remove duplicate names
-#   filter(player_id != 4634, player_id != 748, player_id != 232) %>%
+#   filter(player_id != 4634, player_id != 748, player_id != 232, player_id != 7437, player_id != 638) %>%
 #   mutate(
 #     position = case_when(
 #       name == "Taysom Hill" ~ "TE",
@@ -313,18 +313,17 @@ projections <- list(projections24, projections25)
 ktc_rows <- 0
 
 while(ktc_rows != 500){
-  keep_trade_cut <- map(0:9, ~str_c("https://keeptradecut.com/dynasty-rankings?page=", .x, "&filters=QB|WR|RB|TE|RDP&format=2") %>%
+  keep_trade_cut <- map_dfr(0:9, ~str_c("https://keeptradecut.com/dynasty-rankings?page=", .x, "&filters=QB|WR|RB|TE|RDP&format=2") %>%
                           player_value()) %>%
-    rbindlist() %>%
-    as_tibble() %>%
-    mutate(value = as.numeric(value)) %>%
+    mutate(ktc_value = as.numeric(value)) %>%
+    select(name, ktc_value) %>%
     name_correction()
   
   ktc_rows <- keep_trade_cut %>% distinct(name) %>% nrow()
 }
 
 # periodically save
-# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc values/ktc_value062725.csv"))
+# keep_trade_cut %>% write_csv(here(data_path, "Data/ktc values/ktc_value062925.csv"))
 
 # remove objects and functions to declutter environment
 rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,

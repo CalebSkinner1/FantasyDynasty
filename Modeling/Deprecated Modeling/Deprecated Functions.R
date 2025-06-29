@@ -124,6 +124,32 @@ extract_new_samples <- function(parameter_samples, new_data_matrix, new_data_gro
   return(y_new_samples)
 }
 
+compile_future <- function(future_years_df){
+  
+  future_years <- future_years_df %>%
+    rowwise() %>%
+    mutate(
+      # cap total value added min at -20
+      across(contains("proj_tva"), ~pmax(.x, -20)),
+      future_value = sum(c_across(contains("proj_tva")))) %>%
+    ungroup() %>%
+    arrange(desc(future_value))
+  
+  return(future_years)
+}
+
+simulate_future_value <- function(data, n_years, simulations){
+  plan(multisession)
+  
+  future_values_list <- future_map(
+    1:simulations,
+    ~data %>%
+      next_years(n_years) %>%
+      compile_future(),
+    .progress = TRUE,
+    .options = furrr_options(seed = TRUE)
+  )
+  return(future_values_list)}
 
 # Older Methods --------------------------------------------------------
 

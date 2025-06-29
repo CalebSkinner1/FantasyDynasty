@@ -34,7 +34,6 @@ hktc_data <- historical_ktc %>%
       total_value_added < 0 ~ total_value_added,
       .default = total_value_added * 17/max(sleeper_points$week))) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
-  rename("ktc_value" = value) %>%
   select(-position) %>%
   left_join(player_info, by = join_by(name)) %>%
   select(-player_id) %>%
@@ -58,14 +57,15 @@ tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 
 # run model ~88 seconds
 tic()
-tva_fit <- fit_bart(tva_data$train_data)
+tva_fit <- fit_bart(tva_data$full_data)
+# tva_fit <- fit_bart(tva_data$train_data)
 toc()
 
 # compute accuracy (RMSE)
-model_accuracy(tva_fit, tva_data$test_data)
+# model_accuracy(tva_fit, tva_data$test_data)
 
 # graph residuals
-graph_residuals(tva_fit, tva_data$test_data)
+# graph_residuals(tva_fit, tva_data$test_data)
 
 # tva_samples <- generate_samples(tva_fit, tva_data$full_data)
 
@@ -79,24 +79,20 @@ ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 
 # run model ~90 seconds
 tic()
-ktc_fit <- fit_bart(ktc_data$train_data)
+# ktc_fit <- fit_bart(ktc_data$train_data)
+ktc_fit <- fit_bart(ktc_data$full_data)
 toc()
 
 # compute accuracy (RMSE)
-model_accuracy(ktc_fit, ktc_data$test_data)
+# model_accuracy(ktc_fit, ktc_data$test_data)
 
 # graph residuals
-graph_residuals(ktc_fit, ktc_data$test_data)
+# graph_residuals(ktc_fit, ktc_data$test_data)
 
 # ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
 
-
-# HERE
-
-
 # origin data set, set at beginning of last year
 sim_df <- keep_trade_cut %>%
-  rename(ktc_value = value) %>%
   left_join(player_info, by = join_by(name)) %>%
   mutate(
     age = interval(birth_date, ymd("2024-08-23"))/years(1),  # just because age needs to be age at this point in the season
@@ -104,58 +100,28 @@ sim_df <- keep_trade_cut %>%
   select(name, position, ktc_value, birth_date, age, season) %>%
   filter(position %in% c("QB", "RB", "WR", "TE"))
 
-tic()
-temp <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales, tva_fit = tva_fit, ktc_fit = ktc_fit)
+tic() # ~3 mins
+player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales, tva_fit = tva_fit, ktc_fit = ktc_fit)
 toc()
 
 # HERE
 
-# now, I need to convert this list of each simulation into a list of each player with all their simulations
-player_simulations <- bind_rows(simulations, .id = "simulation_id") %>%
-  group_by(name) %>%
-  group_split()
+future_value <- compute_future_value(player_simulations, years = 8, weight = .95)
 
-# compute median future value, only keep next 8 years
-median_values <- map_dfr(player_simulations, ~{
-  # weights for devaluing future
-  weights <- .95^(1:8)
-  data <- .x %>%
-    # select(contains("proj_tva")) %>%
-    select(proj_tva_2025:proj_tva_2032)
-  
-  .x %>%
-    # weighted future_value (each year is valued .95 of previous year)
-    mutate(
-      future_value = rowSums(data * weights)) %>%
-  group_by(name) %>%
-    summarize(
-      median = median(future_value),
-      sd = sd(future_value),
-      mean = mean(future_value),
-      q2.5 = quantile(future_value, .025),
-      q97.5 = quantile(future_value, .975)) %>%
-    mutate(
-      ny = median(data[,1] %>% pull()),
-      ny2 = median(data[,2] %>% pull()))
-    }) %>%
-  arrange(desc(median))
-
-player_total_value <- median_values %>%
+player_total_value <- future_value %>%
   full_join(season_value_added, by = join_by(name)) %>%
-  rename(future_value = median) %>%
-  select(name, total_value_added, future_value, contains("ny")) %>%
+  select(name, total_value_added, future_value) %>%
   left_join(player_info, by = join_by(name)) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   mutate(
     sva_2024 = replace_na(total_value_added, 0),
     ktc_value = case_when(
       position %in% c("K", "DST") ~ 0,
-      .default = value),
+      .default = ktc_value),
     future_value = case_when(
       position %in% c("K", "DST") ~ 0,
       is.na(future_value) ~ 0,
       .default = future_value)) %>%
-  select(name, player_id, birth_date, position, sva_2024, ktc_value, future_value, contains("ny"))
+  select(name, player_id, birth_date, position, ktc_value, sva_2024, future_value)
 
 # write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
-
