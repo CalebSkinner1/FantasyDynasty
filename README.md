@@ -50,18 +50,19 @@ Fantasy Football Today and player value from Keep Trade Cut.
 # yearly update
 
 # future goals/updates - ideas
-1. zero-inflated model to predict value added (especially for rookie next year production)
-2. posterior predictive check for hierarchical model
-3. try bayesian mixture linear model instead of hierarchical
-4. for rookie draft values, adjust for heteroscedasticity
-
-
-
+1. Zero-inflated model to predict value added (especially for rookie next year production)
+2. Posterior predictive check for future value model
+4. Adjust for heteroscedasticity in draft pick values
 
 # To Do
 
 ## content
 DONE
+
+## edit content
+1. modeling DONE
+2. scripts
+
 
 ## website
 1. shiny stuff
@@ -70,6 +71,8 @@ DONE
 1. readme lol
 2. weekly update how to (for future self)
 3. future goals
+4. once season starts, some code will surely break
+5. once season starts, compute future value as percentage of remaining season
 
 
 
