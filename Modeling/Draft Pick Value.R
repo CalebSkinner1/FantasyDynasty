@@ -244,7 +244,7 @@ quantiles_list <- list("total value" = quantiles_tv, "first year" = quantiles_ny
 
 rookie_draft_values <- imap_dfr(1:4, ~{
   df <- quantiles_list[[.x]] %>% as_tibble()
-  colnames(df) <- as.numeric(colnames(df))*5
+  colnames(df) <- paste0("proj_tva_",as.numeric(colnames(df))*5)
   
   df %>%
     mutate(
