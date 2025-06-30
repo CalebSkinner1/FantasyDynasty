@@ -108,7 +108,7 @@ tic() # ~3 mins
 player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales, tva_fit = tva_fit, ktc_fit = ktc_fit)
 toc()
 
-save(player_simulations, file = here(data_path, "Modeling/player_simulations.RData"))
+# save(player_simulations, file = here(data_path, "Modeling/player_simulations.RData"))
 
 future_value <- compute_future_value(player_simulations, years = 8, weight = .95)
 

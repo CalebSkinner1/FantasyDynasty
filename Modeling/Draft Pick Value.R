@@ -3,19 +3,32 @@
 # how good the rookies are, but we can see how good previous rookies turned out to be one year later
 
 library("here")
-library("tidyverse")
-library("tidymodels")
-library("tictoc")
 data_path <- "FantasyDynasty/"
+
+# load MCMC Samplers
+source(here(data_path, "Modeling/MCMC Samplers.R"))
+source(here(data_path, "Modeling/Player Total Value Functions.R"))
 
 # load data of interest
 load(here(data_path, "Data/draft_picks.RData"))
+load(here(data_path, "Modeling/player_simulations.RData"))
 player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv")) %>%
   mutate(
     total_value = sva_2024 + future_value*.95, # devalue the future
     player_id = as.character(player_id)) %>%
   select(name, player_id, position, total_value, sva_2024, contains("ny"))
 player_info <- read_csv(here(data_path, "Data/player_info.csv"))
+
+# projections of players
+projections <- imap(1:3, ~{
+  df <- player_simulations[[.x]] %>% #throw all quantiles into data (will slightly underestimate variance but oh well)
+    pivot_longer(cols = contains("proj_tva"), names_to = "quantile", values_to = "proj_tva") %>%
+    select(name, proj_tva)
+  colnames(df) <- c("name", paste0("sva_", names(player_simulations)[.x]))
+  df
+}) %>% bind_cols() %>%
+  rename("name" = name...1) %>%
+  select(name, contains("sva"))
 
 # find value of all players in rookie drafts
 rookie_drafts <- bind_rows(draft_picks, .id = "draft_id") %>%
@@ -32,92 +45,147 @@ rookie_drafts <- bind_rows(draft_picks, .id = "draft_id") %>%
   left_join(player_total_value %>% select(-player_id, -position), by = join_by(name)) %>%
   mutate(
     total_value = replace_na(total_value, 0),
-    sva_2024 = replace_na(sva_2024, 0))
+    sva_2024 = replace_na(sva_2024, 0)) %>%
+  left_join(projections, by = join_by(name))
 
 rookie_drafts %>%
   ggplot() +
   geom_point(aes(x = pick_no, y = total_value, color = as.factor(season)))
 
 # Polynomial Regression pick on total value ---------------------------------------------------
-lm_spec <- linear_reg() %>%
-  set_mode("regression") %>%
-  set_engine("lm")
+X_tv <- rookie_drafts %>% select(pick_no) %>%
+  mutate(
+    # pn_1 = pick_no^(.25),
+    pn_2 = pick_no^(.5),
+    # pn_3 = pick_no^(.75),
+    across(everything(), ~scale(.x))) %>%
+  mutate(intercept = 1) %>%
+  as.matrix()
 
-rec_tv <- recipe(total_value ~ pick_no, data = rookie_drafts) %>%
-  step_mutate(pick_no2 = sqrt(pick_no))
+Y_tv <- rookie_drafts$total_value
 
-tv_wf <- workflow() %>%
-  add_model(lm_spec) %>%
-  add_recipe(rec_tv)
+tic()
+samples_tv <- reg_gibbs_sampler(Y = Y_tv, X = X_tv, new_X = X_tv[c(1:36),],
+                             iter = 7000, thin = 1, burn_in = 5000)
+toc()
 
-tv_fit <- fit(tv_wf, data = rookie_drafts)
+# quantiles of each pick
+quantiles_tv <- compute_quantiles(samples_tv$new_y)
 
 # plot fit, looks pretty good
-tv_fit %>% augment(rookie_drafts) %>%
+tibble(.pred = quantiles_tv$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(rookie_drafts, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = total_value)) +
   geom_line(aes(y = .pred))
 
 # plot residuals against pick_no, looks ok enough
-tv_fit %>%
-  augment(rookie_drafts) %>%
+tibble(.pred = quantiles_tv$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(rookie_drafts, by = join_by(pick_no)) %>%
+  mutate(.resid = total_value - .pred) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
 
+# Polynomial Regression - Rookie Year Value Added ---------------------------
 
+# this is more complicated, because one year ahead differs for different players
+# I will need to adapt this in future years
+ny_data <- rookie_drafts %>%
+  mutate(first_year = case_when(
+    season == 2024 ~ sva_2024,
+    season == 2025 ~ sva_2025,
+    .default = NA
+  )) %>%
+  select(pick_no, first_year)
 
+X_ny <- ny_data %>% select(pick_no) %>%
+  mutate(
+    # pn_1 = pick_no^(.25),
+    pn_2 = pick_no^(.5),
+    # pn_3 = pick_no^(.75),
+    across(everything(), ~scale(.x))) %>%
+  mutate(intercept = 1) %>%
+  as.matrix()
 
-# Polynomial Regression - Next Year Value Added ---------------------------
+Y_ny <- ny_data$first_year
 
-rec_va <- recipe(sva_2024 ~ pick_no, data = rookie_drafts %>% filter(season == 2024)) %>%
-  step_mutate(pick_no2 = sqrt(pick_no))
+tic() #note that X_tv[c(1:36)] can actually stay the same
+samples_ny <- reg_gibbs_sampler(Y = Y_ny, X = X_ny, new_X = X_tv[c(1:36),],
+                                iter = 7000, thin = 1, burn_in = 5000)
+toc()
 
-va_wf <- workflow() %>%
-  add_model(lm_spec) %>%
-  add_recipe(rec_va)
+# quantiles of each pick
+quantiles_ny <- compute_quantiles(samples_ny$new_y)
 
-va_fit <- fit(va_wf, data = rookie_drafts)
-
-# plot fit, looks meh but whatever at this point
-va_fit %>% augment(rookie_drafts) %>%
+# plot fit, looks pretty good
+tibble(.pred = quantiles_ny$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(ny_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
-  geom_point(aes(y = sva_2024)) +
+  geom_point(aes(y = first_year)) +
   geom_line(aes(y = .pred))
 
-# plot residuals against pick_no
-va_fit %>%
-  augment(rookie_drafts) %>%
+# plot residuals against pick_no, looks ok enough
+tibble(.pred = quantiles_ny$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(ny_data, by = join_by(pick_no)) %>%
+  mutate(.resid = first_year  - .pred) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
 
 # probably would be better with a zero-inflated model
+# also it's definitely not homoscedastic but whatever dude
 
-# Polynomial Regression - 2 Years Value Added -----------------------------
+# Polynomial Regression - 2nd Year Value Added -----------------------------
 # this is kinda stretching it. Using draft pick to predict the bayesian hierarchical model's
 # prediction for va in the following year.
 # this is essentially a proxy for predicting output in 2 years with draft slot
 
 # this is kinda confusing, from perspective of rookie_drafts, ny is two years after drafted
-rec_ny2 <- recipe(ny ~ pick_no, data = rookie_drafts) %>%
-  step_mutate(pick_no2 = sqrt(pick_no))
+ny2_data <- rookie_drafts %>%
+  mutate(second_year = case_when(
+    season == 2024 ~ sva_2025,
+    season == 2025 ~ sva_2026,
+    .default = NA)) %>%
+  select(pick_no, second_year) %>%
+  slice_sample(n = 800, replace = FALSE) #for some reason it gets antsy if n is too large (i think numerical error)
 
-ny2_wf <- workflow() %>%
-  add_model(lm_spec) %>%
-  add_recipe(rec_ny2)
+X_ny2 <- ny2_data %>% select(pick_no) %>%
+  mutate(
+    # pn_1 = pick_no^(.25),
+    pn_2 = pick_no^(.5),
+    # pn_3 = pick_no^(.75),
+    across(everything(), ~scale(.x))) %>%
+  mutate(intercept = 1) %>%
+  as.matrix()
 
-ny2_fit <- fit(ny2_wf, data = rookie_drafts)
+Y_ny2 <- ny2_data$second_year
 
-# plot fit, looks meh but whatever at this point
-ny2_fit %>% augment(rookie_drafts) %>%
+tic() #note that X_tv[c(1:36)] can actually stay the same
+samples_ny2 <- reg_gibbs_sampler(Y = Y_ny2, X = X_ny2, new_X = X_tv[c(1:36),],
+                                iter = 7000, thin = 1, burn_in = 5000)
+toc()
+
+# quantiles of each pick
+quantiles_ny2 <- compute_quantiles(samples_ny2$new_y)
+
+# plot fit, looks pretty good
+tibble(.pred = quantiles_ny2$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(ny2_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
-  geom_point(aes(y = ny)) +
+  geom_point(aes(y = second_year)) +
   geom_line(aes(y = .pred))
 
-# plot residuals against pick_no
-ny2_fit %>%
-  augment(rookie_drafts) %>%
+# plot residuals against pick_no, looks ok enough
+tibble(.pred = quantiles_ny2$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(ny2_data, by = join_by(pick_no)) %>%
+  mutate(.resid = second_year  - .pred) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
@@ -125,39 +193,64 @@ ny2_fit %>%
 # Polynomial Regression - 3 Years Value Added -----------------------------
 
 # this is kinda confusing, from perspective of rookie_drafts, ny2 is three years after drafted
-rec_ny3 <- recipe(ny2 ~ pick_no, data = rookie_drafts) %>%
-  step_mutate(pick_no2 = sqrt(pick_no))
+ny3_data <- rookie_drafts %>%
+  mutate(third_year = case_when(
+    season == 2024 ~ sva_2026,
+    season == 2025 ~ sva_2027,
+    .default = NA)) %>%
+  select(pick_no, third_year) %>%
+  slice_sample(n = 800, replace = FALSE) #for some reason it gets antsy if n is too large (i think numerical error)
 
-ny3_wf <- workflow() %>%
-  add_model(lm_spec) %>%
-  add_recipe(rec_ny3)
+X_ny3 <- ny3_data %>% select(pick_no) %>%
+  mutate(
+    # pn_1 = pick_no^(.25),
+    pn_2 = pick_no^(.5),
+    # pn_3 = pick_no^(.75),
+    across(everything(), ~scale(.x))) %>%
+  mutate(intercept = 1) %>%
+  as.matrix()
 
-ny3_fit <- fit(ny3_wf, data = rookie_drafts)
+Y_ny3 <- ny3_data$third_year
 
-# plot fit, looks meh but whatever at this point
-ny3_fit %>% augment(rookie_drafts) %>%
+tic() #note that X_tv[c(1:36)] can actually stay the same
+samples_ny3 <- reg_gibbs_sampler(Y = Y_ny3, X = X_ny3, new_X = X_tv[c(1:36),],
+                                 iter = 7000, thin = 1, burn_in = 5000)
+toc()
+
+# quantiles of each pick
+quantiles_ny3 <- compute_quantiles(samples_ny3$new_y)
+
+# plot fit, looks pretty good
+tibble(.pred = quantiles_ny3$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(ny3_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
-  geom_point(aes(y = ny2)) +
+  geom_point(aes(y = third_year)) +
   geom_line(aes(y = .pred))
 
-# plot residuals against pick_no
-ny3_fit %>%
-  augment(rookie_drafts) %>%
+# plot residuals against pick_no, looks ok enough
+tibble(.pred = quantiles_ny3$`10`,
+       pick_no = c(1:36)) %>%
+  right_join(ny3_data, by = join_by(pick_no)) %>%
+  mutate(.resid = third_year  - .pred) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
 
 # Write to CSV ------------------------------------------------------------
 
-rookie_draft_values <- augment(tv_fit, new_data = tibble(pick_no = 1:36)) %>%
-  rename(exp_total_value = .pred) %>%
-  left_join(augment(va_fit, new_data = tibble(pick_no = 1:36)), by = join_by(pick_no)) %>%
-  rename(exp_value_added_ny = .pred) %>%
-  left_join(augment(ny2_fit, new_data = tibble(pick_no = 1:36)), by = join_by(pick_no)) %>%
-  rename(exp_value_added_ny2 = .pred) %>%
-  left_join(augment(ny3_fit, new_data = tibble(pick_no = 1:36)), by = join_by(pick_no)) %>%
-  rename(exp_value_added_ny3 = .pred) %>%
-  relocate(pick_no)
+quantiles_list <- list("total value" = quantiles_tv, "first year" = quantiles_ny,
+                       "second year" = quantiles_ny2, "third_year" = quantiles_ny3)
+
+rookie_draft_values <- imap_dfr(1:4, ~{
+  df <- quantiles_list[[.x]] %>% as_tibble()
+  colnames(df) <- as.numeric(colnames(df))*5
+  
+  df %>%
+    mutate(
+      pick_no = c(1:36),
+      metric = names(quantiles_list)[.x])}) %>%
+  relocate(pick_no, metric)
 
 # write_csv(rookie_draft_values, here(data_path, "Data/rookie_draft_values.csv"))
 

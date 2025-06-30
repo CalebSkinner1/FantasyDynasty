@@ -51,12 +51,9 @@ Fantasy Football Today and player value from Keep Trade Cut.
 
 # future goals/updates - ideas
 1. zero-inflated model to predict value added (especially for rookie next year production)
-2. update hierarchical model with correct hyperpriors (https://arxiv.org/pdf/2110.10565) and gprior
-3. box-cox transformation for hierarchical model? (age, hktc_value)
-4. split age into three categories and use hierarchy on this
-5. posterior predictive check for hierarchical model
-6. try bayesian mixture linear model instead of hierarchical
-7. use bayesian model to predict rookie values (allow for variation when drawing samples)
+2. posterior predictive check for hierarchical model
+3. try bayesian mixture linear model instead of hierarchical
+4. for rookie draft values, adjust for heteroscedasticity
 
 
 
