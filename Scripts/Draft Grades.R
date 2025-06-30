@@ -8,6 +8,9 @@ library("tidymodels")
 library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
+source(here(data_path, "Modeling/MCMC Samplers.R"))
+source(here(data_path, "Modeling/Player Total Value Functions.R"))
+
 # load data
 load(here(data_path, "Data/draft_picks.RData"))
 
@@ -23,7 +26,8 @@ player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types 
 # when grading the initial draft
 # rookie expected values per pick
 rookie_draft_pick_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"), show_col_types = FALSE) %>%
-  select(pick_no, exp_total_value)
+  filter(metric == "total value") %>%
+  select(pick_no, proj_tva_50)
   
 # function to edit tables for shiny
 shiny_edit_tables <- function(df){
@@ -38,7 +42,7 @@ rookie_draft_values <- rookie_draft_pick_values %>%
     draft_slot = pick_no%%12,
     draft_slot = if_else(draft_slot == 0, 12, draft_slot)) %>%
   group_by(draft_slot) %>%
-  summarize(total_value = sum(exp_total_value))
+  summarize(total_value = sum(proj_tva_50))
 
 # this tibble holds the expected value gained from rookie draft order
 rookie_draft_order_value <- read_csv(here(data_path, "Data/draft_order.csv"), show_col_types = FALSE) %>%
@@ -50,6 +54,7 @@ rookie_draft_order_value <- read_csv(here(data_path, "Data/draft_order.csv"), sh
     position = as.character(draft_order)) %>%
   select(roster_id, name, position, total_value)
 
+# realized value from each draft pick
 draft_values <- map(draft_picks, ~{
   draft_values <- .x %>%
     select(player_id, roster_id, draft_slot) %>%
@@ -97,34 +102,44 @@ initial_draft_data %>%
   ggplot() +
   geom_point(aes(x = pick_no, y = total_value))
 
-lm_spec <- linear_reg() %>%
-  set_mode("regression") %>%
-  set_engine("lm")
+X_id <- initial_draft_data %>% select(pick_no) %>%
+  mutate(
+    # pn_1 = pick_no^(.25),
+    pn_2 = pick_no^(.5),
+    # pn_3 = pick_no^(.75),
+    across(everything(), ~scale(.x))) %>%
+  mutate(intercept = 1) %>%
+  as.matrix()
 
-rec_init <- recipe(total_value ~ pick_no, data = initial_draft_data) %>%
-  step_mutate(pick_no2 = sqrt(pick_no))
+Y_id <- initial_draft_data$total_value
 
-init_wf <- workflow() %>%
-  add_model(lm_spec) %>%
-  add_recipe(rec_init)
+tic() #note that X_tv[c(1:36)] can actually stay the same
+samples_id <- reg_gibbs_sampler(Y = Y_id, X = X_id,
+                                iter = 7000, thin = 1, burn_in = 5000)
+toc()
 
-init_fit <- fit(init_wf, data = initial_draft_data)
+# quantiles of each pick
+quantiles_id <- compute_quantiles(samples_id$new_y)
 
 # plot fit, looks pretty good
-init_fit %>% augment(initial_draft_data) %>%
+tibble(.pred = quantiles_id$`10`,
+       pick_no = seq_along(Y_id)) %>%
+  right_join(initial_draft_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = total_value)) +
   geom_line(aes(y = .pred))
 
-# plot residuals against pick_no, looks ok enough, may want to make non homoscedastic but whatevs
-init_fit %>%
-  augment(initial_draft_data) %>%
+# plot residuals against pick_no, certainly heteroscedasticity
+tibble(.pred = quantiles_id$`10`,
+       pick_no = seq_along(Y_id)) %>%
+  right_join(initial_draft_data, by = join_by(pick_no)) %>%
+  mutate(.resid = total_value  - .pred) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
 
-initial_draft_expectations <- init_fit %>% augment(initial_draft_data) %>%
-  select(pick_no, .pred) %>%
+initial_draft_expectations <- tibble(.pred = quantiles_id$`10`,
+                                     pick_no = seq_along(Y_id)) %>%
   rename(exp_total_value = .pred)
 
 # Draft Rankings ----------------------------------------------------------
@@ -149,9 +164,6 @@ init_vs_expectation <- draft_values[[2]] %>%
   mutate(value_over_expected = total_value - exp_total_value) %>%
   select(roster_id, pick_no, name, position, realized_value, future_value, total_value, value_over_expected)
 
-
-
-
 # initial draft rankings
 initial_draft_value <- draft_values[[2]] %>%
   group_by(roster_id) %>%
@@ -167,7 +179,7 @@ rookie_vs_expecations <- draft_values[-2] %>%
   map(~{
     .x %>%
       left_join(rookie_draft_pick_values, by = join_by(pick_no)) %>%
-      mutate(value_over_expected = total_value - exp_total_value)})
+      mutate(value_over_expected = total_value - proj_tva_50)})
 
 # rookie draft rankings
 rookie_draft_value <- rookie_vs_expecations %>%
@@ -217,6 +229,8 @@ best_picks <- function(enter_draft, shiny){
 }
 
 # best_picks("initial draft", shiny = TRUE)
+# best_picks("2024 rookie draft", shiny = TRUE)
+# best_picks("2025 rookie draft", shiny = TRUE)
 
 # worst picks - some massive first round busts
 worst_picks <- function(enter_draft, shiny){
@@ -252,6 +266,8 @@ worst_picks <- function(enter_draft, shiny){
 }
 
 # worst_picks("initial draft", shiny = TRUE)
+# worst_picks("2024 rookie draft", shiny = TRUE)
+# worst_picks("2025 rookie draft", shiny = TRUE)
 
 draft_rankings <- function(enter_draft, shiny){
   enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
@@ -288,3 +304,5 @@ draft_rankings <- function(enter_draft, shiny){
 }
 
 # draft_rankings("initial draft", shiny = TRUE)
+# draft_rankings("2024 rookie draft", shiny = TRUE)
+# draft_rankings("2025 rookie draft", shiny = TRUE)
