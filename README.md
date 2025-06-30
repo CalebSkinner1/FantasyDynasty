@@ -71,8 +71,9 @@ DONE
 1. readme lol
 2. weekly update how to (for future self)
 3. future goals
-4. once season starts, some code will surely break
-5. once season starts, compute future value as percentage of remaining season
+4. improve efficiency of code
+5. once season starts, some code will surely break
+6. once season starts, compute future value as percentage of remaining season
 
 
 
