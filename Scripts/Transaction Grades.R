@@ -10,10 +10,9 @@ library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
 # load data
-tic()
 load(here(data_path, "Data/transactions.RData")) #transactions, including trades
 player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE)
-value_added <- read_csv(here(data_path, "Data/va_2024.csv"), show_col_types = FALSE)
+value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE)
 
 player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE) %>%
   select(-birth_date)
@@ -179,7 +178,7 @@ inspect_individual_transaction <- function(transaction_id, shiny = FALSE){
   else{
     df %>%
       gt() %>%
-      gt_theme_538() %>%
+      gt_theme_538(quiet = TRUE) %>%
       fmt_number(columns = c(future_value, realized_value, total_value), decimals = 2) %>%
       cols_label(future_value = "Future Value", realized_value = "Realized Value",
                  total_value = "Total Value") %>%

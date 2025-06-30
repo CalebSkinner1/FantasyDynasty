@@ -41,9 +41,9 @@ realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
   mutate(
     draft_id = as.numeric(draft_id),
     max_round = max(round)) %>%
+  ungroup() %>% 
   filter(max_round < 4) %>%
   mutate(season = dense_rank(draft_id) + 2023) %>%
-  ungroup() %>%
   left_join(draft_order %>% filter(type == "rookie"), by = join_by(season, draft_slot == draft_order)) %>%
   rename(original_owner = roster_id.y) %>%
   select(season, round, player_id, original_owner)
@@ -306,9 +306,10 @@ inspect_individual_trade <- function(trade_id, shiny = FALSE){
 
 # inspect_individual_trade(9) # what is trade 9
 # inspect_individual_trade(20) # what is trade 20
-inspect_individual_trade(7) # what is trade 7
+# inspect_individual_trade(7) # what is trade 7
 # inspect_individual_trade(4) # what is trade 4
 # inspect_individual_trade(19) # what is trade 19
+# inspect_individual_trade(27) # what is trade 27
 
 # by fantasy owner, totals don't add up because of value adjustment and future devaluation
 overall_trade_winners <- comparison %>%
