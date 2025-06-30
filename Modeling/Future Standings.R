@@ -8,28 +8,27 @@ library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
 # load data
-load(here(data_path, "Data/simulations.RData"))
+load(here(data_path, "Modeling/player_simulations.RData"))
 player_info <- read_csv(here(data_path, "Data/player_info.csv"))
 
 future_draft_picks <- read_csv(here(data_path, "Data/future_draft_picks.csv"))
 rookie_draft_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"))
 
-assign_draft_pick_value <- function(dp_df, place_marker){
-  dp_df %>%
-    filter(!is.na(draft_order)) %>%
-    mutate(pick_no = (round-1)*12 + draft_order) %>%
-    select(roster_id, season, pick_no) %>%
-    left_join(rookie_draft_values, by = join_by(pick_no)) %>%
-    select(roster_id, contains("ny")) %>%
-    rename_with(~{
-      # Create a sequence starting from input_value + 1
-      seq_numbers <- seq(place_marker + 1, place_marker + length(.x))
-      # Replace column names with proj_tva_<number>
-      str_replace(.x, ".*", paste0("proj_tva_", seq_numbers))},
-    starts_with("exp_value")
-    )
+assign_draft_pick_value <- function(dp_df, years_in_advance = "total value"){
+  dp_df <- dp_df %>% filter(!is.na(draft_order))
+  
+  if(nrow(dp_df) == 0){
+    tibble()
+  }else{
+    data2 %>%
+      mutate(pick_no = (round-1)*12 + draft_order) %>%
+      select(roster_id, season, pick_no) %>%
+      left_join(rookie_draft_values %>% filter(metric == years_in_advance), by = join_by(pick_no)) %>%
+      select(-season, -pick_no, -metric)
+  }
 }
 
+# this is deprecated
 known_draft_picks <- future_draft_picks %>%
   assign_draft_pick_value(0)
 
@@ -38,34 +37,79 @@ current_roster <- read_csv(here(data_path, "Data/current_roster.csv")) %>%
   select(name, position, roster_id)
 
 # find year, this is needed for mapping below
-year <- simulations[[1]] %>%
-  select(contains("proj_tva")) %>%
-  colnames() %>%
-  pluck(1) %>%
-  str_remove("proj_tva_") %>%
-  as.numeric()
+year <- names(player_simulations)[1] %>% as.numeric()
 
-# this is kinda a lot, but it finds the standings for each of the next three years following the simulations
-# also, it unfortunately doesn't account for variation in rookie draft values pooey
-tic()
-standings <- map(simulations, ~{
-  data <- .x %>%
-    rename_with(~{
-      years <- as.numeric(str_extract(.x, "\\d{4}"))
-      seq_numbers <- match(years, sort(unique(years)))
-      str_replace(.x, "\\d{4}", as.character(seq_numbers))}) %>%
-    left_join(current_roster, by = join_by(name, position)) %>%
-    bind_rows(known_draft_picks)
-  
-  ny <- data %>%
+# the idea here, is for each player, I randomly sample from one of their quartiles, this accounts for the variation
+# in their season, but also keeps the mean where it should be. It trims the variance, slightly,
+# but this isn't a major concern right now.
+
+
+
+
+year2 <- player_simulations[[2]] %>% select(-name) %>% apply(1, function(row) sample(row, 1))
+year3 <- player_simulations[[3]] %>% select(-name) %>% apply(1, function(row) sample(row, 1))
+
+sample_quantiles <- function(data){
+  data %>%
+    select(-roster_id) %>%
+    apply(1, function(row) sample(row, 1)) %>%
+    as_tibble() %>%
+    mutate(roster_id = data1$roster_id) %>%
     group_by(roster_id) %>%
     summarize(
-      va_1 = sum(proj_tva_1)) %>%
+      va_1 = sum(value)) %>%
     filter(!is.na(roster_id)) %>%
     transmute(
       roster_id = roster_id,
       rank1 = rank(desc(va_1)),
       draft_order = rank(va_1))
+}
+
+prep_draft_picks <- function(prev_year, years_ahead = "first year"){
+  future_draft_picks %>%
+    filter(season == year + 1) %>%
+    select(-draft_order) %>%
+    left_join(prev_year %>% select(roster_id, draft_order), by = join_by(pick_slot == roster_id)) %>%
+    select(roster_id, draft_order) %>%
+    assign_draft_pick_value(years_ahead)
+}
+
+
+standings <- map(1:n_sim, ~{
+  
+  # draft order from year 1
+  data1 <- player_simulations[[1]] %>% 
+    left_join(current_roster, by = join_by(name)) %>%
+    select(roster_id, contains("proj")) %>%
+    bind_rows(known_draft_picks)
+  
+  
+  year1 <- data1 %>% sample_quantiles()
+    
+  draft_picks2 <- prep_draft_picks(year1, "first year")
+  
+  # HERE
+  
+  data2 <- player_simulations[[]]
+  
+  
+  # data <- .x %>%
+  #   rename_with(~{
+  #     years <- as.numeric(str_extract(.x, "\\d{4}"))
+  #     seq_numbers <- match(years, sort(unique(years)))
+  #     str_replace(.x, "\\d{4}", as.character(seq_numbers))}) %>%
+  #   left_join(current_roster, by = join_by(name, position)) %>%
+  #   bind_rows(known_draft_picks)
+  # 
+  # ny <- data %>%
+  #   group_by(roster_id) %>%
+  #   summarize(
+  #     va_1 = sum(proj_tva_1)) %>%
+  #   filter(!is.na(roster_id)) %>%
+  #   transmute(
+  #     roster_id = roster_id,
+  #     rank1 = rank(desc(va_1)),
+  #     draft_order = rank(va_1))
   
   data2 <- future_draft_picks %>%
     filter(season == year + 2) %>%
