@@ -60,12 +60,7 @@ transactions <- map(all_league_ids, ~{
   }) %>% bind_rows(.id = "season") %>%
   mutate(season = as.numeric(season) + 2023)
   
-
 # save(transactions, file = here(data_path, "Data/transactions.RData"))
-
-# drafts CHECK
-
-# HERE
 
 # Get all drafts urls for a league
 draft_urls <- 

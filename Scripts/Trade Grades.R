@@ -17,7 +17,7 @@ future_draft_pick_values <- read_csv(here(data_path, "Data/future_draft_pick_val
 load(here(data_path, "Data/draft_picks.RData")) # draft results
 
 player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE)
-value_added <- read_csv(here(data_path, "Data/va_2024.csv"), show_col_types = FALSE)
+value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE)
 draft_order <- read_csv(here(data_path, "Data/draft_order.csv"), show_col_types = FALSE)
 
 marginal_transaction_value <- read_csv(here(data_path, "Data/marginal_transaction_value.csv"), show_col_types = FALSE)
@@ -295,7 +295,7 @@ inspect_individual_trade <- function(trade_id, shiny = FALSE){
   else{
     df %>%
       gt() %>%
-      gt_theme_538() %>%
+      gt_theme_538(quiet = TRUE) %>%
       fmt_number(columns = c(future_value, realized_value, total_value), decimals = 2) %>%
       cols_label(team_name = "Team", future_value = "Future Value", realized_value = "Realized Value",
                  total_value = "Total Value") %>%
@@ -306,8 +306,9 @@ inspect_individual_trade <- function(trade_id, shiny = FALSE){
 
 # inspect_individual_trade(9) # what is trade 9
 # inspect_individual_trade(20) # what is trade 20
-# inspect_individual_trade(7) # what is trade 7
+inspect_individual_trade(7) # what is trade 7
 # inspect_individual_trade(4) # what is trade 4
+# inspect_individual_trade(19) # what is trade 19
 
 # by fantasy owner, totals don't add up because of value adjustment and future devaluation
 overall_trade_winners <- comparison %>%
