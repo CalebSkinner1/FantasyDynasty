@@ -41,7 +41,7 @@ users <- rosters %>%
 
 # write_csv(users, here(data_path, "Data/users.csv"))
 
-# matchups CHECK
+# matchups
 matchups <- map(all_league_ids, ~{
     league_id <- .x
     map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/matchups/", .x) %>%
@@ -65,6 +65,8 @@ transactions <- map(all_league_ids, ~{
 
 # drafts CHECK
 
+# HERE
+
 # Get all drafts urls for a league
 draft_urls <- 
   map(all_league_ids, ~str_c("https://api.sleeper.app/v1/league/", .x, "/drafts") %>%
@@ -77,7 +79,7 @@ draft_urls <-
 draft_trades_urls <- draft_urls %>% str_replace("/picks", "/traded_picks")
 
 # Get picks in a draft
-draft_picks <- map(draft_urls, parse_api) %>% discard(~length(.x) == 0)
+draft_picks <- map(draft_urls, ~parse_api(.x))
 # save(draft_picks, file = here(data_path, "Data/draft_picks.RData"))
 
 # Get trades in a draft

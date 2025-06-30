@@ -5,6 +5,7 @@
 library("here")
 library("tidyverse")
 library("tidymodels")
+library("tictoc")
 data_path <- "FantasyDynasty/"
 
 # load data of interest
@@ -19,25 +20,25 @@ player_info <- read_csv(here(data_path, "Data/player_info.csv"))
 # find value of all players in rookie drafts
 rookie_drafts <- bind_rows(draft_picks, .id = "draft_id") %>%
   group_by(draft_id) %>%
-  mutate(max_rounds = max(round)) %>%
+  mutate(
+    max_rounds = max(round),
+    season = if_else(draft_id == 1, as.numeric(draft_id) + 2023, as.numeric(draft_id) + 2022)) %>%
   ungroup() %>%
   # only keep rookie drafts (for now)
   filter(max_rounds == 3) %>%
-  select(pick_no, roster_id, player_id) %>%
+  select(pick_no, roster_id, player_id, season) %>%
   left_join(player_info, by = join_by(player_id)) %>%
-  select(pick_no, roster_id, name, player_id, position) %>%
+  select(season, pick_no, roster_id, name, player_id, position) %>%
   left_join(player_total_value %>% select(-player_id, -position), by = join_by(name)) %>%
   mutate(
     total_value = replace_na(total_value, 0),
-    sva_2024 = replace_na(sva_2024, 0),
-    ny = replace_na(ny, 0),
-    ny2 = replace_na(ny2, 0))
+    sva_2024 = replace_na(sva_2024, 0))
 
 rookie_drafts %>%
   ggplot() +
-  geom_point(aes(x = pick_no, y = total_value))
+  geom_point(aes(x = pick_no, y = total_value, color = as.factor(season)))
 
-# Polynomial Regression on total value ---------------------------------------------------
+# Polynomial Regression pick on total value ---------------------------------------------------
 lm_spec <- linear_reg() %>%
   set_mode("regression") %>%
   set_engine("lm")
@@ -64,9 +65,12 @@ tv_fit %>%
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
 
+
+
+
 # Polynomial Regression - Next Year Value Added ---------------------------
 
-rec_va <- recipe(sva_2024 ~ pick_no, data = rookie_drafts) %>%
+rec_va <- recipe(sva_2024 ~ pick_no, data = rookie_drafts %>% filter(season == 2024)) %>%
   step_mutate(pick_no2 = sqrt(pick_no))
 
 va_wf <- workflow() %>%

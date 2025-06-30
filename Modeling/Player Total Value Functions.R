@@ -102,7 +102,7 @@ prep_data_ktc <- function(data, scales, split_prop = .8){
 
 # BART --------------------------------------------------------------------
 
-fit_bart <- function(train_data, tune_grid = 20, samples){
+fit_bart <- function(train_data, tune_grid = 20){
   # cross validation
   df_folds <- vfold_cv(train_data)
   

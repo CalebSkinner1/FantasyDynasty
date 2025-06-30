@@ -9,7 +9,7 @@ source(here(data_path, "Modeling/Player Total Value Functions.R")) # grab functi
 season_value_added <- read_csv(here(data_path, "Data/sva.csv")) # shortcut
 player_info <- read_csv(here(data_path, "Data/player_info.csv")) # shortcut 
 
-keep_trade_cut <- read_csv(here(data_path, "Data/ktc values/ktc_value062725.csv")) # shortcut
+keep_trade_cut <- read_csv(here(data_path, "Data/ktc values/ktc_value062925.csv")) # shortcut
 sleeper_points <- read_csv(here(data_path, "Data/sleeper_points24.csv")) # shortcut
 
 # organize data sets
@@ -61,6 +61,8 @@ tva_fit <- fit_bart(tva_data$full_data)
 # tva_fit <- fit_bart(tva_data$train_data)
 toc()
 
+save(tva_fit, file = here(data_path, "Modeling/tva_fit.RData"))
+
 # compute accuracy (RMSE)
 # model_accuracy(tva_fit, tva_data$test_data)
 
@@ -83,6 +85,8 @@ tic()
 ktc_fit <- fit_bart(ktc_data$full_data)
 toc()
 
+save(tva_fit, file = here(data_path, "Modeling/ktc_fit.RData"))
+
 # compute accuracy (RMSE)
 # model_accuracy(ktc_fit, ktc_data$test_data)
 
@@ -104,7 +108,7 @@ tic() # ~3 mins
 player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales, tva_fit = tva_fit, ktc_fit = ktc_fit)
 toc()
 
-# HERE
+# save(player_simulations, file = here(data_path, "Modeling/player_simulations.RData"))
 
 future_value <- compute_future_value(player_simulations, years = 8, weight = .95)
 
