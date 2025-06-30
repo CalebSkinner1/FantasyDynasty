@@ -10,6 +10,15 @@ library("tictoc")
 # paper that explains
 # https://arxiv.org/pdf/2110.10565
 
+
+# simple linear regression gibbs sampler ----------------------------------
+
+
+
+
+
+# hierarchical linear regression gibbs sampler-------------------------------------------------------------------------
+
 # simulated
 # n <- 200; p <- 8; J <- 4
 # X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
@@ -19,7 +28,6 @@ library("tictoc")
 # 
 # Y <- map(1:J, ~{X_g[[.x]]%*%b[.x,] + rnorm(n/J, mean = 0, sd = 1)}) %>% unlist()
 
-# hierarchical linear regression gibbs sampler
 hlr_gibbs_sampler <- function(Y, X, group, iter = 2000, burn_in = 1000, thin = 5, g, mu_0, Lambda_0, eta_0, S_0, nu_0 = 1, a_0 = 1, b_0){
   # initialize
   J <- length(unique(group)) #groups
