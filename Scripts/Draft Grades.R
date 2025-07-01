@@ -1,15 +1,10 @@
 # Draft Grades!
 
-# Ok now this is fun
 library("here")
-library("gt")
-library("gtExtras")
-library("tidymodels")
-library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
-source(here(data_path, "Modeling/MCMC Samplers.R"))
-source(here(data_path, "Modeling/Player Total Value Functions.R"))
+# Ok now this is fun
+source(here(data_path, "Scripts/Grades Support.R"))
 
 # load data
 load(here(data_path, "Data/draft_picks.RData"))
@@ -28,14 +23,6 @@ player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types 
 rookie_draft_pick_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"), show_col_types = FALSE) %>%
   filter(metric == "total value") %>%
   select(pick_no, proj_tva_50)
-  
-# function to edit tables for shiny
-shiny_edit_tables <- function(df){
-  df %>%
-    mutate(across(where(is.numeric), ~round(.x, 2))) %>%
-    rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
-    rename_with(~str_to_title(.x), everything())
-}
 
 rookie_draft_values <- rookie_draft_pick_values %>%
   mutate(
@@ -194,114 +181,27 @@ rookie_draft_value <- rookie_vs_expecations %>%
       arrange(desc(value_over_expected))
   })
 
-# best picks- lol we vastly undervalued rookie picks
-best_picks <- function(enter_draft, shiny){
-  enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
-  
-  df <- init_vs_expectation %>%
-    bind_rows(.,rookie_vs_expecations, .id = "draft_id") %>%
-    mutate(
-      draft = case_when(
-        draft_id == "1" ~ "initial draft",
-        .default = str_c(as.numeric(draft_id) + 2022, " rookie draft"))) %>%
-    filter(str_detect(draft, enter_draft)) %>%
-    left_join(users, by = join_by(roster_id)) %>%
-    select(display_name, pick_no, name, position, realized_value, future_value, value_over_expected) %>%
-    arrange(desc(value_over_expected))
-  
-  if(shiny){
-    df %>%
-      rename(
-        team_name = display_name,
-        pick = pick_no) %>%
-      shiny_edit_tables()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538() %>%
-      fmt_number(columns = c(value_over_expected, realized_value, future_value), decimals = 2) %>%
-      cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected",
-                 realized_value = "Realized Value", future_value = "Future Value", pick_no = "Pick") %>%
-      tab_header(title = str_c(str_to_title(enter_draft), " Best Picks"))
-  }
-}
+# dfs to save -------------------------------------------------------------
+# best picks
+picks_df <- init_vs_expectation %>%
+  bind_rows(.,rookie_vs_expecations, .id = "draft_id") %>%
+  mutate(
+    draft = case_when(
+      draft_id == "1" ~ "initial draft",
+      .default = str_c(as.numeric(draft_id) + 2022, " rookie draft")))
+
 
 # best_picks("initial draft", shiny = TRUE)
 # best_picks("2024 rookie draft", shiny = TRUE)
 # best_picks("2025 rookie draft", shiny = TRUE)
 
-# worst picks - some massive first round busts
-worst_picks <- function(enter_draft, shiny){
-  enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
-  
-  df <- init_vs_expectation %>%
-    bind_rows(.,rookie_vs_expecations, .id = "draft_id") %>%
-    mutate(
-      draft = case_when(
-        draft_id == "1" ~ "initial draft",
-        .default = str_c(as.numeric(draft_id) + 2022, " rookie draft"))) %>%
-    filter(str_detect(draft, enter_draft)) %>%
-    left_join(users, by = join_by(roster_id)) %>%
-    select(display_name, pick_no, name, position, realized_value, future_value, value_over_expected) %>%
-    arrange(value_over_expected)
-  
-  if(shiny){
-    df %>%
-      rename(
-        team_name = display_name,
-        pick = pick_no) %>%
-      shiny_edit_tables()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538() %>%
-      fmt_number(columns = c(value_over_expected, realized_value, future_value), decimals = 2) %>%
-      cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected",
-                 realized_value = "Realized Value", future_value = "Future Value", pick_no = "Pick") %>%
-      tab_header(title = str_c(str_to_title(enter_draft), " Worst Picks"))
-  }
-}
-
 # worst_picks("initial draft", shiny = TRUE)
 # worst_picks("2024 rookie draft", shiny = TRUE)
 # worst_picks("2025 rookie draft", shiny = TRUE)
 
-draft_rankings <- function(enter_draft, shiny){
-  enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
-  
-  df <- init_vs_expectation %>%
-    bind_rows(.,rookie_vs_expecations, .id = "draft_id") %>%
-    mutate(
-      draft = case_when(
-        draft_id == "1" ~ "initial draft",
-        .default = str_c(as.numeric(draft_id) + 2022, " rookie draft"))) %>%
-    filter(str_detect(draft, enter_draft)) %>%
-    left_join(users, by = join_by(roster_id)) %>%
-    group_by(display_name) %>%
-    summarize(
-      realized_value = sum(realized_value, na.rm = TRUE),
-      future_value = sum(future_value, na.rm = TRUE),
-      value_over_expected = sum(value_over_expected, na.rm = TRUE)) %>%
-    arrange(desc(value_over_expected))
-  
-  if(shiny){
-    df %>%
-      rename(team_name = display_name) %>%
-      shiny_edit_tables()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538() %>%
-      fmt_number(columns = c(value_over_expected, realized_value, future_value), decimals = 2) %>%
-      cols_label(display_name = "Team Name", value_over_expected = "Value Over Expected",
-                 realized_value = "Realized Value", future_value = "Future Value") %>%
-      tab_header(title = str_c(str_to_title(enter_draft), " Draft Grades"))
-  }
-}
-
 # draft_rankings("initial draft", shiny = TRUE)
 # draft_rankings("2024 rookie draft", shiny = TRUE)
 # draft_rankings("2025 rookie draft", shiny = TRUE)
+
+
+
