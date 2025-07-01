@@ -93,7 +93,8 @@ current_roster <- read_csv(here(data_path, "Data/current_roster.csv"), show_col_
 
 total_assets <- current_roster %>%
   select(-sva_2024) %>%
-  bind_rows(draft_assets)
+  bind_rows(draft_assets) %>%
+  mutate(future_value = replace_na(future_value, 0))
 
 value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE) %>%
   mutate(season = 2024) %>%
@@ -134,7 +135,7 @@ player_avenues <- total_assets %>%
       as.numeric(str_extract(trade_avenue, "\\d{4}")) + as.numeric(str_extract(trade_avenue, "(?<=W)\\d+"))/20 >
         as.numeric(str_extract(transaction_avenue, "\\d{4}")) + as.numeric(str_extract(transaction_avenue, "(?<=W)\\d+"))/20 ~ trade_avenue,
       .default = transaction_avenue),
-    avenue = coalesce(t_avenue, rookie_draft_avenue, initial_draft_avenue)) %>%
+    avenue = coalesce(rookie_draft_avenue, initial_draft_avenue, t_avenue)) %>%
   select(roster_id, player_id, name, position, future_value, avenue) %>%
   mutate(avenue = case_when(
     is.na(avenue) & position == "K" ~ "initial draft",
@@ -455,8 +456,7 @@ team_composition <- function(player_avenues_df, enter_roster_id, shiny = FALSE){
   if(shiny){
     df %>%
       rename(avenue = avenue_type) %>%
-      shiny_edit_tables() %>%
-      return()
+      shiny_edit_tables()
   }
   else{
     df %>%
@@ -468,4 +468,4 @@ team_composition <- function(player_avenues_df, enter_roster_id, shiny = FALSE){
   }
 }
 
-player_avenues %>% team_composition(7)
+player_avenues %>% team_composition(4)

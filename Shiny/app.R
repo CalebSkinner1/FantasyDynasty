@@ -10,7 +10,7 @@ data_path <- "FantasyDynasty"
 folder_path <- "FantasyDynasty/Scripts/"
 
 # Source the script files in the folder
-source(here(data_path, "Scripts/Fantasy Teams.R")) # Fantasy Teams
+source(here(data_path, "Scripts", "Fantasy Teams.R")) # Fantasy Teams
 source(here(data_path, "Scripts/Individual Players.R")) # Individual Players
 
 # Define UI
