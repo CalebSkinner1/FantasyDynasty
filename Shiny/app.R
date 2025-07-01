@@ -3,15 +3,13 @@ library("shiny")
 library("shinydashboard")
 library("here")
 library("DT")
-library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty"
 
 # Specify the folder containing the R scripts
 folder_path <- "FantasyDynasty/Scripts/"
 
-# Source the script files in the folder
-source(here(data_path, "Scripts", "Fantasy Teams.R")) # Fantasy Teams
-source(here(data_path, "Scripts/Individual Players.R")) # Individual Players
+# Source the function files in the folder
+source(here(data_path, "Shiny", "app functions.R"))
 
 # Define UI
 ui <- dashboardPage(
@@ -272,7 +270,7 @@ server <- function(input, output, session) {
   
   output$tabulate_realized_value <- renderDT({ #table 2
     req(input$player_season)
-    tabulate_realized_value(value_added_24, input$player_name, input$player_season, shiny = TRUE) %>%
+    tabulate_realized_value(value_added, input$player_name, input$player_season, shiny = TRUE) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
@@ -283,7 +281,7 @@ server <- function(input, output, session) {
   
   output$weekly_results <- renderPlot({ #second plot
     req(input$player_season) #require input
-    weekly_results(value_added_24, input$player_name, input$player_season)
+    weekly_results(value_added, input$player_name, input$player_season)
   })
   
   # Reactivity for Page 2
@@ -332,8 +330,7 @@ server <- function(input, output, session) {
   output$team_contributors <- renderDT({ #table 3
     req(input$team_name, input$team_season) # require input
     users %>% filter(display_name == input$team_name) %>%
-      select(roster_id) %>%
-      pull() %>% grab_team_contributors(input$team_season, shiny = TRUE) %>%
+      pull(roster_id) %>% grab_team_contributors(input$team_season, shiny = TRUE) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page

@@ -4,7 +4,10 @@ library("here")
 data_path <- "FantasyDynasty/"
 
 # Ok now this is fun
-source(here(data_path, "Scripts/Grades Support.R"))
+source(here(data_path, "Scripts/Script Support.R"))
+# samplers
+source(here(data_path, "Modeling/MCMC Samplers.R"))
+source(here(data_path, "Modeling/Player Total Value Functions.R"))
 
 # load data
 load(here(data_path, "Data/draft_picks.RData"))
@@ -189,6 +192,11 @@ picks_df <- init_vs_expectation %>%
     draft = case_when(
       draft_id == "1" ~ "initial draft",
       .default = str_c(as.numeric(draft_id) + 2022, " rookie draft")))
+
+write_csv(picks_df, here(data_path, "Scripts/Saved Files/picks_df.csv"))
+
+
+# Examples ----------------------------------------------------------------
 
 
 # best_picks("initial draft", shiny = TRUE)

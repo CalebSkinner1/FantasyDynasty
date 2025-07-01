@@ -2,14 +2,10 @@
 # similar to Draft Grades.R and Trade Grades.R, this page grades each transaction by a fantasy user
 
 library("here")
-library("gt")
-library("gtExtras")
-library("tidymodels")
-library("janitor")
-library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
 
 # load data
+source(here(data_path, "Scripts/Script Support.R"))
 load(here(data_path, "Data/transactions.RData")) #transactions, including trades
 player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE)
 value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE)
@@ -19,14 +15,6 @@ player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types 
 
 users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
-
-# function to edit tables for shiny
-shiny_edit_tables <- function(df){
-  df %>%
-    mutate(across(where(is.numeric), ~round(.x, 2))) %>%
-    rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
-    rename_with(~str_to_title(.x), everything())
-}
 
 total_transaction_value <- transactions %>%
   filter(type %in% c("waiver", "free_agent")) %>%
@@ -160,43 +148,6 @@ top_transactions <- individual_transactions %>%
     transaction_details = "avenue") %>%
   relocate(c(team_name, transaction_details))
 
-inspect_individual_transaction <- function(transaction_id, shiny = FALSE){
-  title <- total_transaction_value[[transaction_id]]$team_name[1] %>%
-    str_c(., "'s ", total_transaction_value[[transaction_id]]$season[1], " W",
-          total_transaction_value[[transaction_id]]$week[1], " Transaction")
-  
-  df <- total_transaction_value[[transaction_id]] %>%
-    mutate(action = if_else(type == "add", "+", "-")) %>%
-    select(action, name, position, realized_value, future_value, total_value) %>%
-    adorn_totals("row")
-  
-  if(shiny){
-    df %>%
-      shiny_edit_tables() %>%
-      return()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = c(future_value, realized_value, total_value), decimals = 2) %>%
-      cols_label(future_value = "Future Value", realized_value = "Realized Value",
-                 total_value = "Total Value") %>%
-      tab_header(title = title)
-  }
-}
-
-# inspect_individual_transaction(32) # Sam Darnold
-# inspect_individual_transaction(48) # Tyrone Tracy
-# inspect_individual_transaction(201) # Khalil Shakir
-# inspect_individual_transaction(193) # Jalen McMillan
-
-# 
-# inspect_individual_transaction(49) # Sam Darnold
-# inspect_individual_transaction(108) # Michael Penix
-# inspect_individual_transaction(359) # Jalen McMillan
-# inspect_individual_transaction(16) # Cade Otton
-
 # mean add/drop value (mean value gained from adding/dropping a player)
 marginal_transaction_value <- total_transaction_value %>%
   bind_rows() %>%
@@ -204,8 +155,6 @@ marginal_transaction_value <- total_transaction_value %>%
   group_by(season, type) %>%
   summarize(total_value_added = mean(total_value),
             .groups = "keep")
-
-# write_csv(marginal_transaction_value, here(data_path, "Data/marginal_transaction_value.csv"))
 
 # by fantasy owner
 overall_transaction_winners <- transaction_comparison %>%
@@ -221,4 +170,22 @@ overall_transaction_winners <- transaction_comparison %>%
 
 rm(value_added)
 
+# dfs to save -------------------------------------------------------------
 
+write_csv(transaction_comparison, here(data_path, "Scripts/Saved Files/transaction_comparison.csv"))
+
+write_csv(marginal_transaction_value, here(data_path, "Data/marginal_transaction_value.csv"))
+
+save(total_transaction_value, file = here(data_path, "Scripts/Saved Files/total_transaction_value.Rdata"))
+
+# Examples ----------------------------------------------------------------
+
+# inspect_individual_transaction(32) # Sam Darnold
+# inspect_individual_transaction(48) # Tyrone Tracy
+# inspect_individual_transaction(201) # Khalil Shakir
+# inspect_individual_transaction(193) # Jalen McMillan
+
+# inspect_individual_transaction(49) # Sam Darnold
+# inspect_individual_transaction(108) # Michael Penix
+# inspect_individual_transaction(359) # Jalen McMillan
+# inspect_individual_transaction(16) # Cade Otton

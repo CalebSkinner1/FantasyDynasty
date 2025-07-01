@@ -3,13 +3,10 @@
 # alright this is what this was all for amiright
 
 library("here")
-library("gt")
-library("gtExtras")
-library("tidymodels")
-library("janitor")
-library("tidyverse"); theme_set(theme_minimal())
-library("tictoc")
 data_path <- "FantasyDynasty/"
+
+# Ok now this is fun
+source(here(data_path, "Scripts/Script Support.R"))
 
 load(here(data_path, "Data/transactions.RData")) #transactions, including trades
 future_draft_pick_values <- read_csv(here(data_path, "Data/future_draft_pick_values.csv"), show_col_types = FALSE) #future draft pick values
@@ -27,14 +24,6 @@ player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types 
   select(-birth_date)
 users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
-
-# function to edit tables for shiny
-shiny_edit_tables <- function(df){
-  df %>%
-    mutate(across(where(is.numeric), ~round(.x, 2))) %>%
-    rename_with(~str_replace_all(.x, "_", " "), everything()) %>%
-    rename_with(~str_to_title(.x), everything())
-}
 
 realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
   group_by(draft_id) %>%
@@ -273,44 +262,6 @@ lopsided_trades <- individual_trades %>%
     top_asset_acquired = name) %>%
   relocate(c(team_name, trade_details))
 
-inspect_individual_trade <- function(trade_id, shiny = FALSE){
-  title <- total_trade_value[[trade_id]] %>% select(team_name) %>% distinct() %>%
-    map_chr(~str_c(.x, collapse = ", ")) %>%
-    str_c(total_trade_value[[trade_id]]$season[1], " W",
-          total_trade_value[[trade_id]]$week[1], " Trade between ", .)
-  
-  df <- total_trade_value[[trade_id]] %>%
-    filter(type == "add" | name == "roster size adjustment") %>%
-    select(-season, -week, -type) %>%
-    group_by(team_name) %>%
-    group_map(~ .x %>% adorn_totals("row"),
-              .keep = TRUE) %>%
-    bind_rows()
-  
-  if(shiny){
-    df %>%
-      shiny_edit_tables() %>%
-      return()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = c(future_value, realized_value, total_value), decimals = 2) %>%
-      cols_label(team_name = "Team", future_value = "Future Value", realized_value = "Realized Value",
-                 total_value = "Total Value") %>%
-      tab_header(title = title)
-  }
-    
-}
-
-# inspect_individual_trade(9) # what is trade 9
-# inspect_individual_trade(20) # what is trade 20
-# inspect_individual_trade(7) # what is trade 7
-# inspect_individual_trade(4) # what is trade 4
-# inspect_individual_trade(19) # what is trade 19
-# inspect_individual_trade(27) # what is trade 27
-
 # by fantasy owner, totals don't add up because of value adjustment and future devaluation
 overall_trade_winners <- comparison %>%
   group_by(team_name) %>%
@@ -324,3 +275,19 @@ overall_trade_winners <- comparison %>%
   select(team_name, trades, total_realized_value, total_future_value, total_trade_value)
 
 rm(value_added)
+
+# dfs to save -------------------------------------------------------------
+
+write_csv(comparison, here(data_path, "Scripts/Saved Files/comparison.csv"))
+
+save(total_trade_value, file = here(data_path, "Scripts/Saved Files/total_trade_value.Rdata"))
+
+# Examples ----------------------------------------------------------------
+
+# inspect_individual_trade(9) # what is trade 9
+# inspect_individual_trade(20) # what is trade 20
+# inspect_individual_trade(7) # what is trade 7
+# inspect_individual_trade(4) # what is trade 4
+# inspect_individual_trade(19) # what is trade 19
+# inspect_individual_trade(27) # what is trade 27
+

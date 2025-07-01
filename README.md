@@ -72,7 +72,7 @@ DONE
 1. readme lol
 2. weekly update how to (for future self)
 3. future goals
-4. account for variance of projections
+4. account for variance of projections (widen intervals)
 5. improve efficiency of code
 6. once season starts, some code will surely break
 7. once season starts, compute future value as percentage of remaining season

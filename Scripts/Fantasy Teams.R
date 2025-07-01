@@ -3,10 +3,10 @@
 # an RShiny
 
 library("here")
-library("gt")
-library("gtExtras")
-library("tidyverse"); theme_set(theme_minimal())
 data_path <- "FantasyDynasty/"
+
+# load data
+source(here(data_path, "Scripts/Script Support.R"))
 
 # Grades
 source(here(data_path, "Scripts/Draft Grades.R")) #Draft Grades, about one second
@@ -67,8 +67,6 @@ future_draft_pick_values <- unknown_draft_picks %>%
   bind_rows(known_draft_picks) %>%
   select(-roster_id)
 
-# write_csv(future_draft_pick_values, here(data_path, "Data/future_draft_pick_values.csv"))
-
 # draft picks
 draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) %>%
   mutate(
@@ -97,7 +95,6 @@ total_assets <- current_roster %>%
   mutate(future_value = replace_na(future_value, 0))
 
 value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE) %>%
-  mutate(season = 2024) %>%
   left_join(users, by = join_by(roster_id)) %>%
   rename(team_name = display_name)
 
@@ -143,142 +140,6 @@ player_avenues <- total_assets %>%
     .default = avenue
   ))
 
-grab_team_assets <- function(enter_roster_id, shiny = FALSE){
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    pull(display_name)
-  
-  df <- total_assets %>%
-    left_join(player_avenues %>%
-                select(name, position, roster_id, avenue),
-              by = join_by(roster_id, name, position)) %>%
-    filter(roster_id == enter_roster_id) %>%
-    arrange(desc(future_value)) %>%
-    select(name, position, future_value, avenue)
-  
-  if(shiny){
-    df %>%
-      rename("Acquired" = "avenue") %>%
-      shiny_edit_tables()
-  }
-  else{
-    gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = future_value, decimals = 2) %>%
-      cols_label(future_value = "Future Value", avenue = "Acquired") %>%
-      tab_header(title = str_c(team_name, " Future Value"))
-  }
-}
-
-grab_team_assets(4, shiny = TRUE)
-
-# position outlook
-position_outlook <- function(enter_roster_id, shiny = FALSE){
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    select(display_name) %>%
-    slice(1)
-  
-  realized_value <- value_added %>%
-    filter(roster_id == enter_roster_id) %>%
-    group_by(position) %>%
-    summarize(
-      realized_value = sum(value_added)) %>%
-    ungroup()
-  
-  df <- current_roster %>%
-    filter(roster_id == enter_roster_id) %>%
-    group_by(position) %>%
-    summarize(
-      future_value = sum(future_value)) %>%
-    ungroup() %>%
-    left_join(realized_value, by = join_by(position)) %>%
-    mutate(position = factor(position, position_levels)) %>%
-    relocate(realized_value, .after = position) %>%
-    arrange(position)
-  
-  if(shiny){
-    df %>%
-      shiny_edit_tables()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = c(future_value, realized_value), decimals = 2) %>%
-      cols_label(future_value = "Future Value", realized_value = "Realized Value") %>%
-      tab_header(title = str_c(team_name, " Position Outlook"))
-  }
-}
-
-position_outlook(4, shiny = TRUE)
-
-# top contributors
-grab_team_contributors <- function(enter_roster_id, enter_season, shiny = FALSE){
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    pull(display_name)
-  
-  df <- value_added %>% 
-    filter(roster_id == enter_roster_id, season == enter_season) %>%
-    group_by(name, position) %>%
-    summarize(
-      weeks = n(),
-      healthy = sum(sleeper_points > 0),
-      starts = sum(type == "starter"),
-      total_value_added = sum(value_added),
-      fantasy_points = sum(sleeper_points),
-      .groups = "keep") %>%
-    arrange(desc(total_value_added)) %>%
-    ungroup()
-  
-  if(shiny){
-    df %>% shiny_edit_tables() %>% return()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = c(total_value_added, fantasy_points), decimals = 2) %>%
-      cols_label(total_value_added = "Total Value Added", fantasy_points = "Fantasy Points") %>%
-      tab_header(title = str_c(team_name, ": ", enter_season, " Season"))
-  }
-
-}
-
-grab_team_contributors(4, enter_season = 2024)
-
-# week by week
-grab_team_contributors_weekly <- function(enter_roster_id, enter_season, enter_week, shiny = FALSE){
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    pull(display_name)
-  
-  df <- value_added %>% 
-    filter(roster_id == enter_roster_id, season == enter_season, week == enter_week,
-           type == "starter") %>%
-    select(name, position, projection, sleeper_points, value_added) %>%
-    mutate(position = factor(position, position_levels)) %>%
-    arrange(position, desc(value_added))
-  
-  if(shiny){
-    df %>%
-      rename(fantasy_points = sleeper_points) %>%
-      shiny_edit_tables() %>%
-      return()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538() %>%
-      fmt_number(columns = c(value_added, sleeper_points, projection), decimals = 2) %>%
-      cols_label(value_added = "Value Added", sleeper_points = "Fantasy Points") %>%
-      tab_header(title = str_c(team_name, ": ", enter_season, " Season Week ", enter_week))
-  }
-}
-
-grab_team_contributors_weekly(enter_roster_id = 4, enter_season = 2024, enter_week = 5, shiny = TRUE)
-
 # overall draft, trade, transaction grades
 
 value_avenues <- bind_rows(
@@ -311,41 +172,7 @@ value_avenues <- bind_rows(
   mutate(avenue = factor(avenue, levels = c("initial draft", "rookie draft 2024", "rookie draft 2025", "transaction", "trade"))) %>%
   select(-total_value)
 
-overall_grades <- function(value_avenues_df, enter_roster_id, shiny = FALSE){
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    select(display_name) %>%
-    slice(1)
-  
-  df <- value_avenues_df %>%
-    filter(roster_id == enter_roster_id) %>%
-    relocate(c(avenue, total_realized_value, total_future_value), value_over_expected) %>%
-    select(-roster_id) %>%
-    arrange(avenue) %>%
-    janitor::adorn_totals()
-  
-  if(shiny){
-    df %>%
-      rename(
-        realized_value = "total_realized_value",
-        future_value = "total_future_value") %>%
-      shiny_edit_tables() %>%
-      return()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538() %>%
-      fmt_number(columns = c(total_realized_value, total_future_value, value_over_expected), decimals = 2) %>%
-      cols_label(total_realized_value = "Realized Value", total_future_value = "Future Value", value_over_expected = "Value Over Expected") %>%
-      tab_header(title = str_c(team_name, " Avenue Grades"))
-  }
-}
-
-# value_avenues %>% overall_grades(enter_roster_id = 6, shiny = TRUE)
-
 # acquisitions
-
 acquisitions <- bind_rows(
   init_vs_expectation %>% # initial draft
     mutate(avenue = str_c("initial draft pick ", pick_no)) %>%
@@ -359,35 +186,59 @@ acquisitions <- bind_rows(
     select(-transaction_id)
   )
 
-# top acquisitions
-top_acquisitions <- function(acquisitions_df, enter_roster_id, enter_avenue = "All", shiny = FALSE) {
-  enter_avenue <- if_else(enter_avenue == "All", " ", enter_avenue)
-  
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    select(display_name) %>%
-    slice(1)
-  
-  df <- acquisitions_df %>%
-    filter(str_detect(avenue, enter_avenue), roster_id == enter_roster_id) %>%
-    slice_max(value_over_expected, n = 5) %>%
-    select(-roster_id, -total_value)
-  
-  if(shiny){
-    df %>%
-      shiny_edit_tables() %>%
-      return()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = c(realized_value, future_value, value_over_expected), decimals = 2) %>%
-      cols_label(realized_value = "Realized Value", future_value = "Future Value", value_over_expected = "Value Over Expected") %>%
-      tab_header(title = str_c(team_name, " Top Acquisitions"))
-  }
 
-}
+
+
+
+
+# dfs to save -------------------------------------------------------------
+
+grab_team_assets_df <- total_assets %>%
+  left_join(player_avenues %>%
+              select(name, position, roster_id, avenue),
+            by = join_by(roster_id, name, position)) %>%
+  arrange(desc(future_value)) %>%
+  select(roster_id, name, position, future_value, avenue)
+
+write_csv(grab_team_assets_df, here(data_path, "Scripts/Saved Files/grab_team_assets_df.csv"))
+
+realized_value <- value_added %>%
+  # filter(roster_id == enter_roster_id) %>%
+  group_by(roster_id, position) %>%
+  summarize(
+    realized_value = sum(value_added)) %>%
+  ungroup()
+
+position_outlook_df <- current_roster %>%
+  group_by(roster_id, position) %>%
+  summarize(
+    future_value = sum(future_value)) %>%
+  ungroup() %>%
+  left_join(realized_value, by = join_by(position, roster_id)) %>%
+  mutate(
+    position = factor(position, position_levels),
+    across(future_value:realized_value, ~replace_na(.x, 0))) %>%
+  relocate(realized_value, .after = position) %>%
+  arrange(position)
+
+write_csv(position_outlook_df, here(data_path, "Scripts/Saved Files/position_outlook_df.csv"))
+  
+write_csv(value_avenues, here(data_path, "Scripts/Saved Files/value_avenues.csv"))
+write_csv(acquisitions, here(data_path, "Scripts/Saved Files/acquisitions.csv"))
+write_csv(player_avenues, here(data_path, "Scripts/Saved Files/player_avenues.csv"))
+
+write_csv(future_draft_pick_values, here(data_path, "Data/future_draft_pick_values.csv"))
+
+# Examples ----------------------------------------------------------------
+# grab_team_assets(4, shiny = TRUE)
+# 
+# position_outlook(4, shiny = TRUE)
+# 
+# grab_team_contributors(4, enter_season = 2024, shiny = TRUE)
+# 
+# grab_team_contributors_weekly(enter_roster_id = 4, enter_season = 2024, enter_week = 5, shiny = TRUE)
+# 
+# value_avenues %>% overall_grades(enter_roster_id = 6, shiny = TRUE)
 
 # acquisitions %>% top_acquisitions(4)
 # acquisitions %>% top_acquisitions(4, "initial draft")
@@ -395,77 +246,10 @@ top_acquisitions <- function(acquisitions_df, enter_roster_id, enter_avenue = "A
 # acquisitions %>% top_acquisitions(4, "trade")
 # acquisitions %>% top_acquisitions(4, "rookie draft")
 
-# worst acquisitions
-worst_acquisitions <- function(acquisitions_df, enter_roster_id, enter_avenue = "All", shiny = FALSE) {
-  enter_avenue <- if_else(enter_avenue == "All", " ", enter_avenue)
-  
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    select(display_name) %>%
-    slice(1)
-  
-  df <- acquisitions_df %>%
-    filter(str_detect(avenue, enter_avenue), roster_id == enter_roster_id) %>%
-    slice_min(value_over_expected, n = 5) %>%
-    select(-roster_id, -total_value)
-  
-  if(shiny){
-    df %>%
-      shiny_edit_tables() %>%
-      return()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = c(realized_value, future_value, value_over_expected), decimals = 2) %>%
-      cols_label(realized_value = "Realized Value", future_value = "Future Value", value_over_expected = "Value Over Expected") %>%
-      tab_header(title = str_c(team_name, " Worst Acquisitions"))
-  }
-}
-
 # acquisitions %>% worst_acquisitions(4)
 # acquisitions %>% worst_acquisitions(4, "initial draft")
 # acquisitions %>% worst_acquisitions(1, "transaction")
 # acquisitions %>% worst_acquisitions(4, "trade")
 # acquisitions %>% worst_acquisitions(4, "rookie draft")
 
-# team composition
-
-# HERE! Fix avenues_df
-
-team_composition <- function(player_avenues_df, enter_roster_id, shiny = FALSE){
-  team_name <- users %>%
-    filter(roster_id == enter_roster_id) %>%
-    pull(display_name)
-  
-  df <- player_avenues_df %>%
-    filter(roster_id == enter_roster_id) %>%
-    mutate(
-      avenue_type = case_when(
-        str_detect(avenue, "initial draft") ~ "initial draft",
-        str_detect(avenue, "rookie draft") ~ "rookie draft",
-        str_detect(avenue, "transaction") ~ "transaction",
-        str_detect(avenue, "trade") ~ "trade",
-        str_detect(avenue, "own pick") ~ "own pick",
-        .default = NA)) %>%
-    group_by(avenue_type) %>%
-    summarize(future_value = sum(future_value)) %>%
-    mutate(proportion = scales::percent(future_value/sum(future_value), accuracy = .01))
-  
-  if(shiny){
-    df %>%
-      rename(avenue = avenue_type) %>%
-      shiny_edit_tables()
-  }
-  else{
-    df %>%
-      gt() %>%
-      gt_theme_538(quiet = TRUE) %>%
-      fmt_number(columns = c(future_value), decimals = 2) %>%
-      cols_label(avenue_type = "Avenue", future_value = "Future Value") %>%
-      tab_header(title = str_c(team_name, " Team Composition"))
-  }
-}
-
-player_avenues %>% team_composition(4)
+# player_avenues %>% team_composition(4)
