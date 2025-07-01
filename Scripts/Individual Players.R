@@ -29,7 +29,7 @@ basic_info <- function(enter_name){
     left_join(player_total_value %>% select(-name, -position, -birth_date),
               by = join_by(player_id)) %>%
     filter(name == enter_name) %>%
-    mutate(age = interval(birth_date, today())%/% years(1)) %>%
+    mutate(age = time_length(lubridate::interval(birth_date, today()), "years")) %>%
     select(position, age, sva_2024, future_value, total_value) %>%
     rename(value_added_2024 = sva_2024) %>%
     shiny_edit_tables()

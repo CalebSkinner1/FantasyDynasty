@@ -113,30 +113,29 @@ X_id <- initial_draft_data %>% select(pick_no) %>%
 
 Y_id <- initial_draft_data$total_value
 
-tic() #note that X_tv[c(1:36)] can actually stay the same
+#note that X_tv[c(1:36)] can actually stay the same
 samples_id <- reg_gibbs_sampler(Y = Y_id, X = X_id,
                                 iter = 7000, thin = 1, burn_in = 5000)
-toc()
 
 # quantiles of each pick
 quantiles_id <- compute_quantiles(samples_id$new_y)
 
 # plot fit, looks pretty good
-tibble(.pred = quantiles_id$`10`,
-       pick_no = seq_along(Y_id)) %>%
-  right_join(initial_draft_data, by = join_by(pick_no)) %>%
-  ggplot(aes(x = pick_no)) +
-  geom_point(aes(y = total_value)) +
-  geom_line(aes(y = .pred))
+# tibble(.pred = quantiles_id$`10`,
+#        pick_no = seq_along(Y_id)) %>%
+#   right_join(initial_draft_data, by = join_by(pick_no)) %>%
+#   ggplot(aes(x = pick_no)) +
+#   geom_point(aes(y = total_value)) +
+#   geom_line(aes(y = .pred))
 
 # plot residuals against pick_no, certainly heteroscedasticity
-tibble(.pred = quantiles_id$`10`,
-       pick_no = seq_along(Y_id)) %>%
-  right_join(initial_draft_data, by = join_by(pick_no)) %>%
-  mutate(.resid = total_value  - .pred) %>%
-  ggplot(aes(x = pick_no)) +
-  geom_point(aes(y = .resid)) +
-  geom_hline(yintercept = 0)
+# tibble(.pred = quantiles_id$`10`,
+#        pick_no = seq_along(Y_id)) %>%
+#   right_join(initial_draft_data, by = join_by(pick_no)) %>%
+#   mutate(.resid = total_value  - .pred) %>%
+#   ggplot(aes(x = pick_no)) +
+#   geom_point(aes(y = .resid)) +
+#   geom_hline(yintercept = 0)
 
 initial_draft_expectations <- tibble(.pred = quantiles_id$`10`,
                                      pick_no = seq_along(Y_id)) %>%
