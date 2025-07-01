@@ -25,9 +25,6 @@ rookie_draft_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"),
 users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
-#position_levels
-position_levels <- c("QB", "RB", "WR", "TE", "K", "DST")
-
 future_draft_picks <- read_csv(here(data_path, "Data/future_draft_picks.csv"), show_col_types = FALSE)
 
 # picks that we known the draft order

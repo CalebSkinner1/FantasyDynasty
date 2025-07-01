@@ -314,7 +314,7 @@ team_composition <- function(player_avenues, enter_roster_id, shiny = FALSE){
 best_picks <- function(enter_draft, shiny){
   enter_draft <- if_else(enter_draft == "All", " ", enter_draft)
   
-  df <- best_picks_df %>%
+  df <- picks_df %>%
     filter(str_detect(draft, enter_draft)) %>%
     left_join(users, by = join_by(roster_id)) %>%
     select(display_name, pick_no, name, position, realized_value, future_value, value_over_expected) %>%

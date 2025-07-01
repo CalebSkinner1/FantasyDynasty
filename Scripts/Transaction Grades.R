@@ -172,6 +172,10 @@ rm(value_added)
 
 # dfs to save -------------------------------------------------------------
 
+write_csv(overall_transaction_winners, here(data_path, "Scripts/Saved Files/overall_transaction_winners.csv"))
+
+write_csv(top_transactions, here(data_path, "Scripts/Saved Files/top_transactions.csv"))
+
 write_csv(transaction_comparison, here(data_path, "Scripts/Saved Files/transaction_comparison.csv"))
 
 write_csv(marginal_transaction_value, here(data_path, "Data/marginal_transaction_value.csv"))

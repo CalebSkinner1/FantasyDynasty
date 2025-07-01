@@ -113,8 +113,10 @@ ui <- dashboardPage(
             maxOptions = 5  # Limit the number of suggestions shown
           )),
         uiOutput("team_assets_title"),
+        p("Top future assets on the team."),
         DTOutput("team_assets"),
         uiOutput("position_outlook_title"),
+        p("Asset value by position."),
         DTOutput("position_outlook"),
         selectizeInput(
           inputId = "team_season", 
@@ -126,6 +128,7 @@ ui <- dashboardPage(
             maxOptions = 2  # Limit the number of suggestions shown
           )),
         uiOutput("team_contributors_title"),
+        p("Top contributors in this season"),
         DTOutput("team_contributors"),
         selectizeInput(
           inputId = "team_week", 
@@ -137,8 +140,10 @@ ui <- dashboardPage(
             maxOptions = 3  # Limit the number of suggestions shown
           )),
         uiOutput("team_contributors_weekly_title"),
+        p("Weekly Value"),
         DTOutput("team_contributors_weekly"),
         uiOutput("avenue_grades_title"),
+        p("Performance across acquisition avenues"),
         DTOutput("avenue_grades"),
         selectizeInput(
           inputId = "team_avenue", 
@@ -162,7 +167,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "draft_selection", 
           label = "Enter Draft", 
-          choices = c("2024 rookie draft", "initial draft", "All"),
+          choices = c("2024 rookie draft", "2025 rookie draft", "initial draft", "All"),
           # multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",

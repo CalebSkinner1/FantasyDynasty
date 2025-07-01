@@ -278,6 +278,10 @@ rm(value_added)
 
 # dfs to save -------------------------------------------------------------
 
+write_csv(overall_trade_winners, here(data_path, "Scripts/Saved Files/overall_trade_winners.csv"))
+
+write_csv(lopsided_trades, here(data_path, "Scripts/Saved Files/lopsided_trades.csv"))
+
 write_csv(comparison, here(data_path, "Scripts/Saved Files/comparison.csv"))
 
 save(total_trade_value, file = here(data_path, "Scripts/Saved Files/total_trade_value.Rdata"))
