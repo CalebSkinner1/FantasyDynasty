@@ -70,11 +70,6 @@ prep_draft_picks <- function(prev_year, year, years_ahead = "first year"){
 # in their season, but also keeps the mean where it should be. It trims the variance, slightly,
 # but this isn't a major concern right now.
 
-year2 <- player_simulations[[2]] %>% select(-name) %>% apply(1, function(row) sample(row, 1))
-year3 <- player_simulations[[3]] %>% select(-name) %>% apply(1, function(row) sample(row, 1))
-
-
-
 # find year, this is needed for mapping below
 this_year <- names(player_simulations)[1] %>% as.numeric()
 
@@ -142,4 +137,4 @@ final_standings_odds <- map(standings, ~{
   bind_rows(.id = "season") %>%
   mutate(season = this_year + as.numeric(str_remove(season, "year")) - 1)
 
-# write_csv(final_standings_odds, here(data_path, "Data/final_standings_odds.csv"))
+write_csv(final_standings_odds, here(data_path, "Data/final_standings_odds.csv"))

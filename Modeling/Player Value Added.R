@@ -7,6 +7,7 @@
 
 # load data
 library("here")
+library("tidyverse")
 data_path <- "FantasyDynasty/"
 source(here(data_path, "Data Manipulation/Scraping.R")) #run data ~45 seconds
 
@@ -73,7 +74,7 @@ sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper
   name_correction() %>%
   filter(week != 18)
 
-# write_csv(sleeper_points, here(data_path, "Data/sleeper_points24.csv"))
+write_csv(sleeper_points, here(data_path, "Data/sleeper_points.csv"))
 
 # Find Value at Replacement -----------------------------------------------
 
@@ -296,7 +297,7 @@ value_added <- imap_dfr(seq_len(length(starters_revamp)), ~{
       mutate(type = "starter") %>%
       # add with bench players
       bind_rows(
-        bind_rows(bench[[s]], .id = "week") %>%
+        bind_rows(bench[[.x]], .id = "week") %>%
           select(-projection) %>%
           mutate(week = as.numeric(week)) %>%
           left_join(select(sleeper_points, -season), by = join_by(name, week)) %>%
@@ -305,11 +306,11 @@ value_added <- imap_dfr(seq_len(length(starters_revamp)), ~{
             # obviously they have 0 value added
             value_added = 0)) %>%
       # add projections
-      left_join(projections[[s]], by = join_by(name, week)) %>%
+      left_join(projections[[.x]], by = join_by(name, week)) %>%
       # give projected 0 if not present
       mutate(
         projection = replace_na(projection, 0),
-        season = s + 2023)
+        season = .x + 2023)
   }
 })
   
@@ -325,7 +326,7 @@ season_value_added <- value_added %>%
 write_csv(value_added, here(data_path, "Data/va.csv"))
 write_csv(season_value_added, here(data_path, "Data/sva.csv"))
 
-season_value_added %>% print(n=30)
+# season_value_added %>% print(n=30)
 
 # value_added %>%
 #   group_by(roster_id, position, name) %>%
@@ -345,6 +346,6 @@ season_value_added %>% print(n=30)
 # remove objects and functions to declutter environment
 rm(top_replacement, find_score, clean_replacements, super_flex, flex,
    weighted_mean_replacements, waiver, starters, starters_revamp, projections_list, projections, overall_mean,
-   opp_points_scored, off_sleeper_points, kick_sleeper_points, defenses, def_sleeper_points,
+   opp_points_scored, off_sleeper_points, kick_sleeper_points, def_sleeper_points,
    box_score_off, box_score_kicking, box_score_def, bench, all_replacements, all_positions, mean_replacements)
 

@@ -64,8 +64,11 @@ Fantasy Football Today and player value from Keep Trade Cut.
 1. readme lol
 2. weekly update how to (for future self)
 3. workflow doc
-4. once season starts, some code will surely break
-5. once season starts, compute future value as percentage of remaining season
+
+## once season starts
+1. Some code will surely break
+2. Compute future value as percentage of remaining season
+3. Update future standings
 
 
 

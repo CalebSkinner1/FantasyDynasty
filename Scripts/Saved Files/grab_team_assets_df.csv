@@ -255,7 +255,6 @@ roster_id,name,position,future_value,avenue
 12,Pat Freiermuth,TE,83.35046568293872,initial draft pick 127
 9,Chris Godwin,WR,81.99341652883062,initial draft pick 99
 11,Cade Otton,TE,81.6548696005261,2024 W1 transaction
-8,Brenton Strange,TE,80.59934457218412,2025 W1 transaction
 5,2026 3R Draft Pick,ngernenz,80.37827011855265,own pick
 1,Nick Chubb,RB,79.6360546892639,2024 W15 transaction
 1,2027 3R Draft Pick,joeburrowmvp,79.39631880302824,own pick
@@ -356,6 +355,7 @@ roster_id,name,position,future_value,avenue
 7,Wil Lutz,K,0,2024 W12 transaction
 7,Cincinnati Bengals,DST,0,2025 W1 transaction
 8,Jake Bates,K,0,2024 W11 transaction
+8,Darren Waller,TE,0,2025 W1 transaction
 8,Denver Broncos,DST,0,2024 W8 trade
 9,Daniel Carlson,K,0,2025 W1 transaction
 9,Washington Commanders,DST,0,2025 W1 transaction

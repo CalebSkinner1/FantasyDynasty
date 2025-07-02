@@ -171,6 +171,7 @@ roster_id,player_id,name,position,future_value,avenue
 8,12507,Omarion Hampton,RB,472.2922490426131,2025 rookie draft pick 4
 8,12519,Luther Burden,WR,245.1742007794599,2025 rookie draft pick 18
 8,12547,Kyle Williams,WR,59.88046327089229,2025 rookie draft pick 23
+8,2505,Darren Waller,TE,0,2025 W1 transaction
 8,4066,Evan Engram,TE,45.21515472219371,initial draft pick 91
 8,5844,T.J. Hockenson,TE,227.27263622435876,initial draft pick 43
 8,6904,Jalen Hurts,QB,449.5264599284391,initial draft pick 6
@@ -178,7 +179,6 @@ roster_id,player_id,name,position,future_value,avenue
 8,8132,Tyler Allgeier,RB,121.71887131711364,initial draft pick 163
 8,8136,Rachaad White,RB,121.767483980661,initial draft pick 54
 8,9229,Anthony Richardson,QB,244.28820945978208,initial draft pick 19
-8,9480,Brenton Strange,TE,80.59934457218412,2025 W1 transaction
 8,9494,Marvin Mims Jr.,WR,35.14841120855455,2025 W1 transaction
 8,9753,Zach Charbonnet,RB,165.67948127652406,initial draft pick 102
 8,9756,Jordan Addison,WR,280.7191818894623,initial draft pick 67
