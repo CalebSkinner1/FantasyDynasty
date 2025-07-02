@@ -46,8 +46,11 @@ Fantasy Football Today and player value from Keep Trade Cut.
 4. [Fantasy Football Today](https://www.fftoday.com/rankings)
 
 # weekly update
+To download and process weekly updates, please see the Frequent Updates.R file in the Workflows Folder.
+This document should help weekly updates be a seemless task. Overall, it takes a little more than one minute.
 
 # yearly update
+
 
 # future goals/updates - ideas
 1. Zero-inflated model to predict value added (especially for rookie next year production)
