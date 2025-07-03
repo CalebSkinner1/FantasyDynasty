@@ -9,7 +9,7 @@ data_path <- "FantasyDynasty/"
 source(here(data_path, "Scripts/Script Support.R"))
 
 load(here(data_path, "Data/transactions.RData")) #transactions, including trades
-future_draft_pick_values <- read_csv(here(data_path, "Data/future_draft_pick_values.csv"), show_col_types = FALSE) #future draft pick values
+all_draft_pick_exp_values <- read_csv(here(data_path, "Data/all_draft_pick_exp_values.csv"), show_col_types = FALSE) #future draft pick values
 
 load(here(data_path, "Data/draft_picks.RData")) # draft results
 
@@ -141,7 +141,7 @@ total_trade_value <- transactions %>%
     traded_picks <- traded_picks0 %>%
       select(-league_id) %>%
       mutate(season = as.numeric(season)) %>%
-      left_join(future_draft_pick_values, #future draft pick
+      left_join(all_draft_pick_exp_values, #future draft pick
                 by = join_by(roster_id == pick_slot, season, round)) %>%
       left_join(realized_rookie_picks, #realized draft pick
                 by = join_by(season, round, roster_id == original_owner)) %>%
