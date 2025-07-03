@@ -27,6 +27,8 @@ users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
 
 future_draft_picks <- read_csv(here(data_path, "Data/future_draft_picks.csv"), show_col_types = FALSE)
 
+load(here(data_path, "Data/draft_picks.RData"))
+
 # picks that we known the draft order
 known_draft_picks <- 
   if(nrow(future_draft_picks %>% filter(!is.na(draft_order))) == 0){
@@ -60,9 +62,17 @@ unknown_draft_picks <- future_draft_picks %>%
   left_join(exp_draft_values, by = join_by(season, round, pick_slot == roster_id)) %>%
   select(roster_id, season, round, exp_total_value, pick_slot)
 
-future_draft_pick_values <- unknown_draft_picks %>%
+future_draft_pick_exp_values <- unknown_draft_picks %>%
   bind_rows(known_draft_picks) %>%
   select(-roster_id)
+
+realized_draft_pick_exp_values <- bind_rows(draft_picks, .id = "draft_id") %>% filter(draft_id != 2) %>%
+  left_join(rookie_draft_values, by = join_by(pick_no)) %>%
+  rename(pick_slot = roster_id, exp_total_value = proj_tva_50) %>%
+  mutate(season = if_else(as.numeric(draft_id) == 1, 2023 + as.numeric(draft_id), 2022 + as.numeric(draft_id))) %>%
+  select(season, round, exp_total_value, pick_slot)
+
+all_draft_pick_exp_values <- bind_rows(future_draft_pick_exp_values, realized_draft_pick_exp_values)
 
 # draft picks
 draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) %>%
@@ -183,11 +193,6 @@ acquisitions <- bind_rows(
     select(-transaction_id)
   )
 
-
-
-
-
-
 # dfs to save -------------------------------------------------------------
 
 grab_team_assets_df <- total_assets %>%
@@ -224,7 +229,7 @@ write_csv(value_avenues, here(data_path, "Scripts/Saved Files/value_avenues.csv"
 write_csv(acquisitions, here(data_path, "Scripts/Saved Files/acquisitions.csv"))
 write_csv(player_avenues, here(data_path, "Scripts/Saved Files/player_avenues.csv"))
 
-write_csv(future_draft_pick_values, here(data_path, "Data/future_draft_pick_values.csv"))
+write_csv(all_draft_pick_exp_values, here(data_path, "Data/all_draft_pick_exp_values.csv"))
 
 # Examples ----------------------------------------------------------------
 # grab_team_assets(4, shiny = TRUE)
