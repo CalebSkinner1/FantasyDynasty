@@ -68,11 +68,12 @@ future_draft_pick_exp_values <- unknown_draft_picks %>%
 
 realized_draft_pick_exp_values <- bind_rows(draft_picks, .id = "draft_id") %>% filter(draft_id != 2) %>%
   left_join(rookie_draft_values, by = join_by(pick_no)) %>%
-  rename(pick_slot = roster_id, exp_total_value = proj_tva_50) %>%
   mutate(season = if_else(as.numeric(draft_id) == 1, 2023 + as.numeric(draft_id), 2022 + as.numeric(draft_id))) %>%
+  left_join(draft_order %>% filter(type == "rookie"), by = join_by(season, draft_slot == draft_order)) %>%
+  rename(pick_slot = roster_id.y, exp_total_value = proj_tva_50) %>%
   select(season, round, exp_total_value, pick_slot)
 
-all_draft_pick_exp_values <- bind_rows(future_draft_pick_exp_values, realized_draft_pick_exp_values)
+all_draft_pick_exp_values <- bind_rows(realized_draft_pick_exp_values, future_draft_pick_exp_values)
 
 # draft picks
 draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) %>%

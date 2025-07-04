@@ -98,7 +98,6 @@ can be updated with new data and the draft pick valuation can be updated. See th
 
 ## website
 1. add remaining tabs
-2. fix trades to not include realized players CHECK HERE
 
 ## once season starts
 1. Some code will surely break

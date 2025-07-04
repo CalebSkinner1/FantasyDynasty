@@ -24,18 +24,18 @@ player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types 
   select(-birth_date)
 users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
-
-realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
-  group_by(draft_id) %>%
-  mutate(
-    draft_id = as.numeric(draft_id),
-    max_round = max(round)) %>%
-  ungroup() %>% 
-  filter(max_round < 4) %>%
-  mutate(season = dense_rank(draft_id) + 2023) %>%
-  left_join(draft_order %>% filter(type == "rookie"), by = join_by(season, draft_slot == draft_order)) %>%
-  rename(original_owner = roster_id.y) %>%
-  select(season, round, player_id, original_owner)
+# 
+# realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
+#   group_by(draft_id) %>%
+#   mutate(
+#     draft_id = as.numeric(draft_id),
+#     max_round = max(round)) %>%
+#   ungroup() %>% 
+#   filter(max_round < 4) %>%
+#   mutate(season = dense_rank(draft_id) + 2023) %>%
+#   left_join(draft_order %>% filter(type == "rookie"), by = join_by(season, draft_slot == draft_order)) %>%
+#   rename(original_owner = roster_id.y) %>%
+#   select(season, round, player_id, original_owner)
 
 total_trade_value <- transactions %>%
   filter(type == "trade") %>%
@@ -141,35 +141,29 @@ total_trade_value <- transactions %>%
     traded_picks <- traded_picks0 %>%
       select(-league_id) %>%
       mutate(season = as.numeric(season)) %>%
-      left_join(all_draft_pick_exp_values, #future draft pick
+      left_join(all_draft_pick_exp_values, #expected value of draft pick
                 by = join_by(roster_id == pick_slot, season, round)) %>%
-      left_join(realized_rookie_picks, #realized draft pick
-                by = join_by(season, round, roster_id == original_owner)) %>%
-      left_join(player_total_value, #gain value of realized draft pick
-                by = join_by(player_id)) %>%
+      # left_join(realized_rookie_picks, #realized draft pick
+      #           by = join_by(season, round, roster_id == original_owner)) %>%
+      # left_join(player_total_value, #gain value of realized draft pick
+      #           by = join_by(player_id)) %>%
       left_join(users,
                 by = join_by(roster_id)) %>%
       mutate(
-        name = case_when(
-          is.na(name) ~ str_c(season, " ", round, "R Draft Pick"),
-          .default = name),
-        position = case_when(
-          is.na(position) ~ display_name,
-          .default = position),
-        future_value = case_when(
-          is.na(future_value) ~ exp_total_value,
-          .default = future_value),
-        realized_value = replace_na(sva_2024, 0),
+        name = str_c(season, " ", round, "R Draft Pick"),
+        position = display_name,
+        future_value = exp_total_value,
+        realized_value = 0,
         season = .x$season[1],
         week = this_week)
     
     traded_picks_gained <- traded_picks %>%
-      select(owner_id, name, position, future_value, realized_value, season, week) %>%
+      select(owner_id, name, position, realized_value, future_value, season, week) %>%
       rename(roster_id = owner_id) %>%
       mutate(type = "add")
     
     traded_picks_lost <- traded_picks %>%
-      select(previous_owner_id, name, position, future_value, realized_value, season, week) %>%
+      select(previous_owner_id, name, position, realized_value, future_value, season, week) %>%
       rename(roster_id = previous_owner_id) %>%
       mutate(type = "drop")
     
