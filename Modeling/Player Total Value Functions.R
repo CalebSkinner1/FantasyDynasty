@@ -176,6 +176,14 @@ generate_samples <- function(fit, data){
   predict(model, newdata = data, n.samples = samples)
 }
 
+compute_coverage <- function(fit, test_data, confidence = .95){
+  samples <- generate_samples(fit, test_data)
+  
+  # compute coverage
+  quantiles <- samples %>% apply(2, quantile, probs = c((1-confidence)/2, (1+confidence)/2))
+  between(test_data$Y, quantiles[1,], quantiles[2,]) %>% mean()
+}
+
 # this function updates the data so its ready for the next year
 update_data_year <- function(data){
   min_ktc <- min(data$ktc_value, na.rm = TRUE)

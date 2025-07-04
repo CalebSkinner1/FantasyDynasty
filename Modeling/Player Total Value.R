@@ -57,8 +57,8 @@ tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 
 # run model ~88 seconds
 tic()
-tva_fit <- fit_bart(tva_data$full_data)
-# tva_fit <- fit_bart(tva_data$train_data)
+# tva_fit <- fit_bart(tva_data$full_data)
+tva_fit <- fit_bart(tva_data$train_data)
 toc()
 
 # save(tva_fit, file = here(data_path, "Modeling/tva_fit.RData"))
@@ -69,7 +69,9 @@ toc()
 # graph residuals
 # graph_residuals(tva_fit, tva_data$test_data)
 
-# tva_samples <- generate_samples(tva_fit, tva_data$full_data)
+tva_samples <- generate_samples(tva_fit, tva_data$full_data)
+
+compute_coverage(tva_fit, tva_data$test_data, confidence = .95)
 
 # Model KTC Value for next season -----------------------------------------
 
