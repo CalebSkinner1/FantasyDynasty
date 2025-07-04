@@ -586,7 +586,6 @@ server <- function(input, output, session) {
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
   })
-  
 }
 
 # Run the App

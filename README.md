@@ -1,11 +1,8 @@
 # FantasyDynasty
-This repository is designed to host a website for my Fantasy Football Dynasty League. In this repository,
-I combine my interest in fantasy football with Bayesian Hierarchical Modeling, RShiny, intense data
-wrangling, and creative modeling.
+This repository is designed to host a website for the Baylor Seniors Fantasy Football Dynasty League.
 
-I create a *value added* metric, which finds the difference in each fantasy player's output
-with the output of a replacement level player of their position.
-Players only contribute (or lose) value added if started in the lineup.
+I create a **value added** metric to measure fantasy players' value relative to their potential replacement.
+This metric is designed to be league specific - players only contribute (or lose) value added if started in the lineup.
 
 From here, I predict each player's value added in future years using the player's age and
 pre-season keep trade cut value. With this model, I am able to draw samples from future years and
@@ -86,12 +83,11 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 
 ## near future ideas
-1. Posterior predictive check for future value model (BART)
-2. Account for variance of projections (widen intervals)
-3. Adjust for heteroscedasticity in draft pick values
-4. add remaining tabs to website
-5. add pictures to each player
-6. incorporate randomness into future standings projection
+1. Account for variance of projections (widen intervals)
+2. Adjust for heteroscedasticity in draft pick values
+3. add remaining tabs to website
+4. add pictures to each player
+5. incorporate randomness into future standings projection
 
 ## once season starts
 1. Some code will surely break
