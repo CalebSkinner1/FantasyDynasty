@@ -85,9 +85,9 @@ can be updated with new data and the draft pick valuation can be updated. See th
 ## near future ideas
 1. Account for variance of projections (widen intervals)
 2. Adjust for heteroscedasticity in draft pick values
-3. add remaining tabs to website
-4. add pictures to each player
-5. incorporate randomness into future standings projection
+3. Add remaining tabs to website
+4. Add pictures to each player
+5. Incorporate randomness into future standings projection
 
 ## once season starts
 1. Some code will surely break
