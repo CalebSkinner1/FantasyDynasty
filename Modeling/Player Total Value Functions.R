@@ -102,6 +102,7 @@ prep_data_ktc <- function(data, scales, split_prop = .8){
 # BART --------------------------------------------------------------------
 
 fit_bart <- function(train_data, tune_grid = 20){
+  # Chipman, George, McCulloch (2005)
   # cross validation
   df_folds <- vfold_cv(train_data)
   
@@ -152,6 +153,11 @@ fit_bart <- function(train_data, tune_grid = 20){
   
   # Fit the model
   fit(workflow_object, data = train_data)
+}
+
+
+fit_het_bart <- function(train_data, tune_grid = 20){
+  # Pratola, Chipman, George, McCulloch (2018)
 }
 
 model_accuracy <- function(fit, test_data){
