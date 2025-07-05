@@ -15,11 +15,11 @@ library("mcmcr")
 # simple linear regression gibbs sampler ----------------------------------
 
 # simulated
-# n <- 50; p <- 3
-# X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
-# b <- rep(1, p)
-# #
-# Y <- X %*% b + rnorm(n, mean = 0, sd = 1)
+n <- 50; p <- 3
+X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
+b <- rep(1, p)
+#
+Y <- X %*% b + rnorm(n, mean = 0, sd = 1)
 
 reg_gibbs_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2, g, nu_0 = 1, Sigma_0, beta_0){
   # initialize
@@ -87,6 +87,75 @@ reg_gibbs_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2
 # samples$new_y
 # 
 # samples$beta %>% colMeans()
+
+
+# linear regression Metropolis-Hastings sampler for heteroscedastity --------
+het_reg_mh_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2, g, nu_0 = 1, beta_0){
+  # initialize
+  p <- ncol(X) #variables
+  n <- nrow(X) # observations
+  gram <- t(X) %*% X # gram matrix
+  hat_mat <- X%*%inv(gram)%*%t(X)
+  
+  samples <- ceiling((iter - burn_in)/thin)
+  
+  # run ols
+  ols <- lm(Y ~ X - 1)
+  
+  sigma_prop <- rep(summary(ols)$sigma^2, n)
+  
+  # specify hyperparameters
+  if(missing(g)){
+    g <- n*p
+  }
+  # if(missing(Sigma_0)){
+  #   Sigma_0 <- g*sigma_prop*inv(gram)
+  # }
+  if(missing(beta_0)){
+    beta_prop <- ols %>% coef()
+  }
+  
+  if(missing(new_X)){
+    new_X <- X
+  }
+  
+  # conversion
+  Sigma_prop <- diag(sigma_prop)
+  
+  invSigma_prop <- inv(Sigma_prop)
+  
+  # allocate space
+  beta <- matrix(0, nrow = samples, ncol = p) # coef
+  sigma <- matrix(0, nrow = samples, ncol = n) # sigma_i^2
+  lambda <- numeric(samples)
+  new_y <- matrix(0, nrow = samples, ncol = nrow(new_X))
+  
+  # sample from full conditionals
+  for(i in 1:iter){
+    # draw beta
+    invQ <- inv(t(X)%*%invSigma_prop%*%X + (1/g)*gram)
+    l <- t(X)%*%invSigma_prop %*% Y
+    beta_prop <- MASS::mvrnorm(1, invQ%*%l, invQ)
+    
+    # draw lambda
+    log(sigma_prop)
+    
+    
+    # draw sigma^2
+    sigma_prop <- rinvgamma(1, (nu_0 + n*p)/2, (nu_0*sigma_prop + t((Y-X%*%beta_prop))%*%(Y-X%*%beta_prop))/2)
+    
+    if(i > burn_in & (i - burn_in - 1) %% thin == 0){ #keep
+      id <- (i - burn_in - 1) / thin + 1
+      beta[id, ] <- beta_prop
+      sigma[id] <- sigma_prop
+      
+      new_y[id,] <- new_X%*%beta_prop + rnorm(nrow(new_X), 0, sigma_prop^(.5))
+    }
+  }
+  
+  list("beta" = beta, "sigma" = sigma, "new_y" = new_y)
+}
+
 
 
 # hierarchical linear regression gibbs sampler-------------------------------------------------------------------------
