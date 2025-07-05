@@ -19,8 +19,8 @@ player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv")) %
   select(name, player_id, position, total_value, sva_2024, contains("ny"))
 player_info <- read_csv(here(data_path, "Data/player_info.csv"))
 
-# projections of players
-projections <- imap(1:3, ~{
+# future value projections of players
+future_value_projections <- imap(1:3, ~{
   df <- player_simulations[[.x]] %>% #throw all quantiles into data (will slightly underestimate variance but oh well)
     pivot_longer(cols = contains("proj_tva"), names_to = "quantile", values_to = "proj_tva") %>%
     select(name, proj_tva)
@@ -46,7 +46,7 @@ rookie_drafts <- bind_rows(draft_picks, .id = "draft_id") %>%
   mutate(
     total_value = replace_na(total_value, 0),
     sva_2024 = replace_na(sva_2024, 0)) %>%
-  left_join(projections, by = join_by(name))
+  left_join(future_value_projections, by = join_by(name))
 
 rookie_drafts %>%
   ggplot() +
