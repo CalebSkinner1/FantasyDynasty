@@ -13,6 +13,10 @@ source(here("FantasyDynasty", "Modeling", "Player Value Added.R"))
 
 misty::restart() #clear memory
 
+# with relative frequency, will need to rerun player_simulations to account for new ktc value
+# fair warning it will take 7+ minutes
+source(here("FantasyDynasty", "Modeling", "Player Total Value Functions.R"))
+
 # when future standings is allowed to vary with season, add that here
 
 # Individual Players

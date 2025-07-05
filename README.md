@@ -41,7 +41,13 @@ project a players' career.
 
 One advantage of BART is the ability to generate posterior samples. This naturally affords a way to identify
 uncertainty quantification of a players' career arc. This gives us an idea of the potential directions a player's
-career could take. Overall, I define a players' future value as the sum of the median expected value added over the next eight seasons.
+career could take. Players will often have very different levels of uncertainty in their future value projections. For example,
+young unproven players have much more uncertainty than established veterans. However, BART models often struggle with
+heteroskedasticity (where the variance of the outcome is different across different predictor values).
+I adjust for this by modeling the residuals of the BART projections with a Generalized Additive Model
+(GAM). This allows the model to estimate the variance of each player flexibly.
+
+Overall, I define a players' future value as the sum of the median expected value added over the next eight seasons.
 In line with popular economic and financial models, each subsequent year is discounted by 5%. A players' total value over a period 
 is the sum of any realized value in that period and their future value.
 
@@ -57,7 +63,7 @@ posterior samples from the Bayesian polynomial regression to give uncertainty qu
 
 Here, I model future results of the league. This is particularly helpful for draft pick valuation. Since draft picks are generally
 available for trade for the next three years, I use the posterior samples from the projected future total value added to
-project the total value added for each fantasy team in a year. I then rank these projections over the course of 10000 simulations
+project the total value added for each fantasy team in a year. I then rank these projections over the course of 5000 simulations
 to find the distribution of the final standings. Of course, scoring the most points does not necessary win you the league. In
 the future, I hope to adjust these projections to account for this.
 
@@ -83,11 +89,10 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 
 ## near future ideas
-1. Account for variance of projections (widen intervals)
-2. Adjust for heteroscedasticity in draft pick values
-3. Add remaining tabs to website
-4. Add pictures to each player
-5. Incorporate randomness into future standings projection
+1. Adjust for heteroscedasticity in draft pick values
+2. Add remaining tabs to website
+3. Add pictures to each player
+4. Incorporate randomness into future standings projection
 
 ## once season starts
 1. Some code will surely break
