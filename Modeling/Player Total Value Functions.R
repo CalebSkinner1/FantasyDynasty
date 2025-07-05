@@ -155,9 +155,32 @@ fit_bart <- function(train_data, tune_grid = 20){
   fit(workflow_object, data = train_data)
 }
 
+# draw posterior samples from model fit
+generate_samples <- function(fit, data){
+  model <- extract_fit_engine(fit)
+  
+  # Generate posterior predictive samples
+  predict(model, newdata = data)
+}
 
-fit_het_bart <- function(train_data, tune_grid = 20){
-  # Pratola, Chipman, George, McCulloch (2018)
+model_residuals <- function(fit, data){
+  samples <- generate_samples(fit, data)
+  
+  posterior_mean <- colMeans(samples)
+  
+  new_data <- data %>%
+    mutate(abs_residuals = abs(Y - posterior_mean)) %>%
+    select(-Y)
+  
+  library("mgcv")
+  # Create formula string: s(X1) + s(X2) + ...
+  predictor_vars <- setdiff(names(new_data), c("abs_residuals", "position"))
+  smoother_terms <- paste0("s(", predictor_vars, ")", collapse = " + ")
+  formula_text <- paste("abs_residuals ~", smoother_terms, " + position")
+  gam_formula <- as.formula(formula_text)
+  
+  gam(gam_formula, data = new_data,
+                     family = gaussian(link = "log"))  
 }
 
 model_accuracy <- function(fit, test_data){
@@ -172,16 +195,6 @@ graph_residuals <- function(fit, test_data){
     geom_density(aes(resid))
 }
 
-# Simulate Future Value ---------------------------------------------------------------
-
-# draw posterior samples from model fit
-generate_samples <- function(fit, data){
-  model <- extract_fit_engine(fit)
-  
-  # Generate posterior predictive samples
-  predict(model, newdata = data, n.samples = samples)
-}
-
 compute_coverage <- function(fit, test_data, confidence = .95){
   samples <- generate_samples(fit, test_data)
   
@@ -189,6 +202,8 @@ compute_coverage <- function(fit, test_data, confidence = .95){
   quantiles <- samples %>% apply(2, quantile, probs = c((1-confidence)/2, (1+confidence)/2))
   between(test_data$Y, quantiles[1,], quantiles[2,]) %>% mean()
 }
+
+# Simulate Future Value ---------------------------------------------------------------
 
 # this function updates the data so its ready for the next year
 update_data_year <- function(data){
@@ -209,49 +224,58 @@ update_data_year <- function(data){
 }
 
 # compute quantiles from samples
-compute_quantiles <- function(samples){
-  # compute quantiles
-  quant <- apply(samples, 2, quantile, probs = seq(.05, .95, by = .05)) %>% t()
+compute_quantiles <- function(samples, resid_fit, data){
+  sigma_hat <- predict(tva_resid_fit, newdata = tva_prep[[1]] %>% select(-Y), type = "response")
   
-  # split into list
-  split(quant, col(quant))
+  # compute quantiles
+  posterior_mean <- colMeans(samples)
+  
+  map(seq(.025, .975, by = .025), ~{
+    (posterior_mean + qnorm(p = .x)*sigma_hat)}) %>% do.call(rbind, .)
+}
+
+integrate_quantiles <- function(quantile_list){
+  quantile_list %>%
+    do.call(rbind, .) %>%
+    apply(., 2, quantile, probs = seq(.025, .975, by = .025))
 }
 
 # this function bounds value according to domain knowledge
-bound_tva <- function(samples_list, data){
+bound_tva <- function(quantiles, data){
   if(length(data) == 1){ #i.e. origin
-    map(samples_list, ~{
-      tv <- if_else(data[[1]]$historical_value == 0, 0, .x) #set to 0 if ktc is 0
+    map(seq_len(nrow(quantiles)), ~{
+      tv <- if_else(data[[1]]$historical_value == 0, 0, pmax(quantiles[.x,], -20)) #set to 0 if ktc is 0 and don't let quantile get below -20
       
       data[[1]] %>% mutate(tva_adj = tv)
     })
   }else{
-    map2(samples_list, data, ~{
-      tv <- if_else(.y$historical_value == 0, 0, .x) #set to 0 if ktc is 0
+    imap(seq_along(data), ~{
+      tv <- if_else(data[[.x]]$historical_value == 0, 0, pmax(quantiles[.x,], -20)) # set to 0 if ktc is 0 and don't let quantile get below -20
       
-      .y %>% mutate(tva_adj = tv)
+      data[[.x]] %>% mutate(tva_adj = tv)
     })
   }
 }
 
 bound_ktc <- function(samples_list, tva_data_list){
-  map2(samples_list, tva_data_list, ~{
+  imap(seq_along(tva_data_list), ~{
     ktcv <- case_when(
-      .y$historical_value == 0 ~ 0, #if out, then stay out
-      .x < 0 ~ 0,
-      .x > 9999 ~ 9999, # cap ktc at 9999
-      .default = .x
+      tva_data_list[[.x]]$historical_value == 0 ~ 0, #if out, then stay out
+      samples_list[.x,] < 0 ~ 0,
+      samples_list[.x,] > 9999 ~ 9999, # cap ktc at 9999
+      .default = samples_list[.x,]
     )
     # values are not on normal 9999 to 1 scale. I need to scale them to return
     # this is ok because value is relative anyway
     # conditional min-max scaling
     
-    .y %>% mutate(ktc_value = ktcv)
+    tva_data_list[[.x]] %>% mutate(ktc_value = ktcv)
   })
 }
 
-next_year <- function(data_list, seasons_list, tva_scales, ktc_scales, tva_fit, ktc_fit){
-  if(length(data_list) != 19){
+next_year <- function(data_list, seasons_list, tva_scales, ktc_scales,
+                      tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit){
+  if(length(data_list) != 39){
     data_list <- list("origin" = data_list)
   }
   # update data (add year to age, shift historical value)
@@ -262,9 +286,9 @@ next_year <- function(data_list, seasons_list, tva_scales, ktc_scales, tva_fit, 
   
   # list of tva samples (for each quantile)
   tva_data_list <- map(tva_prep, ~{
-    generate_samples(tva_fit, .x)
-  }) %>% do.call(rbind, .) %>% #bind lists together
-    compute_quantiles() %>% #compute quantiles
+    generate_samples(tva_fit, .x) %>%
+      compute_quantiles(tva_resid_fit, .x)
+  }) %>% integrate_quantiles() %>% #combine quantiles from possible data sets into one
     bound_tva(updated_data) # add with updated data
   
   # prep ktc modeling
@@ -274,20 +298,18 @@ next_year <- function(data_list, seasons_list, tva_scales, ktc_scales, tva_fit, 
   
   # list of ktc samples (for each quantile)
   ktc_data_list <- map(ktc_prep, ~{
-    generate_samples(ktc_fit, .x)
-  }) %>% do.call(rbind, .) %>% #bind lists together
-    compute_quantiles() %>% # compute quantiles
+    generate_samples(ktc_fit, .x) %>%
+      compute_quantiles(ktc_resid_fit, .x)
+  }) %>% integrate_quantiles() %>% #bind lists together and computes aggregate quantiles
     bound_ktc(tva_data_list)
   
-  compile <- imap(seq_along(ktc_data_list), ~{
+  compile <- imap_dfc(seq_along(ktc_data_list), ~{
     df <- tibble(ktc_data_list[[.x]]$tva_adj)
     
-    perc <- as.numeric(names(ktc_data_list)[.x])*5
-    
-    colnames(df) <- paste0("proj_tva_", perc)
+    colnames(df) <- paste0("proj_tva_", .x*2.5)
     
     df
-  }) %>% bind_cols() %>%
+  }) %>%
     mutate(name = updated_data[[1]]$name) %>%
     relocate(name)
   
@@ -296,11 +318,13 @@ next_year <- function(data_list, seasons_list, tva_scales, ktc_scales, tva_fit, 
   list("data" = ktc_data_list, "seasons_list" = seasons_list)
 }
 
-next_years <- function(origin_data, n_years, tva_scales, ktc_scales, tva_fit, ktc_fit){
+next_years <- function(origin_data, n_years, tva_scales, ktc_scales,
+                       tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit){
   updating_list <- list("data" = origin_data, "seasons_list" = list())
   
   for(i in 1:n_years){
-    updating_list <- next_year(updating_list$data, updating_list$seasons_list, tva_scales, ktc_scales, tva_fit, ktc_fit)
+    updating_list <- next_year(updating_list$data, updating_list$seasons_list, tva_scales, ktc_scales,
+                               tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)
   }
   
   updating_list$seasons_list
@@ -308,7 +332,7 @@ next_years <- function(origin_data, n_years, tva_scales, ktc_scales, tva_fit, kt
 
 compute_future_value <- function(seasons_list, years = 15, weight = .95){
   future_value <- imap(1:years, ~{
-    seasons_list[[.x]]$proj_tva_50*weight^(.x - 1)
+    pmax(seasons_list[[.x]]$proj_tva_50, 0)*weight^(.x - 1)
   }) %>% as.data.frame() %>%
     rowSums()
   

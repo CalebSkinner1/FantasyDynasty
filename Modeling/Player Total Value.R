@@ -55,13 +55,14 @@ tva_scales <- hktc_data %>% compute_tva_scales()
 # prep data
 tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 
-# run model ~88 seconds
+# run model ~95 seconds
 tic()
-# tva_fit <- fit_bart(tva_data$full_data)
-tva_fit <- fit_bart(tva_data$train_data)
+tva_fit <- fit_bart(tva_data$full_data)
+# tva_fit <- fit_bart(tva_data$train_data)
 toc()
 
 # save(tva_fit, file = here(data_path, "Modeling/tva_fit.RData"))
+# load(here(data_path, "Modeling/tva_fit.RData"))
 
 # compute accuracy (RMSE)
 # model_accuracy(tva_fit, tva_data$test_data)
@@ -69,9 +70,15 @@ toc()
 # graph residuals
 # graph_residuals(tva_fit, tva_data$test_data)
 
-tva_samples <- generate_samples(tva_fit, tva_data$full_data)
+# save(tva_fit, file = here(data_path, "Modeling/tva_fit.RData"))
 
-compute_coverage(tva_fit, tva_data$test_data, confidence = .95)
+tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
+# save(tva_resid_fit, file = here(data_path, "Modeling/tva_resid_fit.RData"))
+# load(here(data_path, "Modeling/tva_resid_fit.RData"))
+
+# tva_samples <- generate_samples(tva_fit, tva_data$train_data)
+
+# compute_coverage(tva_fit, tva_data$test_data, confidence = .95)
 
 # Model KTC Value for next season -----------------------------------------
 
@@ -81,13 +88,18 @@ ktc_scales <- hktc_data %>% compute_ktc_scales()
 # prep data
 ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 
-# run model ~90 seconds
+# run model ~98 seconds
 tic()
 # ktc_fit <- fit_bart(ktc_data$train_data)
 ktc_fit <- fit_bart(ktc_data$full_data)
 toc()
 
-# save(tva_fit, file = here(data_path, "Modeling/ktc_fit.RData"))
+# save(ktc_fit, file = here(data_path, "Modeling/ktc_fit.RData"))
+# load(here(data_path, "Modeling/ktc_fit.RData"))
+
+ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
+# save(ktc_resid_fit, file = here(data_path, "Modeling/ktc_resid_fit.RData"))
+# load(here(data_path, "Modeling/ktc_resid_fit.RData"))
 
 # compute accuracy (RMSE)
 # model_accuracy(ktc_fit, ktc_data$test_data)
@@ -106,8 +118,12 @@ sim_df <- keep_trade_cut %>%
   select(name, position, ktc_value, birth_date, age, season) %>%
   filter(position %in% c("QB", "RB", "WR", "TE"))
 
-tic() # ~3 mins
-player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales, tva_fit = tva_fit, ktc_fit = ktc_fit)
+next_year(sim_df, list(), tva_scales, ktc_scales,
+          tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)
+
+tic() # ~7 mins
+player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales,
+                                 tva_fit = tva_fit, ktc_fit = ktc_fit, tva_resid_fit = tva_resid_fit, ktc_resid_fit = ktc_resid_fit)
 toc()
 
 # save(player_simulations, file = here(data_path, "Modeling/player_simulations.RData"))
@@ -130,4 +146,4 @@ player_total_value <- future_value %>%
       .default = future_value)) %>%
   select(name, player_id, birth_date, position, ktc_value, sva_2024, future_value)
 
-# write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
+write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
