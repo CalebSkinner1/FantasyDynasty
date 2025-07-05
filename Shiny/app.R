@@ -75,7 +75,7 @@ ui <- dashboardPage(
         tabName = "players",
         titlePanel("Individual Players"),
         p("Select any player and this page will report the players' value added and future value. In general, the future value for each year is the
-          median of 1000 samples, while the colored regions are the 80% and 90% credible regions."),
+          median of 1000 samples, while the colored regions are the 80% and 95% credible regions."),
         selectizeInput(
           inputId = "player_name", 
           label = "Enter a Player's Name", 

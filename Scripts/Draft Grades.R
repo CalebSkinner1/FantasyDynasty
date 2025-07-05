@@ -108,7 +108,7 @@ samples_id <- reg_gibbs_sampler(Y = Y_id, X = X_id,
                                 iter = 7000, thin = 1, burn_in = 5000)
 
 # quantiles of each pick
-quantiles_id <- compute_quantiles(samples_id$new_y)
+quantiles_id <- apply(samples_id$new_y, 2, quantile, probs = seq(.025, .975, by = .025))
 
 # plot fit, looks pretty good
 # tibble(.pred = quantiles_id$`10`,
@@ -127,7 +127,7 @@ quantiles_id <- compute_quantiles(samples_id$new_y)
 #   geom_point(aes(y = .resid)) +
 #   geom_hline(yintercept = 0)
 
-initial_draft_expectations <- tibble(.pred = quantiles_id$`10`,
+initial_draft_expectations <- tibble(.pred = quantiles_id[20,],
                                      pick_no = seq_along(Y_id)) %>%
   rename(exp_total_value = .pred)
 

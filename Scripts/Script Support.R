@@ -37,7 +37,7 @@ plot_future_value <- function(enter_name){
     ggplot(aes(x = season)) +
     geom_line(aes(y = proj_tva_50), color = "indianred3") +
     geom_ribbon(aes(ymin = proj_tva_10, ymax = proj_tva_90), fill = "cadetblue4", alpha = .5) +
-    geom_ribbon(aes(ymin = proj_tva_5, ymax = proj_tva_95), fill = "cadetblue1", alpha = .5) +
+    geom_ribbon(aes(ymin = proj_tva_2.5, ymax = proj_tva_97.5), fill = "cadetblue1", alpha = .5) +
     labs(title = str_c(enter_name, " Projected Total Value Added"), x = "", y = "") +
     geom_point(data = season_value_added %>% filter(name == enter_name),
                aes(x = 2024, y = total_value_added))
