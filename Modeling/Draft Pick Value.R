@@ -53,7 +53,9 @@ rookie_drafts %>%
   geom_point(aes(x = pick_no, y = total_value, color = as.factor(season)))
 
 # Polynomial Regression pick on total value ---------------------------------------------------
-X_tv <- rookie_drafts %>% select(pick_no) %>%
+X_tv <- rookie_drafts %>%
+  distinct(season, pick_no, name, total_value) %>%
+  select(pick_no) %>%
   mutate(
     # pn_1 = pick_no^(.25),
     pn_2 = pick_no^(.5),
@@ -62,7 +64,7 @@ X_tv <- rookie_drafts %>% select(pick_no) %>%
   mutate(intercept = 1) %>%
   as.matrix()
 
-Y_tv <- rookie_drafts$total_value
+Y_tv <- rookie_drafts %>% distinct(season, pick_no, name, total_value) %>% pull(total_value)
 
 tic()
 samples_tv <- reg_gibbs_sampler(Y = Y_tv, X = X_tv, new_X = X_tv[c(1:36),],
@@ -70,10 +72,10 @@ samples_tv <- reg_gibbs_sampler(Y = Y_tv, X = X_tv, new_X = X_tv[c(1:36),],
 toc()
 
 # quantiles of each pick
-quantiles_tv <- compute_quantiles(samples_tv$new_y)
+quantiles_tv <- apply(samples_tv$new_y, 2, quantile, probs = seq(.025, .975, by = .025))
 
 # plot fit, looks pretty good
-tibble(.pred = quantiles_tv$`10`,
+tibble(.pred = quantiles_tv[20,],
        pick_no = c(1:36)) %>%
   right_join(rookie_drafts, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
@@ -81,7 +83,7 @@ tibble(.pred = quantiles_tv$`10`,
   geom_line(aes(y = .pred))
 
 # plot residuals against pick_no, looks ok enough
-tibble(.pred = quantiles_tv$`10`,
+tibble(.pred = quantiles_tv[20,],
        pick_no = c(1:36)) %>%
   right_join(rookie_drafts, by = join_by(pick_no)) %>%
   mutate(.resid = total_value - .pred) %>%
@@ -118,10 +120,10 @@ samples_ny <- reg_gibbs_sampler(Y = Y_ny, X = X_ny, new_X = X_tv[c(1:36),],
 toc()
 
 # quantiles of each pick
-quantiles_ny <- compute_quantiles(samples_ny$new_y)
+quantiles_ny <- apply(samples_ny$new_y, 2, quantile, probs = seq(.025, .975, by = .025))
 
 # plot fit, looks pretty good
-tibble(.pred = quantiles_ny$`10`,
+tibble(.pred = quantiles_ny[20,],
        pick_no = c(1:36)) %>%
   right_join(ny_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
@@ -129,7 +131,7 @@ tibble(.pred = quantiles_ny$`10`,
   geom_line(aes(y = .pred))
 
 # plot residuals against pick_no, looks ok enough
-tibble(.pred = quantiles_ny$`10`,
+tibble(.pred = quantiles_ny[20,],
        pick_no = c(1:36)) %>%
   right_join(ny_data, by = join_by(pick_no)) %>%
   mutate(.resid = first_year  - .pred) %>%
@@ -171,10 +173,10 @@ samples_ny2 <- reg_gibbs_sampler(Y = Y_ny2, X = X_ny2, new_X = X_tv[c(1:36),],
 toc()
 
 # quantiles of each pick
-quantiles_ny2 <- compute_quantiles(samples_ny2$new_y)
+quantiles_ny2 <- apply(samples_ny2$new_y, 2, quantile, probs = seq(.025, .975, by = .025))
 
 # plot fit, looks pretty good
-tibble(.pred = quantiles_ny2$`10`,
+tibble(.pred = quantiles_ny2[20,],
        pick_no = c(1:36)) %>%
   right_join(ny2_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
@@ -182,7 +184,7 @@ tibble(.pred = quantiles_ny2$`10`,
   geom_line(aes(y = .pred))
 
 # plot residuals against pick_no, looks ok enough
-tibble(.pred = quantiles_ny2$`10`,
+tibble(.pred = quantiles_ny2[20,],
        pick_no = c(1:36)) %>%
   right_join(ny2_data, by = join_by(pick_no)) %>%
   mutate(.resid = second_year  - .pred) %>%
@@ -199,7 +201,7 @@ ny3_data <- rookie_drafts %>%
     season == 2025 ~ sva_2027,
     .default = NA)) %>%
   select(pick_no, third_year) %>%
-  slice_sample(n = 800, replace = FALSE) #for some reason it gets antsy if n is too large (i think numerical error)
+  slice_sample(n = 750, replace = FALSE) #for some reason it gets antsy if n is too large (i think numerical error)
 
 X_ny3 <- ny3_data %>% select(pick_no) %>%
   mutate(
@@ -218,10 +220,10 @@ samples_ny3 <- reg_gibbs_sampler(Y = Y_ny3, X = X_ny3, new_X = X_tv[c(1:36),],
 toc()
 
 # quantiles of each pick
-quantiles_ny3 <- compute_quantiles(samples_ny3$new_y)
+quantiles_ny3 <- apply(samples_ny3$new_y, 2, quantile, probs = seq(.025, .975, by = .025))
 
 # plot fit, looks pretty good
-tibble(.pred = quantiles_ny3$`10`,
+tibble(.pred = quantiles_ny3[20,],
        pick_no = c(1:36)) %>%
   right_join(ny3_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
@@ -229,7 +231,7 @@ tibble(.pred = quantiles_ny3$`10`,
   geom_line(aes(y = .pred))
 
 # plot residuals against pick_no, looks ok enough
-tibble(.pred = quantiles_ny3$`10`,
+tibble(.pred = quantiles_ny3[20,],
        pick_no = c(1:36)) %>%
   right_join(ny3_data, by = join_by(pick_no)) %>%
   mutate(.resid = third_year  - .pred) %>%
@@ -243,8 +245,8 @@ quantiles_list <- list("total value" = quantiles_tv, "first year" = quantiles_ny
                        "second year" = quantiles_ny2, "third_year" = quantiles_ny3)
 
 rookie_draft_values <- imap_dfr(1:4, ~{
-  df <- quantiles_list[[.x]] %>% as_tibble()
-  colnames(df) <- paste0("proj_tva_",as.numeric(colnames(df))*5)
+  df <- t(quantiles_list[[.x]]) %>% as_tibble()
+  colnames(df) <- paste0("proj_tva_", seq_along(colnames(df))*2.5)
   
   df %>%
     mutate(

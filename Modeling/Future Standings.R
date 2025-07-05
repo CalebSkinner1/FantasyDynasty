@@ -83,7 +83,7 @@ known_draft_picks_year2 <- future_draft_picks %>%
 known_draft_picks_year3 <- future_draft_picks %>%
   prep_draft_picks(this_year, "third year")
 
-n_sim <- 10000
+n_sim <- 5000
 tic()
 standings <- future_map(1:n_sim, ~{
   # year 1 all assets with quantiles
