@@ -1,60 +1,60 @@
 team_name,trade_details,trade_id,top_asset_acquired,position,realized_value,future_value,total_value
-DepressedBroncosFan,2024 W8 trade with SFOControl,9,Drake Maye,QB,-78.7819607843137,1026.1051591670603,857.7496825579499
+DepressedBroncosFan,2024 W8 trade with SFOControl,9,Drake Maye,QB,-78.7819607843137,993.6269033219704,826.8953395051146
 caskinner,2024 W1 trade with DepressedBroncosFan,4,James Cook,RB,109.36168627450981,225.5949216944787,323.6768618842646
-lucasbell21,2024 W9 trade with DepressedBroncosFan,16,Bo Nix,QB,51.55640196078431,265.4159086118393,303.70151514203167
-caskinner,2024 W5 trade with DepressedBroncosFan,7,2027 1R Draft Pick,DepressedBroncosFan,47.86258823529412,212.5688492095974,292.0801248895015
-ngernenz,2024 W11 trade with Gretsch0401,26,Ladd McConkey,WR,35.64710784313725,251.4262922939338,274.5020855223744
-DepressedBroncosFan,2024 W8 trade with lucasbell21,10,2026 2R Draft Pick,lucasbell21,19.797411764705885,162.65143254028513,174.31627267797677
-joeburrowmvp,2024 W1 trade with DepressedBroncosFan,3,2024 1R Draft Pick,DepressedBroncosFan,-154.13082352941177,300.9380786292637,174.0374810734786
-ngernenz,"2024 W11 trade with akondratieff, lucasbell21",23,2025 2R Draft Pick,akondratieff,11.878392156862743,164.01995034647737,167.69734498601625
+lucasbell21,2024 W9 trade with DepressedBroncosFan,16,Bo Nix,QB,51.55640196078431,270.13236088059546,308.18214479734996
+caskinner,2024 W5 trade with DepressedBroncosFan,7,2027 1R Draft Pick,DepressedBroncosFan,47.86258823529412,197.7432514480697,277.99580701605026
+ngernenz,2024 W11 trade with Gretsch0401,26,Ladd McConkey,WR,35.64710784313725,250.115751335334,273.25707161170453
+DepressedBroncosFan,2024 W8 trade with lucasbell21,10,2026 2R Draft Pick,lucasbell21,19.797411764705885,160.94170416029246,172.69203071698374
+ngernenz,"2024 W11 trade with akondratieff, lucasbell21",23,2025 2R Draft Pick,akondratieff,11.878392156862743,168.20237536597458,171.67064875453858
+joeburrowmvp,2024 W1 trade with DepressedBroncosFan,3,2024 1R Draft Pick,DepressedBroncosFan,-154.13082352941177,298.2860599929763,171.51806336900563
 joeburrowmvp,2024 W9 trade with ngernenz,14,Ja'Marr Chase,WR,91.5126176470588,-2.9424650508091474,130.99440575387996
-DepressedBroncosFan,2024 W11 trade with Arvs,21,2026 2R Draft Pick,Arvs,50.30160784313726,22.34407586556813,113.80560982051698
-TheJandyStock,2024 W6 trade with SFOControl,8,2025 2R Draft Pick,SFOControl,-2.2892156862745097,114.85173960365483,106.81993693719758
-DepressedBroncosFan,2024 W8 trade with Arvs,13,2025 3R Draft Pick,Arvs,4.814705882352941,105.44807879633667,104.99038073887277
-Arvs,2024 W10 trade with caskinner,18,2027 1R Draft Pick,DepressedBroncosFan,18.59436274509804,83.11290008366103,97.551617824576
+DepressedBroncosFan,2024 W8 trade with Arvs,13,2025 3R Draft Pick,Arvs,4.814705882352941,109.2143798847556,108.56836677287076
+TheJandyStock,2024 W6 trade with SFOControl,8,2025 2R Draft Pick,SFOControl,-2.2892156862745097,113.67937011330623,105.7061859213664
+DepressedBroncosFan,2024 W11 trade with Arvs,21,2026 2R Draft Pick,Arvs,50.30160784313726,12.204149563111741,104.17267983318338
+Arvs,2024 W10 trade with caskinner,18,2027 1R Draft Pick,DepressedBroncosFan,18.59436274509804,89.14380511423212,103.28097760361851
 jzeigboi,2024 W10 trade with caskinner,19,D'Andre Swift,RB,-17.935147058823542,120.70274133559221,96.73245720998904
-caskinner,"2024 W1 trade with joeburrowmvp, lucasbell21",2,2025 1R Draft Pick,joeburrowmvp,0,95.15213627245927,90.3945294588363
-joeburrowmvp,2025 W1 trade with ngernenz,28,2025 1R Draft Pick,ngernenz,0,93.33367916455637,88.66699520632852
-lucasbell21,2024 W10 trade with jzeigboi,17,2025 1R Draft Pick,jzeigboi,-5.674411764705883,91.01431950908702,80.78919176892674
-Arvs,2024 W11 trade with DepressedBroncosFan,24,Caleb Williams,QB,-66.34300613700026,134.59921735234374,61.52625034772633
-SFOControl,"2024 W5 trade with jzeigboi, lucasbell21",6,2025 2R Draft Pick,jzeigboi,5.055784313725489,58.55128742218062,60.679507364797104
+caskinner,"2024 W1 trade with joeburrowmvp, lucasbell21",2,2025 1R Draft Pick,joeburrowmvp,0,95.72511874977835,90.93886281228941
+joeburrowmvp,2025 W1 trade with ngernenz,28,2025 1R Draft Pick,ngernenz,0,93.70376363372509,89.01857545203882
+lucasbell21,2024 W10 trade with jzeigboi,17,2025 1R Draft Pick,jzeigboi,-5.674411764705883,89.71606278085727,79.55584787710848
+Arvs,2024 W11 trade with DepressedBroncosFan,24,Caleb Williams,QB,-66.34300613700026,135.21867589084422,62.11473595930178
+jzeigboi,"2024 W5 trade with SFOControl, lucasbell21",6,Rome Odunze,WR,0,61.82391091557693,58.732715369798086
 Arvs,2024 W11 trade with akondratieff,25,Najee Harris,RB,-4.178568627450974,65.76661717409132,58.299717687935775
-jzeigboi,"2024 W5 trade with SFOControl, lucasbell21",6,Rome Odunze,WR,0,58.93469691022085,55.98796206470979
-DepressedBroncosFan,2024 W8 trade with joeburrowmvp,12,Caleb Williams,QB,12.716970588235291,43.09792822458908,53.66000240159494
-joeburrowmvp,"2024 W1 trade with caskinner, lucasbell21",2,2025 1R Draft Pick,lucasbell21,0,48.42842566968642,46.007004386202084
+SFOControl,"2024 W5 trade with jzeigboi, lucasbell21",6,2025 2R Draft Pick,jzeigboi,5.055784313725489,53.94400605377112,56.30259006480807
+DepressedBroncosFan,2024 W8 trade with joeburrowmvp,12,Caleb Williams,QB,12.716970588235291,43.183791299541866,53.74157232280007
+joeburrowmvp,"2024 W1 trade with caskinner, lucasbell21",2,2025 1R Draft Pick,lucasbell21,0,44.793612748521355,42.553932111095264
 jzeigboi,2024 W2 trade with joeburrowmvp,5,Tee Higgins,WR,56.93892156862745,-16.967112168141938,40.82016500889259
-caskinner,2024 W10 trade with Arvs,20,Jonathan Taylor,RB,37.71788235294119,-58.16607450826396,24.73724147518027
-lucasbell21,2025 W1 trade with caskinner,27,2025 2R Draft Pick,DepressedBroncosFan,0,21.47875798327611,20.404820084112302
-lucasbell21,2024 W9 trade with TheJandyStock,15,2027 1R Draft Pick,TheJandyStock,0,15.435284290640197,14.66352007610817
+caskinner,2024 W10 trade with Arvs,20,Jonathan Taylor,RB,37.71788235294119,-57.42851638731495,25.43792169008183
+lucasbell21,2025 W1 trade with caskinner,27,2025 2R Draft Pick,DepressedBroncosFan,0,20.827697530394786,19.786312653875
 lucasbell21,2024 W8 trade with caskinner,11,Denver Broncos,DST,12.962352941176473,0,12.962352941176473
 jzeigboi,2024 W1 trade with TheJandyStock,1,Devin Singletary,RB,-8.236127450980394,21.07889391750941,11.788821770653541
-Arvs,2024 W10 trade with caskinner,20,Jaxon Smith-Njigba,WR,-9.725245098039224,58.166074508263904,7.264267818368069
+lucasbell21,2024 W9 trade with TheJandyStock,15,2027 1R Draft Pick,TheJandyStock,0,10.384668563524883,9.865435135348662
 Arvs,2024 W11 trade with lucasbell21,22,Ray-Ray McCloud,WR,0,7.087465572047476,6.733092293445102
+Arvs,2024 W10 trade with caskinner,20,Jaxon Smith-Njigba,WR,-9.725245098039224,57.42851638731494,6.563587603466544
+TheJandyStock,2024 W9 trade with lucasbell21,15,2027 1R Draft Pick,lucasbell21,0,-10.384668563524883,-9.865435135348662
 caskinner,2024 W8 trade with lucasbell21,11,Minnesota Vikings,DST,-10.854313725490197,0,-10.854313725490197
 lucasbell21,2024 W11 trade with Arvs,22,Tyler Lockett,WR,-4.814705882352941,-7.087465572047476,-11.547798175798043
 TheJandyStock,2024 W1 trade with jzeigboi,1,Carson Steele,RB,8.236127450980394,-21.07889391750941,-11.788821770653541
-TheJandyStock,2024 W9 trade with lucasbell21,15,2027 1R Draft Pick,lucasbell21,0,-15.435284290640197,-14.66352007610817
-caskinner,2025 W1 trade with lucasbell21,27,2025 2R Draft Pick,lucasbell21,0,-21.478757983276125,-20.404820084112316
-akondratieff,"2024 W11 trade with lucasbell21, ngernenz",23,2025 3R Draft Pick,lucasbell21,8.124662999745354,-38.515702835560006,-28.465254694036673
-DepressedBroncosFan,2024 W11 trade with Arvs,24,Jared Goff,QB,93.44556496052967,-134.59921735234383,-34.42369152419701
+caskinner,2025 W1 trade with lucasbell21,27,2025 2R Draft Pick,lucasbell21,0,-20.827697530394772,-19.786312653875
+akondratieff,"2024 W11 trade with lucasbell21, ngernenz",23,2025 3R Draft Pick,lucasbell21,8.124662999745354,-41.931838132967926,-31.71058322657416
+DepressedBroncosFan,2024 W11 trade with Arvs,24,Jared Goff,QB,93.44556496052967,-135.21867589084428,-35.01217713577239
 akondratieff,2024 W11 trade with Arvs,25,Jauan Jennings,WR,24.6067156862745,-65.76661717409132,-37.871570629112256
-joeburrowmvp,2024 W8 trade with DepressedBroncosFan,12,Zay Flowers,WR,-3.999323529411754,-43.097928224589054,-44.942355342771336
+joeburrowmvp,2024 W8 trade with DepressedBroncosFan,12,Zay Flowers,WR,-3.999323529411754,-43.18379129954184,-45.023925263976466
 joeburrowmvp,2024 W2 trade with jzeigboi,5,DeVonta Smith,WR,-64.57754901960784,16.967112168141938,-48.458792459873024
-jzeigboi,2024 W10 trade with lucasbell21,17,2025 1R Draft Pick,caskinner,-0.711078431372548,-91.01431950908699,-87.17468196500519
-ngernenz,2025 W1 trade with joeburrowmvp,28,2025 1R Draft Pick,DepressedBroncosFan,0,-93.33367916455637,-88.66699520632855
-caskinner,2024 W10 trade with Arvs,18,2027 1R Draft Pick,Arvs,-18.59436274509804,-83.11290008366103,-97.551617824576
+jzeigboi,2024 W10 trade with lucasbell21,17,2025 1R Draft Pick,caskinner,-0.711078431372548,-89.71606278085727,-85.94133807318693
+ngernenz,2025 W1 trade with joeburrowmvp,28,2025 1R Draft Pick,DepressedBroncosFan,0,-93.70376363372509,-89.01857545203882
+Arvs,2024 W11 trade with DepressedBroncosFan,21,2027 2R Draft Pick,DepressedBroncosFan,-50.30160784313726,-12.204149563111741,-100.1638077945369
 caskinner,2024 W10 trade with jzeigboi,19,Cooper Kupp,WR,12.56122549019609,-120.70274133559221,-102.10637877861649
-SFOControl,2024 W6 trade with TheJandyStock,8,Harrison Butker,K,2.2892156862745097,-114.85173960365483,-106.81993693719758
-Arvs,2024 W11 trade with DepressedBroncosFan,21,2027 2R Draft Pick,DepressedBroncosFan,-50.30160784313726,-22.3440758655681,-109.7967377818704
+caskinner,2024 W10 trade with Arvs,18,2027 1R Draft Pick,Arvs,-18.59436274509804,-89.14380511423212,-103.28097760361851
+SFOControl,2024 W6 trade with TheJandyStock,8,Harrison Butker,K,2.2892156862745097,-113.67937011330623,-105.7061859213664
+lucasbell21,"2024 W5 trade with SFOControl, jzeigboi",6,2025 1R Draft Pick,SFOControl,-5.055784313725489,-115.76791696934808,-115.03530543460616
 ngernenz,2024 W9 trade with joeburrowmvp,14,Marvin Harrison Jr.,WR,-79.92957843137253,2.942465050809119,-115.40249449954734
-Arvs,2024 W8 trade with DepressedBroncosFan,13,Tyler Lockett,WR,-15.537745098039215,-105.44807879633667,-115.71341995455904
-lucasbell21,"2024 W5 trade with SFOControl, jzeigboi",6,2025 1R Draft Pick,SFOControl,-5.055784313725489,-117.4859843324015,-116.6674694295069
-lucasbell21,"2024 W1 trade with caskinner, joeburrowmvp",2,2025 1R Draft Pick,caskinner,0,-143.5805619421457,-136.4015338450384
-lucasbell21,"2024 W11 trade with akondratieff, ngernenz",23,Xavier Legette,WR,-20.0030551566081,-125.50424751091735,-139.23209029197957
-lucasbell21,2024 W8 trade with DepressedBroncosFan,10,Amari Cooper,WR,-8.093735294117646,-162.65143254028513,-162.61259620738852
-DepressedBroncosFan,2024 W1 trade with joeburrowmvp,3,Puka Nacua,WR,155.57800980392156,-300.9380786292637,-168.58142276032237
-Gretsch0401,2024 W11 trade with ngernenz,26,Alvin Kamara,RB,-20.236029411764704,-251.4262922939338,-259.09100709100176
-DepressedBroncosFan,2024 W9 trade with lucasbell21,16,Garrett Wilson,WR,-27.485245098039215,-265.4159086118393,-279.6303582792865
-DepressedBroncosFan,2024 W5 trade with caskinner,7,2027 1R Draft Pick,caskinner,-47.86258823529412,-212.5688492095974,-288.0712528508551
+Arvs,2024 W8 trade with DepressedBroncosFan,13,Tyler Lockett,WR,-15.537745098039215,-109.2143798847556,-119.29140598855703
+lucasbell21,"2024 W1 trade with caskinner, joeburrowmvp",2,2025 1R Draft Pick,caskinner,0,-140.5187314982997,-133.49279492338468
+lucasbell21,"2024 W11 trade with akondratieff, ngernenz",23,Xavier Legette,WR,-20.0030551566081,-126.27053723300665,-139.96006552796442
+lucasbell21,2024 W8 trade with DepressedBroncosFan,10,Amari Cooper,WR,-8.093735294117646,-160.94170416029246,-160.9883542463955
+DepressedBroncosFan,2024 W1 trade with joeburrowmvp,3,Puka Nacua,WR,155.57800980392156,-298.28605999297633,-166.06200505584934
+Gretsch0401,2024 W11 trade with ngernenz,26,Alvin Kamara,RB,-20.236029411764704,-250.115751335334,-257.84599318033196
+DepressedBroncosFan,2024 W5 trade with caskinner,7,2027 1R Draft Pick,caskinner,-47.86258823529412,-197.7432514480697,-273.9869349774038
+DepressedBroncosFan,2024 W9 trade with lucasbell21,16,Garrett Wilson,WR,-27.485245098039215,-270.13236088059546,-284.1109879346049
 DepressedBroncosFan,2024 W1 trade with caskinner,4,Dalton Kincaid,TE,-114.5098725490196,-225.59492169447873,-328.8250481587744
-SFOControl,2024 W8 trade with DepressedBroncosFan,9,Patrick Mahomes,QB,68.57897058823526,-1026.1051591670603,-863.9438007153819
+SFOControl,2024 W8 trade with DepressedBroncosFan,9,Patrick Mahomes,QB,68.57897058823526,-993.6269033219703,-833.0894576625465

@@ -243,7 +243,7 @@ write_csv(all_draft_pick_exp_values, here(data_path, "Data/all_draft_pick_exp_va
 # 
 # value_avenues %>% overall_grades(enter_roster_id = 6, shiny = TRUE)
 
-# acquisitions %>% top_acquisitions(4)
+acquisitions %>% top_acquisitions(4, "trade", shiny = TRUE)
 # acquisitions %>% top_acquisitions(4, "initial draft")
 # acquisitions %>% top_acquisitions(4, "transaction")
 # acquisitions %>% top_acquisitions(4, "trade")

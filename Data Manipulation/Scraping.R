@@ -22,6 +22,9 @@ league_id_24 <- "1066207868321370112"
 league_id_25 <- "1180629816344895488"
 all_league_ids <- c(league_id_24, league_id_25)
 
+# someday maybe use this to grab information about the league or grab name/avatar
+# league_info <- parse_api_list(str_c("https://api.sleeper.app/v1/league/", league_id_25))
+
 # rosters
 rosters <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "/rosters")) %>%
   select(roster_id, owner_id, players) %>%
@@ -39,7 +42,14 @@ users <- rosters %>%
       select(display_name, user_id),
     by = join_by(owner_id == user_id))
 
-# write_csv(users, here(data_path, "Data/users.csv"))
+write_csv(users, here(data_path, "Data/users.csv"))
+
+avatar <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "/users")) %>%
+  mutate(avatar_url = str_c("https://sleepercdn.com/avatars/", avatar)) %>%
+  left_join(users, by = join_by(display_name)) %>%
+  select(roster_id, display_name, avatar_url)
+
+write_csv(avatar, here(data_path, "Data/avatar.csv"))
 
 # matchups
 matchups <- map(all_league_ids, ~{

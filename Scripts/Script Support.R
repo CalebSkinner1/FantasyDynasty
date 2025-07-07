@@ -166,8 +166,11 @@ grab_team_contributors_weekly <- function(enter_roster_id, enter_season, enter_w
     filter(roster_id == enter_roster_id, season == enter_season, week == enter_week,
            type == "starter") %>%
     select(name, position, projection, sleeper_points, value_added) %>%
-    mutate(position = factor(position, position_levels)) %>%
-    arrange(position, desc(value_added))
+    mutate(
+      position = factor(position, position_levels),
+      projection = if_else(position %in% c("K", "DST"), 8, projection)) %>%
+    arrange(position, desc(value_added)) %>%
+    adorn_totals()
   
   if(shiny){
     df %>%
@@ -224,7 +227,8 @@ top_acquisitions <- function(acquisitions, enter_roster_id, enter_avenue = "All"
   
   df <- acquisitions %>%
     filter(str_detect(avenue, enter_avenue), roster_id == enter_roster_id) %>%
-    slice_max(value_over_expected, n = 5) %>%
+    arrange(desc(value_over_expected)) %>%
+    # slice_max(value_over_expected, n = 5) %>%
     select(-roster_id, -total_value)
   
   if(shiny){
@@ -254,7 +258,7 @@ worst_acquisitions <- function(acquisitions, enter_roster_id, enter_avenue = "Al
   
   df <- acquisitions %>%
     filter(str_detect(avenue, enter_avenue), roster_id == enter_roster_id) %>%
-    slice_min(value_over_expected, n = 5) %>%
+    # slice_min(value_over_expected, n = 5) %>%
     select(-roster_id, -total_value)
   
   if(shiny){
