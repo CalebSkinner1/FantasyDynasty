@@ -13,7 +13,7 @@ source(here(data_path, "Shiny", "app functions.R"))
 
 # Define UI
 ui <- dashboardPage(
-  skin = "black",
+  skin = "green",
   dashboardHeader(title = "Baylor Seniors"),
   dashboardSidebar(
     sidebarMenu(
@@ -71,6 +71,7 @@ ui <- dashboardPage(
         This model underestimates the volatility of the players' careers, and, in turn, overvalues youth. I anticipate significant
         improvements as time progresses, and I am able to account for the entire trajectory of a players' career.
         Honestly, it is remarkable that this single year of data can be extrapolated to model a players' entire career.")),
+      
       tabItem( # Page 1 Tab
         tabName = "players",
         titlePanel("Individual Players"),
@@ -100,18 +101,24 @@ ui <- dashboardPage(
         DTOutput("tabulate_realized_value"),
         plotOutput("weekly_results")
       ),
+      
       tabItem( # Page 2 Tab
         tabName = "teams",
-        titlePanel("Fantasy Teams"),
-        p("Select a user to view the fantasy teams' top assets and acquisitions."),
-        selectizeInput(
-          inputId = "team_name", 
-          label = "Enter a Team's Name", 
-          choices = users$display_name,
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5  # Limit the number of suggestions shown
-          )),
+        fluidRow(
+          column(9,
+                 titlePanel("Fantasy Teams"),
+                 p("Select a user to view the fantasy teams' top assets and acquisitions."),
+                 
+                 selectizeInput(
+                   inputId = "team_name", 
+                   label = "Enter a Team's Name", 
+                   choices = users$display_name,
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 5  # Limit the number of suggestions shown
+                   ))),
+          column(3, uiOutput("image_ui"))
+        ),
         uiOutput("team_assets_title"),
         p("Top future assets on the team."),
         DTOutput("team_assets"),
@@ -128,7 +135,7 @@ ui <- dashboardPage(
             maxOptions = 2  # Limit the number of suggestions shown
           )),
         uiOutput("team_contributors_title"),
-        p("Top contributors in this season"),
+        p("Top contributors in this season."),
         DTOutput("team_contributors"),
         selectizeInput(
           inputId = "team_week", 
@@ -143,7 +150,7 @@ ui <- dashboardPage(
         p("Weekly Value"),
         DTOutput("team_contributors_weekly"),
         uiOutput("avenue_grades_title"),
-        p("Performance across acquisition avenues"),
+        p("Performance across acquisition avenues."),
         DTOutput("avenue_grades"),
         selectizeInput(
           inputId = "team_avenue", 
@@ -155,15 +162,21 @@ ui <- dashboardPage(
             maxOptions = 5  # Limit the number of suggestions shown
           )),
         uiOutput("top_acquisitions_title"),
+        p("Filter by avenue to see top trade, draft pick, transaction, etc."),
         DTOutput("top_acquisitions"),
         uiOutput("worst_acquisitions_title"),
+        p("Filter by avenue to see worst trade, draft pick, transaction, etc."),
         DTOutput("worst_acquisitions"),
         uiOutput("team_composition_title"),
+        p("Proportion of total value on roster acquired from various avenues."),
         DTOutput("team_composition"),
       ),
+      
       tabItem( # Page 3 Tab
         tabName = "draft",
         titlePanel("Draft Grades"),
+        p("Select a draft to view the top picks and best overall drafts. The users' expected value is the
+        anticipated value accrued from the users' set of picks. This provides a standard in which to compare drafts."),
         selectizeInput(
           inputId = "draft_selection", 
           label = "Enter Draft", 
@@ -180,13 +193,17 @@ ui <- dashboardPage(
         uiOutput("worst_picks_title"),
         DTOutput("worst_picks")
       ),
+      
       tabItem( # Page 4 Tab
         tabName = "trade",
         h2("Trade Grades"),
         uiOutput("trade_winners_title"),
+        p("The total value gained or lost from all trades."),
         DTOutput("trade_winners"),
         uiOutput("trade_lopsided_title"),
+        p("The most unfair trades in league history. This is assessed now, not the time of the trade."),
         DTOutput("trade_lopsided"),
+        p("Select a single trade to see a full breakdown of the value gained and lost for each user."),
         selectizeInput(
           inputId = "trade_selection", 
           label = "Enter Trade ID", 
@@ -199,13 +216,17 @@ ui <- dashboardPage(
         uiOutput("individual_trade_title"),
         DTOutput("individual_trade")
       ),
+      
       tabItem( # Page 5 Tab
         tabName = "transaction",
         titlePanel("Transaction Grades"),
         uiOutput("transaction_winners_title"),
+        p("The total value gained or lost from all transactions."),
         DTOutput("transaction_winners"),
         uiOutput("top_transaction_title"),
+        p("The most successful transactions in league history. This is assessed now, not the time of the transaction."),
         DTOutput("top_transaction"),
+        p("Select a single transaction to see a full breakdown of the value gained and lost from added and dropped players."),
         selectizeInput(
           inputId = "transaction_selection", 
           label = "Enter Transaction ID", 
@@ -219,7 +240,7 @@ ui <- dashboardPage(
         DTOutput("individual_transaction")
       ),
       tabItem( # Page 6 Tab
-        tabName = "standings",
+        tabName = "matchups",
         titlePanel("Matchups"),
         p("This is a static page that will be completed at a later date.")
       ),
@@ -291,6 +312,13 @@ server <- function(input, output, session) {
   
   # Reactivity for Page 2
   
+  output$image_ui <- renderUI({ # user image
+    req(input$team_name)
+    image_url <- avatar %>% filter(display_name == input$team_name) %>% pull(avatar_url)
+    
+    tags$img(src = image_url, height = "150px")
+  })
+  
   output$team_assets_title <- renderUI({ #title
     req(input$team_name) #require input
     h3(str_c(input$team_name, " Future Value"))
@@ -356,7 +384,7 @@ server <- function(input, output, session) {
       pull() %>% grab_team_contributors_weekly(input$team_season, input$team_week, shiny = TRUE) %>%
       datatable(
         options = list(
-          pageLength = 5,         # Set the initial number of rows per page
+          pageLength = 11,         # Set the initial number of rows per page
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
