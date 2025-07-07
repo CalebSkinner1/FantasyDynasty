@@ -14,12 +14,12 @@ library("mcmcr")
 
 # simple linear regression gibbs sampler ----------------------------------
 
-# simulated
-n <- 50; p <- 3
-X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
-b <- rep(1, p)
+# # simulated
+# n <- 50; p <- 3
+# X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
+# b <- rep(1, p)
 #
-Y <- X %*% b + rnorm(n, mean = 0, sd = 1)
+# Y <- X %*% b + rnorm(n, mean = 0, sd = 1)
 
 reg_gibbs_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2, g, nu_0 = 1, Sigma_0, beta_0){
   # initialize
@@ -43,7 +43,7 @@ reg_gibbs_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2
     Sigma_0 <- g*sigma_prop*inv(gram)
   }
   if(missing(beta_0)){
-    beta_prop <- ols %>% coef()
+    beta_0 <- ols %>% coef()
   }
   
   if(missing(new_X)){
@@ -62,7 +62,7 @@ reg_gibbs_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2
   for(i in 1:iter){
     # draw beta
     invQ <- inv(invSigma_0 + (sigma_prop)^(-1)*gram)
-    l <- invSigma_0%*%beta_prop + (sigma_prop^(-1))*t(X)%*%Y
+    l <- invSigma_0%*%beta_0 + (sigma_prop^(-1))*t(X)%*%Y
     beta_prop <- MASS::mvrnorm(1, invQ%*%l, invQ)
     
     # draw sigma^2
@@ -89,8 +89,30 @@ reg_gibbs_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2
 # samples$beta %>% colMeans()
 
 
-# linear regression Metropolis-Hastings sampler for heteroscedastity --------
-het_reg_mh_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2, g, nu_0 = 1, beta_0){
+# linear regression Metropolis-Hastings sampler for heteroskedastity --------
+
+# simulated data
+n <- 200; p <- 6
+X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
+b <- rep(1, p)
+l <- rep(.1, p)
+log_var <- X%*%l + rnorm(n, mean = 0, sd = .1)
+
+Y <- X %*% b + rnorm(n, mean = 0, sd = sqrt(exp(log_var)))
+
+hetr_log_lik <- function(gamma, X, resid){
+  sigma2 <- exp(X %*% gamma)
+  -.5*sum(log(sigma2) + resid^2/sigma2)
+}
+
+hetr_log_accept <- function(gamma_new, gamma_old, X, resid){
+  hetr_log_lik(gamma_new, X, resid) - hetr_log_lik(gamma_old, X, resid)
+}
+
+# this sampler uses X to model log(sigma^2) linearly. Since the full conditional of the coef lambda are not available analytically
+# I use a metropolis hasting algorithm to propose new lambda values and accept or reject the proposed.
+het_reg_mh_sampler <- function(Y, X, new_X, iter = 6000, burn_in = 1000, thin = 2, g,
+                               beta_0, proposal_sd, gamma_prop, adapt_sd = 50, target_accept_rate = .45){
   # initialize
   p <- ncol(X) #variables
   n <- nrow(X) # observations
@@ -108,11 +130,17 @@ het_reg_mh_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 
   if(missing(g)){
     g <- n*p
   }
-  # if(missing(Sigma_0)){
-  #   Sigma_0 <- g*sigma_prop*inv(gram)
-  # }
+
   if(missing(beta_0)){
-    beta_prop <- ols %>% coef()
+    beta_0 <- ols %>% coef()
+  }
+  
+  if(missing(gamma_prop)){
+    gamma_prop <- inv(gram)%*%t(X)%*%log(sigma_prop)
+  }
+  
+  if(missing(proposal_sd)){
+    proposal_sd <- abs(gamma_prop) * 0.1 + 1e-3 # get appropriately sized jump
   }
   
   if(missing(new_X)){
@@ -120,43 +148,86 @@ het_reg_mh_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 
   }
   
   # conversion
-  Sigma_prop <- diag(sigma_prop)
-  
-  invSigma_prop <- inv(Sigma_prop)
+  invSigma_prop <- diag(1/sigma_prop)
   
   # allocate space
-  beta <- matrix(0, nrow = samples, ncol = p) # coef
+  beta <- matrix(0, nrow = samples, ncol = p) # beta coef
   sigma <- matrix(0, nrow = samples, ncol = n) # sigma_i^2
-  lambda <- numeric(samples)
+  gamma <- matrix(0, nrow = samples, ncol = p) # gamma coef
+  acc_rate <- matrix(0, nrow = samples, ncol = p)
   new_y <- matrix(0, nrow = samples, ncol = nrow(new_X))
+  accept_count <- numeric(p)
+  acc <- numeric(p)
   
   # sample from full conditionals
   for(i in 1:iter){
     # draw beta
     invQ <- inv(t(X)%*%invSigma_prop%*%X + (1/g)*gram)
-    l <- t(X)%*%invSigma_prop %*% Y
+    l <- t(X)%*%invSigma_prop %*% Y + 1/g*gram%*%beta_0
     beta_prop <- MASS::mvrnorm(1, invQ%*%l, invQ)
     
-    # draw lambda
-    log(sigma_prop)
+    # draw gamma
+    # random walk gamma proposal
+    for(j in 1:p){
+      gamma_new <- gamma_prop
+      
+      gamma_new[j] <- gamma_prop[j] + rnorm(1, 0, proposal_sd[j])
+      
+      accept_prob <- exp(min(0, hetr_log_accept(gamma_new, gamma_prop, X, Y - X %*% beta_prop)))
+      if(runif(1) < accept_prob){
+        gamma_prop <- gamma_new
+        acc[j] <- TRUE
+      }else{
+        acc[j] <- FALSE
+      }
+      accept_count[j] <- accept_count[j] + acc[j]
+    }
+
     
+    # adjust proposal_sd every adapt_sd steps
+    if(i %% adapt_sd == 0 & i <= burn_in){
+      for(j in 1:p){
+        if(accept_count[j]/adapt_sd > target_accept_rate + .05){
+          proposal_sd[j] <- proposal_sd[j] * runif(1, 1, 1.2)
+        }else if(accept_count[j]/adapt_sd < target_accept_rate - .05){
+          proposal_sd[j] <- proposal_sd[j] / runif(1, 1, 1.2)
+        }
+      }
+      accept_count <- numeric(p)
+    }
     
-    # draw sigma^2
-    sigma_prop <- rinvgamma(1, (nu_0 + n*p)/2, (nu_0*sigma_prop + t((Y-X%*%beta_prop))%*%(Y-X%*%beta_prop))/2)
+    # compute sigma^2 (deterministically from gamma)
+    sigma_prop <- exp(X%*%gamma_prop)
+    invSigma_prop <- diag(as.numeric(1/sigma_prop))
     
     if(i > burn_in & (i - burn_in - 1) %% thin == 0){ #keep
       id <- (i - burn_in - 1) / thin + 1
       beta[id, ] <- beta_prop
-      sigma[id] <- sigma_prop
+      sigma[id, ] <- sigma_prop
+      gamma[id, ] <- gamma_prop
+      acc_rate[id,] <- acc
       
-      new_y[id,] <- new_X%*%beta_prop + rnorm(nrow(new_X), 0, sigma_prop^(.5))
+      # compute new Ys
+      new_sigma_prop <- exp(new_X%*%gamma_prop)
+      new_y[id,] <- new_X%*%beta_prop + rnorm(nrow(new_X), 0, new_sigma_prop^(.5))
     }
   }
   
-  list("beta" = beta, "sigma" = sigma, "new_y" = new_y)
+  list("beta" = beta, "sigma" = sigma, "gamma" = gamma, "acc_rate" = acc_rate, "new_y" = new_y)
 }
 
+# tic()
+# samples <- het_reg_mh_sampler(Y, X, thin = 2, iter = 6000, burn_in = 1000)
+# toc()
 
+# samples$acc_rate %>% mean()
+# 
+# samples$new_y
+# 
+# samples$beta %>% as.mcmc() %>% plot()
+# 
+# samples$gamma %>% #colMeans()
+#   as.mcmc() %>% plot()
 
 # hierarchical linear regression gibbs sampler-------------------------------------------------------------------------
 
@@ -169,7 +240,8 @@ het_reg_mh_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 
 # 
 # Y <- map(1:J, ~{X_g[[.x]]%*%b[.x,] + rnorm(n/J, mean = 0, sd = 1)}) %>% unlist()
 
-hlr_gibbs_sampler <- function(Y, X, group, iter = 2000, burn_in = 1000, thin = 5, g, mu_0, Lambda_0, eta_0, S_0, nu_0 = 1, a_0 = 1, b_0){
+hlr_gibbs_sampler <- function(Y, X, group, iter = 2000, burn_in = 1000, thin = 5, g,
+                              mu_0, Lambda_0, eta_0, S_0, nu_0 = 1, a_0 = 1, b_0){
   # initialize
   J <- length(unique(group)) #groups
   p <- ncol(X) #variables

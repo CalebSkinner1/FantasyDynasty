@@ -65,10 +65,11 @@ X_tv <- rookie_drafts %>%
   as.matrix()
 
 Y_tv <- rookie_drafts %>% distinct(season, pick_no, name, total_value) %>% pull(total_value)
+Y_tv/100
 
 tic()
-samples_tv <- reg_gibbs_sampler(Y = Y_tv, X = X_tv, new_X = X_tv[c(1:36),],
-                             iter = 7000, thin = 1, burn_in = 5000)
+samples_tv <- het_reg_mh_sampler(Y = Y_tv, X = X_tv, new_X = X_tv[c(1:36),],
+                             iter = 50000, thin = 5, burn_in = 3000, proposal_sd = c(.1, .1, .5))
 toc()
 
 # quantiles of each pick
@@ -76,11 +77,14 @@ quantiles_tv <- apply(samples_tv$new_y, 2, quantile, probs = seq(.025, .975, by 
 
 # plot fit, looks pretty good
 tibble(.pred = quantiles_tv[20,],
+       lower = quantiles_tv[1,],
+       upper = quantiles_tv[39,],
        pick_no = c(1:36)) %>%
   right_join(rookie_drafts, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = total_value)) +
-  geom_line(aes(y = .pred))
+  geom_line(aes(y = .pred)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper))
 
 # plot residuals against pick_no, looks ok enough
 tibble(.pred = quantiles_tv[20,],
@@ -101,7 +105,8 @@ ny_data <- rookie_drafts %>%
     season == 2025 ~ sva_2025,
     .default = NA
   )) %>%
-  select(pick_no, first_year)
+  select(pick_no, first_year) %>%
+  slice_sample(n = 800, replace = FALSE) # takes a long time if n is too large
 
 X_ny <- ny_data %>% select(pick_no) %>%
   mutate(
@@ -115,8 +120,8 @@ X_ny <- ny_data %>% select(pick_no) %>%
 Y_ny <- ny_data$first_year
 
 tic() #note that X_tv[c(1:36)] can actually stay the same
-samples_ny <- reg_gibbs_sampler(Y = Y_ny, X = X_ny, new_X = X_tv[c(1:36),],
-                                iter = 7000, thin = 1, burn_in = 5000)
+samples_ny <- het_reg_mh_sampler(Y = Y_ny, X = X_ny, new_X = X_tv[c(1:36),],
+                                 iter = 50000, thin = 5, burn_in = 3000, proposal_sd = c(.1, .1, .5))
 toc()
 
 # quantiles of each pick
@@ -124,11 +129,14 @@ quantiles_ny <- apply(samples_ny$new_y, 2, quantile, probs = seq(.025, .975, by 
 
 # plot fit, looks pretty good
 tibble(.pred = quantiles_ny[20,],
+       lower = quantiles_ny[1,],
+       upper = quantiles_ny[39,],
        pick_no = c(1:36)) %>%
   right_join(ny_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = first_year)) +
-  geom_line(aes(y = .pred))
+  geom_line(aes(y = .pred)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper))
 
 # plot residuals against pick_no, looks ok enough
 tibble(.pred = quantiles_ny[20,],
@@ -138,9 +146,6 @@ tibble(.pred = quantiles_ny[20,],
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = .resid)) +
   geom_hline(yintercept = 0)
-
-# probably would be better with a zero-inflated model
-# also it's definitely not homoscedastic but whatever dude
 
 # Polynomial Regression - 2nd Year Value Added -----------------------------
 # this is kinda stretching it. Using draft pick to predict the bayesian hierarchical model's
@@ -154,7 +159,7 @@ ny2_data <- rookie_drafts %>%
     season == 2025 ~ sva_2026,
     .default = NA)) %>%
   select(pick_no, second_year) %>%
-  slice_sample(n = 800, replace = FALSE) #for some reason it gets antsy if n is too large (i think numerical error)
+  slice_sample(n = 800, replace = FALSE) # it gets antsy if n is too large, lots of big inversions
 
 X_ny2 <- ny2_data %>% select(pick_no) %>%
   mutate(
@@ -168,8 +173,8 @@ X_ny2 <- ny2_data %>% select(pick_no) %>%
 Y_ny2 <- ny2_data$second_year
 
 tic() #note that X_tv[c(1:36)] can actually stay the same
-samples_ny2 <- reg_gibbs_sampler(Y = Y_ny2, X = X_ny2, new_X = X_tv[c(1:36),],
-                                iter = 7000, thin = 1, burn_in = 5000)
+samples_ny2 <- het_reg_mh_sampler(Y = Y_ny2, X = X_ny2, new_X = X_tv[c(1:36),],
+                                  iter = 50000, thin = 5, burn_in = 3000, proposal_sd = c(.1, .1, .5))
 toc()
 
 # quantiles of each pick
@@ -177,6 +182,8 @@ quantiles_ny2 <- apply(samples_ny2$new_y, 2, quantile, probs = seq(.025, .975, b
 
 # plot fit, looks pretty good
 tibble(.pred = quantiles_ny2[20,],
+       lower = quantiles_ny2[1,],
+       upper = quantiles_ny2[39,],
        pick_no = c(1:36)) %>%
   right_join(ny2_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
@@ -201,7 +208,7 @@ ny3_data <- rookie_drafts %>%
     season == 2025 ~ sva_2027,
     .default = NA)) %>%
   select(pick_no, third_year) %>%
-  slice_sample(n = 750, replace = FALSE) #for some reason it gets antsy if n is too large (i think numerical error)
+  slice_sample(n = 800, replace = FALSE) # it gets antsy if n is too large
 
 X_ny3 <- ny3_data %>% select(pick_no) %>%
   mutate(
@@ -215,8 +222,8 @@ X_ny3 <- ny3_data %>% select(pick_no) %>%
 Y_ny3 <- ny3_data$third_year
 
 tic() #note that X_tv[c(1:36)] can actually stay the same
-samples_ny3 <- reg_gibbs_sampler(Y = Y_ny3, X = X_ny3, new_X = X_tv[c(1:36),],
-                                 iter = 7000, thin = 1, burn_in = 5000)
+samples_ny3 <- het_reg_mh_sampler(Y = Y_ny2, X = X_ny2, new_X = X_tv[c(1:36),],
+                                  iter = 50000, thin = 5, burn_in = 3000, proposal_sd = c(.1, .1, .5))
 toc()
 
 # quantiles of each pick
@@ -224,6 +231,8 @@ quantiles_ny3 <- apply(samples_ny3$new_y, 2, quantile, probs = seq(.025, .975, b
 
 # plot fit, looks pretty good
 tibble(.pred = quantiles_ny3[20,],
+       lower = quantiles_ny3[1,],
+       upper = quantiles_ny3[39,],
        pick_no = c(1:36)) %>%
   right_join(ny3_data, by = join_by(pick_no)) %>%
   ggplot(aes(x = pick_no)) +
