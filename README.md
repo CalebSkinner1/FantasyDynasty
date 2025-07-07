@@ -56,16 +56,18 @@ is the sum of any realized value in that period and their future value.
 In this script, I am interested in the value of a rookie draft pick. I look at previous draft picks and model the current total value
 of the players selected by their pick number. This indicates the expected worth of a draft pick before a player has been
 selected. This is profoundly useful for evaluating trades and planning the future of a team. I use a Bayesian polynomial regression model.
-I write a standard Gibbs sampler in MCMC Samplers.R. Thanks to Sosa and Aristizabal (2021) for finding the full conditionals. I draw
-posterior samples from the Bayesian polynomial regression to give uncertainty quantification and demonstrate some future possibilities.
+Initially, I wrote a standard Gibbs sampler (thanks to Sosa and Aristizabal (2021) for finding the full conditional distributions) in MCMC Samplers.R,
+but this sampler assumed equal variance across all draft picks. Of course, top draft picks have a higher potential and higher variance,
+so I need a way to account for this heteroskedasticity. I allow the variance to vary with the draft pick and modify the previous algorithm to
+a Metropolis-Hastings step. The posterior samples give uncertainty quantification and demonstrate some future possibilities.
 
 ## Future Standings
 
 Here, I model future results of the league. This is particularly helpful for draft pick valuation. Since draft picks are generally
 available for trade for the next three years, I use the posterior samples from the projected future total value added to
 project the total value added for each fantasy team in a year. I then rank these projections over the course of 5000 simulations
-to find the distribution of the final standings. Of course, scoring the most points does not necessary win you the league. In
-the future, I hope to adjust these projections to account for this.
+to find the distribution of the final standings. Of course, scoring the most points does not necessary win you the league. I add some extra
+randomness to the standings to account for this reality.
 
 ## Scripts
 
@@ -88,11 +90,8 @@ can be updated with new data and the draft pick valuation can be updated. See th
 
 # To Do
 
-## near future ideas
-1. Adjust for heteroscedasticity in draft pick values
-2. Add remaining tabs to website
-3. Add pictures to each player
-4. Incorporate randomness into future standings projection
+## before posting online ideas
+1. Add remaining tabs to website
 
 ## once season starts
 1. Some code will surely break
@@ -102,6 +101,7 @@ can be updated with new data and the draft pick valuation can be updated. See th
 ## distant future ideas
 1. Zero-inflated model to predict value added (especially for rookie next year production)
 2. Incorporate time series technique to model a players' career.
+3. Add pictures to each player
 
 # References
 
