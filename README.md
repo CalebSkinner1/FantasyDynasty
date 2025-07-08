@@ -90,7 +90,7 @@ can be updated with new data and the draft pick valuation can be updated. See th
 
 # To Do
 
-## before posting online ideas
+## near future ideas
 1. Add remaining tabs to website
 
 ## once season starts
