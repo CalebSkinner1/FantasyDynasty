@@ -1,15 +1,19 @@
 # Shiny App
+
+# doesn't work for current version of R, so I backed up to 4.4.2
+
 library("shiny")
 library("shinydashboard")
 library("here")
 library("DT")
-data_path <- "FantasyDynasty"
 
-# Specify the folder containing the R scripts
-folder_path <- "FantasyDynasty/Scripts/"
-
+# if run on local machine
+# data_path <- "FantasyDynasty"
 # Source the function files in the folder
-source(here(data_path, "Shiny", "app functions.R"))
+# source(here(data_path, "app functions.R"))
+
+
+
 
 # Define UI
 ui <- dashboardPage(
@@ -618,4 +622,26 @@ server <- function(input, output, session) {
 
 # Run the App
 shinyApp(ui, server)
+
+
+# try with rsconnect ------------------------------------------------------
+
+rsconnect::setAccountInfo(name='calebskinner',
+                          token='072C3296E9A662DE44D76B41BC097435',
+                          secret='hiUSyfdufFtQsQDHt6wPcT7+8/Bl0WeaAjhPYj9j')
+
+rsconnect::deployApp(appDir = here(data_path),
+                     appName = "shiny",
+                     account = "calebskinner",
+                     forceUpdate = TRUE,
+                     appPrimaryDoc = "app.R",
+                     appFiles = NULL)
+
+
+# try with shinylive ------------------------------------------------------
+
+# shinylive::export(appdir = here(data_path, "Shiny"), destdir = here("FantasyDynasty/Shiny/docs"))
+# 
+# httpuv::runStaticServer(here(data_path, "Shiny", "docs/"), port = 8008)
+
 
