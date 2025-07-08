@@ -1,29 +1,28 @@
 # Draft Grades!
 
 library("here")
-data_path <- "FantasyDynasty/"
 
 # Ok now this is fun
-source(here(data_path, "Scripts/Script Support.R"))
+source(here("Shiny/Script Support.R"))
 # samplers
-source(here(data_path, "Modeling/MCMC Samplers.R"))
-source(here(data_path, "Modeling/Player Total Value Functions.R"))
+source(here("Modeling/MCMC Samplers.R"))
+source(here("Modeling/Player Total Value Functions.R"))
 
 # load data
-load(here(data_path, "Data/draft_picks.RData"))
+load(here("Data/draft_picks.RData"))
 
-users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE) %>%
+player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE) %>%
   select(name, player_id, birth_date, position, sva_2024, future_value) %>%
   mutate(total_value = sva_2024 + .95*future_value) # devalue future
-player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE)
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 
 # because drafting a kicker gave rookie draft order, I need to account for the rookie draft order
 # when grading the initial draft
 # rookie expected values per pick
-rookie_draft_pick_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"), show_col_types = FALSE) %>%
+rookie_draft_pick_values <- read_csv(here("Data/rookie_draft_values.csv"), show_col_types = FALSE) %>%
   filter(metric == "total value") %>%
   select(pick_no, proj_tva_50)
 
@@ -35,7 +34,7 @@ rookie_draft_values <- rookie_draft_pick_values %>%
   summarize(total_value = sum(proj_tva_50))
 
 # this tibble holds the expected value gained from rookie draft order
-rookie_draft_order_value <- read_csv(here(data_path, "Data/draft_order.csv"), show_col_types = FALSE) %>%
+rookie_draft_order_value <- read_csv(here("Data/draft_order.csv"), show_col_types = FALSE) %>%
   filter(season == 2024, type == "rookie") %>%
   # now compute expected value gained from draft order only
   left_join(rookie_draft_values, by = join_by(draft_order == draft_slot)) %>%
@@ -193,7 +192,7 @@ picks_df <- init_vs_expectation %>%
       draft_id == "1" ~ "initial draft",
       .default = str_c(as.numeric(draft_id) + 2022, " rookie draft")))
 
-write_csv(picks_df, here(data_path, "Scripts/Saved Files/picks_df.csv"))
+write_csv(picks_df, here("Shiny/Saved Files/picks_df.csv"))
 
 
 # Examples ----------------------------------------------------------------
