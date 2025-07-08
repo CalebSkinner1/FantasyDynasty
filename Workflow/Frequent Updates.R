@@ -27,3 +27,14 @@ source(here("Scripts", "Individual Players.R"))
 source(here("Scripts", "Fantasy Teams.R"))
 
 misty::restart() #clear memory
+
+
+# run app
+# rsconnect::deployApp(appDir = "Shiny",
+#                      appName = "fantasy-dashboard",
+#                      account = "calebskinner",
+#                      forceUpdate = TRUE,
+#                      appPrimaryDoc = "app.R",
+#                      appFiles = NULL)
+
+

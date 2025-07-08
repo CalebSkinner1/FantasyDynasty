@@ -7,15 +7,14 @@ library("shinydashboard")
 library("DT")
 
 # only if running on local machine
-print("App starting...")
+print("App starting...") # for logs
 if (interactive()) {
   setwd(here::here("Shiny"))
 }
 
 # Source the function files in the folder
 source("app_call_data.R")
-print("Loaded functions")
-
+print("Loaded functions") # for logs
 
 # Define UI
 ui <- dashboardPage(
@@ -624,24 +623,5 @@ server <- function(input, output, session) {
 
 # Run the App
 shinyApp(ui, server)
-
-
-# try with rsconnect ------------------------------------------------------
-
-# copy into console
-
-# initialize
-
-# rsconnect::setAccountInfo(name='calebskinner',
-#                           token='072C3296E9A662DE44D76B41BC097435',
-#                           secret='hiUSyfdufFtQsQDHt6wPcT7+8/Bl0WeaAjhPYj9j')
-
-# run
-# rsconnect::deployApp(appDir = "Shiny",
-#                      appName = "shiny",
-#                      account = "calebskinner",
-#                      forceUpdate = TRUE,
-#                      appPrimaryDoc = "app.R",
-#                      appFiles = NULL)
 
 
