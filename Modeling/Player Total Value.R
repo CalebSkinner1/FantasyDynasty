@@ -1,21 +1,20 @@
 # Future Value and Total Value
 
 library("here")
-data_path <- "FantasyDynasty/"
 
-# source(here(data_path, "Modeling/Player Value Added.R")) # grab updated value added ~50 seconds
-source(here(data_path, "Data Manipulation/Scrape Support.R")) # grab functions
-source(here(data_path, "Modeling/Player Total Value Functions.R")) # grab functions
-season_value_added <- read_csv(here(data_path, "Data/sva.csv")) # shortcut
-player_info <- read_csv(here(data_path, "Data/player_info.csv")) # shortcut 
+# source(here("Modeling/Player Value Added.R")) # grab updated value added ~50 seconds
+source(here("Data Manipulation/Scrape Support.R")) # grab functions
+source(here("Modeling/Player Total Value Functions.R")) # grab functions
+season_value_added <- read_csv(here("Data/sva.csv")) # shortcut
+player_info <- read_csv(here("Data/player_info.csv")) # shortcut 
 
-keep_trade_cut <- read_csv(here(data_path, "Data/ktc values/ktc_value062925.csv")) # shortcut
-sleeper_points <- read_csv(here(data_path, "Data/sleeper_points24.csv")) # shortcut
+keep_trade_cut <- read_csv(here("Data/ktc values/ktc_value062925.csv")) # shortcut
+sleeper_points <- read_csv(here("Data/sleeper_points24.csv")) # shortcut
 
 # organize data sets
 
 # get ktc value from beginning of 2024 season
-historical_ktc <- read_csv(here(data_path,"Data/ktc values/ktc_value082324.csv")) %>%
+historical_ktc <- read_csv(here("Data/ktc values/ktc_value082324.csv")) %>%
   filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
   name_correction() %>%
   group_by(name) %>%
@@ -61,8 +60,8 @@ tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 # # tva_fit <- fit_bart(tva_data$train_data)
 # toc()
 
-# save(tva_fit, file = here(data_path, "Modeling/tva_fit.RData"))
-load(here(data_path, "Modeling/tva_fit.RData"))
+# save(tva_fit, file = here("Modeling/tva_fit.RData"))
+load(here("Modeling/tva_fit.RData"))
 
 # compute accuracy (RMSE)
 # model_accuracy(tva_fit, tva_data$test_data)
@@ -70,11 +69,11 @@ load(here(data_path, "Modeling/tva_fit.RData"))
 # graph residuals
 # graph_residuals(tva_fit, tva_data$test_data)
 
-# save(tva_fit, file = here(data_path, "Modeling/tva_fit.RData"))
+# save(tva_fit, file = here("Modeling/tva_fit.RData"))
 
 # tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
-# save(tva_resid_fit, file = here(data_path, "Modeling/tva_resid_fit.RData"))
-load(here(data_path, "Modeling/tva_resid_fit.RData"))
+# save(tva_resid_fit, file = here("Modeling/tva_resid_fit.RData"))
+load(here("Modeling/tva_resid_fit.RData"))
 
 # tva_samples <- generate_samples(tva_fit, tva_data$train_data)
 
@@ -94,12 +93,12 @@ ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 # ktc_fit <- fit_bart(ktc_data$full_data)
 # toc()
 
-# save(ktc_fit, file = here(data_path, "Modeling/ktc_fit.RData"))
-load(here(data_path, "Modeling/ktc_fit.RData"))
+# save(ktc_fit, file = here("Modeling/ktc_fit.RData"))
+load(here("Modeling/ktc_fit.RData"))
 
 # ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
-# save(ktc_resid_fit, file = here(data_path, "Modeling/ktc_resid_fit.RData"))
-load(here(data_path, "Modeling/ktc_resid_fit.RData"))
+# save(ktc_resid_fit, file = here("Modeling/ktc_resid_fit.RData"))
+load(here("Modeling/ktc_resid_fit.RData"))
 
 # compute accuracy (RMSE)
 # model_accuracy(ktc_fit, ktc_data$test_data)
@@ -123,7 +122,7 @@ player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales 
                                  tva_fit = tva_fit, ktc_fit = ktc_fit, tva_resid_fit = tva_resid_fit, ktc_resid_fit = ktc_resid_fit)
 toc()
 
-# save(player_simulations, file = here(data_path, "Modeling/player_simulations.RData"))
+# save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
 future_value <- compute_future_value(player_simulations, years = 8, weight = .95)
 
@@ -143,4 +142,4 @@ player_total_value <- future_value %>%
       .default = future_value)) %>%
   select(name, player_id, birth_date, position, ktc_value, sva_2024, future_value)
 
-write_csv(player_total_value, here(data_path, "Data/player_total_value.csv"))
+write_csv(player_total_value, here("Data/player_total_value.csv"))

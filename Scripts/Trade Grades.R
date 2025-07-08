@@ -3,26 +3,25 @@
 # alright this is what this was all for amiright
 
 library("here")
-data_path <- "FantasyDynasty/"
 
 # Ok now this is fun
-source(here(data_path, "Scripts/Script Support.R"))
+source(here("Shiny/Script Support.R"))
 
-load(here(data_path, "Data/transactions.RData")) #transactions, including trades
-all_draft_pick_exp_values <- read_csv(here(data_path, "Data/all_draft_pick_exp_values.csv"), show_col_types = FALSE) #future draft pick values
+load(here("Data/transactions.RData")) #transactions, including trades
+all_draft_pick_exp_values <- read_csv(here("Data/all_draft_pick_exp_values.csv"), show_col_types = FALSE) #future draft pick values
 
-load(here(data_path, "Data/draft_picks.RData")) # draft results
+load(here("Data/draft_picks.RData")) # draft results
 
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE)
-value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE)
-draft_order <- read_csv(here(data_path, "Data/draft_order.csv"), show_col_types = FALSE)
+player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE)
+value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE)
+draft_order <- read_csv(here("Data/draft_order.csv"), show_col_types = FALSE)
 
-marginal_transaction_value <- read_csv(here(data_path, "Data/marginal_transaction_value.csv"), show_col_types = FALSE)
+marginal_transaction_value <- read_csv(here("Data/marginal_transaction_value.csv"), show_col_types = FALSE)
 
 # references
-player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE) %>%
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) %>%
   select(-birth_date)
-users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 # 
 # realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
@@ -272,13 +271,13 @@ rm(value_added)
 
 # dfs to save -------------------------------------------------------------
 
-write_csv(overall_trade_winners, here(data_path, "Scripts/Saved Files/overall_trade_winners.csv"))
+write_csv(overall_trade_winners, here("Shiny/Saved Files/overall_trade_winners.csv"))
 
-write_csv(lopsided_trades, here(data_path, "Scripts/Saved Files/lopsided_trades.csv"))
+write_csv(lopsided_trades, here("Shiny/Saved Files/lopsided_trades.csv"))
 
-write_csv(comparison, here(data_path, "Scripts/Saved Files/comparison.csv"))
+write_csv(comparison, here("Shiny/Saved Files/comparison.csv"))
 
-save(total_trade_value, file = here(data_path, "Scripts/Saved Files/total_trade_value.Rdata"))
+save(total_trade_value, file = here("Shiny/Saved Files/total_trade_value.Rdata"))
 
 # Examples ----------------------------------------------------------------
 

@@ -9,21 +9,21 @@ library("here")
 # misty::restart() #clear memory
 
 # Player Value Added (this file runs scraping.R automatically)
-source(here("FantasyDynasty", "Modeling", "Player Value Added.R"))
+source(here("Modeling", "Player Value Added.R"))
 
 misty::restart() #clear memory
 
 # with relative frequency, will need to rerun player_simulations to account for new ktc value
 # fair warning it will take 7+ minutes
-source(here("FantasyDynasty", "Modeling", "Player Total Value Functions.R"))
+source(here("Modeling", "Player Total Value Functions.R"))
 
 # when future standings is allowed to vary with season, add that here
 
 # Individual Players
 library("here")
-source(here("FantasyDynasty", "Scripts", "Individual Players.R"))
+source(here("Scripts", "Individual Players.R"))
 
 # Fantasy Teams
-source(here("FantasyDynasty", "Scripts", "Fantasy Teams.R"))
+source(here("Scripts", "Fantasy Teams.R"))
 
 misty::restart() #clear memory

@@ -2,11 +2,10 @@
 
 library("nflfastR")
 library("here")
-data_path <- "FantasyDynasty/"
 
 options(nflreadr.verbose = FALSE)
 
-source(here(data_path, "Data Manipulation/Scrape Support.R"))
+source(here("Data Manipulation/Scrape Support.R"))
 
 # load box score data from NFL 2024
 # https://www.nflfastr.com
@@ -31,7 +30,7 @@ rosters <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "
   unnest(cols = c(players)) %>%
   rename(player_id = players)
 
-write_csv(rosters, here(data_path, "Data/current_roster.csv"))
+write_csv(rosters, here("Data/current_roster.csv"))
 
 # users
 users <- rosters %>%
@@ -42,14 +41,14 @@ users <- rosters %>%
       select(display_name, user_id),
     by = join_by(owner_id == user_id))
 
-write_csv(users, here(data_path, "Data/users.csv"))
+write_csv(users, here("Data/users.csv"))
 
 avatar <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "/users")) %>%
   mutate(avatar_url = str_c("https://sleepercdn.com/avatars/", avatar)) %>%
   left_join(users, by = join_by(display_name)) %>%
   select(roster_id, display_name, avatar_url)
 
-write_csv(avatar, here(data_path, "Data/avatar.csv"))
+write_csv(avatar, here("Data/avatar.csv"))
 
 # matchups
 matchups <- map(all_league_ids, ~{
@@ -70,7 +69,7 @@ transactions <- map(all_league_ids, ~{
   }) %>% bind_rows(.id = "season") %>%
   mutate(season = as.numeric(season) + 2023)
   
-save(transactions, file = here(data_path, "Data/transactions.RData"))
+save(transactions, file = here("Data/transactions.RData"))
 
 # Get all drafts urls for a league
 draft_urls <- 
@@ -85,7 +84,7 @@ draft_trades_urls <- draft_urls %>% str_replace("/picks", "/traded_picks")
 
 # Get picks in a draft
 draft_picks <- map(draft_urls, ~parse_api(.x))
-save(draft_picks, file = here(data_path, "Data/draft_picks.RData"))
+save(draft_picks, file = here("Data/draft_picks.RData"))
 
 # Get trades in a draft
 draft_trades <- map(draft_trades_urls, parse_api)
@@ -107,7 +106,7 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
     type = if_else(season_id == 2, "veteran", "rookie")) %>%
   select(-season_id)
 
-write_csv(draft_order, here(data_path, "Data/draft_order.csv"))
+write_csv(draft_order, here("Data/draft_order.csv"))
 
 # player information don't run a lot because it takes a lot of time/memory
 # player_info2 <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
@@ -151,7 +150,7 @@ write_csv(draft_order, here(data_path, "Data/draft_order.csv"))
 #   bind_rows(defenses) %>%
 #   name_correction()
 # 
-# write_csv(player_info, here(data_path, "Data/player_info.csv"))
+# write_csv(player_info, here("Data/player_info.csv"))
 
 rm(draft_urls)
 
@@ -183,7 +182,7 @@ future_draft_picks <- assigned_picks %>%
             by = join_by(season, pick_slot == roster_id)) %>%
   arrange(season, round, roster_id)
 
-write_csv(future_draft_picks, here(data_path, "Data/future_draft_picks.csv"))
+write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 
 # Scrape Projections ----------------------------------------------------
 # need weekly player ranking for above replacement metric
@@ -202,8 +201,8 @@ write_csv(future_draft_picks, here(data_path, "Data/future_draft_picks.csv"))
 
 projections25 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
 
-# write_csv(projections25, here(data_path, "Data/projections25.csv"))
-projections24 <- read_csv(here(data_path, "Data/projections24.csv"))
+# write_csv(projections25, here("Data/projections25.csv"))
+projections24 <- read_csv(here("Data/projections24.csv"))
 
 projections <- list(projections24, projections25)
 
@@ -314,7 +313,7 @@ projections <- list(projections24, projections25)
 #             724, 790, 493, 425, 1439, 731.8,
 #             172, 960, 902, 678.0))
 
-# bind_rows(t50, b51) %>% write_csv(here(data_path, "Data/ktc_value082324"))
+# bind_rows(t50, b51) %>% write_csv(here("Data/ktc_value082324"))
 
 # instantaneous keep_trade_cut value
 ktc_rows <- 0
@@ -334,7 +333,7 @@ date <- str_c(month(today()) %>% str_pad(2, side="left", pad="0"),
               day(today()) %>% str_pad(2, side="left", pad="0"),
               year(today()) %>% str_sub(start = 3, end = 4))
 
-keep_trade_cut %>% write_csv(here(data_path, paste0("Data/ktc values/ktc_value", date, ".csv")))
+keep_trade_cut %>% write_csv(here(paste0("Data/ktc values/ktc_value", date, ".csv")))
 
 # remove objects and functions to declutter environment
 rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,

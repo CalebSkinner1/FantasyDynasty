@@ -92,13 +92,13 @@ reg_gibbs_sampler <- function(Y, X, new_X, iter = 5000, burn_in = 3000, thin = 2
 # linear regression Metropolis-Hastings sampler for heteroskedastity --------
 
 # simulated data
-n <- 200; p <- 6
-X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
-b <- rep(1, p)
-l <- rep(.1, p)
-log_var <- X%*%l + rnorm(n, mean = 0, sd = .1)
-
-Y <- X %*% b + rnorm(n, mean = 0, sd = sqrt(exp(log_var)))
+# n <- 200; p <- 6
+# X <- MASS::mvrnorm(n, rep(0, p), 3^2*diag(nrow = p))
+# b <- rep(1, p)
+# l <- rep(.1, p)
+# log_var <- X%*%l + rnorm(n, mean = 0, sd = .1)
+# 
+# Y <- X %*% b + rnorm(n, mean = 0, sd = sqrt(exp(log_var)))
 
 hetr_log_lik <- function(gamma, X, resid){
   sigma2 <- exp(X %*% gamma)

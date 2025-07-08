@@ -3,21 +3,20 @@
 # how good the rookies are, but we can see how good previous rookies turned out to be one year later
 
 library("here")
-data_path <- "FantasyDynasty/"
 
 # load MCMC Samplers
-source(here(data_path, "Modeling/MCMC Samplers.R"))
-source(here(data_path, "Modeling/Player Total Value Functions.R"))
+source(here("Modeling/MCMC Samplers.R"))
+source(here("Modeling/Player Total Value Functions.R"))
 
 # load data of interest
-load(here(data_path, "Data/draft_picks.RData"))
-load(here(data_path, "Modeling/player_simulations.RData"))
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv")) %>%
+load(here("Data/draft_picks.RData"))
+load(here("Modeling/player_simulations.RData"))
+player_total_value <- read_csv(here("Data/player_total_value.csv")) %>%
   mutate(
     total_value = sva_2024 + future_value*.95, # devalue the future
     player_id = as.character(player_id)) %>%
   select(name, player_id, position, total_value, sva_2024, contains("ny"))
-player_info <- read_csv(here(data_path, "Data/player_info.csv"))
+player_info <- read_csv(here("Data/player_info.csv"))
 
 # future value projections of players
 future_value_projections <- imap(1:3, ~{
@@ -263,7 +262,7 @@ rookie_draft_values <- imap_dfr(1:4, ~{
       metric = names(quantiles_list)[.x])}) %>%
   relocate(pick_no, metric)
 
-# write_csv(rookie_draft_values, here(data_path, "Data/rookie_draft_values.csv"))
+# write_csv(rookie_draft_values, here("Data/rookie_draft_values.csv"))
 
 
 

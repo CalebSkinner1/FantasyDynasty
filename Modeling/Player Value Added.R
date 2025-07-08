@@ -8,10 +8,9 @@
 # load data
 library("here")
 library("tidyverse")
-data_path <- "FantasyDynasty/"
-source(here(data_path, "Data Manipulation/Scraping.R")) #run data ~45 seconds
+source(here("Data Manipulation/Scraping.R")) #run data ~45 seconds
 
-player_info <- read_csv(here(data_path, "Data/player_info.csv"))
+player_info <- read_csv(here("Data/player_info.csv"))
 
 # Sleeper Score -----------------------------------------------------------
 
@@ -74,7 +73,7 @@ sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper
   name_correction() %>%
   filter(week != 18)
 
-write_csv(sleeper_points, here(data_path, "Data/sleeper_points.csv"))
+write_csv(sleeper_points, here("Data/sleeper_points.csv"))
 
 # Find Value at Replacement -----------------------------------------------
 
@@ -323,8 +322,8 @@ season_value_added <- value_added %>%
     .groups = "keep") %>%
   arrange(desc(total_value_added))
 
-write_csv(value_added, here(data_path, "Data/va.csv"))
-write_csv(season_value_added, here(data_path, "Data/sva.csv"))
+write_csv(value_added, here("Data/va.csv"))
+write_csv(season_value_added, here("Data/sva.csv"))
 
 # season_value_added %>% print(n=30)
 

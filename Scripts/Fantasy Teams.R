@@ -4,31 +4,30 @@
 
 library("here")
 library("tidymodels")
-data_path <- "FantasyDynasty/"
 
 # load data
-source(here(data_path, "Scripts/Script Support.R"))
+source(here("Shiny/Script Support.R"))
 
 # Grades
-source(here(data_path, "Scripts/Draft Grades.R")) #Draft Grades, about one second
-source(here(data_path, "Scripts/Trade Grades.R")) #Trade Grades, less than one second
-source(here(data_path, "Scripts/Transaction Grades.R")) #Transaction Grades, nine seconds
+source(here("Scripts/Draft Grades.R")) #Draft Grades, about one second
+source(here("Scripts/Trade Grades.R")) #Trade Grades, less than one second
+source(here("Scripts/Transaction Grades.R")) #Transaction Grades, nine seconds
 
 # load data
-season_value_added <- read_csv(here(data_path, "Data/sva.csv"), show_col_types = FALSE)
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), , show_col_types = FALSE)
-player_info <- read_csv(here(data_path, "Data/player_info.csv"), , show_col_types = FALSE)
-final_standings_odds <- read_csv(here(data_path, "Data/final_standings_odds.csv"), , show_col_types = FALSE)
-rookie_draft_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"), , show_col_types = FALSE) %>%
+season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE)
+player_total_value <- read_csv(here("Data/player_total_value.csv"), , show_col_types = FALSE)
+player_info <- read_csv(here("Data/player_info.csv"), , show_col_types = FALSE)
+final_standings_odds <- read_csv(here("Data/final_standings_odds.csv"), , show_col_types = FALSE)
+rookie_draft_values <- read_csv(here("Data/rookie_draft_values.csv"), , show_col_types = FALSE) %>%
   filter(metric == "total value") %>%
   select(pick_no, proj_tva_50)
 
-users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
-future_draft_picks <- read_csv(here(data_path, "Data/future_draft_picks.csv"), show_col_types = FALSE)
+future_draft_picks <- read_csv(here("Data/future_draft_picks.csv"), show_col_types = FALSE)
 
-load(here(data_path, "Data/draft_picks.RData"))
+load(here("Data/draft_picks.RData"))
 
 # picks that we known the draft order
 known_draft_picks <- 
@@ -91,7 +90,7 @@ draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) %>%
   rename(team_name = display_name)
   
 # future assets
-current_roster <- read_csv(here(data_path, "Data/current_roster.csv"), show_col_types = FALSE) %>%
+current_roster <- read_csv(here("Data/current_roster.csv"), show_col_types = FALSE) %>%
   left_join(player_info, by = join_by(player_id)) %>%
   left_join(player_total_value, by = join_by(player_id, name, position)) %>%
   select(roster_id, player_id, name, position, future_value, sva_2024) %>%
@@ -103,7 +102,7 @@ total_assets <- current_roster %>%
   bind_rows(draft_assets) %>%
   mutate(future_value = replace_na(future_value, 0))
 
-value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE) %>%
+value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) %>%
   left_join(users, by = join_by(roster_id)) %>%
   rename(team_name = display_name)
 
@@ -204,7 +203,7 @@ grab_team_assets_df <- total_assets %>%
   arrange(desc(future_value)) %>%
   select(roster_id, name, position, future_value, avenue)
 
-write_csv(grab_team_assets_df, here(data_path, "Scripts/Saved Files/grab_team_assets_df.csv"))
+write_csv(grab_team_assets_df, here("Shiny/Saved Files/grab_team_assets_df.csv"))
 
 realized_value <- value_added %>%
   # filter(roster_id == enter_roster_id) %>%
@@ -225,13 +224,13 @@ position_outlook_df <- current_roster %>%
   relocate(realized_value, .after = position) %>%
   arrange(position)
 
-write_csv(position_outlook_df, here(data_path, "Scripts/Saved Files/position_outlook_df.csv"))
+write_csv(position_outlook_df, here("Shiny/Saved Files/position_outlook_df.csv"))
   
-write_csv(value_avenues, here(data_path, "Scripts/Saved Files/value_avenues.csv"))
-write_csv(acquisitions, here(data_path, "Scripts/Saved Files/acquisitions.csv"))
-write_csv(player_avenues, here(data_path, "Scripts/Saved Files/player_avenues.csv"))
+write_csv(value_avenues, here("Shiny/Saved Files/value_avenues.csv"))
+write_csv(acquisitions, here("Shiny/Saved Files/acquisitions.csv"))
+write_csv(player_avenues, here("Shiny/Saved Files/player_avenues.csv"))
 
-write_csv(all_draft_pick_exp_values, here(data_path, "Data/all_draft_pick_exp_values.csv"))
+write_csv(all_draft_pick_exp_values, here("Data/all_draft_pick_exp_values.csv"))
 
 source(here("Scripts/Relocate Files.R"))
 

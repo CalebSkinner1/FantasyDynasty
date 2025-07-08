@@ -2,18 +2,17 @@
 # similar to Draft Grades.R and Trade Grades.R, this page grades each transaction by a fantasy user
 
 library("here")
-data_path <- "FantasyDynasty/"
 
 # load data
-source(here(data_path, "Scripts/Script Support.R"))
-load(here(data_path, "Data/transactions.RData")) #transactions, including trades
-player_total_value <- read_csv(here(data_path, "Data/player_total_value.csv"), show_col_types = FALSE)
-value_added <- read_csv(here(data_path, "Data/va.csv"), show_col_types = FALSE)
+source(here("Shiny/Script Support.R"))
+load(here("Data/transactions.RData")) #transactions, including trades
+player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE)
+value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE)
 
-player_info <- read_csv(here(data_path, "Data/player_info.csv"), show_col_types = FALSE) %>%
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) %>%
   select(-birth_date)
 
-users <- read_csv(here(data_path, "Data/users.csv"), show_col_types = FALSE) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
 total_transaction_value <- transactions %>%
@@ -172,15 +171,15 @@ rm(value_added)
 
 # dfs to save -------------------------------------------------------------
 
-write_csv(overall_transaction_winners, here(data_path, "Scripts/Saved Files/overall_transaction_winners.csv"))
+write_csv(overall_transaction_winners, here("Shiny/Saved Files/overall_transaction_winners.csv"))
 
-write_csv(top_transactions, here(data_path, "Scripts/Saved Files/top_transactions.csv"))
+write_csv(top_transactions, here("Shiny/Saved Files/top_transactions.csv"))
 
-write_csv(transaction_comparison, here(data_path, "Scripts/Saved Files/transaction_comparison.csv"))
+write_csv(transaction_comparison, here("Shiny/Saved Files/transaction_comparison.csv"))
 
-write_csv(marginal_transaction_value, here(data_path, "Data/marginal_transaction_value.csv"))
+write_csv(marginal_transaction_value, here("Data/marginal_transaction_value.csv"))
 
-save(total_transaction_value, file = here(data_path, "Scripts/Saved Files/total_transaction_value.Rdata"))
+save(total_transaction_value, file = here("Shiny/Saved Files/total_transaction_value.Rdata"))
 
 # Examples ----------------------------------------------------------------
 

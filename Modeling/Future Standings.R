@@ -6,22 +6,21 @@ library("here")
 library("tictoc")
 library("tidyverse"); theme_set(theme_minimal())
 library("furrr")
-data_path <- "FantasyDynasty/"
 
 # load data
-load(here(data_path, "Modeling/player_simulations.RData"))
-player_info <- read_csv(here(data_path, "Data/player_info.csv"))
+load(here("Modeling/player_simulations.RData"))
+player_info <- read_csv(here("Data/player_info.csv"))
 
-future_draft_picks <- read_csv(here(data_path, "Data/future_draft_picks.csv"))
-rookie_draft_values <- read_csv(here(data_path, "Data/rookie_draft_values.csv"))
+future_draft_picks <- read_csv(here("Data/future_draft_picks.csv"))
+rookie_draft_values <- read_csv(here("Data/rookie_draft_values.csv"))
 
-current_roster <- read_csv(here(data_path, "Data/current_roster.csv")) %>%
+current_roster <- read_csv(here("Data/current_roster.csv")) %>%
   left_join(player_info, by = join_by(player_id)) %>%
   select(name, position, roster_id)
 
-va <- read_csv(here(data_path, "Data/va.csv"))
+va <- read_csv(here("Data/va.csv"))
 
-draft_order <- read_csv(here(data_path, "Data/draft_order.csv"))
+draft_order <- read_csv(here("Data/draft_order.csv"))
 
 assign_draft_pick_value <- function(dp_df, years_in_advance = "total value"){
   dp_df <- dp_df %>% filter(!is.na(draft_order))
@@ -175,4 +174,4 @@ final_standings_odds <- map(standings, ~{
   bind_rows(.id = "season") %>%
   mutate(season = this_year + as.numeric(str_remove(season, "year")) - 1)
 
-write_csv(final_standings_odds, here(data_path, "Data/final_standings_odds.csv"))
+write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))
