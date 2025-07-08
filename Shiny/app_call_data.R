@@ -31,12 +31,14 @@ comparison <- read_csv(str_c(script_data_path, "comparison.csv"), show_col_types
 
 # transactions
 overall_transaction_winners <- read_csv(str_c(script_data_path, "overall_trade_winners.csv"), show_col_types = FALSE)
-top_transactions <- read_csv(str_c(script_data_path, "lopsided_trades.csv"), show_col_types = FALSE)
+top_transactions <- read_csv(str_c(script_data_path, "top_transactions.csv"), show_col_types = FALSE)
 transaction_comparison <- read_csv(str_c(script_data_path, "transaction_comparison.csv"), show_col_types = FALSE)
 
 # load Rdata from script
-load(str_c(script_data_path, "total_trade_value.Rdata"))
-load(str_c(script_data_path, "total_transaction_value.Rdata"))
+# if (interactive()) {
+  load(str_c(script_data_path, "total_trade_value.Rdata"))
+  load(str_c(script_data_path, "total_transaction_value.Rdata"))
+# }
 
 # load from data folder
 player_total_value <- read_csv(str_c(script_data_path, "player_total_value.csv"), show_col_types = FALSE)

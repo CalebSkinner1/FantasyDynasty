@@ -7,12 +7,15 @@ library("shinydashboard")
 library("DT")
 
 # only if running on local machine
+print("App starting...")
 if (interactive()) {
   setwd(here::here("Shiny"))
 }
 
 # Source the function files in the folder
-source("app call data.R")
+source("app_call_data.R")
+print("Loaded functions")
+
 
 # Define UI
 ui <- dashboardPage(
