@@ -4,3 +4,5 @@ Data/simulations.RData
 Modeling/Deprecated Modeling/ktc_parameter_values.RData
 Modeling/Deprecated Modeling/simulations.RData
 Modeling/Deprecated Modeling/tva_parameter_values.RData
+/.Rproj.user
+*.Rproj
