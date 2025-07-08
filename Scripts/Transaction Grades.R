@@ -19,6 +19,8 @@ total_transaction_value <- transactions %>%
   filter(type %in% c("waiver", "free_agent")) %>%
   split(seq_len(nrow(.))) %>%
   map(., ~{
+  this_season <- .x$season %>% as.numeric()
+    
   this_week <- .x$week %>% as.numeric() #week of transaction
   
   # gained
@@ -32,6 +34,7 @@ total_transaction_value <- transactions %>%
   realized_value_gained <- adds %>%
     left_join(player_info, by = join_by(player_id)) %>% 
     left_join(value_added, by = join_by(name, position)) %>%
+    filter(season >= this_season) %>%
     filter(week > this_week | (week == this_week & roster_id.y == roster_id.x)) %>%
     group_by(name, position) %>%
     summarize(realized_value = sum(value_added),
@@ -46,8 +49,7 @@ total_transaction_value <- transactions %>%
     left_join(realized_value_gained, by = join_by(name, position)) %>%
     mutate(
       realized_value = replace_na(realized_value, 0), # if no realized value
-      future_value = replace_na(future_value, 0), # if no future value
-      )
+      future_value = replace_na(future_value, 0)) # if no future value
   
   # lost
   drops <- .x$drops %>%
