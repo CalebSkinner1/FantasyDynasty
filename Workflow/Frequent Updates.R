@@ -30,8 +30,7 @@ misty::restart() #clear memory
 
 
 # run app
-# rsconnect::deployApp(appDir = "Shiny",
-#                      appName = "fantasy-dashboard",
+# rsconnect::deployApp(appName = "fantasy-dashboard",
 #                      account = "calebskinner",
 #                      forceUpdate = TRUE,
 #                      appPrimaryDoc = "app.R",
