@@ -25,7 +25,7 @@ basic_info_df <- player_info %>%
     across(sva_2024:total_value, ~replace_na(.x, 0))) %>%
   rename(value_added_2024 = sva_2024)
 
-write_csv(basic_info_df, here(data_path, "Shiny/Saved Files/basic_info_df.csv"))
+write_csv(basic_info_df, here("Shiny/Saved Files/basic_info_df.csv"))
 
 # points for each team table
 # data, in future add more seasons here

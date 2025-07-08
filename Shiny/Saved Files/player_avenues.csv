@@ -276,7 +276,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2026 1R Draft Pick,ngernenz,258.19279591869196,own pick
 6,NA,2026 1R Draft Pick,jzeigboi,248.132691558464,own pick
 7,NA,2026 1R Draft Pick,SFOControl,283.24532939037243,2024 W8 trade
-8,NA,2026 1R Draft Pick,lucasbell21,258.6814590465643,own pick
+8,NA,2026 1R Draft Pick,ineedsomeLuBe,258.6814590465643,own pick
 8,NA,2026 1R Draft Pick,DepressedBroncosFan,249.70754379985303,2024 W9 trade
 9,NA,2026 1R Draft Pick,Arvs,282.831048486603,own pick
 10,NA,2026 1R Draft Pick,Gretsch0401,234.9834919659179,own pick
@@ -289,7 +289,7 @@ roster_id,player_id,name,position,future_value,avenue
 4,NA,2026 2R Draft Pick,caskinner,106.59151132574443,own pick
 5,NA,2026 2R Draft Pick,ngernenz,131.52084114016864,own pick
 6,NA,2026 2R Draft Pick,jzeigboi,127.18027069048037,own pick
-7,NA,2026 2R Draft Pick,lucasbell21,131.69775935457247,2024 W8 trade
+7,NA,2026 2R Draft Pick,ineedsomeLuBe,131.69775935457247,2024 W8 trade
 7,NA,2026 2R Draft Pick,Arvs,142.05662134204957,2024 W11 trade
 10,NA,2026 2R Draft Pick,Gretsch0401,121.17324301429292,own pick
 11,NA,2026 2R Draft Pick,akondratieff,138.77718698486566,own pick
@@ -301,7 +301,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2026 3R Draft Pick,ngernenz,63.84733717268565,own pick
 6,NA,2026 3R Draft Pick,jzeigboi,61.03069295729048,own pick
 7,NA,2026 3R Draft Pick,DepressedBroncosFan,61.35994086895769,own pick
-8,NA,2026 3R Draft Pick,lucasbell21,63.9498957002231,own pick
+8,NA,2026 3R Draft Pick,ineedsomeLuBe,63.9498957002231,own pick
 9,NA,2026 3R Draft Pick,Arvs,70.69340349147629,own pick
 10,NA,2026 3R Draft Pick,Gretsch0401,57.09680813735232,own pick
 11,NA,2026 3R Draft Pick,akondratieff,68.54903114217021,own pick
@@ -317,14 +317,14 @@ roster_id,player_id,name,position,future_value,avenue
 9,NA,2027 1R Draft Pick,DepressedBroncosFan,236.4222956576635,2024 W10 trade
 10,NA,2027 1R Draft Pick,Gretsch0401,246.84844122613856,own pick
 11,NA,2027 1R Draft Pick,akondratieff,251.53350404192537,own pick
-12,NA,2027 1R Draft Pick,lucasbell21,235.43570768819393,2024 W9 trade
+12,NA,2027 1R Draft Pick,ineedsomeLuBe,235.43570768819393,2024 W9 trade
 1,NA,2027 2R Draft Pick,joeburrowmvp,112.02886290596456,own pick
 2,NA,2027 2R Draft Pick,SFOControl,138.69149896711264,own pick
 3,NA,2027 2R Draft Pick,lukestip,119.57065979255279,own pick
 4,NA,2027 2R Draft Pick,caskinner,106.55277112822108,own pick
 5,NA,2027 2R Draft Pick,ngernenz,123.93699957301324,own pick
 6,NA,2027 2R Draft Pick,jzeigboi,117.24019791456757,own pick
-7,NA,2027 2R Draft Pick,lucasbell21,120.5028605581289,2024 W9 trade
+7,NA,2027 2R Draft Pick,ineedsomeLuBe,120.5028605581289,2024 W9 trade
 7,NA,2027 2R Draft Pick,Arvs,125.21220752006288,2024 W11 trade
 9,NA,2027 2R Draft Pick,DepressedBroncosFan,120.99028058770962,2024 W11 trade
 10,NA,2027 2R Draft Pick,Gretsch0401,125.58566069217561,own pick
@@ -334,7 +334,7 @@ roster_id,player_id,name,position,future_value,avenue
 2,NA,2027 3R Draft Pick,SFOControl,69.56895853105335,own pick
 3,NA,2027 3R Draft Pick,lukestip,57.134878830760364,own pick
 4,NA,2027 3R Draft Pick,caskinner,48.61720141190556,own pick
-4,NA,2027 3R Draft Pick,lucasbell21,57.75955712613858,2025 W1 trade
+4,NA,2027 3R Draft Pick,ineedsomeLuBe,57.75955712613858,2025 W1 trade
 5,NA,2027 3R Draft Pick,ngernenz,59.98238168029272,own pick
 6,NA,2027 3R Draft Pick,jzeigboi,55.65818253673845,own pick
 7,NA,2027 3R Draft Pick,DepressedBroncosFan,58.077267798611096,own pick
@@ -349,7 +349,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2028 1R Draft Pick,ngernenz,225.21420521597872,own pick
 6,NA,2028 1R Draft Pick,jzeigboi,217.1907580389836,own pick
 7,NA,2028 1R Draft Pick,DepressedBroncosFan,207.9590362827471,own pick
-8,NA,2028 1R Draft Pick,lucasbell21,221.39240099888104,own pick
+8,NA,2028 1R Draft Pick,ineedsomeLuBe,221.39240099888104,own pick
 9,NA,2028 1R Draft Pick,Arvs,222.38047993412025,own pick
 10,NA,2028 1R Draft Pick,Gretsch0401,247.3383759491631,own pick
 11,NA,2028 1R Draft Pick,akondratieff,239.65903454159073,own pick
@@ -361,7 +361,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2028 2R Draft Pick,ngernenz,115.24451217678904,own pick
 6,NA,2028 2R Draft Pick,jzeigboi,111.70651256529442,own pick
 7,NA,2028 2R Draft Pick,DepressedBroncosFan,107.44436780287411,own pick
-8,NA,2028 2R Draft Pick,lucasbell21,113.4719711338609,own pick
+8,NA,2028 2R Draft Pick,ineedsomeLuBe,113.4719711338609,own pick
 9,NA,2028 2R Draft Pick,Arvs,113.98510948258992,own pick
 10,NA,2028 2R Draft Pick,Gretsch0401,124.75383717630751,own pick
 11,NA,2028 2R Draft Pick,akondratieff,121.54143006307639,own pick
@@ -373,7 +373,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2028 3R Draft Pick,ngernenz,55.35166835554822,own pick
 6,NA,2028 3R Draft Pick,jzeigboi,53.043190050178374,own pick
 7,NA,2028 3R Draft Pick,DepressedBroncosFan,50.28081930831024,own pick
-8,NA,2028 3R Draft Pick,lucasbell21,54.209792123685745,own pick
+8,NA,2028 3R Draft Pick,ineedsomeLuBe,54.209792123685745,own pick
 9,NA,2028 3R Draft Pick,Arvs,54.54182035476469,own pick
 10,NA,2028 3R Draft Pick,Gretsch0401,61.55199155249651,own pick
 11,NA,2028 3R Draft Pick,akondratieff,59.462123797704756,own pick
@@ -385,7 +385,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2029 1R Draft Pick,ngernenz,0,own pick
 6,NA,2029 1R Draft Pick,jzeigboi,0,own pick
 7,NA,2029 1R Draft Pick,DepressedBroncosFan,0,own pick
-8,NA,2029 1R Draft Pick,lucasbell21,0,own pick
+8,NA,2029 1R Draft Pick,ineedsomeLuBe,0,own pick
 9,NA,2029 1R Draft Pick,Arvs,0,own pick
 10,NA,2029 1R Draft Pick,Gretsch0401,0,own pick
 11,NA,2029 1R Draft Pick,akondratieff,0,own pick
@@ -397,7 +397,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2029 2R Draft Pick,ngernenz,0,own pick
 6,NA,2029 2R Draft Pick,jzeigboi,0,own pick
 7,NA,2029 2R Draft Pick,DepressedBroncosFan,0,own pick
-8,NA,2029 2R Draft Pick,lucasbell21,0,own pick
+8,NA,2029 2R Draft Pick,ineedsomeLuBe,0,own pick
 9,NA,2029 2R Draft Pick,Arvs,0,own pick
 10,NA,2029 2R Draft Pick,Gretsch0401,0,own pick
 11,NA,2029 2R Draft Pick,akondratieff,0,own pick
@@ -409,7 +409,7 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2029 3R Draft Pick,ngernenz,0,own pick
 6,NA,2029 3R Draft Pick,jzeigboi,0,own pick
 7,NA,2029 3R Draft Pick,DepressedBroncosFan,0,own pick
-8,NA,2029 3R Draft Pick,lucasbell21,0,own pick
+8,NA,2029 3R Draft Pick,ineedsomeLuBe,0,own pick
 9,NA,2029 3R Draft Pick,Arvs,0,own pick
 10,NA,2029 3R Draft Pick,Gretsch0401,0,own pick
 11,NA,2029 3R Draft Pick,akondratieff,0,own pick

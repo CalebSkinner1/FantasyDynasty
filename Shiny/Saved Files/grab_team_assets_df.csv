@@ -50,7 +50,7 @@ roster_id,name,position,future_value,avenue
 4,Tetairoa McMillan,WR,267.7111980870071,2025 rookie draft pick 5
 2,Patrick Mahomes,QB,262.41724305878927,2024 W8 trade
 12,Saquon Barkley,RB,262.15240347849993,initial draft pick 31
-8,2026 1R Draft Pick,lucasbell21,258.6814590465643,own pick
+8,2026 1R Draft Pick,ineedsomeLuBe,258.6814590465643,own pick
 5,2026 1R Draft Pick,ngernenz,258.19279591869196,own pick
 4,Amon-Ra St. Brown,WR,254.43060304906,initial draft pick 17
 6,Rome Odunze,WR,254.27467684525433,2024 W5 trade
@@ -81,7 +81,7 @@ roster_id,name,position,future_value,avenue
 12,George Pickens,WR,237.8159856833638,initial draft pick 66
 9,2027 1R Draft Pick,DepressedBroncosFan,236.4222956576635,2024 W10 trade
 1,2026 1R Draft Pick,joeburrowmvp,235.64409108511487,own pick
-12,2027 1R Draft Pick,lucasbell21,235.43570768819393,2024 W9 trade
+12,2027 1R Draft Pick,ineedsomeLuBe,235.43570768819393,2024 W9 trade
 10,2026 1R Draft Pick,Gretsch0401,234.9834919659179,own pick
 11,Jameson Williams,WR,233.62270496609733,initial draft pick 112
 4,James Cook,RB,233.23169056850935,initial draft pick 60
@@ -93,7 +93,7 @@ roster_id,name,position,future_value,avenue
 3,2028 1R Draft Pick,lukestip,224.1260023679665,own pick
 12,Josh Jacobs,RB,223.97880798533575,initial draft pick 55
 9,2028 1R Draft Pick,Arvs,222.38047993412025,own pick
-8,2028 1R Draft Pick,lucasbell21,221.39240099888104,own pick
+8,2028 1R Draft Pick,ineedsomeLuBe,221.39240099888104,own pick
 4,Ricky Pearsall,WR,219.19676570099512,2024 rookie draft pick 23
 4,Chris Olave,WR,218.14340622868735,initial draft pick 32
 6,2028 1R Draft Pick,jzeigboi,217.1907580389836,own pick
@@ -141,7 +141,7 @@ roster_id,name,position,future_value,avenue
 10,Isiah Pacheco,RB,133.44079446872985,initial draft pick 45
 2,2028 2R Draft Pick,SFOControl,133.33412741229972,own pick
 10,Brian Robinson Jr.,RB,132.70221720547087,initial draft pick 100
-7,2026 2R Draft Pick,lucasbell21,131.69775935457247,2024 W8 trade
+7,2026 2R Draft Pick,ineedsomeLuBe,131.69775935457247,2024 W8 trade
 5,2026 2R Draft Pick,ngernenz,131.52084114016864,own pick
 3,D.J. Moore,WR,131.4330056447109,initial draft pick 53
 6,D'Andre Swift,RB,129.73299895611072,initial draft pick 72
@@ -169,7 +169,7 @@ roster_id,name,position,future_value,avenue
 4,Ollie Gordon,RB,121.09208181165626,2025 W1 transaction
 9,2027 2R Draft Pick,DepressedBroncosFan,120.99028058770962,2024 W11 trade
 12,2028 2R Draft Pick,TheJandyStock,120.76400825040693,own pick
-7,2027 2R Draft Pick,lucasbell21,120.5028605581289,2024 W9 trade
+7,2027 2R Draft Pick,ineedsomeLuBe,120.5028605581289,2024 W9 trade
 12,Tyler Shough,QB,120.21626992633864,2025 rookie draft pick 21
 3,2027 2R Draft Pick,lukestip,119.57065979255279,own pick
 1,Jordan James,RB,118.54074435316684,2025 W1 transaction
@@ -182,7 +182,7 @@ roster_id,name,position,future_value,avenue
 5,2028 2R Draft Pick,ngernenz,115.24451217678904,own pick
 3,2028 2R Draft Pick,lukestip,114.79755658896164,own pick
 9,2028 2R Draft Pick,Arvs,113.98510948258992,own pick
-8,2028 2R Draft Pick,lucasbell21,113.4719711338609,own pick
+8,2028 2R Draft Pick,ineedsomeLuBe,113.4719711338609,own pick
 10,George Kittle,TE,112.50436213791178,initial draft pick 52
 3,Javonte Williams,RB,112.11646192684684,initial draft pick 68
 12,Jonathon Brooks,RB,112.10837136560424,2024 rookie draft pick 10
@@ -253,7 +253,7 @@ roster_id,name,position,future_value,avenue
 7,Ben Sinnott,TE,65.30684444132763,2024 W16 transaction
 1,Nick Chubb,RB,65.23798544635085,2024 W15 transaction
 5,David Njoku,TE,64.35862733675899,initial draft pick 63
-8,2026 3R Draft Pick,lucasbell21,63.9498957002231,own pick
+8,2026 3R Draft Pick,ineedsomeLuBe,63.9498957002231,own pick
 5,2026 3R Draft Pick,ngernenz,63.84733717268565,own pick
 11,2027 3R Draft Pick,akondratieff,62.38835898110391,own pick
 2,Mike Evans,WR,62.17544413528195,initial draft pick 83
@@ -273,7 +273,7 @@ roster_id,name,position,future_value,avenue
 12,2028 3R Draft Pick,TheJandyStock,58.97683739661803,own pick
 7,2027 3R Draft Pick,DepressedBroncosFan,58.077267798611096,own pick
 3,2026 3R Draft Pick,lukestip,58.04401823208955,own pick
-4,2027 3R Draft Pick,lucasbell21,57.75955712613858,2025 W1 trade
+4,2027 3R Draft Pick,ineedsomeLuBe,57.75955712613858,2025 W1 trade
 1,2026 3R Draft Pick,joeburrowmvp,57.22536720482389,own pick
 3,2027 3R Draft Pick,lukestip,57.134878830760364,own pick
 10,2026 3R Draft Pick,Gretsch0401,57.09680813735232,own pick
@@ -284,7 +284,7 @@ roster_id,name,position,future_value,avenue
 3,2028 3R Draft Pick,lukestip,55.06510649608516,own pick
 2,Austin Ekeler,RB,54.98206981996533,initial draft pick 107
 9,2028 3R Draft Pick,Arvs,54.54182035476469,own pick
-8,2028 3R Draft Pick,lucasbell21,54.209792123685745,own pick
+8,2028 3R Draft Pick,ineedsomeLuBe,54.209792123685745,own pick
 11,Michael Pittman Jr.,WR,54.02218071801002,initial draft pick 40
 1,Mark Andrews,TE,53.47210053904804,initial draft pick 47
 6,2028 3R Draft Pick,jzeigboi,53.043190050178374,own pick
@@ -385,7 +385,7 @@ roster_id,name,position,future_value,avenue
 5,2029 1R Draft Pick,ngernenz,0,own pick
 6,2029 1R Draft Pick,jzeigboi,0,own pick
 7,2029 1R Draft Pick,DepressedBroncosFan,0,own pick
-8,2029 1R Draft Pick,lucasbell21,0,own pick
+8,2029 1R Draft Pick,ineedsomeLuBe,0,own pick
 9,2029 1R Draft Pick,Arvs,0,own pick
 10,2029 1R Draft Pick,Gretsch0401,0,own pick
 11,2029 1R Draft Pick,akondratieff,0,own pick
@@ -397,7 +397,7 @@ roster_id,name,position,future_value,avenue
 5,2029 2R Draft Pick,ngernenz,0,own pick
 6,2029 2R Draft Pick,jzeigboi,0,own pick
 7,2029 2R Draft Pick,DepressedBroncosFan,0,own pick
-8,2029 2R Draft Pick,lucasbell21,0,own pick
+8,2029 2R Draft Pick,ineedsomeLuBe,0,own pick
 9,2029 2R Draft Pick,Arvs,0,own pick
 10,2029 2R Draft Pick,Gretsch0401,0,own pick
 11,2029 2R Draft Pick,akondratieff,0,own pick
@@ -409,7 +409,7 @@ roster_id,name,position,future_value,avenue
 5,2029 3R Draft Pick,ngernenz,0,own pick
 6,2029 3R Draft Pick,jzeigboi,0,own pick
 7,2029 3R Draft Pick,DepressedBroncosFan,0,own pick
-8,2029 3R Draft Pick,lucasbell21,0,own pick
+8,2029 3R Draft Pick,ineedsomeLuBe,0,own pick
 9,2029 3R Draft Pick,Arvs,0,own pick
 10,2029 3R Draft Pick,Gretsch0401,0,own pick
 11,2029 3R Draft Pick,akondratieff,0,own pick
