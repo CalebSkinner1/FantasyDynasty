@@ -3,11 +3,9 @@
 # libraries
 library("gt")
 library("gtExtras")
-library("tidymodels")
 library("tidyverse"); theme_set(theme_minimal())
 library("janitor")
 library("tictoc")
-
 
 # All Scripts --------------------------------------------------------------
 # function to edit tables for shiny
@@ -72,7 +70,6 @@ tabulate_realized_value <- function(va_data, enter_name, enter_season, shiny = F
       tab_header(title = str_c(enter_name, ": ", enter_season, " Season"))
   }
 }
-
 
 # Fantasy Teams -----------------------------------------------------------
 # grab team assets
