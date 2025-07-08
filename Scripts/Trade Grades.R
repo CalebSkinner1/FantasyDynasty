@@ -41,6 +41,7 @@ total_trade_value <- transactions %>%
   split(seq_len(nrow(.))) %>%
   map(., ~{
   this_week <- .x$week %>% as.numeric() #week of transaction
+  this_season <- .x$season %>% as.numeric()
   
   # gained
   adds <- .x$adds %>%
@@ -54,7 +55,7 @@ total_trade_value <- transactions %>%
     left_join(player_info, by = join_by(player_id)) %>% 
     left_join(value_added, by = join_by(name, position)) %>%
     filter(season >= this_season) %>%
-    filter(week > this_week | (week == this_week & roster_id.y == roster_id.x)) %>%
+    filter(season > this_season | week > this_week | (week == this_week & roster_id.y == roster_id.x)) %>%
     group_by(name, position) %>%
     summarize(realized_value = sum(value_added),
               .groups = "keep") %>%
@@ -66,7 +67,7 @@ total_trade_value <- transactions %>%
     select(roster_id, name, position, future_value) %>%
     left_join(realized_value_gained, by = join_by(name, position)) %>%
     mutate(
-      season = .x$season[1],
+      season = this_season,
       week = this_week,
       type = "add",
       realized_value = replace_na(realized_value, 0)) # if no realized value
@@ -82,7 +83,8 @@ total_trade_value <- transactions %>%
   realized_value_lost <- drops %>%
     left_join(player_info, by = join_by(player_id)) %>% 
     left_join(value_added, by = join_by(name, position)) %>%
-    filter(week > this_week | (week == this_week & roster_id.y == roster_id.x)) %>%
+    filter(season >= this_season) %>%
+    filter(season > this_season | week > this_week | (week == this_week & roster_id.y != roster_id.x)) %>%
     group_by(name, position) %>%
     summarize(realized_value = sum(value_added),
               .groups = "keep") %>%
@@ -94,7 +96,7 @@ total_trade_value <- transactions %>%
     select(roster_id, name, position, future_value) %>%
     left_join(realized_value_lost, by = join_by(name, position)) %>%
     mutate(
-      season = .x$season[1],
+      season = this_season,
       week = this_week,
       type = "drop",
       realized_value = replace_na(realized_value, 0))# if no realized value
@@ -154,7 +156,7 @@ total_trade_value <- transactions %>%
         position = display_name,
         future_value = exp_total_value,
         realized_value = 0,
-        season = .x$season[1],
+        season = this_season,
         week = this_week)
     
     traded_picks_gained <- traded_picks %>%

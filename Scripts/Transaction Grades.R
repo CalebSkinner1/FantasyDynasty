@@ -35,7 +35,7 @@ total_transaction_value <- transactions %>%
     left_join(player_info, by = join_by(player_id)) %>% 
     left_join(value_added, by = join_by(name, position)) %>%
     filter(season >= this_season) %>%
-    filter(week > this_week | (week == this_week & roster_id.y == roster_id.x)) %>%
+    filter(season > this_season | week > this_week | (week == this_week & roster_id.y == roster_id.x)) %>%
     group_by(name, position) %>%
     summarize(realized_value = sum(value_added),
               .groups = "keep") %>%
@@ -62,7 +62,8 @@ total_transaction_value <- transactions %>%
   realized_value_lost <- drops %>%
     left_join(player_info, by = join_by(player_id)) %>% 
     left_join(value_added, by = join_by(name, position)) %>%
-    filter(week > this_week | (week == this_week & roster_id.y == roster_id.x)) %>%
+    filter(season >= this_season) %>%
+    filter(season > this_season | week > this_week | (week == this_week & roster_id.y != roster_id.x)) %>%
     group_by(name, position) %>%
     summarize(realized_value = sum(value_added),
               .groups = "keep") %>%
@@ -103,8 +104,8 @@ total_transaction_value <- transactions %>%
   
   total_transaction_value <- bind_rows(total_transaction_value_gained, total_transaction_value_lost) %>%
     mutate(
-      week = .x$week[1],
-      season = .x$season[1],
+      week = this_week,
+      season = this_season,
     )
   return(total_transaction_value)
 })
@@ -166,7 +167,7 @@ overall_transaction_winners <- transaction_comparison %>%
     total_future_value = sum(total_future_value),
     total_realized_value = sum(total_realized_value)) %>%
   arrange(desc(total_transaction_value)) %>%
-  left_join(users, by = join_by(team_name == display_name)) %>%
+  # left_join(users, by = join_by(team_name == display_name)) %>%
   select(team_name, transactions, total_realized_value, total_future_value, total_transaction_value)
 
 rm(value_added)
