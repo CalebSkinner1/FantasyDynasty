@@ -1,4 +1,4 @@
-# app functions
+# call data from csvs
 
 script_data_path <- "Saved Files/"
 

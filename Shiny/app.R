@@ -634,7 +634,8 @@ shinyApp(ui, server)
 #                           secret='hiUSyfdufFtQsQDHt6wPcT7+8/Bl0WeaAjhPYj9j')
 
 # run
-# rsconnect::deployApp(appName = "shiny",
+# rsconnect::deployApp(appDir = "Shiny",
+#                      appName = "shiny",
 #                      account = "calebskinner",
 #                      forceUpdate = TRUE,
 #                      appPrimaryDoc = "app.R",
