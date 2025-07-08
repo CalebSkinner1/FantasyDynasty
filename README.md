@@ -6,7 +6,7 @@ This metric is designed to be league specific - players only contribute (or lose
 
 From here, I predict each player's value added in future years using the player's age and
 pre-season keep trade cut value. With this model, I am able to draw samples from future years and
-simulate each player's career. These simulations form a player's *future value*.
+simulate each player's career. These simulations form a player's **future value**.
 
 With these values, I go on to assign values to draft picks, predict future fantasy team's future success, and
 grade drafts, trades, transaction in my league. Below is a more thorough explanation of the various tasks.
@@ -102,6 +102,7 @@ can be updated with new data and the draft pick valuation can be updated. See th
 1. Zero-inflated model to predict value added (especially for rookie next year production)
 2. Incorporate time series technique to model a players' career.
 3. Add pictures to each player
+4. Store past seasons instead of computing them over and over lol
 
 # References
 
