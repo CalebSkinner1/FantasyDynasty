@@ -35,11 +35,13 @@ source(here("Scripts", "Future Standings Script.R"))
 misty::restart() #clear memory
 
 # run app
-if (interactive()) {
-  setwd(here::here("Shiny"))
-}
+# if (interactive()) {
+# setwd(here::here("Shiny"))
+# }
 
-rsconnect::deployApp(appName = "fantasy-dashboard",
+
+rsconnect::deployApp(
+  appName = "fantasy-dashboard",
                      account = "calebskinner",
                      forceUpdate = TRUE,
                      appPrimaryDoc = "app.R",
