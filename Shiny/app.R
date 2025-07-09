@@ -2,21 +2,20 @@
 
 # doesn't work for current version of R, so I backed up to 4.4.2
 
+print("Loading packages...")
 library("shiny")
-library("shinydashboard")
 library("DT")
+library("shinydashboard")
 
 # only if running on local machine
 print("App starting...") # for logs
-if (interactive()) {
-  setwd(here::here("Shiny"))
-}
 
-# Source the function files in the folder
+print("Source app_call_data.R")
 source("app_call_data.R")
-print("Loaded functions") # for logs
+print("functions are loaded") # for logs
 
-# Define UI
+# Define UI ---------------------------------------------------------------
+print("Run UI")
 ui <- dashboardPage(
   skin = "green",
   dashboardHeader(title = "Baylor Seniors"),
@@ -78,7 +77,7 @@ ui <- dashboardPage(
         This model underestimates the volatility of the players' careers, and, in turn, overvalues youth. I anticipate significant
         improvements as time progresses, and I am able to account for the entire trajectory of a players' career.
         Honestly, it is remarkable that this single year of data can be extrapolated to model a players' entire career.")),
-      
+
       tabItem( # Page 1 Tab
         tabName = "players",
         titlePanel("Individual Players"),
@@ -98,7 +97,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "player_season", 
           label = "Enter Season", 
-          choices = c(2024),
+          choices = unique(value_added$season),
           multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -332,7 +331,9 @@ ui <- dashboardPage(
   )
 )
 
-# Define Server
+# Server ------------------------------------------------------------------
+
+print("Loading server.R")
 server <- function(input, output, session) {
   # Reactivity for Page 1
   
@@ -730,7 +731,7 @@ server <- function(input, output, session) {
   })
 }
 
-# Run the App
+print("Launching shinyApp...")
 shinyApp(ui, server)
 
 

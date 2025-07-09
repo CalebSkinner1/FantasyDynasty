@@ -91,9 +91,8 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 
 ## near future ideas
-1. Add remaining tabs to website (matchups)
-2. history tab, elo
-3. fix simulations to taper out at 0
+1. Add remaining tabs to website
+2. Elo tab
 
 ## once season starts
 1. Some code will surely break
