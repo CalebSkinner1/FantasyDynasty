@@ -51,14 +51,50 @@ avatar <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "/
 write_csv(avatar, here("Data/avatar.csv"))
 
 # matchups
-matchups <- map(all_league_ids, ~{
-    league_id <- .x
+matchups <- map(seq_along(all_league_ids), ~{
+    league_id <- all_league_ids[[.x]]
     map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/matchups/", .x) %>%
           parse_api())
   })
-  
-# matchups[[1]]$players
-# matchups[[1]]$starters
+
+matchups_temp <- map(matchups, ~bind_rows(.x, .id = "week")) %>% bind_rows(.id = "season") %>%
+  mutate(
+    season = as.numeric(season) + 2023,
+    week = as.numeric(week))
+
+# playoff bracket
+playoff_bracket <- map(all_league_ids, ~parse_api(str_c("https://api.sleeper.app/v1/league/", .x, "/winners_bracket")) %>%
+                         filter(!is.na(w)) %>%
+                         transmute(roster_id = t1, opponent_id = t2,
+                                   round = case_when(
+                                     r == 1 ~ "1st round",
+                                     r == 2 & is.na(p) ~ "2nd round",
+                                     p == 5 ~ "5th place",
+                                     p == 1 ~ "Championship",
+                                     p == 3 ~ "3rd place",
+                                     .default = NA),
+                                   week = r + 14)) %>%
+  bind_rows(.id = "season") %>%
+  mutate(season = as.numeric(season) + 2023)
+
+matchups_table <- matchups_temp %>%
+  mutate(
+    opponent_id = roster_id,
+    opp_points = points) %>%
+  select(season, week, opp_points, opponent_id, matchup_id) %>%
+  left_join(matchups_temp %>% select(season, week, points, roster_id, matchup_id),
+            by = join_by(season, week, matchup_id), relationship = "many-to-many") %>%
+  filter(opponent_id != roster_id, !is.na(matchup_id)) %>%
+  left_join(playoff_bracket %>% select(-roster_id), by = join_by(season, week, roster_id == opponent_id)) %>%
+  left_join(playoff_bracket %>% select(-opponent_id), by = join_by(season, week, roster_id == roster_id)) %>%
+  mutate(round = case_when(
+    !is.na(round.x) ~ round.x,
+    !is.na(round.y) ~ round.y,
+    between(week, 15, 17) ~ "loser's bracket",
+    .default = "regular season")) %>%
+  select(season, week, round, roster_id, points, opponent_id, opp_points)
+
+write_csv(matchups_table, here("Data/matchups_table.csv"))
 
 # transactions (this includes trades)
 transactions <- map(all_league_ids, ~{
