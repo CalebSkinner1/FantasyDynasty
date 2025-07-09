@@ -32,7 +32,9 @@ ui <- dashboardPage(
       menuItem("Current Standings", tabName = "current_standings", icon = icon("ranking-star")),
       menuItem("Future Standings", tabName = "future_standings", icon = icon("circle-question")),
       menuItem("Player Rankings", tabName = "rankings", icon = icon("arrow-trend-up")),
-      menuItem("Modeling", tabName = "modeling", icon = icon("chart-simple")))
+      menuItem("Team Rankings", tabName = "team_rankings", icon = icon("arrow-trend-up")),
+      menuItem("Modeling", tabName = "modeling", icon = icon("chart-simple")),
+      menuItem("History", tabName = "history", icon = icon("bank")))
   ),
   dashboardBody(
     tabItems(
@@ -615,6 +617,56 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 2,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  # Reactivity for Page 6
+  
+  output$matchups_title <- renderUI({ #title
+    req(input$team_name)
+    h3(str_c(input$team_name, "'s Matchup Record"))
+  })
+  
+  output$matchup_history <- renderDT({ #table 1
+    req(input$team_name, input$enter_round, input$team_seasons) #require input
+    team_records_df %>% team_matchup_record(input$team_name, input$enter_round, input$team_seasons, shiny = TRUE) %>%
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  # Reactivity for Page 8
+  
+  output$championship_odds_title <- renderUI({ #title
+    h3("Championship Odds")
+  })
+  
+  output$championship_odds <- renderDT({ #table 1
+    champion_odds %>% shiny_edit_tables() %>% 
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$most_common_finish_title <- renderUI({ #title
+    req(input$standings_season)
+    h3(str_c(input$standings_season, " Most Likely Finish"))
+  })
+  
+  output$most_common_finish <- renderDT({ #table 2
+    req(input$standings_season) #require input
+    most_common_finish_df %>% most_common_finish(input$standings_season, shiny = TRUE) %>%
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))
