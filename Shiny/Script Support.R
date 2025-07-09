@@ -526,5 +526,3 @@ most_common_finish <- function(most_common_finish_df, enter_season, shiny = TRUE
 
 }
 
-most_common_finish(most_common_finish_df, 2025)
-
