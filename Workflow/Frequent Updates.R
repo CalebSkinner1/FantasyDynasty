@@ -26,14 +26,19 @@ source(here("Scripts", "Individual Players.R"))
 # Fantasy Teams
 source(here("Scripts", "Fantasy Teams.R"))
 
+# Matchups
+source(here("Scripts", "Matchups.R"))
+
+# Future Standings
+source(here("Scripts", "Future Standings Script.R"))
+
 misty::restart() #clear memory
 
-
 # run app
-# rsconnect::deployApp(appName = "fantasy-dashboard",
-#                      account = "calebskinner",
-#                      forceUpdate = TRUE,
-#                      appPrimaryDoc = "app.R",
-#                      appFiles = NULL)
+rsconnect::deployApp(appName = "fantasy-dashboard",
+                     account = "calebskinner",
+                     forceUpdate = TRUE,
+                     appPrimaryDoc = "app.R",
+                     appFiles = NULL)
 
 
