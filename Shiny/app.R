@@ -248,8 +248,37 @@ ui <- dashboardPage(
       ),
       tabItem( # Page 6 Tab
         tabName = "matchups",
-        titlePanel("Matchups"),
-        p("This is a static page that will be completed at a later date.")
+        titlePanel("Matchups History"),
+        p("Select a team to see historical records against opponents."),
+        selectizeInput(
+          inputId = "team_name",
+          label = "Enter a Team's Name",
+          choices = users$display_name,
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 5  # Limit the number of suggestions shown
+          )),
+        selectizeInput(
+          inputId = "team_seasons",
+          label = "Enter Season",
+          choices = unique(team_records_df$season),
+          multiple = TRUE, #enable multiple selections
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 2  # Limit the number of suggestions shown
+          )),
+        selectizeInput(
+          inputId = "enter_round",
+          label = "Enter Round",
+          choices = c("All", unique(team_records_df$round)),
+          multiple = TRUE, #enable multiple selections
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 2  # Limit the number of suggestions shown
+          )),
+        uiOutput("matchups_title"),
+        
+        DTOutput("matchup_history"),
       ),
       tabItem( # Page 7 Tab
         tabName = "current_standings",
@@ -259,7 +288,25 @@ ui <- dashboardPage(
       tabItem( # Page 8 Tab
         tabName = "future_standings",
         titlePanel("Future Standings"),
-        p("This is a static page that will be completed at a later date.")
+        p("I simulate final standings over the next three years 5000 times. In each simulation,
+          I project the value added for each player and find the total value added for each fantasy team.
+          I inject a bit of randomness to account for the randomness of seeding and playoffs. The championship odds and
+          most common finish are below."),
+        
+        uiOutput("championship_odds_title"),
+        DTOutput("championship_odds"),
+        
+        selectizeInput(
+          inputId = "standings_season",
+          label = "Enter Season",
+          choices = unique(most_common_finish_df$season),
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 3  # Limit the number of suggestions shown
+          )),
+        uiOutput("most_common_finish_title"),
+        p("The most likely finish for each Fantasy Team."),
+        DTOutput("most_common_finish")
       ),
       tabItem( # Page 9 Tab
         tabName = "rankings",
@@ -267,8 +314,18 @@ ui <- dashboardPage(
         p("This is a static page that will be completed at a later date.")
       ),
       tabItem( # Page 10 Tab
+        tabName = "team_rankings",
+        titlePanel("Team Rankings"),
+        p("This is a static page that will be completed at a later date.")
+      ),
+      tabItem( # Page 11 Tab
         tabName = "modeling",
         titlePanel("Model Explanations and Fit"),
+        p("This is a static page that will be completed at a later date.")
+      ),
+      tabItem( # Page 12 Tab
+        tabName = "history",
+        titlePanel("League History"),
         p("This is a static page that will be completed at a later date.")
       )
     )
