@@ -1,5 +1,7 @@
 # call data from csvs
 
+library("tidyverse")
+
 script_data_path <- "Saved Files/"
 
 # load necessary functions 
@@ -36,9 +38,16 @@ transaction_comparison <- read_csv(str_c(script_data_path, "transaction_comparis
 
 # load Rdata from script
 # if (interactive()) {
-  load(str_c(script_data_path, "total_trade_value.Rdata"))
-  load(str_c(script_data_path, "total_transaction_value.Rdata"))
+load(str_c(script_data_path, "total_trade_value.Rdata"))
+load(str_c(script_data_path, "total_transaction_value.Rdata"))
 # }
+
+# matchups
+team_records_df <- read_csv(str_c(script_data_path, "team_records_df.csv"), show_col_types = FALSE)
+
+# future standings
+most_common_finish_df <- read_csv(str_c(script_data_path, "most_common_finish_df.csv"), show_col_types = FALSE)
+champion_odds <- read_csv(str_c(script_data_path, "champion_odds.csv"), show_col_types = FALSE)
 
 # load from data folder
 player_total_value <- read_csv(str_c(script_data_path, "player_total_value.csv"), show_col_types = FALSE)
