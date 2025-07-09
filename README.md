@@ -91,7 +91,9 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 
 ## near future ideas
-1. Add remaining tabs to website
+1. Add remaining tabs to website (matchups)
+2. history tab, elo
+3. fix simulations to taper out at 0
 
 ## once season starts
 1. Some code will surely break
@@ -103,6 +105,7 @@ can be updated with new data and the draft pick valuation can be updated. See th
 2. Incorporate time series technique to model a players' career.
 3. Add pictures to each player
 4. Store past seasons instead of computing them over and over lol
+5. future value over time
 
 # References
 
