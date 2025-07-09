@@ -39,7 +39,6 @@ misty::restart() #clear memory
 # setwd(here::here("Shiny"))
 # }
 
-
 rsconnect::deployApp(
   appName = "fantasy-dashboard",
                      account = "calebskinner",
