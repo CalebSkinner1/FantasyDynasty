@@ -474,3 +474,57 @@ inspect_individual_transaction <- function(transaction_id, shiny = FALSE){
       tab_header(title = title)
   }
 }
+
+# Matchups ----------------------------------------------------------------
+# function that gets matchup records
+
+team_matchup_record <- function(team_records_df, enter_team, enter_round, enter_seasons, shiny){
+  if("All" %in% enter_round){
+    enter_round <- unique(team_records_df$round)}
+  
+  if(missing(enter_seasons)){
+    enter_seasons <- team_records_df %>% pull(season) %>% unique()
+  }
+  
+  df <- team_records_df %>%
+    filter(str_detect(team, enter_team), round %in% enter_round, season %in% enter_seasons) %>%
+    group_by(opponent) %>%
+    summarize(
+      games = n(),
+      wins = sum(outcome == "win"),
+      losses = sum(outcome == "loss"),
+      `points for` = sum(points),
+      `points against` = sum(opp_points)) %>%
+    arrange(desc(wins), losses) %>%
+    janitor::adorn_totals()
+  
+  if(shiny){
+    df %>%
+      shiny_edit_tables()
+  }
+  else{
+    df %>%
+      gt() %>%
+      gt_theme_538(quiet = TRUE)
+  }
+}
+
+# Future Standings Script -------------------------------------------------
+
+most_common_finish <- function(most_common_finish_df, enter_season, shiny = TRUE){
+  df <- most_common_finish_df %>%
+    filter(season == enter_season) %>%
+    select(team, finish, probability)
+  
+  if(shiny){
+    df %>% shiny_edit_tables()
+  }else{
+    df %>%
+      gt() %>%
+      gt_theme_538(quiet = TRUE)
+  }
+
+}
+
+most_common_finish(most_common_finish_df, 2025)
+
