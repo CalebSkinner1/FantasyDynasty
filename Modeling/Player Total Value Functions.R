@@ -244,13 +244,17 @@ integrate_quantiles <- function(quantile_list){
 bound_tva <- function(quantiles, data){
   if(length(data) == 1){ #i.e. origin
     map(seq_len(nrow(quantiles)), ~{
-      tv <- if_else(data[[1]]$historical_value == 0, 0, pmax(quantiles[.x,], -20)) #set to 0 if ktc is 0 and don't let quantile get below -20
+      tv <- case_when(data[[1]]$historical_value == 0 ~ 0, # set to 0 if ktc is 0 
+                      data[[1]]$age > 43 ~ 0, # set to 0 if age is too large
+                      .default = pmax(quantiles[.x,], -20)) # and don't let quantile get below -20
       
       data[[1]] %>% mutate(tva_adj = tv)
     })
   }else{
     imap(seq_along(data), ~{
-      tv <- if_else(data[[.x]]$historical_value == 0, 0, pmax(quantiles[.x,], -20)) # set to 0 if ktc is 0 and don't let quantile get below -20
+      tv <- case_when(data[[.x]]$historical_value == 0 ~ 0, # set to 0 if ktc is 0 
+                      data[[.x]]$age > 43 ~ 0, # set to 0 if age is too large
+                      .default = pmax(quantiles[.x,], -20)) # and don't let quantile get below -20
       
       data[[.x]] %>% mutate(tva_adj = tv)
     })
@@ -261,6 +265,8 @@ bound_ktc <- function(samples_list, tva_data_list){
   imap(seq_along(tva_data_list), ~{
     ktcv <- case_when(
       tva_data_list[[.x]]$historical_value == 0 ~ 0, #if out, then stay out
+      tva_data_list[[.x]]$age > 43 ~ 0, # if over 43, be done
+      tva_data_list[[.x]]$tva_adj == -20 ~ 0, # if tva_adj == - 20, then out
       samples_list[.x,] < 0 ~ 0,
       samples_list[.x,] > 9999 ~ 9999, # cap ktc at 9999
       .default = samples_list[.x,]

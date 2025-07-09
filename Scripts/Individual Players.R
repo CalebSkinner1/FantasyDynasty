@@ -30,9 +30,14 @@ write_csv(basic_info_df, here("Shiny/Saved Files/basic_info_df.csv"))
 # points for each team table
 # data, in future add more seasons here
 plot_future_value_df <- imap_dfr(seq_along(player_simulations), ~{
-  player_simulations[[.x]] %>%
-    mutate(season = as.numeric(names(player_simulations)[.x])) %>%
-    relocate(season)
+  df <- player_simulations[[.x]] %>%
+    mutate(season = as.numeric(names(player_simulations)[.x]))
+  
+  names <- colnames(df %>% select(contains("proj_tva")))
+  
+  df[names] <- t(apply(df[names], 1, sort)) #sort to ensure credible intervals aren't inverted
+  
+  df
 })
 
 write_csv(plot_future_value_df, here("Shiny/Saved Files/plot_future_value_df.csv"))
