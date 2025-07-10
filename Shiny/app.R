@@ -319,7 +319,41 @@ ui <- dashboardPage(
       tabItem( # Page 9 Tab
         tabName = "team_rankings",
         titlePanel("Team Rankings"),
-        p("This is a static page that will be completed at a later date. Here, I plan to rank team's by their total future value and ELO.")
+        p("Team rankings by ELO and total future value of assets."),
+        
+        uiOutput("elo_rankings_title"),
+        p("ELO is a simple rating system developed by physicist Dr. Arpad Elo. Teams gain points for winning and lose points
+          for losing. The strength of opponent and margin of victory are taken into account. The average score is 1500 and ratings
+          are discounted by 25% at the end of each season. ELO gives more weight to recent games, but all games have non-zero impact
+          on the rating. ELO is simple to compute and interpret, but it is not a perfect fit for Fantasy sports. Teams have no direct
+          impact on their opponent's score, but their 'Points Allowed' are factored into the score. Nevertheless, ELO is an useful tool
+          to understand team strength over time."),
+        plotlyOutput("elo_rankings", height = "400px", width = "100%"),
+        p("ELO also gives implied win probabilities. Select two teams to compare their win probability."),
+        fluidRow(
+          column(6,
+                 selectizeInput(
+                   inputId = "team1", 
+                   label = "Enter a Team's Name", 
+                   choices = users$display_name,
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 5  # Limit the number of suggestions shown
+                   ))),
+          column(6,
+                 selectizeInput(
+                   inputId = "team2", 
+                   label = "Enter a Team's Name", 
+                   choices = users$display_name,
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 5  # Limit the number of suggestions shown
+                   )))
+        ),
+        DTOutput("elo_win_prob"),
+        
+        uiOutput("future_assets_title"),
+        DTOutput("future_assets")
       ),
       tabItem( # Page 10 Tab
         tabName = "modeling",
@@ -700,7 +734,7 @@ server <- function(input, output, session) {
         ))
   })
   
-  # Reactivity for Page 8
+  # Reactivity for Page 7
   
   output$championship_odds_title <- renderUI({ #title
     h3("Championship Odds")
@@ -724,6 +758,44 @@ server <- function(input, output, session) {
   output$most_common_finish <- renderDT({ #table 2
     req(input$standings_season) #require input
     most_common_finish_df %>% most_common_finish(input$standings_season, shiny = TRUE) %>%
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  # Reactivity for Page 9
+  
+  output$elo_rankings_title <- renderUI({ #title
+    h3("ELO Rankings")
+  })
+  
+  output$elo_rankings <- renderPlotly({ #first plot
+    graph_elo(weekly_elo)
+  })
+  
+  output$elo_win_prob <- renderDT({ # text 1
+    req(input$team1, input$team2)
+    elos <- weekly_elo %>% group_by(team) %>% slice_max(date_hide)
+    
+    elo_win_probability(filter(elos, team == input$team1),
+                        filter(elos, team == input$team2)) %>%
+      datatable(
+        options = list(
+          pageLength = 2,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$future_assets_title <- renderUI({ #title
+    h3("Total Future Assets")
+  })
+  
+  output$future_assets <- renderDT({ #table 2
+    all_assets_summary_df %>% shiny_edit_tables() %>%
       datatable(
         options = list(
           pageLength = 12,         # Set the initial number of rows per page

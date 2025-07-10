@@ -28,17 +28,13 @@ picks_df <- read_csv(str_c(script_data_path, "picks_df.csv"), show_col_types = F
 overall_trade_winners <- read_csv(str_c(script_data_path, "overall_trade_winners.csv"), show_col_types = FALSE)
 lopsided_trades <- read_csv(str_c(script_data_path, "lopsided_trades.csv"), show_col_types = FALSE)
 comparison <- read_csv(str_c(script_data_path, "comparison.csv"), show_col_types = FALSE)
+load(str_c(script_data_path, "total_trade_value.Rdata"))
 
 # transactions
 overall_transaction_winners <- read_csv(str_c(script_data_path, "overall_transaction_winners.csv"), show_col_types = FALSE)
 top_transactions <- read_csv(str_c(script_data_path, "top_transactions.csv"), show_col_types = FALSE)
 transaction_comparison <- read_csv(str_c(script_data_path, "transaction_comparison.csv"), show_col_types = FALSE)
-
-# load Rdata from script
-# if (interactive()) {
-load(str_c(script_data_path, "total_trade_value.Rdata"))
 load(str_c(script_data_path, "total_transaction_value.Rdata"))
-# }
 
 # matchups
 team_records_df <- read_csv(str_c(script_data_path, "team_records_df.csv"), show_col_types = FALSE)
@@ -46,6 +42,10 @@ team_records_df <- read_csv(str_c(script_data_path, "team_records_df.csv"), show
 # future standings
 most_common_finish_df <- read_csv(str_c(script_data_path, "most_common_finish_df.csv"), show_col_types = FALSE)
 champion_odds <- read_csv(str_c(script_data_path, "champion_odds.csv"), show_col_types = FALSE)
+
+# team rankings
+weekly_elo <- read_csv(str_c(script_data_path, "weekly_elo.csv"), show_col_types = FALSE)
+all_assets_summary_df <- read_csv(str_c(script_data_path, "all_assets_summary_df.csv"), show_col_types = FALSE)
 
 # load from data folder
 player_total_value <- read_csv(str_c(script_data_path, "player_total_value.csv"), show_col_types = FALSE)
