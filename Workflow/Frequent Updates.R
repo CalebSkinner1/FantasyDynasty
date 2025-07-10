@@ -26,6 +26,15 @@ source(here("Scripts", "Individual Players.R"))
 # Fantasy Teams
 source(here("Scripts", "Fantasy Teams.R"))
 
+# Matchups
+source(here("Scripts", "Matchups.R"))
+
+# Future Stqndings Script
+source(here("Scripts", "Future Standings Script.R"))
+
+# Team Rankings
+source(here("Scripts", "Team Rankings.R"))
+
 misty::restart() #clear memory
 
 
