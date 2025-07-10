@@ -17,11 +17,6 @@ movm <- function(point_diff, elo_winner, elo_loser, K = 10){
   K*log(abs(point_diff)+1) * (2.2/((elo_winner-elo_loser)*.001+2.2))
 }
 
-# compute win probability of two teams
-win_probability <- function(elo_diff){
-  1 / (10^(-elo_diff/400) + 1)
-}
-
 compute_week <- function(matchups, elo_table, K){
   # takes matchup table and current elo rankings and gives new elo rankings
   df <- matchups %>%

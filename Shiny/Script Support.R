@@ -542,6 +542,20 @@ graph_elo <- function(weekly_elo){
   ggplotly(p, tooltip = c("color", "y"))
 }
 
+# compute win probability of two teams
+elo_win_probability <- function(team1_elo_df, team2_elo_df){
+  elo_diff <- team1_elo_df$elo - team2_elo_df$elo
+  
+  perc <- (1 / (10^(-elo_diff/400) + 1))
+  
+  bind_rows(team1_elo_df, team2_elo_df) %>%
+    ungroup() %>%
+    mutate(win_probability = scales::percent(c(perc, 1 - perc), accuracy = .01)) %>%
+    select(team, elo, win_probability) %>%
+    shiny_edit_tables()
+  
+  # %>% scales::percent(accuracy = .01)
+}
 
 
 
