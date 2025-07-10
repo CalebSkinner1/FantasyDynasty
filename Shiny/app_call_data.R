@@ -1,7 +1,5 @@
 # call data from csvs
 
-library("tidyverse")
-
 script_data_path <- "Saved Files/"
 
 # load necessary functions 

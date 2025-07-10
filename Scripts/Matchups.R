@@ -7,12 +7,13 @@ source(here("Shiny/Script Support.R"))
 
 matchups_table <- read_csv(here("Data/matchups_table.csv"))
 
-users <- read_csv(here("Data/users.csv"))
+users <- read_csv(here("Data/users.csv")) %>%
+  select(-owner_id)
 
 matchups_table_names <- matchups_table %>%
-  left_join(users %>% select(-owner_id), by = join_by(roster_id)) %>%
+  left_join(users, by = join_by(roster_id)) %>%
   rename(team = display_name) %>%
-  left_join(users %>% select(-owner_id), by = join_by(opponent_id == roster_id)) %>%
+  left_join(users, by = join_by(opponent_id == roster_id)) %>%
   rename(opponent = display_name)
 
 # enter team: records
