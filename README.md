@@ -106,6 +106,7 @@ can be updated with new data and the draft pick valuation can be updated. See th
 2. Incorporate time series technique to model a players' career.
 3. Add pictures to each player
 4. Store past seasons instead of computing them over and over lol
+5. automate code updating
 
 # References
 
