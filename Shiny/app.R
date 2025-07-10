@@ -29,10 +29,9 @@ ui <- dashboardPage(
       menuItem("Trade Grades", tabName = "trade", icon = icon("handshake")),
       menuItem("Transaction Grades", tabName = "transaction", icon = icon("right-left")),
       menuItem("Matchups", tabName = "matchups", icon = icon("calendar-days")),
-      menuItem("Current Standings", tabName = "current_standings", icon = icon("ranking-star")),
-      menuItem("Future Standings", tabName = "future_standings", icon = icon("circle-question")),
+      menuItem("Future Standings", tabName = "future_standings", icon = icon("ranking-star")),
       menuItem("Player Rankings", tabName = "rankings", icon = icon("arrow-trend-up")),
-      menuItem("Team Rankings", tabName = "team_rankings", icon = icon("arrow-trend-up")),
+      menuItem("Team Rankings", tabName = "team_rankings", icon = icon("rocket")),
       menuItem("Modeling", tabName = "modeling", icon = icon("chart-simple")),
       menuItem("History", tabName = "history", icon = icon("bank")))
   ),
@@ -44,34 +43,43 @@ ui <- dashboardPage(
         titlePanel("Fantasy Football Dynasty League"),
         p("Hello! This website hosts results and analysis for the Baylor Seniors Fantasy Football Superflex Dynasty League. The foundation of the analysis
         rests on the novel", strong("value added"), "metric. I model player's future success and organize data in an (hopefully)
-        accessible method. This website is intended to contain relevant and niche information that informs the twelve users of
-        the league. It is not intended to compete with popular fantasy player valuing websites like",
-          a("Keep Trade Cut", href = "https://keeptradecut.com/dynasty-rankings", target = "_blank"), "or",
-          a("Dynasty Daddy", href = "https://dynasty-daddy.com", target = "blank"),". In fact, several of my models leverage these popular ratings.
-        That said, I firmly take credit for any success or newfound knowledge any fantasy users derive from this website.
-        As for any mistakes or poor advice -- well -- thank you for supporting your local statistican."),
+        accessible method. This website contains relevant and niche information that informs the twelve users of
+        the league. It should supplement- and not replace- the league information you find on Sleeper and the popular fantasy player valuing
+          websites like", a("Keep Trade Cut", href = "https://keeptradecut.com/dynasty-rankings", target = "_blank"), "or",
+          a("Dynasty Daddy.", href = "https://dynasty-daddy.com", target = "blank"), "In fact, several of my models leverage
+          these popular ratings. That said, I believe users will find insights unique to this website, and I firmly take
+          credit for any success or newfound knowledge any fantasy users derive. As for any mistakes or poor
+          advice -- well -- thank you forsupporting your local statistican."),
         h4("Value Added"),
-        p("A fantasy players' value added represents a fantasy player's actual value contributed to an user. I measure a players' value
+        p("A fantasy players'", strong("value added"), "measures a fantasy player's actual value contributed to a user. I measure a players' value
         added as the difference in his fantasy output with the output of a replacement level player of
         the same position. Players only contribute (or lose) value added if started in the lineup. Thus, a fantasy player in the Baylor Seniors
-        league may have a different value added than the same fantasy player in a different league. This is intentional. A players value is inherently relative
-        to the team in which he resides. Players yield no benefits on the bench; a team with two quality QBs needs a third less than a
+        league may have a different value added than the same fantasy player in a different league. This is intentional. A player's value is relative
+        to the team in which he resides. Players yield no benefits on the bench; a team with two quality QBs needs another less than a
         team with only one quality QB."),
-        p("Each position's replacement level player is defined as the top bench player or free agent at every position. The replacement level
-           output is the average of these twelve players. Ultimately, a players' value added can change drastically depending on the 
-          player's position and the team's composition. For example, if a user starts three RBs in one particular week, then their
-          replacement level output is actually the top bench or free agent FLEX player. However, if the following week, the user starts only two RBs,
-          then the RB's replacement level output is the top bench or free agent RB. This adjustment can have a dramatic impact on players' value.
-          This dynamic rating system aims to adjust players' value to the fantasy team's composition."),
+        p("The replacement level value is the same for all players of the same position and is defined as the top bench player
+        or free agent at that position. In essence, the replacement level value is the hypothetical substitute if a particular starter
+        is removed from the lineup. Each team has a replacement level player for each position, and I compute the replacement level value with an
+         average of their output."),
+         p("A players' value added can change drastically depending on the player's position and the team's composition. For example, a user starts
+         three RBs in one particular week, so their replacement level output is the top bench or free agent FLEX player.
+         However, the following week, the user starts only two RBs, so the RB's replacement level output is the top bench
+         or free agent RB. This adjustment impacts a players' value added, just like it impacts a player's value to his fantasy owner.
+          This dynamic rating system adjusts players' value to the fantasy team's composition."),
         h4("Future Value"),
         p("Put simply, a player's ", strong("future value"), " is his expected value added in future seasons. It's difficult to project this
         directly, so I model a player's future value as a function of his position, age, and current keep trade cut value. I employ a
         bayesian additive regression tree to predict each player's value added in future years.
-        (It's much more complicated than this. If you want to know more please see my ",
+        (If you want to know the full details please see my ",
           a("GitHub", href = "https://github.com/CalebSkinner1/FantasyDynasty", target = "_blank"), "for more information).
         With this model, I am able to draw samples from future years and simulate each player's career. I total the results from these
         simulations to compute a player's future value. In line with common financial and economic models,
         I discount the future value of each successive year by 5%."),
+        h4("Other Models"),
+        p("The simulations of players' future value open the door for other models and insights. I use the players' realized value and future
+          value to esimate the value of rookie draft picks. I use these values to grade users' drafts, trades, and transactions and detail
+          a team's fantasy assets. The simulations even faciliate the creation of championship odds for the next three years.
+          There's a lot of possibilities, and in many ways, we're just getting started."),
         h4("A Disclaimer"),
         p("As with any model, these projections have their fair share of deficiencies. First, the model is trained on only a single year of data. This means
         the model struggles to anticipate large career altering changes in a players' career. Football, of course, is filled injuries and unpredictable events.
@@ -281,11 +289,6 @@ ui <- dashboardPage(
         DTOutput("matchup_history"),
       ),
       tabItem( # Page 7 Tab
-        tabName = "current_standings",
-        titlePanel("Current Standings"),
-        p("This is a static page that will be completed at a later date.")
-      ),
-      tabItem( # Page 8 Tab
         tabName = "future_standings",
         titlePanel("Future Standings"),
         p("I simulate final standings over the next three years 5000 times. In each simulation,
@@ -308,25 +311,25 @@ ui <- dashboardPage(
         p("The most likely finish for each Fantasy Team."),
         DTOutput("most_common_finish")
       ),
-      tabItem( # Page 9 Tab
+      tabItem( # Page 8 Tab
         tabName = "rankings",
         titlePanel("Player Rankings"),
-        p("This is a static page that will be completed at a later date.")
+        p("This is a static page that will be completed at a later date. Here, I plan to show a player's future value over time.")
       ),
-      tabItem( # Page 10 Tab
+      tabItem( # Page 9 Tab
         tabName = "team_rankings",
         titlePanel("Team Rankings"),
-        p("This is a static page that will be completed at a later date.")
+        p("This is a static page that will be completed at a later date. Here, I plan to rank team's by their total future value and ELO.")
       ),
-      tabItem( # Page 11 Tab
+      tabItem( # Page 10 Tab
         tabName = "modeling",
         titlePanel("Model Explanations and Fit"),
-        p("This is a static page that will be completed at a later date.")
+        p("This is a static page that will be completed at a later date. Here, I'll explain my models and show their fit.")
       ),
-      tabItem( # Page 12 Tab
+      tabItem( # Page 11 Tab
         tabName = "history",
         titlePanel("League History"),
-        p("This is a static page that will be completed at a later date.")
+        p("This is a static page that will be completed at a later date. Here, I'll list the league champions and notable records set in the league.")
       )
     )
   )
@@ -385,7 +388,7 @@ server <- function(input, output, session) {
   
   output$team_assets_title <- renderUI({ #title
     req(input$team_name) #require input
-    h3(str_c(input$team_name, " Future Value"))
+    h3(str_c(input$team_name, " Top Assets"))
   })
   
   output$team_assets <- renderDT({ #table 1
