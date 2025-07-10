@@ -1,0 +1,89 @@
+# Team Rankings Script
+library("here")
+
+source(here("Shiny/Script Support.R"))
+
+matchups_table <- read_csv(here("Data/matchups_table.csv"))
+
+users <- read_csv(here("Data/users.csv")) %>%
+  select(-owner_id)
+
+
+# ELO Rankings ------------------------------------------------------------
+
+# functions
+# computes elo rating after game (margin of victory modifier)
+movm <- function(point_diff, elo_winner, elo_loser, K = 10){
+  K*log(abs(point_diff)+1) * (2.2/((elo_winner-elo_loser)*.001+2.2))
+}
+
+# compute win probability of two teams
+win_probability <- function(elo_diff){
+  1 / (10^(-elo_diff/400) + 1)
+}
+
+compute_week <- function(matchups, elo_table, K){
+  # takes matchup table and current elo rankings and gives new elo rankings
+  df <- matchups %>%
+    left_join(elo_table, by = join_by(roster_id)) %>%
+    left_join(elo_table %>% rename(opp_elo = elo), by = join_by(opponent_id == roster_id)) %>%
+    mutate(
+      point_diff = points - opp_points,
+      elo_winner = if_else(points > opp_points, elo, opp_elo),
+      elo_loser = if_else(points > opp_points, opp_elo, elo),
+      elo = elo + movm(point_diff, elo_winner, elo_loser, K)*sign(point_diff)) %>%
+    select(roster_id, elo)
+  
+   anti_join(elo_table, df, by = join_by(roster_id)) %>%
+    select(roster_id, elo) %>%
+    bind_rows(df)
+}
+
+# initialize
+elo_init <- users %>% mutate(elo = 1500)
+
+# weeks
+matchup_list <- matchups_table %>%
+  filter(points != 0) %>%
+  group_split(season, week)
+
+# function computes elo over time
+compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75){
+  
+  master_table <- elo_init %>% rename(start = elo)
+  
+  prev_elo <- elo_init
+  
+  # compute elo over time
+  for(i in 1:length(matchup_list)){
+    if(matchup_list[[i]]$week[1] == 1){
+      prev_elo <- prev_elo %>% mutate(elo * lambda + (1-lambda)*1500)
+    }
+    
+    
+    new_elo <- compute_week(matchup_list[[i]], prev_elo, K)
+    
+    names <- colnames(master_table)
+    master_table <- master_table %>% left_join(new_elo, by = join_by(roster_id))
+    colnames(master_table) <- c(names, paste0(matchup_list[[i]]$season[1],
+                                              "_week", matchup_list[[i]]$week[1]))
+    
+    prev_elo <- new_elo
+  }
+  
+  master_table %>% select(-roster_id)
+}
+
+
+compute_elo(matchup_list, elo_init)
+
+
+
+
+
+
+
+
+
+
+
