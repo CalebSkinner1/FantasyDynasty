@@ -56,11 +56,6 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75){
   
   # compute elo over time
   for(i in 1:length(matchup_list)){
-    if(matchup_list[[i]]$week[1] == 1){
-      prev_elo <- prev_elo %>% mutate(elo * lambda + (1-lambda)*1500)
-    }
-    
-    
     new_elo <- compute_week(matchup_list[[i]], prev_elo, K)
     
     names <- colnames(master_table)
@@ -68,12 +63,20 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75){
     colnames(master_table) <- c(names, paste0(matchup_list[[i]]$season[1],
                                               "_week", matchup_list[[i]]$week[1]))
     
+    if(matchup_list[[i]]$week[1] == 17){ #reset elo after end of season
+      new_elo <- new_elo %>% mutate(elo = elo * lambda + (1-lambda)*1500)
+      
+      names <- colnames(master_table)
+      master_table <- master_table %>% left_join(new_elo, by = join_by(roster_id))
+      colnames(master_table) <- c(names, paste0(matchup_list[[i]]$season[1] + 1,
+                                                "_week", 0))
+    }
+    
     prev_elo <- new_elo
   }
   
   master_table %>% select(-roster_id)
 }
-
 
 weekly_elo <- compute_elo(matchup_list, elo_init) %>%
   rename("2024_week0" = start) %>%
@@ -81,9 +84,11 @@ weekly_elo <- compute_elo(matchup_list, elo_init) %>%
   rename(team = display_name) %>%
   mutate(season = str_sub(date, start = 1, end = 4),
          week = str_remove(date, str_c(season, "_week")),
-         date_hide = as.numeric(season) + (as.numeric(week)-1)/17,
+         date_hide = as.numeric(season) + (as.numeric(week)-1)/18,
          date = str_c(str_sub(season, 3, 4), "w", week)) %>%
   select(-season, -week)
+
+graph_elo(weekly_elo)
 
 # Future Value Assets -----------------------------------------------------
 
