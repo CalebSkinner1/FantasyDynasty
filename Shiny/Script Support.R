@@ -6,6 +6,7 @@ library("gtExtras")
 library("tidyverse"); theme_set(theme_minimal())
 library("janitor")
 library("tictoc")
+library("plotly")
 
 # All Scripts --------------------------------------------------------------
 # function to edit tables for shiny
@@ -525,4 +526,22 @@ most_common_finish <- function(most_common_finish_df, enter_season, shiny = TRUE
   }
 
 }
+
+
+# Team Rankings -----------------------------------------------------------
+
+graph_elo <- function(weekly_elo){
+  p <- weekly_elo %>%
+    ggplot() +
+    geom_line(aes(x = date_hide, y = elo, color = team)) +
+    scale_x_continuous(breaks = weekly_elo$date_hide, labels = weekly_elo$date) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = "", y = "ELO", title = "Team ELO over time") +
+    theme(legend.position = "none")
+  
+  ggplotly(p, tooltip = c("color", "y"))
+}
+
+
+
 

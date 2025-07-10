@@ -4,7 +4,7 @@ library("here")
 source(here("Shiny/Script Support.R"))
 
 matchups_table <- read_csv(here("Data/matchups_table.csv"))
-
+grab_team_assets_df <- read_csv(here("Shiny/Saved Files/grab_team_assets_df.csv"))
 users <- read_csv(here("Data/users.csv")) %>%
   select(-owner_id)
 
@@ -75,11 +75,31 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75){
 }
 
 
-compute_elo(matchup_list, elo_init)
+weekly_elo <- compute_elo(matchup_list, elo_init) %>%
+  rename("2024_week0" = start) %>%
+  pivot_longer(cols = contains("week"), names_to = "date", values_to = "elo") %>%
+  rename(team = display_name) %>%
+  mutate(season = str_sub(date, start = 1, end = 4),
+         week = str_remove(date, str_c(season, "_week")),
+         date_hide = as.numeric(season) + (as.numeric(week)-1)/17,
+         date = str_c(str_sub(season, 3, 4), "w", week)) %>%
+  select(-season, -week)
+
+# Future Value Assets -----------------------------------------------------
+
+all_assets_summary_df <- grab_team_assets_df %>%
+  group_by(roster_id) %>%
+  summarize(total_future_value = sum(future_value)) %>%
+  left_join(users, by = join_by(roster_id)) %>%
+  arrange(desc(total_future_value)) %>%
+  rename(team = display_name) %>%
+  select(team, total_future_value)
 
 
+# dfs to save -------------------------------------------------------------
 
-
+write_csv(weekly_elo, here("Shiny/Saved Files/weekly_elo.csv"))
+write_csv(all_assets_summary_df, here("Shiny/Saved Files/all_assets_summary_df.csv"))
 
 
 
