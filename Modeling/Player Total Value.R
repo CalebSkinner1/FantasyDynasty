@@ -28,14 +28,15 @@ hktc_data <- historical_ktc %>%
   select(-total_points) %>%
   mutate(
     total_value_added = replace_na(total_value_added, 0),
-    # adjust total value added to account for two missing games
-    tva_adj = case_when(
-      total_value_added < 0 ~ total_value_added,
-      .default = total_value_added * 17/max(sleeper_points$week))) %>%
+    # adjust total value added to account for missing games
+    # tva_adj = case_when(
+    #   total_value_added < 0 ~ total_value_added,
+    #   .default = total_value_added * 17/max(sleeper_points$week)),
+    ) %>% rename(tva_adj = total_value_added) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   select(-position) %>%
   left_join(player_info, by = join_by(name)) %>%
-  select(-player_id) %>%
+  select(-player_id, -years_exp) %>%
   mutate(
     age = interval(birth_date, ymd("2024-08-23"))/years(1))
 
@@ -142,4 +143,40 @@ player_total_value <- future_value %>%
       .default = future_value)) %>%
   select(name, player_id, birth_date, position, ktc_value, sva_2024, future_value)
 
-# write_csv(player_total_value, here("Data/player_total_value.csv"))
+write_csv(player_total_value, here("Data/player_total_value.csv"))
+
+# Future Value over Time --------------------------------------------------
+
+ktc_list <- list.files(
+  path = here("Data/ktc values"),
+  full.names = T) %>%
+  set_names(basename(.)) %>%
+  map(read_csv)
+
+future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  select(-player_id) %>%
+  filter(!str_detect(name, c("Mid")), !str_detect(name, c("Early")), !str_detect(name, c("Late")))
+
+write_csv(future_value_names, here("Data/future_value_names.csv"))
+
+# haven't quite figured out how to calculate half a season yet, but I think that's probably ok (especially because this
+# just computes 8 years and medians)
+
+# plan(multisession, workers = 4)
+
+future_value_time2 <- imap_dfr(seq_along(ktc_list), ~{
+  date <- names(ktc_list)[.x] %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
+  
+  colnames(ktc_list[[.x]]) <- c("name", "ktc_value")
+  
+  future_value_over_time(future_value_names, ktc_list[[.x]], date, tva_scales, ktc_scales, tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)}#,
+  # .progress = TRUE,
+  # .options = furrr_options(seed = TRUE, globals = TRUE)
+) %>% bind_cols(future_value_names, .)
+
+future_value_time %>%
+  select(name...1, contains("fv")) %>%
+  rename(name = name...1) %>%
+  relocate(name, `fv_2024-08-23`, `fv_2024-12-19`) %>%
+  arrange(desc(`fv_2024-08-23`))

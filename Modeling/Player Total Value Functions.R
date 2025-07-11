@@ -12,6 +12,19 @@ library("furrr")
 
 # Prep Data ---------------------------------------------------------------
 
+compile_data_set <- function(keep_trade_cut, future_value_names, date){
+  season <- year(date - months(10))
+  
+  future_value_names %>%
+    left_join(keep_trade_cut, by = join_by(name)) %>%
+    mutate(
+      # this is supposed to represent the values at the end of last season
+      age = interval(birth_date, ymd(str_c(season,"-08-23")))/years(1),
+      season = season,
+      ktc_value = replace_na(ktc_value, 0)) %>%
+    select(name, position, birth_date, age, ktc_value, season, years_exp)
+}
+
 interaction_terms_tva <- function(data){
   data %>%
     select(historical_value, age) %>%
@@ -225,7 +238,7 @@ update_data_year <- function(data){
 
 # compute quantiles from samples
 compute_quantiles <- function(samples, resid_fit, data){
-  sigma_hat <- predict(tva_resid_fit, newdata = tva_prep[[1]] %>% select(-Y), type = "response")
+  sigma_hat <- predict(resid_fit, newdata = data %>% select(-Y), type = "response")
   
   # compute quantiles
   posterior_mean <- colMeans(samples)
@@ -336,7 +349,7 @@ next_years <- function(origin_data, n_years, tva_scales, ktc_scales,
   updating_list$seasons_list
 }
 
-compute_future_value <- function(seasons_list, years = 15, weight = .95){
+compute_future_value <- function(seasons_list, years = 8, weight = .95){
   future_value <- imap(1:years, ~{
     pmax(seasons_list[[.x]]$proj_tva_50, 0)*weight^(.x - 1)
   }) %>% as.data.frame() %>%
@@ -347,5 +360,26 @@ compute_future_value <- function(seasons_list, years = 15, weight = .95){
     future_value = future_value) %>%
     arrange(desc(future_value))
 }
+
+# Future Value over Time --------------------------------------------------
+
+future_value_over_time <- function(future_value_names, keep_trade_cut, date,
+                                   tva_scales, ktc_scales, tva_fit, ktc_fit,
+                                   tva_resid_fit, ktc_resid_fit){
+  diff <- time_length(interval(date, ymd(str_c(year(today()), "-03-01"))), unit = "year") #this is my arbitrary cutoff to include rookies
+  
+  df <- compile_data_set(keep_trade_cut, future_value_names, date) %>%
+    filter(years_exp > trunc(diff)) #remove rookies or 1st years that shouldn't appear yet
+
+  sims <- next_years(df, n_years = 8, tva_scales, ktc_scales, tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)
+  
+  future_value_names %>%
+    left_join(compute_future_value(sims, years = 8, weight = .95), by = join_by(name)) %>%
+    select(name, future_value) %>%
+    mutate(date = date)
+}
+
+
+
 
 
