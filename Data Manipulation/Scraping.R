@@ -146,7 +146,7 @@ write_csv(draft_order, here("Data/draft_order.csv"))
 
 # player information don't run a lot because it takes a lot of time/memory
 # player_info2 <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
-
+# 
 # player_information <- map(player_info2, ~{
 #   tibble(
 #     name = .x$full_name,
@@ -154,7 +154,8 @@ write_csv(draft_order, here("Data/draft_order.csv"))
 #     position = .x$fantasy_positions,
 #     birth_date = .x$birth_date,
 #     height = .x$height,
-#     weight = .x$weight)}) %>%
+#     weight = .x$weight,
+#     years_exp = .x$years_exp)}) %>%
 #   rbindlist(fill = TRUE) %>%
 #   as_tibble()
 
@@ -170,7 +171,7 @@ write_csv(draft_order, here("Data/draft_order.csv"))
 
 # # load player info
 # player_info <- player_information %>%
-#   select(name, player_id, position, birth_date) %>%
+#   select(name, player_id, position, birth_date, years_exp) %>%
 #   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
 #   # remove duplicate names
 #   filter(player_id != 4634, player_id != 748, player_id != 232, player_id != 7437, player_id != 638) %>%
@@ -264,7 +265,7 @@ projections <- list(projections24, projections25)
 #            "Jalen McMillan", "Darnell Mooney", "Braelon Allen", "Ty Chandler", "Jonathan Mingo", "Greg Dulcich",
 #            "Treylon Burks", "Juwan Johnson", "Adam Thielen", "Tyrone Tracy Jr.", "Michael Pittman Jr.", "Kyren Williams",
 #            "DK Metcalf", "Isiah Pacheco", "Rachaad White", "Kenneth Walker III", "Zay Flowers", "Jonathon Brooks", "Jared Goff",
-#            "Josh Jacobs", "George Pickens", "Brock Bowers", "Deebo Samuel Sr.", "Jaxon Smith-Njigba", "D'Andre Swift",
+#            "Josh Jacobs", "George Pickens", "Deebo Samuel Sr.", "Jaxon Smith-Njigba", "D'Andre Swift",
 #            "Deshaun Watson", "Rhamondre Stevenson", "Davante Adams", "Brian Thomas Jr.", "Mike Evans", "Travis Kelce",
 #            "Christian Kirk", "Ladd McConkey", "Will Levis", "Tyjae Spears", "Alvin Kamara", "Najee Harris",
 #            "Diontae Johnson", "Baker Mayfield", "Chris Godwin", "Jaylen Warren", "Kirk Cousins", "Evan Engram",
@@ -313,7 +314,7 @@ projections <- list(projections24, projections25)
 #             2410, 2141, 2694, 1981, 1842, 2032,
 #             1537, 1291, 1449, 2188, 4942, 5134,
 #             5078, 4846, 4015, 4784, 4726, 4625, 4733,
-#             4049, 4783, 5199, 4595, 4609, 3450,
+#             4049, 4783, 4595, 4609, 3450,
 #             3271, 3401, 3929, 4791, 3916, 4063,
 #             3406, 4083, 3646, 3408, 3202, 3176,
 #             3285, 3500, 3349, 3284, 3290, 3147,
@@ -344,11 +345,11 @@ projections <- list(projections24, projections25)
 #             935, 1044.7, 1375, 919, 935, 890,
 #             889, 988.2, 760, 1047.5, 1074, 1124.5,
 #             1381, 1291, 1352, 856, 764, 431,
-#             800, 688, 881.2, 892.8, 612, 1992, 
+#             800, 688, 881.2, 892.8, 612, 1992,
 #             789.2, 889, 795.2, 376, 178, 575.0,
 #             724, 790, 493, 425, 1439, 731.8,
 #             172, 960, 902, 678.0))
-
+# 
 # bind_rows(t50, b51) %>% write_csv(here("Data/ktc_value082324"))
 
 # instantaneous keep_trade_cut value
