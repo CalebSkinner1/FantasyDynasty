@@ -35,6 +35,9 @@ source(here("Scripts", "Future Standings Script.R"))
 # Team Rankings
 source(here("Scripts", "Team Rankings.R"))
 
+# History
+source(here("Scripts", "History.R"))
+
 misty::restart() #clear memory
 
 
