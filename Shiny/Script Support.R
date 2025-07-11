@@ -556,28 +556,31 @@ plot_over_time <- function(future_value_time, enter_names){
   ggplotly(p)
 }
 
-comparable_players <- function(future_value_time, enter_name){
-  player_position <- future_value_time %>% filter(name == enter_name) %>% slice(position)
+comparable_players <- function(future_value_time, player_total_value, enter_name){
+  player_position <- player_total_value %>% filter(name == enter_name) %>% pull(position)
   
-  n <- future_value_time %>% filter(date == max(date)) %>%
-    drop_na() %>%
-    filter(position == player_position) %>%
-    nrow()
-  
-  player_row <- future_value_time %>%
-    filter(date == max(date)) %>% 
-    filter(position == player_position) %>%
+  similar_players <- player_total_value %>%
+    filter(position == player_position, !is.na(future_value)) %>%
     arrange(desc(future_value)) %>%
-    mutate(index = n()) %>%
-    filter(name == enter_name) %>% slice(index)
+    mutate(index = row_number())
+  
+  n <- similar_players %>% nrow()
+  
+  player_row <- similar_players %>%
+    filter(name == enter_name) %>%
+    pull(index)
   
   player_row <- case_when(
     player_row < 3 ~ 3,
     player_row > n - 2 ~ n - 2,
     .default = player_row)
   
+  names <- similar_players %>%
+    slice((player_row - 2):(player_row + 2)) %>%
+    pull(name)
+  
   p <- future_value_time %>%
-    slice(player_row - 2: player_row + 2) %>% # get range of players
+    filter(name %in% names) %>% # get range of players
     ggplot() +
     geom_line(aes(x = date, y = future_value, color = name)) +
     labs(x = "Date", y = "Future Value") +
