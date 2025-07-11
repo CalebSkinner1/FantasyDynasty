@@ -527,6 +527,65 @@ most_common_finish <- function(most_common_finish_df, enter_season, shiny = TRUE
 
 }
 
+# Player Rankings -----------------------------------------------------------
+
+top_future_value_player <- function(player_total_value, enter_position){
+  if("All" %in% enter_position){
+    enter_position <- unique(player_total_value$position)}
+  
+  player_total_value %>%
+    filter(position %in% enter_position) %>%
+    rowwise() %>%
+    mutate(
+      realized_value = sum(c_across(contains("sva_"))),
+      age = time_length(interval(birth_date, today()), unit = "year")) %>%
+    ungroup() %>%
+    select(name, position, age, realized_value, future_value) %>%
+    arrange(desc(future_value)) %>%
+    shiny_edit_tables()
+}
+
+plot_over_time <- function(future_value_time, enter_names){
+  p <- future_value_time %>%
+    filter(name %in% enter_names) %>%
+    ggplot() +
+    geom_line(aes(x = date, y = future_value, color = name)) +
+    labs(x = "Date", y = "Future Value") +
+    theme(legend.position = "none")
+  
+  ggplotly(p)
+}
+
+comparable_players <- function(future_value_time, enter_name){
+  player_position <- future_value_time %>% filter(name == enter_name) %>% slice(position)
+  
+  n <- future_value_time %>% filter(date == max(date)) %>%
+    drop_na() %>%
+    filter(position == player_position) %>%
+    nrow()
+  
+  player_row <- future_value_time %>%
+    filter(date == max(date)) %>% 
+    filter(position == player_position) %>%
+    arrange(desc(future_value)) %>%
+    mutate(index = n()) %>%
+    filter(name == enter_name) %>% slice(index)
+  
+  player_row <- case_when(
+    player_row < 3 ~ 3,
+    player_row > n - 2 ~ n - 2,
+    .default = player_row)
+  
+  p <- future_value_time %>%
+    slice(player_row - 2: player_row + 2) %>% # get range of players
+    ggplot() +
+    geom_line(aes(x = date, y = future_value, color = name)) +
+    labs(x = "Date", y = "Future Value") +
+    theme(legend.position = "none")
+  
+  ggplotly(p)
+}
+
 # Team Rankings -----------------------------------------------------------
 
 graph_elo <- function(weekly_elo){
@@ -657,5 +716,4 @@ highest_player_total <- function(value_added, wins_df, enter_round, enter_season
     slice_max(fantasy_points, n = 100) %>% 
     shiny_edit_tables()
 }
-
 
