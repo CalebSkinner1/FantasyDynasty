@@ -527,7 +527,6 @@ most_common_finish <- function(most_common_finish_df, enter_season, shiny = TRUE
 
 }
 
-
 # Team Rankings -----------------------------------------------------------
 
 graph_elo <- function(weekly_elo){
@@ -557,5 +556,106 @@ elo_win_probability <- function(team1_elo_df, team2_elo_df){
   # %>% scales::percent(accuracy = .01)
 }
 
+# History -----------------------------------------------------------------
+
+# compute most wins
+compute_most_wins <- function(wins_df, enter_round, enter_season){
+  if("All" %in% enter_round){
+    enter_round <- unique(wins_df$type)}
+  
+  wins_df %>% filter(type %in% enter_round, season %in% enter_season) %>%
+    group_by(team) %>%
+    summarize(wins = sum(result == "win"),
+              losses = sum(result == "loss"),
+              games = n()) %>%
+    mutate(win_percentage = scales::percent(wins/games, accuracy = .01)) %>%
+    select(team, wins, losses, win_percentage) %>%
+    arrange(desc(wins)) %>%
+    shiny_edit_tables()
+}
+
+# compute total points scored
+compute_total_points <- function(wins_df, enter_round, enter_season){
+  if("All" %in% enter_round){
+    enter_round <- unique(wins_df$type)}
+  
+  wins_df %>% filter(type %in% enter_round, season %in% enter_season) %>%
+    group_by(team) %>%
+    summarize(points_for = sum(points),
+              points_against = sum(opp_points),
+              average_points = mean(points)) %>%
+    select(team, points_for, average_points, points_against) %>%
+    arrange(desc(average_points)) %>%
+    shiny_edit_tables()
+}
+
+# compute most points scored in a game
+highest_team_total <- function(wins_df, enter_round, enter_season){
+  if("All" %in% enter_round){
+    enter_round <- unique(wins_df$type)}
+  
+  wins_df %>% arrange(desc(points)) %>%
+    filter(type %in% enter_round, season %in% enter_season) %>%
+    mutate(date = str_c(season, " Week ", week)) %>%
+    select(team, points, date, opponent) %>%
+    slice_max(points, n = 100) %>%
+    shiny_edit_tables()
+}
+
+# compute fantasy points scored in season
+compute_total_points_player <- function(value_added, wins_df, enter_round, enter_season, enter_position){
+  if("All" %in% enter_round){
+    enter_round <- unique(wins_df$type)}
+  
+  if("All" %in% enter_position){
+    enter_position <- unique(value_added$position)}
+  
+  value_added %>% left_join(wins_df %>% select(season, week, type, roster_id),
+                            by = join_by(season, week, roster_id)) %>%
+    filter(type.y %in% enter_round, season %in% enter_season, position %in% enter_position) %>%
+    group_by(name) %>%
+    summarize(total_fantasy_points = sum(sleeper_points)) %>%
+    arrange(desc(total_fantasy_points)) %>%
+    slice_max(total_fantasy_points, n = 100) %>% 
+    shiny_edit_tables()
+}
+
+# compute total value added in season
+compute_value_added_player <- function(value_added, wins_df, enter_round, enter_season, enter_position){
+  if("All" %in% enter_round){
+    enter_round <- unique(wins_df$type)}
+  
+  if("All" %in% enter_position){
+    enter_position <- unique(value_added$position)}
+  
+  value_added %>% left_join(wins_df %>% select(season, week, type, roster_id),
+                            by = join_by(season, week, roster_id)) %>%
+    filter(type.y %in% enter_round, season %in% enter_season, position %in% enter_position) %>%
+    group_by(name) %>%
+    summarize(realized_value = sum(value_added)) %>%
+    arrange(desc(realized_value)) %>%
+    slice_max(realized_value, n = 100) %>% 
+    shiny_edit_tables()
+}
+
+# highest fantasy total in game
+# compute fantasy points scored in season
+highest_player_total <- function(value_added, wins_df, enter_round, enter_season, enter_position){
+  if("All" %in% enter_round){
+    enter_round <- unique(wins_df$type)}
+  
+  if("All" %in% enter_position){
+    enter_position <- unique(value_added$position)}
+  
+  value_added %>% left_join(wins_df %>% select(season, week, type, roster_id),
+                            by = join_by(season, week, roster_id)) %>%
+    filter(type.y %in% enter_round, season %in% enter_season, position %in% enter_position) %>%
+    arrange(desc(sleeper_points)) %>%
+    mutate(date = str_c(season, " Week ", week)) %>%
+    rename(fantasy_points = sleeper_points, team = display_name) %>%
+    select(name, fantasy_points, team, date) %>%
+    slice_max(fantasy_points, n = 100) %>% 
+    shiny_edit_tables()
+}
 
 
