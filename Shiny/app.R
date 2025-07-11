@@ -319,47 +319,7 @@ ui <- dashboardPage(
       tabItem( # Page 8 Tab
         tabName = "rankings",
         titlePanel("Player Rankings"),
-        p("This is a static page that will be completed at a later date. Here, I plan to show a player's future value over time.
-          I also show a few simple rankings"),
-        
-        fluidRow(
-          column(4,
-                 selectizeInput(
-                   inputId = "players_rank_season", 
-                   label = "Enter Season", 
-                   choices = unique(wins_df$season),
-                   options = list(
-                     placeholder = "Start typing...",
-                     maxOptions = 2  # Limit the number of suggestions shown
-                   ))),
-          column(4,
-                 selectizeInput(
-                   inputId = "players_rank_round", 
-                   label = "Enter Game Type", 
-                   choices = c("All", unique(wins_df$type)),
-                   options = list(
-                     placeholder = "Start typing...",
-                     maxOptions = 4  # Limit the number of suggestions shown
-                   ))),
-          column(4,
-                 selectizeInput(
-                   inputId = "players_rank_position", 
-                   label = "Enter Position", 
-                   choices = c("All", unique(value_added$position)),
-                   options = list(
-                     placeholder = "Start typing...",
-                     maxOptions = 4  # Limit the number of suggestions shown
-                   )))
-        ),
-        
-        uiOutput("player_highest_season_title"),
-        DTOutput("player_highest_season"),
-        
-        uiOutput("player_highest_va_season_title"),
-        DTOutput("player_highest_va_season"),
-        
-        uiOutput("player_best_game_title"),
-        DTOutput("player_best_game")
+        p("This is a static page that will be completed at a later date. Here, I plan to show a player's future value over time.")
       ),
       tabItem( # Page 9 Tab
         tabName = "team_rankings",
@@ -446,7 +406,25 @@ ui <- dashboardPage(
         DTOutput("most_points"),
         
         uiOutput("highest_team_game_title"),
-        DTOutput("highest_team_game")
+        DTOutput("highest_team_game"),
+        
+        selectizeInput(
+          inputId = "enter_position", 
+          label = "Enter Position", 
+          choices = c("All", unique(value_added$position)),
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 4  # Limit the number of suggestions shown
+          )),
+      
+      uiOutput("player_highest_season_title"),
+      DTOutput("player_highest_season"),
+      
+      uiOutput("player_highest_va_season_title"),
+      DTOutput("player_highest_va_season"),
+      
+      uiOutput("player_best_game_title"),
+      DTOutput("player_best_game")
       )
     )
   )
@@ -981,13 +959,13 @@ server <- function(input, output, session) {
         ))
   })
   
-    output$player_highest_season_title <- renderUI({ #title
+  output$player_highest_season_title <- renderUI({ #title
     h3("Player's Total Fantasy Points")
   })
-
+  
   output$player_highest_season <- renderDT({ # table 1
-    req(input$players_rank_round, input$players_rank_season, input$players_rank_position)
-    compute_total_points_player(value_added, wins_df, input$players_rank_round, input$players_rank_season, input$players_rank_position) %>%
+    req(input$enter_round, input$enter_season, input$enter_position)
+    compute_total_points_player(value_added, wins_df, input$enter_round, input$enter_season, input$enter_position) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
@@ -999,11 +977,11 @@ server <- function(input, output, session) {
   output$player_highest_va_season_title <- renderUI({ #title
     h3("Player's Total Realized Value")
   })
-
+  
   output$player_highest_va_season <- renderDT({ # table 2
-    req(input$players_rank_round, input$players_rank_season, input$players_rank_position)
-    compute_value_added_player(value_added, wins_df, input$players_rank_round, input$players_rank_season, input$players_rank_position) %>%
-    datatable(
+    req(input$enter_round, input$enter_season, input$enter_position)
+    compute_value_added_player(value_added, wins_df, input$enter_round, input$enter_season, input$enter_position) %>%
+      datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
           ordering = TRUE,        # Enable column sorting
@@ -1016,8 +994,8 @@ server <- function(input, output, session) {
   })
   
   output$player_best_game <- renderDT({ # table 3
-    req(input$players_rank_round, input$players_rank_season, input$players_rank_position)
-    highest_player_total(value_added, wins_df, input$players_rank_round, input$players_rank_season, input$players_rank_position) %>%
+    req(input$enter_round, input$enter_season, input$enter_position)
+    highest_player_total(value_added, wins_df, input$enter_round, input$enter_season, input$enter_position) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
