@@ -175,4 +175,4 @@ future_value_time <- imap_dfr(seq_along(ktc_list), ~{
                          tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_start, season_end)}
 ) %>% arrange(desc(date))
 
-write_csv(future_value_time %>% arrange(date, desc(future_value)), here("Data/future_value_time.csv"))
+# write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))

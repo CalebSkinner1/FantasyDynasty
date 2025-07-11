@@ -18,8 +18,8 @@ compile_data_set <- function(keep_trade_cut, future_value_names, date, season_en
   future_value_names %>%
     left_join(keep_trade_cut, by = join_by(name)) %>%
     mutate(
-      # this is supposed to represent the values at the end of last season
-      age = interval(birth_date, ymd(str_c(season,"-08-23")))/years(1),
+      # this is supposed to represent the values at the end of last season (hence the minus 1)
+      age = time_length(interval(birth_date, date), unit = "years") - 1,
       season = season,
       ktc_value = replace_na(ktc_value, 0)) %>%
     select(name, position, birth_date, age, ktc_value, season, years_exp)
@@ -386,24 +386,23 @@ future_value_over_time <- function(future_value_names, keep_trade_cut, date,
                                    tva_scales, ktc_scales, tva_fit, ktc_fit,
                                    tva_resid_fit, ktc_resid_fit, season_start, season_end){
   
-  season_start <- season_start[year(season_start) == (year(date- months(6)))] - days(3) # identify season start for counting weeks
+  # season_start <- season_start[year(season_start) == (year(date- months(6)))] - days(3) # identify season start for counting weeks
   season_end <- season_end[date < season_end] %>% min()
   
-  diff <- time_length(interval(date, ymd(str_c(year(today()), "-03-01"))), unit = "year") # this is my arbitrary cutoff to include rookies
+  # this is my arbitrary cutoff to include rookies
+  diff <- time_length(interval(date, ymd(str_c(year(today()), "-03-01"))), unit = "year") 
   
   # compile data - age and season look to be too small, but will be added in next_year
   df <- compile_data_set(keep_trade_cut, future_value_names, date, season_end) %>%
-    filter(years_exp > trunc(diff)) %>% #remove rookies or 1st years that shouldn't appear yet
-    filter(name == "Josh Allen")
-    
+    filter(years_exp > trunc(diff)) #remove rookies or 1st years that shouldn't appear yet
     
   # compute fraction of remaining season
-  weeks_in <- time_length(interval(season_start, date), unit = "week") %>% floor()
+  # weeks_in <- time_length(interval(season_start, date), unit = "week") %>% floor()
   
-  sims <- next_years(df, n_years = 9, tva_scales, ktc_scales, tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)
+  sims <- next_years(df, n_years = 8, tva_scales, ktc_scales, tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)
   
   future_value_names %>%
-    left_join(compute_future_value(sims, years = 8, weight = .95, season_progress = weeks_in/17), by = join_by(name)) %>%
+    left_join(compute_future_value(sims, years = 8, weight = .95, 0), by = join_by(name)) %>%
     select(name, future_value) %>%
     mutate(date = date)
 }
