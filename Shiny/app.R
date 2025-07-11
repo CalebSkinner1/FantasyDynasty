@@ -319,7 +319,50 @@ ui <- dashboardPage(
       tabItem( # Page 8 Tab
         tabName = "rankings",
         titlePanel("Player Rankings"),
-        p("This is a static page that will be completed at a later date. Here, I plan to show a player's future value over time.")
+        p("Player's future value ranked and displayed over time.
+          Select a position to see the top players of that position."),
+        selectizeInput(
+          inputId = "enter_position", 
+          label = "Enter Position", 
+          choices = c("All", unique(player_total_value$position)),
+          multiple = TRUE, #enable multiple selections
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 4  # Limit the number of suggestions shown
+          )),
+        
+        uiOutput("players_top_future_value_title"),
+        DTOutput("players_top_future_value"),
+        
+        selectizeInput(
+          inputId = "enter_players", 
+          label = "Enter Players", 
+          choices = c(player_total_value$name),
+          multiple = TRUE, #enable multiple selections
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 4  # Limit the number of suggestions shown
+          )),
+        
+        uiOutput("future_value_over_time_title"),
+        p("Demonstrates a players' future value at different points in the league history. Please note that
+          these estimations were conducted at irregular intervals until June, 2025. There's some randomness in the
+          model, so discount small changes in future value. Also, the model struggles to estimate the future value of
+          weak players. Still, it's pretty cool and gives a good idea of the trend for most players."),
+        plotlyOutput("future_value_over_time"),
+        
+        uiOutput("comparable_future_value_title"),
+        p("Select a single player and see the trajectory of similarly rated players."),
+        selectizeInput(
+          inputId = "enter_player", 
+          label = "Enter one Player", 
+          choices = c(player_total_value$name),
+          multiple = FALSE, #enable multiple selections
+          options = list(
+            placeholder = "Start typing...",
+            maxOptions = 4  # Limit the number of suggestions shown
+          )),
+        plotlyOutput("comparable_future_value")
       ),
       tabItem( # Page 9 Tab
         tabName = "team_rankings",
@@ -384,6 +427,7 @@ ui <- dashboardPage(
                    inputId = "enter_season", 
                    label = "Enter Season", 
                    choices = unique(wins_df$season),
+                   multiple = TRUE, #enable multiple selections
                    options = list(
                      placeholder = "Start typing...",
                      maxOptions = 2  # Limit the number of suggestions shown
@@ -393,6 +437,7 @@ ui <- dashboardPage(
                    inputId = "enter_round", 
                    label = "Enter Game Type", 
                    choices = c("All", unique(wins_df$type)),
+                   multiple = TRUE, #enable multiple selections
                    options = list(
                      placeholder = "Start typing...",
                      maxOptions = 4  # Limit the number of suggestions shown
@@ -412,6 +457,7 @@ ui <- dashboardPage(
           inputId = "enter_position", 
           label = "Enter Position", 
           choices = c("All", unique(value_added$position)),
+          multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
             maxOptions = 4  # Limit the number of suggestions shown
@@ -828,6 +874,38 @@ server <- function(input, output, session) {
   })
   
   # Reactivity for Page 8
+  output$players_top_future_value_title <- renderUI({ #title
+    h3("Players Ranked by Future Value")
+  })
+  
+  output$players_top_future_value <- renderDT({ #table 1
+    req(input$enter_position) #require input
+    player_total_value %>% top_future_value_player(input$enter_position) %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$future_value_over_time_title <- renderUI({ #title
+    h3("Future Value over Time")
+  })
+  
+  output$future_value_over_time <- renderPlotly({ # first plot
+    req(input$enter_players) #require input
+    future_value_time %>% plot_over_time(input$enter_players)
+  })
+  
+  output$comparable_future_value_title <- renderUI({ #title
+    h3("Compare Future Value with similar players")
+  })
+  
+  output$comparable_future_value <- renderPlotly({ # first plot
+    req(input$enter_player) #require input
+    future_value_time %>% comparable_players(player_total_value, input$enter_player)
+  })
   
   # Reactivity for Page 9
   
