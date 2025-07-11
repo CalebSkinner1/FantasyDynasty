@@ -258,32 +258,37 @@ ui <- dashboardPage(
         tabName = "matchups",
         titlePanel("Matchups History"),
         p("Select a team to see historical records against opponents."),
-        selectizeInput(
-          inputId = "team_name",
-          label = "Enter a Team's Name",
-          choices = users$display_name,
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5  # Limit the number of suggestions shown
-          )),
-        selectizeInput(
-          inputId = "team_seasons",
-          label = "Enter Season",
-          choices = unique(team_records_df$season),
-          multiple = TRUE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 2  # Limit the number of suggestions shown
-          )),
-        selectizeInput(
-          inputId = "enter_round",
-          label = "Enter Round",
-          choices = c("All", unique(team_records_df$round)),
-          multiple = TRUE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 2  # Limit the number of suggestions shown
-          )),
+        fluidRow(
+          column(4,
+                 selectizeInput(
+                   inputId = "team_name",
+                   label = "Enter a Team's Name",
+                   choices = users$display_name,
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 5  # Limit the number of suggestions shown
+                   ))),
+          column(4,
+                 selectizeInput(
+                   inputId = "team_seasons",
+                   label = "Enter Season",
+                   choices = unique(team_records_df$season),
+                   multiple = TRUE, #enable multiple selections
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 2  # Limit the number of suggestions shown
+                   ))),
+          column(4,
+                 selectizeInput(
+                   inputId = "enter_round",
+                   label = "Enter Round",
+                   choices = c("All", unique(team_records_df$round)),
+                   multiple = TRUE, #enable multiple selections
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 2  # Limit the number of suggestions shown
+                   )))),
+        
         uiOutput("matchups_title"),
         
         DTOutput("matchup_history"),
@@ -314,7 +319,47 @@ ui <- dashboardPage(
       tabItem( # Page 8 Tab
         tabName = "rankings",
         titlePanel("Player Rankings"),
-        p("This is a static page that will be completed at a later date. Here, I plan to show a player's future value over time.")
+        p("This is a static page that will be completed at a later date. Here, I plan to show a player's future value over time.
+          I also show a few simple rankings"),
+        
+        fluidRow(
+          column(4,
+                 selectizeInput(
+                   inputId = "players_rank_season", 
+                   label = "Enter Season", 
+                   choices = unique(wins_df$season),
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 2  # Limit the number of suggestions shown
+                   ))),
+          column(4,
+                 selectizeInput(
+                   inputId = "players_rank_round", 
+                   label = "Enter Game Type", 
+                   choices = c("All", unique(wins_df$type)),
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 4  # Limit the number of suggestions shown
+                   ))),
+          column(4,
+                 selectizeInput(
+                   inputId = "players_rank_position", 
+                   label = "Enter Position", 
+                   choices = c("All", unique(value_added$position)),
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 4  # Limit the number of suggestions shown
+                   )))
+        ),
+        
+        uiOutput("player_highest_season_title"),
+        DTOutput("player_highest_season"),
+        
+        uiOutput("player_highest_va_season_title"),
+        DTOutput("player_highest_va_season"),
+        
+        uiOutput("player_best_game_title"),
+        DTOutput("player_best_game")
       ),
       tabItem( # Page 9 Tab
         tabName = "team_rankings",
@@ -326,7 +371,7 @@ ui <- dashboardPage(
           for losing. The strength of opponent and margin of victory are taken into account. The average score is 1500 and ratings
           are discounted by 25% at the end of each season. ELO gives more weight to recent games, but all games have non-zero impact
           on the rating. ELO is simple to compute and interpret, but it is not a perfect fit for Fantasy sports. Teams have no direct
-          impact on their opponent's score, but their 'Points Allowed' are factored into the score. Nevertheless, ELO is an useful tool
+          impact on their opponent's score, but their 'Points Against' are factored into the score. Nevertheless, ELO is an useful tool
           to understand team strength over time."),
         plotlyOutput("elo_rankings", height = "400px", width = "100%"),
         p("ELO also gives implied win probabilities. Select two teams to compare their win probability."),
@@ -363,7 +408,45 @@ ui <- dashboardPage(
       tabItem( # Page 11 Tab
         tabName = "history",
         titlePanel("League History"),
-        p("This is a static page that will be completed at a later date. Here, I'll list the league champions and notable records set in the league.")
+        p("This page lists the league champions and notable records set in the league."),
+        uiOutput("championship_title"),
+        DTOutput("championship"),
+        
+        uiOutput("finalists_title"),
+        DTOutput("finalists"),
+        
+        uiOutput("playoffs_title"),
+        DTOutput("playoffs"),
+        
+        fluidRow(
+          column(6,
+                 selectizeInput(
+                   inputId = "enter_season", 
+                   label = "Enter Season", 
+                   choices = unique(wins_df$season),
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 2  # Limit the number of suggestions shown
+                   ))),
+          column(6,
+                 selectizeInput(
+                   inputId = "enter_round", 
+                   label = "Enter Game Type", 
+                   choices = c("All", unique(wins_df$type)),
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 4  # Limit the number of suggestions shown
+                   )))
+        ),
+        
+        uiOutput("most_wins_title"),
+        DTOutput("most_wins"),
+        
+        uiOutput("most_points_title"),
+        DTOutput("most_points"),
+        
+        uiOutput("highest_team_game_title"),
+        DTOutput("highest_team_game")
       )
     )
   )
@@ -766,6 +849,8 @@ server <- function(input, output, session) {
         ))
   })
   
+  # Reactivity for Page 8
+  
   # Reactivity for Page 9
   
   output$elo_rankings_title <- renderUI({ #title
@@ -801,6 +886,143 @@ server <- function(input, output, session) {
           pageLength = 12,         # Set the initial number of rows per page
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  # Reactivity for Page 11
+  
+  output$championship_title <- renderUI({ #title
+    h3("Championships")
+  })
+  
+  output$championship <- renderDT({ # table 1
+    championships_df %>%
+      shiny_edit_tables() %>%
+      datatable(
+        options = list(
+          pageLength = 2,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$finalists_title <- renderUI({ #title
+    h3("Finals")
+  })
+  
+  output$finalists <- renderDT({ # table 2
+    finals_df %>%
+      shiny_edit_tables() %>%
+      datatable(
+        options = list(
+          pageLength = 2,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$playoffs_title <- renderUI({ #title
+    h3("Playoff Appearances")
+  })
+  
+  output$playoffs <- renderDT({ # table 3
+    playoffs_df %>%
+      shiny_edit_tables() %>%
+      datatable(
+        options = list(
+          pageLength = 6,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$most_wins_title <- renderUI({ #title
+    h3("Most Wins")
+  })
+  
+  output$most_wins <- renderDT({ # table 4
+    req(input$enter_round, input$enter_season)
+    compute_most_wins(wins_df, input$enter_round, input$enter_season) %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$most_points_title <- renderUI({ #title
+    h3("Most Fantasy Points")
+  })
+  
+  output$most_points <- renderDT({ # table 5
+    req(input$enter_round, input$enter_season)
+    compute_total_points(wins_df, input$enter_round, input$enter_season) %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$highest_team_game_title <- renderUI({ #title
+    h3("Most Fantasy Points in a Game")
+  })
+
+  output$highest_team_game <- renderDT({ # table 6
+    req(input$enter_round, input$enter_season)
+    highest_team_total(wins_df, input$enter_round, input$enter_season) %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+    output$player_highest_season_title <- renderUI({ #title
+    h3("Player's Total Fantasy Points")
+  })
+
+  output$player_highest_season <- renderDT({ # table 1
+    req(input$players_rank_round, input$players_rank_season, input$players_rank_position)
+    compute_total_points_player(value_added, wins_df, input$players_rank_round, input$players_rank_season, input$players_rank_position) %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$player_highest_va_season_title <- renderUI({ #title
+    h3("Player's Total Realized Value")
+  })
+
+  output$player_highest_va_season <- renderDT({ # table 2
+    req(input$players_rank_round, input$players_rank_season, input$players_rank_position)
+    compute_value_added_player(value_added, wins_df, input$players_rank_round, input$players_rank_season, input$players_rank_position) %>%
+    datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$player_best_game_title <- renderUI({ #title
+    h3("Player's Most Fantasy Points in a Game")
+  })
+  
+  output$player_best_game <- renderDT({ # table 3
+    req(input$players_rank_round, input$players_rank_season, input$players_rank_position)
+    highest_player_total(value_added, wins_df, input$players_rank_round, input$players_rank_season, input$players_rank_position) %>%
+      datatable(
+        options = list(
+          pageLength = 5,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = FALSE          # Allow horizontal scrolling if columns exceed width
         ))
   })
 }

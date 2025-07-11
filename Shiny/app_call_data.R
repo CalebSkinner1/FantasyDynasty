@@ -47,6 +47,12 @@ champion_odds <- read_csv(str_c(script_data_path, "champion_odds.csv"), show_col
 weekly_elo <- read_csv(str_c(script_data_path, "weekly_elo.csv"), show_col_types = FALSE)
 all_assets_summary_df <- read_csv(str_c(script_data_path, "all_assets_summary_df.csv"), show_col_types = FALSE)
 
+# history
+championships_df <- read_csv(str_c(script_data_path, "championships_df.csv"), show_col_types = FALSE)
+finals_df <- read_csv(str_c(script_data_path, "finals_df.csv"), show_col_types = FALSE)
+playoffs_df <- read_csv(str_c(script_data_path, "playoffs_df.csv"), show_col_types = FALSE)
+wins_df <- read_csv(str_c(script_data_path, "wins_df.csv"), show_col_types = FALSE)
+
 # load from data folder
 player_total_value <- read_csv(str_c(script_data_path, "player_total_value.csv"), show_col_types = FALSE)
 users <- read_csv(str_c(script_data_path, "users.csv"), show_col_types = FALSE)
