@@ -91,10 +91,9 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 
 ## near future ideas
-1. ELO
-2. League History
-3. Future Value over Time
-4. Model Fit
+1. League History
+2. Future Value over Time
+3. Model Fit
 
 ## once season starts
 1. Some code will surely break

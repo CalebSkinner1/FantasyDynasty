@@ -63,6 +63,6 @@ write_csv(value_added, here("Shiny/Saved Files/value_added.csv"))
 # plot_future_value("Aaron Rodgers")
 # plot_future_value("Derrick Henry")
 
-# value_added_24 %>% tabulate_realized_value("Caleb Williams", 2024, shiny = FALSE)
+# value_added %>% tabulate_realized_value("Caleb Williams", 2024, shiny = FALSE)
 
-# value_added_24 %>% weekly_results("James Cook", 2024)
+# value_added %>% weekly_results("James Cook", 2024)
