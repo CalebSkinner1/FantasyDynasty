@@ -91,13 +91,15 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 
 ## near future ideas
-1. Future Value over Time
-2. Model Fit
+1. Realized Value over time
+2. Standings odds over time
+3. draft pick odds over time
+4. trade odds over time
+5. Model Fit
 
 ## once season starts
 1. Some code will surely break
 2. Compute future value as percentage of remaining season
-3. Edit future standings to update as season progresses
 
 ## distant future ideas
 1. Zero-inflated model to predict value added (especially for rookie next year production)
