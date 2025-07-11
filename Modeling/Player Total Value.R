@@ -8,7 +8,7 @@ source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv")) # shortcut
 player_info <- read_csv(here("Data/player_info.csv")) # shortcut 
 
-keep_trade_cut <- read_csv(here("Data/ktc values/ktc_value070825.csv")) # shortcut
+keep_trade_cut <- read_csv(here("Data/ktc values/ktc_value071025.csv")) # shortcut
 sleeper_points <- read_csv(here("Data/sleeper_points24.csv")) # shortcut
 
 # organize data sets
@@ -123,7 +123,7 @@ player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales 
                                  tva_fit = tva_fit, ktc_fit = ktc_fit, tva_resid_fit = tva_resid_fit, ktc_resid_fit = ktc_resid_fit)
 toc()
 
-# save(player_simulations, file = here("Modeling/player_simulations.RData"))
+save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
 future_value <- compute_future_value(player_simulations, years = 8, weight = .95)
 
@@ -151,8 +151,9 @@ ktc_list <- list.files(
   path = here("Data/ktc values"),
   full.names = T) %>%
   set_names(basename(.)) %>%
-  map(read_csv)
+  map(~read_csv(.x, show_col_types = FALSE))
 
+# these are the names of the dudes that I'll compute the future value of repetitively
 future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
   left_join(player_info, by = join_by(name)) %>%
   select(-player_id) %>%
@@ -160,23 +161,18 @@ future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
 
 write_csv(future_value_names, here("Data/future_value_names.csv"))
 
-# haven't quite figured out how to calculate half a season yet, but I think that's probably ok (especially because this
-# just computes 8 years and medians)
+# compute future value over time
 
-# plan(multisession, workers = 4)
+season_start <- c(ymd("2024-09-05"), ("2025-09-04")) # starts of seasons
+season_end <- c(ymd("2025-01-05"), ymd("2026-01-04")) # ends of seasons
 
-future_value_time2 <- imap_dfr(seq_along(ktc_list), ~{
+future_value_time <- imap_dfr(seq_along(ktc_list), ~{
   date <- names(ktc_list)[.x] %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
   
   colnames(ktc_list[[.x]]) <- c("name", "ktc_value")
   
-  future_value_over_time(future_value_names, ktc_list[[.x]], date, tva_scales, ktc_scales, tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)}#,
-  # .progress = TRUE,
-  # .options = furrr_options(seed = TRUE, globals = TRUE)
-) %>% bind_cols(future_value_names, .)
+  future_value_over_time(future_value_names, ktc_list[[.x]], date, tva_scales, ktc_scales,
+                         tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_start, season_end)}
+) %>% arrange(desc(date))
 
-future_value_time %>%
-  select(name...1, contains("fv")) %>%
-  rename(name = name...1) %>%
-  relocate(name, `fv_2024-08-23`, `fv_2024-12-19`) %>%
-  arrange(desc(`fv_2024-08-23`))
+write_csv(future_value_time %>% arrange(date, desc(future_value)), here("Data/future_value_time.csv"))
