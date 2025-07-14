@@ -40,6 +40,9 @@ source(here("Scripts", "History.R"))
 
 misty::restart() #clear memory
 
+if (interactive()) {
+  setwd(here::here("Shiny"))
+}
 
 # run app
 rsconnect::deployApp(appName = "fantasy-dashboard",
