@@ -12,14 +12,20 @@ library("furrr")
 
 # Prep Data ---------------------------------------------------------------
 
-compile_data_set <- function(keep_trade_cut, future_value_names, date, season_end){
+compile_data_set <- function(keep_trade_cut, future_value_names, date, season_start, season_end){
+  day_multiplier <- years(1)/days(season_end - season_start)
+  
   season <- if_else(date < season_end, year(season_end) - 2, year(season_end) - 1)
+  
+  # number of days since the season ended (in years)
+  days_past_season_start <- if_else(date > season_start, time_length(interval(season_start, date), unit = "years"), 0)
   
   future_value_names %>%
     left_join(keep_trade_cut, by = join_by(name)) %>%
     mutate(
       # this is supposed to represent the values at the end of last season (hence the minus 1)
-      age = time_length(interval(birth_date, date), unit = "years") - 1,
+      age = time_length(interval(birth_date, season_start), unit = "years") - 1,
+      age = age + days_past_season_start*day_multiplier,
       season = season,
       ktc_value = replace_na(ktc_value, 0)) %>%
     select(name, position, birth_date, age, ktc_value, season, years_exp)
@@ -222,9 +228,10 @@ compute_coverage <- function(fit, test_data, confidence = .95){
 update_data_year <- function(data){
   min_ktc <- min(data$ktc_value, na.rm = TRUE)
   
-  hv <- if_else(is.na(data$ktc_value),
-                              runif(1, min = 0, max = min_ktc),
-                              data$ktc_value)
+  # hv <- if_else(is.na(data$ktc_value),
+  #                             runif(1, min = 0, max = min_ktc),
+  #                             data$ktc_value)
+  hv <- replace_na(data$ktc_value, 0)
   
   data %>%
     mutate(
@@ -349,29 +356,11 @@ next_years <- function(origin_data, n_years, tva_scales, ktc_scales,
   updating_list$seasons_list
 }
 
-compute_future_value <- function(seasons_list, years = 8, weight = .95, season_progress = 0){
-  n <- nrow(seasons_list[[1]])
-  if(season_progress > 0){
-    future_value <- imap(1:(years+1), ~{
-      year_fv <- pmax(seasons_list[[.x]]$proj_tva_50, 0) %>% as.vector()
-      early <- numeric(n)
-      late <- numeric(n)
-      if(.x > 1){
-        early <- year_fv*season_progress*weight^(.x - 2)
-      }
-      if(.x < years + 1){
-        late <- year_fv*(1-season_progress)*weight^(.x - 1)
-      }
-      
-      combine <- early + late
-    })
-  }else{
-    future_value <- imap(1:years, ~{
-      pmax(seasons_list[[.x]]$proj_tva_50, 0)*weight^(.x - 1)
-    }) 
-  }
+compute_future_value <- function(seasons_list, years = 8, weight = .95){
   
-  future_value <- future_value %>% as.data.frame() %>%
+  future_value <- imap(1:years, ~{
+    pmax(seasons_list[[.x]]$proj_tva_50, 0)*weight^(.x - 1)
+  }) %>% as.data.frame() %>%
     rowSums()
   
   tibble(
@@ -386,15 +375,15 @@ future_value_over_time <- function(future_value_names, keep_trade_cut, date,
                                    tva_scales, ktc_scales, tva_fit, ktc_fit,
                                    tva_resid_fit, ktc_resid_fit, season_start, season_end){
   
-  # season_start <- season_start[year(season_start) == (year(date- months(6)))] - days(3) # identify season start for counting weeks
-  season_end <- season_end[date < season_end] %>% min()
+  season_end <- season_end[date < season_end] %>% min() # identify season end for counting weeks
+  season_start <- season_start[season_end > season_start] %>% min() # identify season start for counting weeks
   
   # this is my arbitrary cutoff to include rookies
-  diff <- time_length(interval(date, ymd(str_c(year(today()), "-03-01"))), unit = "year") 
+  diff <- time_length(interval(date, ymd(str_c(year(today()), "-03-01"))), unit = "year") %>% floor()
   
   # compile data - age and season look to be too small, but will be added in next_year
-  df <- compile_data_set(keep_trade_cut, future_value_names, date, season_end) %>%
-    filter(years_exp > trunc(diff)) #remove rookies or 1st years that shouldn't appear yet
+  df <- compile_data_set(keep_trade_cut, future_value_names, date, season_start, season_end) %>%
+    filter(years_exp > diff) #remove rookies or 1st years that shouldn't appear yet
     
   # compute fraction of remaining season
   # weeks_in <- time_length(interval(season_start, date), unit = "week") %>% floor()
@@ -402,12 +391,31 @@ future_value_over_time <- function(future_value_names, keep_trade_cut, date,
   sims <- next_years(df, n_years = 8, tva_scales, ktc_scales, tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit)
   
   future_value_names %>%
-    left_join(compute_future_value(sims, years = 8, weight = .95, 0), by = join_by(name)) %>%
+    left_join(compute_future_value(sims, years = 8, weight = .95), by = join_by(name)) %>%
     select(name, future_value) %>%
     mutate(date = date)
 }
 
+map_future_value_time <- function(future_value_names, ktc_list,
+                                  tva_scales, ktc_scales, tva_fit, ktc_fit,
+                                  tva_resid_fit, ktc_resid_fit, season_start, season_end){
+  map2_dfr(ktc_list, names(ktc_list), ~{
+    date <- .y %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
+    
+    colnames(.x) <- c("name", "ktc_value")
+    
+    future_value_over_time(future_value_names, .x, date, tva_scales, ktc_scales,
+                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_start, season_end)}
+    # .progress = TRUE,
+    # .options = furrr_options(seed = TRUE)
+  ) %>% arrange(desc(date))
+}
 
+select_ktc_list <- function(ktc_list, last_date_fvt){
+  dates <- names(ktc_list) %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
+  
+  ktc_list[dates > last_date_fvt]
+}
 
 
 

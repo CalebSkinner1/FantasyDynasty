@@ -109,41 +109,18 @@ ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
 
 # ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
 
-# origin data set, set at beginning of last year
-sim_df <- keep_trade_cut %>%
-  left_join(player_info, by = join_by(name)) %>%
-  mutate(
-    age = interval(birth_date, ymd("2024-08-23"))/years(1),  # just because age needs to be age at this point in the season
-    season = 2024) %>%
-  select(name, position, ktc_value, birth_date, age, season) %>%
-  filter(position %in% c("QB", "RB", "WR", "TE"))
+season_start <- c(ymd("2024-09-05"), ymd("2025-09-04")) # starts of seasons
+season_end <- c(ymd("2025-01-05"), ymd("2026-01-04")) # ends of seasons
 
-tic() # ~4 mins
+# origin data set, set at beginning of last year
+sim_df <- compile_data_set(keep_trade_cut, future_value_names, today(), season_start[2], season_end[2])
+
+tic() # ~7 mins
 player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales,
                                  tva_fit = tva_fit, ktc_fit = ktc_fit, tva_resid_fit = tva_resid_fit, ktc_resid_fit = ktc_resid_fit)
 toc()
 
 save(player_simulations, file = here("Modeling/player_simulations.RData"))
-
-future_value <- compute_future_value(player_simulations, years = 8, weight = .95)
-
-player_total_value <- future_value %>%
-  full_join(season_value_added, by = join_by(name)) %>%
-  select(name, total_value_added, future_value) %>%
-  left_join(player_info, by = join_by(name)) %>%
-  left_join(keep_trade_cut, by = join_by(name)) %>%
-  mutate(
-    sva_2024 = replace_na(total_value_added, 0),
-    ktc_value = case_when(
-      position %in% c("K", "DST") ~ 0,
-      .default = ktc_value),
-    future_value = case_when(
-      position %in% c("K", "DST") ~ 0,
-      is.na(future_value) ~ 0,
-      .default = future_value)) %>%
-  select(name, player_id, birth_date, position, ktc_value, sva_2024, future_value)
-
-write_csv(player_total_value, here("Data/player_total_value.csv"))
 
 # Future Value over Time --------------------------------------------------
 
@@ -162,17 +139,41 @@ future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
 write_csv(future_value_names, here("Data/future_value_names.csv"))
 
 # compute future value over time
+last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
 
-season_start <- c(ymd("2024-09-05"), ("2025-09-04")) # starts of seasons
-season_end <- c(ymd("2025-01-05"), ymd("2026-01-04")) # ends of seasons
+reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
 
-future_value_time <- imap_dfr(seq_along(ktc_list), ~{
-  date <- names(ktc_list)[.x] %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
-  
-  colnames(ktc_list[[.x]]) <- c("name", "ktc_value")
-  
-  future_value_over_time(future_value_names, ktc_list[[.x]], date, tva_scales, ktc_scales,
-                         tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_start, season_end)}
-) %>% arrange(desc(date))
+future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"))
 
-# write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
+# can't figure out how to parallelize this. Takes ~ 4 minutes for one run
+tic()
+future_value_time <- map_future_value_time(future_value_names, reduced_ktc_list, tva_scales, ktc_scales,
+                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_start, season_end) %>%
+  bind_rows(future_value_time)
+toc()
+
+write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
+# make list of the dates already computed, so I don't have to compute them again
+last_date_fvt <- max(future_value_time$date) %>% as_tibble() %>% write_csv(here("Data/last_date_fvt.csv"))
+
+# ensure future value is the same as most recent future_value_over_time
+
+player_total_value <- future_value_time %>% filter(date == max(date)) %>%
+  full_join(season_value_added, by = join_by(name)) %>%
+  select(name, total_value_added, future_value) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  left_join(keep_trade_cut, by = join_by(name)) %>%
+  mutate(
+    sva_2024 = replace_na(total_value_added, 0),
+    ktc_value = case_when(
+      position %in% c("K", "DST") ~ 0,
+      .default = ktc_value),
+    future_value = case_when(
+      position %in% c("K", "DST") ~ 0,
+      is.na(future_value) ~ 0,
+      .default = future_value)) %>%
+  select(name, player_id, birth_date, position, ktc_value, sva_2024, future_value)
+
+write_csv(player_total_value, here("Data/player_total_value.csv"))
+
+
