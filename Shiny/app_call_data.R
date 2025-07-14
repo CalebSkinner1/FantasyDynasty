@@ -53,6 +53,9 @@ finals_df <- read_csv(str_c(script_data_path, "finals_df.csv"), show_col_types =
 playoffs_df <- read_csv(str_c(script_data_path, "playoffs_df.csv"), show_col_types = FALSE)
 wins_df <- read_csv(str_c(script_data_path, "wins_df.csv"), show_col_types = FALSE)
 
+# player rankings
+future_value_time <- read_csv(str_c(script_data_path, "future_value_time.csv"), show_col_types = FALSE)
+
 # load from data folder
 player_total_value <- read_csv(str_c(script_data_path, "player_total_value.csv"), show_col_types = FALSE)
 users <- read_csv(str_c(script_data_path, "users.csv"), show_col_types = FALSE)
