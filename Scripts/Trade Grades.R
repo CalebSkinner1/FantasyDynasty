@@ -15,6 +15,7 @@ load(here("Data/draft_picks.RData")) # draft results
 player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE)
 value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE)
 draft_order <- read_csv(here("Data/draft_order.csv"), show_col_types = FALSE)
+future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE)
 
 marginal_transaction_value <- read_csv(here("Data/marginal_transaction_value.csv"), show_col_types = FALSE)
 
@@ -23,7 +24,9 @@ player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) %>
   select(-birth_date)
 users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
-# 
+
+season_start <- c(ymd("2024-09-05"), ymd("2025-09-04")) # starts of seasons
+
 # realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
 #   group_by(draft_id) %>%
 #   mutate(
@@ -270,7 +273,24 @@ overall_trade_winners <- comparison %>%
   left_join(users, by = join_by(team_name == display_name)) %>%
   select(team_name, trades, total_realized_value, total_future_value, total_trade_value)
 
-rm(value_added)
+# trade grade over time ---------------------------------------------------
+
+# realized value over time
+date <- map_vec(value_added$season, ~season_start[year(season_start) == .x]) + days(4) + weeks(value_added$week - 1)
+realized_value_time <- value_added %>% mutate(date = date) %>%
+  select(name, value_added, date)
+
+# future value over time
+future_value_time
+
+# draft pick value over time
+
+
+
+# compute value over time
+total_trade_value
+
+
 
 # dfs to save -------------------------------------------------------------
 
@@ -291,3 +311,4 @@ save(total_trade_value, file = here("Shiny/Saved Files/total_trade_value.Rdata")
 # inspect_individual_trade(19) # what is trade 19
 # inspect_individual_trade(27) # what is trade 27
 
+rm(value_added)

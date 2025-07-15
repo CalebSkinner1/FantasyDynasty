@@ -49,7 +49,8 @@ sample_quantiles <- function(data){
     transmute(
       roster_id = roster_id,
       rank = rank(desc(va)),
-      draft_order = rank(va))
+      draft_order = rank(va),
+      va = va)
 }
 
 prep_draft_picks <- function(prev_year, year, years_ahead = "first year"){
@@ -67,7 +68,6 @@ prep_draft_picks <- function(prev_year, year, years_ahead = "first year"){
     assign_draft_pick_value(years_ahead)
   
 }
-
 
 # the idea here, is for each player, I randomly sample from one of their quartiles, this accounts for the variation
 # in their season, but also keeps the mean where it should be. It trims the variance, slightly,
@@ -134,44 +134,44 @@ toc()
 
 # convert team_tva_ranking to win standings odds ------------------------------------
 # need data on previous years gap between difference in tva_ranking and standing
-
-resid_va_fs <- va %>% group_by(season, roster_id) %>%
-  summarize(va = sum(value_added)) %>%
-  mutate(va_rank = rank(desc(va))) %>%
-  ungroup() %>%
-  # join with final standings
-  left_join(draft_order %>%
-              mutate(
-                final_standings = 13 - draft_order,
-                season = season - 1),
-            by = join_by(season, roster_id)) %>%
-  mutate(resid = va_rank - final_standings) %>%
-  pull(resid)
-
-# find mle of var (assuming one-to-one relationship)
-var_va_fs <- sum(resid_va_fs^2)/(length(resid_va_fs) - 1)
-
-# add variance to final standings
-standings <- map(team_tva_ranking, ~{
-  rand <- rnorm(nrow(.x), 0, sd = sqrt(var_va_fs))
-  
-  .x %>% mutate(
-    sim = rep(1:ceiling(nrow(.x)/12), each = 12),
-    rand_rank = rank + rand) %>%
-    group_by(sim) %>%
-    mutate(rank = rank(rand_rank),
-           draft_order = 13 - rank) %>%
-    ungroup() %>%
-    select(roster_id, rank, draft_order)
-})
-
-# compute final_standings_odds
-final_standings_odds <- map(standings, ~{
-  .x %>% group_by(roster_id, rank) %>%
-    summarize(perc = n()/n_sim,
-              .groups = "keep") %>%
-    ungroup()}) %>%
-  bind_rows(.id = "season") %>%
-  mutate(season = this_year + as.numeric(str_remove(season, "year")) - 1)
-
-write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))
+# 
+# resid_va_fs <- va %>% group_by(season, roster_id) %>%
+#   summarize(va = sum(value_added)) %>%
+#   mutate(va_rank = rank(desc(va))) %>%
+#   ungroup() %>%
+#   # join with final standings
+#   left_join(draft_order %>%
+#               mutate(
+#                 final_standings = 13 - draft_order,
+#                 season = season - 1),
+#             by = join_by(season, roster_id)) %>%
+#   mutate(resid = va_rank - final_standings) %>%
+#   pull(resid)
+# 
+# # find mle of var (assuming one-to-one relationship)
+# var_va_fs <- sum(resid_va_fs^2)/(length(resid_va_fs) - 1)
+# 
+# # add variance to final standings
+# standings <- map(team_tva_ranking, ~{
+#   rand <- rnorm(nrow(.x), 0, sd = sqrt(var_va_fs))
+#   
+#   .x %>% mutate(
+#     sim = rep(1:ceiling(nrow(.x)/12), each = 12),
+#     rand_rank = rank + rand) %>%
+#     group_by(sim) %>%
+#     mutate(rank = rank(rand_rank),
+#            draft_order = 13 - rank) %>%
+#     ungroup() %>%
+#     select(roster_id, rank, draft_order)
+# })
+# 
+# # compute final_standings_odds
+# final_standings_odds <- map(standings, ~{
+#   .x %>% group_by(roster_id, rank) %>%
+#     summarize(perc = n()/n_sim,
+#               .groups = "keep") %>%
+#     ungroup()}) %>%
+#   bind_rows(.id = "season") %>%
+#   mutate(season = this_year + as.numeric(str_remove(season, "year")) - 1)
+# 
+# write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))

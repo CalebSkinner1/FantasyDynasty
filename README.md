@@ -91,7 +91,6 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 
 ## near future ideas
-1. Realized Value over time
 2. Standings odds over time
 3. draft pick odds over time
 4. trade odds over time
