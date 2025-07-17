@@ -372,6 +372,10 @@ date <- str_c(month(today()) %>% str_pad(2, side="left", pad="0"),
 
 keep_trade_cut %>% write_csv(here(paste0("Data/ktc values/ktc_value", date, ".csv")))
 
+season_dates <- tibble(season_start = c(ymd("2024-09-05"), ymd("2025-09-04")),
+                       season_end = c(ymd("2025-01-05"), ymd("2026-01-04"))) %>%
+  write_csv(here("Data/season_dates.csv"))
+
 # remove objects and functions to declutter environment
 rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
    draft_trades_urls)

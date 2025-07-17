@@ -109,11 +109,10 @@ ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
 
 # ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
 
-season_start <- c(ymd("2024-09-05"), ymd("2025-09-04")) # starts of seasons
-season_end <- c(ymd("2025-01-05"), ymd("2026-01-04")) # ends of seasons
+season_dates <- read_csv(here("Data/season_dates.csv"))
 
 # origin data set, set at beginning of last year
-sim_df <- compile_data_set(keep_trade_cut, future_value_names, today(), season_start[2], season_end[2])
+sim_df <- compile_data_set(keep_trade_cut, future_value_names, today(), season_dates$season_start[2], season_dates$season_end[2])
 
 tic() # ~7 mins
 player_simulations <- next_years(origin_data = sim_df, n_years = 15, tva_scales = tva_scales, ktc_scales = ktc_scales,
