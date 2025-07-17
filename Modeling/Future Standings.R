@@ -3,11 +3,9 @@
 # for valuing future draft picks
 
 library("here")
-library("tictoc")
-library("tidyverse"); theme_set(theme_minimal())
-library("furrr")
 
-# load data
+source(here("Modeling/Future Standings Support.R"))
+# load data ---------------------------------------------------------------
 load(here("Modeling/player_simulations.RData"))
 player_info <- read_csv(here("Data/player_info.csv"))
 
@@ -22,56 +20,15 @@ va <- read_csv(here("Data/va.csv"))
 
 draft_order <- read_csv(here("Data/draft_order.csv"))
 
-assign_draft_pick_value <- function(dp_df, years_in_advance = "total value"){
-  dp_df <- dp_df %>% filter(!is.na(draft_order))
-  
-  if(nrow(dp_df) == 0){
-    tibble()
-  }else{
-    dp_df %>%
-      mutate(pick_no = (round-1)*12 + draft_order) %>%
-      select(roster_id, pick_no) %>%
-      left_join(rookie_draft_values %>% filter(metric == years_in_advance), by = join_by(pick_no)) %>%
-      select(-pick_no, -metric)
-  }
-}
+matchups_table <- read_csv(here("Data/matchups_table.csv"))
 
-sample_quantiles <- function(data){
-  data %>%
-    select(-roster_id) %>%
-    apply(1, function(row) sample(row, 1)) %>%
-    as_tibble() %>%
-    mutate(roster_id = data$roster_id) %>%
-    group_by(roster_id) %>%
-    summarize(
-      va = sum(value)) %>%
-    filter(!is.na(roster_id)) %>%
-    transmute(
-      roster_id = roster_id,
-      rank = rank(desc(va)),
-      draft_order = rank(va),
-      va = va)
-}
-
-prep_draft_picks <- function(prev_year, year, years_ahead = "first year"){
-  draft_picks_year <- future_draft_picks %>%
-    filter(season == year)
-  
-  # if draft order is not set, find it from previous year standings
-  if(is.na(draft_picks_year$draft_order[1])){
-    draft_picks_year <- draft_picks_year %>%
-      select(-draft_order) %>%
-      left_join(prev_year %>% select(roster_id, draft_order), by = join_by(pick_slot == roster_id))
-  }
-  draft_picks_order <- draft_picks_year %>%
-    select(roster_id, draft_order, round) %>%
-    assign_draft_pick_value(years_ahead)
-  
-}
+season_dates <- read_csv(here("Data/season_dates.csv"))
 
 # the idea here, is for each player, I randomly sample from one of their quartiles, this accounts for the variation
 # in their season, but also keeps the mean where it should be. It trims the variance, slightly,
 # but this isn't a major concern right now.
+
+# team tva ranking --------------------------------------------------------
 
 # find year, this is needed for mapping below
 this_year <- names(player_simulations)[1] %>% as.numeric()
@@ -86,9 +43,9 @@ known_draft_picks_year2 <- future_draft_picks %>%
 known_draft_picks_year3 <- future_draft_picks %>%
   prep_draft_picks(this_year, "third year")
 
-n_sim <- 5000
+n_sims <- 5000
 tic()
-team_tva_ranking <- future_map(1:n_sim, ~{
+team_tva_ranking <- future_map(1:n_sims, ~{
   # year 1 all assets with quantiles
   data1 <- player_simulations[[1]] %>%
     left_join(current_roster, by = join_by(name)) %>%
@@ -132,46 +89,43 @@ team_tva_ranking <- future_map(1:n_sim, ~{
   map(bind_rows)
 toc()
 
-# convert team_tva_ranking to win standings odds ------------------------------------
-# need data on previous years gap between difference in tva_ranking and standing
-# 
-# resid_va_fs <- va %>% group_by(season, roster_id) %>%
-#   summarize(va = sum(value_added)) %>%
-#   mutate(va_rank = rank(desc(va))) %>%
-#   ungroup() %>%
-#   # join with final standings
-#   left_join(draft_order %>%
-#               mutate(
-#                 final_standings = 13 - draft_order,
-#                 season = season - 1),
-#             by = join_by(season, roster_id)) %>%
-#   mutate(resid = va_rank - final_standings) %>%
-#   pull(resid)
-# 
-# # find mle of var (assuming one-to-one relationship)
-# var_va_fs <- sum(resid_va_fs^2)/(length(resid_va_fs) - 1)
-# 
-# # add variance to final standings
-# standings <- map(team_tva_ranking, ~{
-#   rand <- rnorm(nrow(.x), 0, sd = sqrt(var_va_fs))
-#   
-#   .x %>% mutate(
-#     sim = rep(1:ceiling(nrow(.x)/12), each = 12),
-#     rand_rank = rank + rand) %>%
-#     group_by(sim) %>%
-#     mutate(rank = rank(rand_rank),
-#            draft_order = 13 - rank) %>%
-#     ungroup() %>%
-#     select(roster_id, rank, draft_order)
-# })
-# 
-# # compute final_standings_odds
-# final_standings_odds <- map(standings, ~{
-#   .x %>% group_by(roster_id, rank) %>%
-#     summarize(perc = n()/n_sim,
-#               .groups = "keep") %>%
-#     ungroup()}) %>%
-#   bind_rows(.id = "season") %>%
-#   mutate(season = this_year + as.numeric(str_remove(season, "year")) - 1)
-# 
-# write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))
+save(team_tva_ranking, file = here("Modeling/team_tva_ranking.RData"))
+load(here("Modeling/team_tva_ranking.RData"))
+
+# Here, I'll simulate a season week-by-week.
+# this is a more intense and specific approach to the future standings question. 
+
+# first, estimate win probability of matchup based on value added ---------
+team_va <- va %>% group_by(roster_id) %>% summarize(total_va = sum(value_added))
+
+matchup_va_data <- matchups_table %>% filter(points != 0) %>%
+  left_join(team_va, by = join_by(roster_id)) %>%
+  left_join(team_va %>% rename(opp_va = total_va), by = join_by(opponent_id == roster_id)) %>%
+  mutate(
+    victory = as.factor(if_else(points > opp_points, 1, 0)),
+    va_diff = total_va - opp_va)
+
+matchup_fit <- logistic_reg() %>%
+  set_engine("glm") %>%
+  set_mode("classification") %>%
+  fit(
+    victory ~ va_diff - 1,
+    data = matchup_va_data)
+
+matchup_fit_coef <- matchup_fit$fit %>% coef() %>% as.data.frame()
+write_csv(matchup_fit_coef, here("Modeling/matchup_fit_coef.csv"))
+# Run Season --------------------------------------------------------------
+
+team_tva_list <- map(team_tva_ranking, ~.x %>% mutate(group = (row_number() - 1)%/% 12) %>% group_split(group, .keep = FALSE)) %>%
+  transpose()
+
+current_table <- construct_table(matchups_table, season_dates, today())
+
+tic()
+final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, matchup_fit_coef, 3, n_sims = 50)
+toc()
+
+write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))
+
+
+
