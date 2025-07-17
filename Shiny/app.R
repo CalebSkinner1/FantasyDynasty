@@ -298,8 +298,8 @@ ui <- dashboardPage(
         titlePanel("Future Standings"),
         p("I simulate final standings over the next three years 5000 times. In each simulation,
           I project the value added for each player and find the total value added for each fantasy team.
-          I inject a bit of randomness to account for the randomness of seeding and playoffs. The championship odds and
-          most common finish are below."),
+          This informs the teams' win probability for each game in the season. I simulate three consecutive seasons, and
+          compute the final standings odds for each team. The championship odds and most common finish are below."),
         
         uiOutput("championship_odds_title"),
         DTOutput("championship_odds"),
