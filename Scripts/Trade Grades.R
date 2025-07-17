@@ -6,6 +6,7 @@ library("here")
 
 # Ok now this is fun
 source(here("Shiny/Script Support.R"))
+source(here("Modeling/Future Standings Support.R"))
 
 load(here("Data/transactions.RData")) #transactions, including trades
 all_draft_pick_exp_values <- read_csv(here("Data/all_draft_pick_exp_values.csv"), show_col_types = FALSE) #future draft pick values
@@ -18,6 +19,10 @@ draft_order <- read_csv(here("Data/draft_order.csv"), show_col_types = FALSE)
 future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE)
 
 marginal_transaction_value <- read_csv(here("Data/marginal_transaction_value.csv"), show_col_types = FALSE)
+
+rookie_draft_values <- read_csv(here("Data/rookie_draft_values.csv"), , show_col_types = FALSE) %>%
+  filter(metric == "total value") %>%
+  select(pick_no, proj_tva_50)
 
 # references
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) %>%
@@ -274,23 +279,51 @@ overall_trade_winners <- comparison %>%
   select(team_name, trades, total_realized_value, total_future_value, total_trade_value)
 
 # trade grade over time ---------------------------------------------------
-
-# realized value over time
-date <- map_vec(value_added$season, ~season_start[year(season_start) == .x]) + days(4) + weeks(value_added$week - 1)
-realized_value_time <- value_added %>% mutate(date = date) %>%
-  select(name, value_added, date)
-
-# future value over time
-future_value_time
-
-# draft pick value over time
-
-
-
-# compute value over time
-total_trade_value
-
-
+# 
+# # realized value over time
+# date <- map_vec(value_added$season, ~season_start[year(season_start) == .x]) + days(4) + weeks(value_added$week - 1)
+# realized_value_time <- value_added %>% mutate(date = date) %>%
+#   select(name, value_added, date)
+# 
+# # future player value over time
+# future_value_time
+# 
+# # draft pick value over time
+# load(here("Modeling/team_tva_ranking.RData"))
+# matchup_fit_coef <- read_csv(here("Modeling/matchup_fit_coef.csv"))
+# matchups_table <- read_csv(here("Data/matchups_table.csv"))
+# season_dates <- read_csv(here("Data/season_dates.csv"))
+# 
+# season_end <- season_dates$season_end[season_dates$season_end > today()] %>% min()
+# season_start <- season_dates$season_start[season_dates$season_start < season_end] %>% max()
+# 
+# team_tva_list <- map(team_tva_ranking, ~.x %>% mutate(group = (row_number() - 1)%/% 12) %>% group_split(group, .keep = FALSE)) %>%
+#   transpose()
+# 
+# dates <- unique(future_value_time$date)
+# 
+# tables_list <- map(dates, ~construct_table(matchups_table, season_dates, .x))
+# 
+# tic()
+# final_standings_time <- map(tables_list, ~compute_final_standings_odds(.x, team_tva_list, matchup_fit_coef, 3, n_sims = 50))
+# toc()
+# 
+# exp_draft_values_time <- map(final_standings_time, ~.x %>%
+#   expand_grid(round = 1:3) %>%
+#   mutate(pick_no = (round-1)*12 + (13-rank)) %>%
+#   left_join(rookie_draft_values, by = join_by(pick_no)) %>%
+#   # weight each potential draft pick by odds of receiving it
+#   mutate(weight_value = perc*proj_tva_50) %>%
+#   # for each roster and season and round
+#   group_by(season, roster_id, round) %>%
+#   summarize(exp_total_value = sum(weight_value),
+#             .groups = "keep") %>%
+#   ungroup() %>%
+#   # but draft in next season
+#   mutate(season = season + 1))
+# 
+# # compute value over time
+# total_trade_value_time
 
 # dfs to save -------------------------------------------------------------
 
