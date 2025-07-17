@@ -2,14 +2,28 @@
 
 library("here")
 
-# source(here("Modeling/Player Value Added.R")) # grab updated value added ~50 seconds
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv")) # shortcut
 player_info <- read_csv(here("Data/player_info.csv")) # shortcut 
-
-keep_trade_cut <- read_csv(here("Data/ktc values/ktc_value071025.csv")) # shortcut
 sleeper_points <- read_csv(here("Data/sleeper_points24.csv")) # shortcut
+
+ktc_list <- list.files(
+  path = here("Data/ktc values"),
+  full.names = T) %>%
+  set_names(basename(.)) %>%
+  map(~read_csv(.x, show_col_types = FALSE))
+
+# these are the names of the dudes that I'll compute the future value of repetitively
+future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  select(-player_id) %>%
+  filter(!str_detect(name, c("Mid")), !str_detect(name, c("Early")), !str_detect(name, c("Late")))
+
+write_csv(future_value_names, here("Data/future_value_names.csv"))
+
+ktc_dates <- names(ktc_list) %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
+keep_trade_cut <- ktc_list[ktc_dates == max(ktc_dates)][[1]]
 
 # organize data sets
 
@@ -123,20 +137,6 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
 # Future Value over Time --------------------------------------------------
 
-ktc_list <- list.files(
-  path = here("Data/ktc values"),
-  full.names = T) %>%
-  set_names(basename(.)) %>%
-  map(~read_csv(.x, show_col_types = FALSE))
-
-# these are the names of the dudes that I'll compute the future value of repetitively
-future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
-  left_join(player_info, by = join_by(name)) %>%
-  select(-player_id) %>%
-  filter(!str_detect(name, c("Mid")), !str_detect(name, c("Early")), !str_detect(name, c("Late")))
-
-write_csv(future_value_names, here("Data/future_value_names.csv"))
-
 # compute future value over time
 last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
 
@@ -147,13 +147,13 @@ future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"))
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 tic()
 future_value_time <- map_future_value_time(future_value_names, reduced_ktc_list, tva_scales, ktc_scales,
-                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_start, season_end) %>%
+                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) %>%
   bind_rows(future_value_time)
 toc()
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 # make list of the dates already computed, so I don't have to compute them again
-last_date_fvt <- max(future_value_time$date) %>% as_tibble() %>% write_csv(here("Data/last_date_fvt.csv"))
+max(future_value_time$date) %>% as_tibble() %>% write_csv(here("Data/last_date_fvt.csv"))
 
 # ensure future value is the same as most recent future_value_over_time
 

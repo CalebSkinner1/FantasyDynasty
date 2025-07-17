@@ -373,10 +373,10 @@ compute_future_value <- function(seasons_list, years = 8, weight = .95){
 
 future_value_over_time <- function(future_value_names, keep_trade_cut, date,
                                    tva_scales, ktc_scales, tva_fit, ktc_fit,
-                                   tva_resid_fit, ktc_resid_fit, season_start, season_end){
+                                   tva_resid_fit, ktc_resid_fit, season_dates){
   
-  season_end <- season_end[date < season_end] %>% min() # identify season end for counting weeks
-  season_start <- season_start[season_end > season_start] %>% min() # identify season start for counting weeks
+  season_end <- season_dates$season_end[date < season_dates$season_end] %>% min() # identify season end for counting weeks
+  season_start <- season_dates$season_start[season_end > season_dates$season_start] %>% min() # identify season start for counting weeks
   
   # this is my arbitrary cutoff to include rookies
   diff <- time_length(interval(date, ymd(str_c(year(today()), "-03-01"))), unit = "year") %>% floor()
@@ -398,14 +398,14 @@ future_value_over_time <- function(future_value_names, keep_trade_cut, date,
 
 map_future_value_time <- function(future_value_names, ktc_list,
                                   tva_scales, ktc_scales, tva_fit, ktc_fit,
-                                  tva_resid_fit, ktc_resid_fit, season_start, season_end){
+                                  tva_resid_fit, ktc_resid_fit, season_dates){
   map2_dfr(ktc_list, names(ktc_list), ~{
     date <- .y %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
     
     colnames(.x) <- c("name", "ktc_value")
     
     future_value_over_time(future_value_names, .x, date, tva_scales, ktc_scales,
-                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_start, season_end)}
+                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates)}
     # .progress = TRUE,
     # .options = furrr_options(seed = TRUE)
   ) %>% arrange(desc(date))
