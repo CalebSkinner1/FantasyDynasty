@@ -4,7 +4,7 @@
 library("here")
 
 # First Data Acquisition and Manipulation
-# source(here("FantasyDynasty", "Data Manipulation", "Scraping.R"))
+# source(here("Data Manipulation", "Scraping.R"))
 
 # misty::restart() #clear memory
 
@@ -14,10 +14,12 @@ source(here("Modeling", "Player Value Added.R"))
 misty::restart() #clear memory
 
 # with relative frequency, will need to rerun player_simulations to account for new ktc value
-# fair warning it will take 7+ minutes
-source(here("Modeling", "Player Total Value Functions.R"))
+# fair warning it will take 14+ minutes
+library("here")
+source(here("Modeling", "Player Total Value.R"))
 
 # when future standings is allowed to vary with season, add that here
+misty::restart() #clear memory
 
 # Individual Players
 library("here")
