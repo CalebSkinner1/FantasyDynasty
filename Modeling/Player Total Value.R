@@ -7,6 +7,7 @@ source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv")) # shortcut
 player_info <- read_csv(here("Data/player_info.csv")) # shortcut 
 sleeper_points <- read_csv(here("Data/sleeper_points24.csv")) # shortcut
+season_dates <- read_csv(here("Data/season_dates.csv"))
 
 ktc_list <- list.files(
   path = here("Data/ktc values"),
@@ -122,8 +123,6 @@ ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
 # graph_residuals(ktc_fit, ktc_data$test_data)
 
 # ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
-
-season_dates <- read_csv(here("Data/season_dates.csv"))
 
 # origin data set, set at beginning of last year
 sim_df <- compile_data_set(keep_trade_cut, future_value_names, today(), season_dates$season_start[2], season_dates$season_end[2])
