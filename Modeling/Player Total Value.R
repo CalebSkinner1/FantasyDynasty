@@ -4,10 +4,10 @@ library("here")
 
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
-season_value_added <- read_csv(here("Data/sva.csv")) # shortcut
-player_info <- read_csv(here("Data/player_info.csv")) # shortcut 
-sleeper_points <- read_csv(here("Data/sleeper_points24.csv")) # shortcut
-season_dates <- read_csv(here("Data/season_dates.csv"))
+season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE) # shortcut
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut 
+sleeper_points <- read_csv(here("Data/sleeper_points24.csv"), show_col_types = FALSE) # shortcut
+season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
   path = here("Data/ktc values"),
@@ -141,7 +141,7 @@ last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
 
 reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
 
-future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"))
+future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE)
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 tic()
