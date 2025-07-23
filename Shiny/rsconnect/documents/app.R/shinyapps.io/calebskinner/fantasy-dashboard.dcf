@@ -5,6 +5,6 @@ account: calebskinner
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15055774
-bundleId: 10632928
+bundleId: 10658691
 url: https://calebskinner.shinyapps.io/fantasy-dashboard/
 version: 1
