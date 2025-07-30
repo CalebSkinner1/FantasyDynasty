@@ -135,14 +135,15 @@ toc()
 save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
 # Future Value over Time --------------------------------------------------
+# right now, have to run all values... soon when the model is set (~8/23), only run one at a time
 
 # compute future value over time
-last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
+# last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
 
 # reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
 reduced_ktc_list <- ktc_list
 
-future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE)
+# future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE)
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 tic()
