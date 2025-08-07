@@ -28,6 +28,9 @@ source(here("Scripts", "Individual Players.R"))
 # Fantasy Teams
 source(here("Scripts", "Fantasy Teams.R"))
 
+# Trade Machine
+source(here("Scripts", "Trade Machine.R"))
+
 # Matchups
 source(here("Scripts", "Matchups.R"))
 

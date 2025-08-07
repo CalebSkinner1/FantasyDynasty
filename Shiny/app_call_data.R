@@ -24,17 +24,19 @@ value_added <- read_csv(str_c(script_data_path, "value_added.csv"), show_col_typ
 # drafts
 picks_df <- read_csv(str_c(script_data_path, "picks_df.csv"), show_col_types = FALSE)
 
+# transactions
+overall_transaction_winners <- read_csv(str_c(script_data_path, "overall_transaction_winners.csv"), show_col_types = FALSE)
+top_transactions <- read_csv(str_c(script_data_path, "top_transactions.csv"), show_col_types = FALSE)
+transaction_comparison <- read_csv(str_c(script_data_path, "transaction_comparison.csv"), show_col_types = FALSE)
+load(str_c(script_data_path, "total_transaction_value.Rdata"))
+
 # trades
 overall_trade_winners <- read_csv(str_c(script_data_path, "overall_trade_winners.csv"), show_col_types = FALSE)
 lopsided_trades <- read_csv(str_c(script_data_path, "lopsided_trades.csv"), show_col_types = FALSE)
 comparison <- read_csv(str_c(script_data_path, "comparison.csv"), show_col_types = FALSE)
 load(str_c(script_data_path, "total_trade_value.Rdata"))
 
-# transactions
-overall_transaction_winners <- read_csv(str_c(script_data_path, "overall_transaction_winners.csv"), show_col_types = FALSE)
-top_transactions <- read_csv(str_c(script_data_path, "top_transactions.csv"), show_col_types = FALSE)
-transaction_comparison <- read_csv(str_c(script_data_path, "transaction_comparison.csv"), show_col_types = FALSE)
-load(str_c(script_data_path, "total_transaction_value.Rdata"))
+assets_df <- read_csv(str_c(script_data_path, "assets_df.csv"), show_col_types = FALSE)
 
 # matchups
 team_records_df <- read_csv(str_c(script_data_path, "team_records_df.csv"), show_col_types = FALSE)

@@ -884,7 +884,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$trade_machine_team1, {
     # Get the choices based on selected category
-    selected_choices <- filter(assets_df, display_name == input$trade_machine_team1) %>% pull(name)
+    selected_choices <- filter(assets_df, display_name == input$trade_machine_team1) %>% pull(name_code)
     
     # Update the second selectizeInput with new choices
     updateSelectizeInput(session, "team1_assets", 
@@ -894,7 +894,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$trade_machine_team2, {
     # Get the choices based on selected category
-    selected_choices <- filter(assets_df, display_name == input$trade_machine_team2) %>% pull(name)
+    selected_choices <- filter(assets_df, display_name == input$trade_machine_team2) %>% pull(name_code)
     
     # Update the second selectizeInput with new choices
     updateSelectizeInput(session, "team2_assets", 
