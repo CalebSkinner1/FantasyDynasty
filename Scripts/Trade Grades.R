@@ -30,7 +30,7 @@ player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) %>
 users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
-season_start <- c(ymd("2024-09-05"), ymd("2025-09-04")) # starts of seasons
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"))
 
 # realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
 #   group_by(draft_id) %>%
@@ -44,15 +44,12 @@ season_start <- c(ymd("2024-09-05"), ymd("2025-09-04")) # starts of seasons
 #   rename(original_owner = roster_id.y) %>%
 #   select(season, round, player_id, original_owner)
 
-total_trade_value <- transactions %>%
-  filter(type == "trade") %>%
-  split(seq_len(nrow(.))) %>%
-  map(., ~{
-  this_week <- .x$week %>% as.numeric() #week of transaction
-  this_season <- .x$season %>% as.numeric()
+compute_trade_value <- function(trade_tibble){
+  this_week <- trade_tibble$week %>% as.numeric() #week of transaction
+  this_season <- trade_tibble$season %>% as.numeric()
   
   # gained
-  adds <- .x$adds %>%
+  adds <- trade_tibble$adds %>%
     pivot_longer(cols = everything(),
                  names_to = "player_id",
                  values_to = "roster_id") %>%
@@ -68,7 +65,7 @@ total_trade_value <- transactions %>%
     summarize(realized_value = sum(value_added),
               .groups = "keep") %>%
     ungroup()
-    
+  
   # total value after trade
   total_player_value_gained <- adds %>%
     left_join(player_total_value, by = join_by(player_id)) %>% # future value
@@ -81,7 +78,7 @@ total_trade_value <- transactions %>%
       realized_value = replace_na(realized_value, 0)) # if no realized value
   
   # lost
-  drops <- .x$drops %>%
+  drops <- trade_tibble$drops %>%
     pivot_longer(cols = everything(),
                  names_to = "player_id",
                  values_to = "roster_id") %>%
@@ -145,7 +142,7 @@ total_trade_value <- transactions %>%
     value_adjustment <- tibble()
   }
   
-  traded_picks0 <- .x$draft_picks[[1]]
+  traded_picks0 <- trade_tibble$draft_picks[[1]]
   
   if(length(traded_picks0) != 0){
     traded_picks <- traded_picks0 %>%
@@ -200,7 +197,7 @@ total_trade_value <- transactions %>%
   else{ #if no traded picks
     total_trade_value_gained <- total_player_value_gained %>%
       mutate(total_value = realized_value + .95*future_value)
-      
+    
     # players and picks lost
     total_trade_value_lost <- total_player_value_lost %>%
       mutate(
@@ -216,7 +213,12 @@ total_trade_value <- transactions %>%
       arrange(desc(team_name))
   }
   total_trade_value
-})
+}
+
+total_trade_value <- transactions %>%
+  filter(type == "trade") %>%
+  split(seq_len(nrow(.))) %>%
+  map(., compute_trade_value)
 
 comparison <- map(total_trade_value,
                   ~.x %>%

@@ -7,7 +7,7 @@ source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE) # shortcut
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut 
 sleeper_points <- read_csv(here("Data/sleeper_points24.csv"), show_col_types = FALSE) # shortcut
-season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
   path = here("Data/ktc values"),
