@@ -724,19 +724,22 @@ highest_player_total <- function(value_added, wins_df, enter_round, enter_season
 
 # Trade Machine -----------------------------------------------------------
 grade_trade_wrapper <- function(assets_df, team1_players, team2_players){
-  team1_assets_lost <- assets_df %>% filter(name %in% team2_players)
-  team2_assets_lost <- assets_df %>% filter(name %in% team1_players)
+  team1_assets_lost <- assets_df %>% filter(name_code %in% team2_players)
+  team2_assets_lost <- assets_df %>% filter(name_code %in% team1_players)
   
-  team1_assets_gained <- team2_assets_lost %>% mutate(display_name = team1_assets_lost$display_name[1])
-  team2_assets_gained <- team1_assets_lost %>% mutate(display_name = team2_assets_lost$display_name[1])
+  team1_assets_gained <- team2_assets_lost %>% mutate(team = team1_assets_lost$display_name[1]) %>%
+    select(team, name, position, future_value, upcoming_year)
+  
+  team2_assets_gained <- team1_assets_lost %>% mutate(team = team2_assets_lost$display_name[1]) %>%
+    select(team, name, position, future_value, upcoming_year)
   
   overall_value <- sum(team1_assets_gained$future_value) - sum(team2_assets_gained$future_value)
-  ov_favor <- if_else(overall_value > 0, team1_assets_gained$display_name[1], team2_assets_gained$display_name[1])
+  ov_favor <- if_else(overall_value > 0, team1_assets_gained$team[1], team2_assets_gained$team[1])
   
   ov_statement <- str_c("The trade favors ", ov_favor, " by ", round(abs(overall_value), digits = 2), " in total future value")
   
   immediate_value <- sum(team1_assets_gained$upcoming_year) - sum(team2_assets_gained$upcoming_year)
-  iv_favor <- if_else(immediate_value > 0, team1_assets_gained$display_name[1], team2_assets_gained$display_name[1])
+  iv_favor <- if_else(immediate_value > 0, team1_assets_gained$team[1], team2_assets_gained$team[1])
   
   iv_statement <- str_c("The trade favors ", iv_favor, " by ", round(abs(immediate_value), digits = 2), " for the current season")
   
