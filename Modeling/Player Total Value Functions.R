@@ -255,9 +255,12 @@ compute_quantiles <- function(samples, resid_fit, data){
 }
 
 integrate_quantiles <- function(quantile_list){
-  quantile_list %>%
-    do.call(rbind, .) %>%
-    apply(., 2, quantile, probs = seq(.025, .975, by = .025))
+  matrix <- quantile_list %>%
+    do.call(rbind, .)
+  
+  matrix[is.na(matrix)] <- 0
+  
+  apply(matrix, 2, quantile, probs = seq(.025, .975, by = .025), na.rm = TRUE)
 }
 
 # this function bounds value according to domain knowledge
