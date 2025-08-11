@@ -294,7 +294,7 @@ ui <- dashboardPage(
           column(6,
                  selectizeInput(
                    inputId = "team2_assets", 
-                   label = "Select Team 1 Assets", 
+                   label = "Select Team 2 Assets", 
                    choices = NULL,
                    multiple = TRUE, #enable multiple selections
                    options = list(
@@ -305,9 +305,14 @@ ui <- dashboardPage(
         
         uiOutput("overall_value"),
         uiOutput("immediate_value"),
+        plotOutput("plot_trade_assets", height = "300px", width = "100%"),
         fluidRow(
-          DTOutput("team1_trade_outlook"),
-          DTOutput("team2_trade_outlook")
+          column(6,
+                 uiOutput("team1_trade_outlook_title"),
+                 DTOutput("team1_trade_outlook")),
+          column(6,
+                 uiOutput("team2_trade_outlook_title"),
+                 DTOutput("team2_trade_outlook"))
         ),
       ),
       
@@ -409,7 +414,7 @@ ui <- dashboardPage(
         plotlyOutput("future_value_over_time"),
         
         uiOutput("comparable_future_value_title"),
-        p("Select a single player and see the trajectory of similarly rated players."),
+        p("Select a single player and see the trajectory of similar players of the same position."),
         selectizeInput(
           inputId = "enter_player", 
           label = "Enter one Player", 
@@ -902,25 +907,39 @@ server <- function(input, output, session) {
                          selected = NULL)
   })
   
-  output$overall_value <- renderUI({ #table 1
+  output$overall_value <- renderUI({ #overall value statement
     req(input$team1_assets, input$team2_assets) #require input
-    list <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
     
-    h3(list$ov_statement)
+    h3(trade_valuation$ov_statement)
   })
   
-  output$immediate_value <- renderUI({ #table 1
+  output$immediate_value <- renderUI({ #immediate value statement
     req(input$team1_assets, input$team2_assets) #require input
-    list <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
     
-    h3(list$iv_statement)
+    h3(trade_valuation$iv_statement)
+  })
+  
+  output$plot_trade_assets <- renderPlot({ #first plot
+    req(input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    p <- graph_trade(trade_valuation$team1, trade_valuation$team2)
+    plot(p)
+  })
+  
+  output$team1_trade_outlook_title <- renderUI({ #table 1 title
+    req(input$trade_machine_team1) # require input
+    
+    h3(str_c(input$trade_machine_team1, "'s Assets Received"))
   })
   
   output$team1_trade_outlook <- renderDT({ #table 1
     req(input$team1_assets, input$team2_assets) #require input
-    list <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
     
-    list$team1 %>%
+    trade_valuation$team1 %>%
+      select(-team) %>% 
       shiny_edit_tables() %>%
       datatable(
         options = list(
@@ -930,11 +949,18 @@ server <- function(input, output, session) {
         ))
   })
   
+  output$team2_trade_outlook_title <- renderUI({ #table 2 title
+    req(input$trade_machine_team2) # require input
+    
+    h3(str_c(input$trade_machine_team2, "'s Assets Received"))
+  })
+  
   output$team2_trade_outlook <- renderDT({ #table 2
     req(input$team1_assets, input$team2_assets) #require input
-    list <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
     
-    list$team2 %>%
+    trade_valuation$team2 %>%
+      select(-team) %>% 
       shiny_edit_tables() %>%
       datatable(
         options = list(
