@@ -549,9 +549,9 @@ plot_over_time <- function(future_value_time, enter_names){
   p <- future_value_time %>%
     filter(name %in% enter_names) %>%
     drop_na() %>%
+    rename("Future Value" = future_value, "Name" = name, "Date" = date) %>%
     ggplot() +
-    geom_line(aes(x = date, y = future_value, color = name)) +
-    labs(x = "Date", y = "Future Value") +
+    geom_line(aes(x = Date, y = `Future Value`, color = Name)) +
     theme(legend.position = "none")
   
   ggplotly(p)
@@ -583,9 +583,9 @@ comparable_players <- function(future_value_time, player_total_value, enter_name
   p <- future_value_time %>%
     filter(name %in% names) %>% # get range of players
     drop_na() %>%
+    rename("Future Value" = future_value, "Name" = name, "Date" = date) %>%
     ggplot() +
-    geom_line(aes(x = date, y = future_value, color = name)) +
-    labs(x = "Date", y = "Future Value") +
+    geom_line(aes(x = Date, y = `Future Value`, color = Name)) +
     theme(legend.position = "none")
   
   ggplotly(p)

@@ -96,7 +96,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "player_name", 
           label = "Enter a Player's Name", 
-          choices = player_total_value$name,
+          choices = filter(player_total_value, position %in% c("QB", "WR", "RB", "TE")) %>% pull(name),
           options = list(
             placeholder = "Start typing...",
             maxOptions = 5  # Limit the number of suggestions shown
@@ -386,7 +386,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "enter_position", 
           label = "Enter Position", 
-          choices = c("All", unique(player_total_value$position)),
+          choices = c("All", unique(player_total_value$position)[unique(player_total_value$position) != c("K", "DST")]),
           multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -399,7 +399,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "enter_players", 
           label = "Enter Players", 
-          choices = c(player_total_value$name),
+          choices = filter(player_total_value, position %in% c("QB", "WR", "RB", "TE")) %>% pull(name),
           multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -418,7 +418,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "enter_player", 
           label = "Enter one Player", 
-          choices = c(player_total_value$name),
+          choices = filter(player_total_value, position %in% c("QB", "WR", "RB", "TE")) %>% pull(name),
           multiple = FALSE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
