@@ -24,7 +24,7 @@ future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
 write_csv(future_value_names, here("Data/future_value_names.csv"))
 
 ktc_dates <- names(ktc_list) %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
-keep_trade_cut <- ktc_list[ktc_dates == max(ktc_dates)][[1]]
+keep_trade_cut <- ktc_list$ktc_value082425.csv
 
 # organize data sets
 
