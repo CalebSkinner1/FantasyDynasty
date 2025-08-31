@@ -198,8 +198,18 @@ model_residuals <- function(fit, data){
   formula_text <- paste("abs_residuals ~", smoother_terms, " + position")
   gam_formula <- as.formula(formula_text)
   
-  gam(gam_formula, data = new_data,
-                     family = gaussian(link = "log"))  
+  gam_model <- gam(gam_formula, data = new_data,
+                     family = gaussian(link = "log"),
+      keep_data = FALSE)
+  
+  gam_coef <- coef(gam_model)
+  
+  gam_model$model <- NULL; gam_model$y <- NULL; gam_model$residuals <- NULL
+  
+  gam_bundle <- list(
+    model = gam_model,
+    coef = gam_coef
+  )
 }
 
 model_accuracy <- function(fit, test_data){
@@ -245,7 +255,15 @@ update_data_year <- function(data){
 
 # compute quantiles from samples
 compute_quantiles <- function(samples, resid_fit, data){
-  sigma_hat <- predict(resid_fit, newdata = data %>% select(-Y), type = "response")
+  # rebuild design matrix
+  Xp <- predict(resid_fit$model,
+                newdata = data %>% select(-Y),
+                type = "lpmatrix")
+
+  eta <- Xp %*% resid_fit$coef #linear predictor
+  sigma_hat <- resid_fit$model$family$linkinv(eta) %>% as.vector()#apply inverse link function 
+  
+  # sigma_hat <- predict(resid_fit, newdata = data %>% select(-Y), type = "response")
   
   # compute quantiles
   posterior_mean <- colMeans(samples)

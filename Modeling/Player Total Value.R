@@ -113,16 +113,19 @@ ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 
 # ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
 
-
 # Load Models -------------------------------------------------------------
 
 tva_fit <- readRDS(here("Modeling/tva_fit.rds")) %>% unbundle()
-tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
-saveRDS(tva_resid_fit, file = here("Modeling/tva_resid_fit.rds"))
+tva_resid_fit <- readRDS(here("Modeling/tva_resid_fit.rds"))
+
+# tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
+# saveRDS(tva_resid_fit, file = here("Modeling/tva_resid_fit.rds"))
 
 ktc_fit <- readRDS(here("Modeling/ktc_fit.rds")) %>% unbundle()
-ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
-saveRDS(ktc_resid_fit, file = here("Modeling/ktc_resid_fit.rds"))
+ktc_resid_fit <- readRDS(here("Modeling/ktc_resid_fit.rds"))
+
+# ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
+# saveRDS(ktc_resid_fit, file = here("Modeling/ktc_resid_fit.rds"))
 
 # Run Player Intervals ----------------------------------------------------
 
@@ -143,16 +146,16 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 # Future Value over Time --------------------------------------------------
 # goal is to only run one at a time, while keeping the previous models
 
-reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
-# reduced_ktc_list <- ktc_list
+# reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
+reduced_ktc_list <- ktc_list
 
 future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE)
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 tic()
 future_value_time <- map_future_value_time(future_value_names, reduced_ktc_list, tva_scales, ktc_scales,
-                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) %>%
-  bind_rows(future_value_time)
+                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) #%>%
+  # bind_rows(future_value_time)
 toc()
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
