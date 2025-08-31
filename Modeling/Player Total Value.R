@@ -72,23 +72,18 @@ tva_scales <- hktc_data %>% compute_tva_scales()
 tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 
 # run model ~95 seconds
-tic()
-tva_fit <- fit_bart(tva_data$full_data)
-# tva_fit <- fit_bart(tva_data$train_data)
-toc()
+# tic()
+# tva_fit <- fit_bart(tva_data$full_data)
+# # tva_fit <- fit_bart(tva_data$train_data)
+# toc()
 
-saveRDS(bundle(tva_fit), file = here("Modeling/tva_fit.rds"))
-tva_fit <- readRDS(here("Modeling/tva_fit.rds")) %>% unbundle()
+# saveRDS(bundle(tva_fit), file = here("Modeling/tva_fit.rds"))
 
 # compute accuracy (RMSE)
 # model_accuracy(tva_fit, tva_data$test_data)
 
 # graph residuals
 # graph_residuals(tva_fit, tva_data$test_data)
-
-tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
-# saveRDS(tva_resid_fit, file = here("Modeling/tva_resid_fit.rds"))
-tva_resid_fit <- readRDS(here("Modeling/tva_resid_fit.rds"))
 
 # tva_samples <- generate_samples(tva_fit, tva_data$train_data)
 
@@ -103,17 +98,12 @@ ktc_scales <- hktc_data %>% compute_ktc_scales()
 ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 
 # run model ~98 seconds
-tic()
-# # ktc_fit <- fit_bart(ktc_data$train_data)
-ktc_fit <- fit_bart(ktc_data$full_data)
-toc()
+# tic()
+# # # ktc_fit <- fit_bart(ktc_data$train_data)
+# ktc_fit <- fit_bart(ktc_data$full_data)
+# toc()
 # 
-saveRDS(bundle(ktc_fit), file = here("Modeling/ktc_fit.rds"))
-ktc_fit <- readRDS(here("Modeling/ktc_fit.rds")) %>% unbundle()
-
-# ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
-# saveRDS(ktc_resid_fit, file = here("Modeling/ktc_resid_fit.rds"))
-ktc_resid_fit <- readRDS(here("Modeling/ktc_resid_fit.rds"))
+# saveRDS(bundle(ktc_fit), file = here("Modeling/ktc_fit.rds"))
 
 # compute accuracy (RMSE)
 # model_accuracy(ktc_fit, ktc_data$test_data)
@@ -123,10 +113,27 @@ ktc_resid_fit <- readRDS(here("Modeling/ktc_resid_fit.rds"))
 
 # ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
 
-# origin data set, set at beginning of last year
-sim_df <- compile_data_set(keep_trade_cut, future_value_names, today(), season_dates$season_start[2], season_dates$season_end[2])
 
-tic() # ~7 mins
+# Load Models -------------------------------------------------------------
+
+tva_fit <- readRDS(here("Modeling/tva_fit.rds")) %>% unbundle()
+tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
+saveRDS(tva_resid_fit, file = here("Modeling/tva_resid_fit.rds"))
+
+ktc_fit <- readRDS(here("Modeling/ktc_fit.rds")) %>% unbundle()
+ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
+saveRDS(ktc_resid_fit, file = here("Modeling/ktc_resid_fit.rds"))
+
+# Run Player Intervals ----------------------------------------------------
+
+# compute future value over time
+last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
+
+# origin data set, set at beginning of last year
+sim_df <- select_ktc_list(ktc_list, last_date_fvt)[[1]] %>%
+  compile_data_set(future_value_names, today(), season_dates$season_start[2], season_dates$season_end[2])
+
+tic() # ~3 mins
 player_simulations <- next_years(origin_data = sim_df, n_years = 10, tva_scales = tva_scales, ktc_scales = ktc_scales,
                                  tva_fit = tva_fit, ktc_fit = ktc_fit, tva_resid_fit = tva_resid_fit, ktc_resid_fit = ktc_resid_fit)
 toc()
@@ -135,9 +142,6 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
 # Future Value over Time --------------------------------------------------
 # goal is to only run one at a time, while keeping the previous models
-
-# compute future value over time
-last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
 
 reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
 # reduced_ktc_list <- ktc_list
