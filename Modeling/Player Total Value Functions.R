@@ -256,7 +256,7 @@ update_data_year <- function(data){
 # compute quantiles from samples
 compute_quantiles <- function(samples, resid_fit, data){
   # rebuild design matrix
-  Xp <- predict(resid_fit$model,
+  Xp <- mgcv::predict.gam(resid_fit$model,
                 newdata = data %>% select(-Y),
                 type = "lpmatrix")
 
