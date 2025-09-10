@@ -12,9 +12,11 @@ users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE) %>%
-  select(name, player_id, birth_date, position, sva_2024, future_value) %>%
-  mutate(total_value = sva_2024 + .95*future_value) # devalue future
-
+  select(name, player_id, birth_date, position, contains("sva"), future_value) %>%
+  rowwise() %>%
+  mutate(total_value = sum(c_across(contains("sva"))) + .95*future_value) %>%# devalue future
+  ungroup()
+  
 # dfs to save -------------------------------------------------------------
 
 basic_info_df <- player_info %>%
