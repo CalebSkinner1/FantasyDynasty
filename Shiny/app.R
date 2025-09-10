@@ -107,7 +107,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "player_season", 
           label = "Enter Season", 
-          choices = c(2024),
+          choices = c(2024, 2025),
           multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -144,7 +144,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "team_season", 
           label = "Enter Season", 
-          choices = "2024",
+          choices = c(2024, 2025),
           # multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -408,9 +408,9 @@ ui <- dashboardPage(
         
         uiOutput("future_value_over_time_title"),
         p("Demonstrates a players' future value at different points in the league history. Please note that
-          these estimations were conducted at irregular intervals until June, 2025. There's some randomness in the
-          model, so discount small changes in future value. Also, the model struggles to estimate the future value of
-          weak players. Still, it's pretty cool and gives a good idea of the trend for most players."),
+          these estimations were conducted at irregular intervals until June, 2025. Note that a player's value will
+          gradually decrease over the course of a season as the player ages and has fewer expected games remaining in his career.
+          There are some notable exceptions, typically when a player dramatically exceeds expectations."),
         plotlyOutput("future_value_over_time"),
         
         uiOutput("comparable_future_value_title"),
