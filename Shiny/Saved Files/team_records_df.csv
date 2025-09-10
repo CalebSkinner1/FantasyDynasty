@@ -195,3 +195,15 @@ season,week,round,roster_id,points,opponent_id,opp_points,team,opponent,outcome
 2024,17,3rd place,12,141.36,10,148.38,TheJandyStock,Gretsch0401,loss
 2024,17,loser's bracket,9,99.68,11,139.42,Arvs,akondratieff,loss
 2024,17,3rd place,10,148.38,12,141.36,Gretsch0401,TheJandyStock,win
+2025,1,regular season,11,122.96,1,109.84,akondratieff,joeburrowmvp,win
+2025,1,regular season,10,125.84,2,122.4,Gretsch0401,SFOControl,win
+2025,1,regular season,6,120.18,3,87.28,jzeigboi,lukestip,win
+2025,1,regular season,12,138.7,4,100.08,TheJandyStock,caskinner,win
+2025,1,regular season,9,111.38,5,124.5,Arvs,ngernenz,loss
+2025,1,regular season,3,87.28,6,120.18,lukestip,jzeigboi,loss
+2025,1,regular season,8,112.92,7,155.08,LucasBeI,DepressedBroncosFan,loss
+2025,1,regular season,7,155.08,8,112.92,DepressedBroncosFan,LucasBeI,win
+2025,1,regular season,5,124.5,9,111.38,ngernenz,Arvs,win
+2025,1,regular season,2,122.4,10,125.84,SFOControl,Gretsch0401,loss
+2025,1,regular season,1,109.84,11,122.96,joeburrowmvp,akondratieff,loss
+2025,1,regular season,4,100.08,12,138.7,caskinner,TheJandyStock,loss
