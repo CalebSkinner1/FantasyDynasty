@@ -1,4 +1,4 @@
-name,player_id,position,birth_date,years_exp,value_added_2024,sva_2025,future_value,total_value,age
+name,player_id,position,birth_date,years_exp,total value added 2024,total value added 2025,future_value,total_value,age
 Ellis Richardson,6462,TE,1995-02-12,3,0,0,0,0,30.575342465753426
 Carl Tucker,7926,TE,1997-02-06,1,0,0,0,0,28.59178082191781
 Le'Veon Bell,1408,RB,1992-02-18,9,0,0,0,0,33.558904109589044

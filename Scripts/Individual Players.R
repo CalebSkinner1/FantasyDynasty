@@ -25,7 +25,7 @@ basic_info_df <- player_info %>%
   mutate(
     age = time_length(lubridate::interval(birth_date, today()), "years"),
     across(sva_2024:total_value, ~replace_na(.x, 0))) %>%
-  rename(value_added_2024 = sva_2024)
+  rename_with(~str_replace(.x, "sva_", "total value added "), starts_with("sva"))
 
 write_csv(basic_info_df, here("Shiny/Saved Files/basic_info_df.csv"))
 
