@@ -7,12 +7,18 @@ options(nflreadr.verbose = FALSE)
 
 source(here("Data Manipulation/Scrape Support.R"))
 
-# load box score data from NFL 2024
+# load box score data from NFL 2025
 # https://www.nflfastr.com
-box_score_off <- nflfastR::load_player_stats(seasons = 2024, stat_type = "offense")
-box_score_kicking <- nflfastR::load_player_stats(seasons = 2024, stat_type = "kicking")
-box_score_def <- nflfastR::calculate_stats(seasons = 2024, summary_level = "week", stat_type = "team", season_type = "REG")
 
+box_score_off25 <- nflfastR::load_player_stats(seasons = 2025) %>%
+  select(-contains("_list"))
+
+box_score_def25 <- nflfastR::calculate_stats(seasons = 2025, summary_level = "week", stat_type = "team", season_type = "REG") %>%
+  select(-contains("_list"))
+
+
+box_score_off25 %>% write_csv(here("Data/box_score_off25.csv"))
+box_score_def25 %>% write_csv(here("Data/box_score_def25.csv"))
 
 # Sleeper API ----------------------------------------------------
 # https://docs.sleeper.com
@@ -231,14 +237,12 @@ write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 #   name_correction()
 
 # when projections start, run this one
-# projections25 <- map(list(1), ~combine_week(.x, 2025)) %>%
-#   rbindlist() %>%
-#   as_tibble() %>%
-#   name_correction()
+projections25 <- map(list(1), ~combine_week(.x, 2025)) %>%
+  rbindlist() %>%
+  as_tibble() %>%
+  name_correction()
 
-projections25 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
-
-# write_csv(projections25, here("Data/projections25.csv"))
+write_csv(projections25, here("Data/projections25.csv"))
 projections24 <- read_csv(here("Data/projections24.csv"))
 
 projections <- list(projections24, projections25)

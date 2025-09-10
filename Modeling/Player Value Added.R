@@ -13,6 +13,14 @@ source(here("Data Manipulation/Scraping.R")) #run data ~45 seconds
 player_info <- read_csv(here("Data/player_info.csv"))
 
 # Sleeper Score -----------------------------------------------------------
+# load
+box_score_def <- map_dfr(list(24, 25), ~{
+  file_name <- str_c("Data/box_score_def", .x, ".csv")
+    read_csv(here(file_name), show_col_types = FALSE, col_names = TRUE)})
+
+box_score_off <- map_dfr(list(24, 25), ~{
+  file_name <- str_c("Data/box_score_off", .x, ".csv")
+  read_csv(here(file_name), show_col_types = FALSE, col_names = TRUE)})
 
 # compute fantasy score for non kickers and defenses
 off_sleeper_points <- box_score_off %>%
@@ -20,23 +28,15 @@ off_sleeper_points <- box_score_off %>%
     name = player_display_name,
     season = season, 
     week = week,
-    sleeper_points = .04*passing_yards + 4*passing_tds - interceptions - sack_fumbles - sack_fumbles_lost + 2*passing_2pt_conversions +
-      .1*rushing_yards + 6*rushing_tds - rushing_fumbles - rushing_fumbles_lost + 2*rushing_2pt_conversions +
-      receptions + .1*receiving_yards + 6*receiving_tds - receiving_fumbles -receiving_fumbles_lost + 6*special_teams_tds)
-
-# kicking
-kick_sleeper_points <- box_score_kicking %>%
-  transmute(
-    name = player_display_name,
-    season = season,
-    week = week,
     fg_points = case_when(
       fg_att == 0 ~ 0,
       .default = 3*(fg_made_0_19 + fg_made_20_29 + fg_made_30_39) + 4*fg_made_40_49 + 5*fg_made_50_59 + 5*fg_made_60_ - fg_missed),
     pat_points = case_when(
       pat_att == 0 ~ 0,
       .default = pat_made - pat_missed),
-    sleeper_points = fg_points + pat_points) %>%
+    sleeper_points = .04*passing_yards + 4*passing_tds - passing_interceptions - sack_fumbles - sack_fumbles_lost + 2*passing_2pt_conversions +
+      .1*rushing_yards + 6*rushing_tds - rushing_fumbles - rushing_fumbles_lost + 2*rushing_2pt_conversions +
+      receptions + .1*receiving_yards + 6*receiving_tds - receiving_fumbles -receiving_fumbles_lost + 6*special_teams_tds + fg_points + pat_points) %>%
   select(-fg_points, -pat_points)
 
 # defense
@@ -69,7 +69,7 @@ def_sleeper_points <- box_score_def %>%
   select(-pa_points) %>%
   mutate(name = recode(name, "LA" = "LAR"))
 
-sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points, kick_sleeper_points) %>%
+sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points) %>%
   name_correction() %>%
   filter(week != 18)
 
@@ -83,11 +83,17 @@ projections_list <- map(projections, ~.x %>%
   reframe(week = list(tibble(name, projection, week))) %>%
   deframe())
 
+fill_n <- 17 - projections[[length(projections)]]$week %>% max()
+if(fill_n > 0){
+  projections_list[[length(projections)]] <- c(projections_list[[length(projections)]], rep(list(tibble()), fill_n))
+}
+
+
 # first find each player that started in the week
 starters <- map(
   matchups, ~.x %>%
     map(~{
-      if(nrow(.x) != 0){
+      if(sum(.x$points) != 0){
         .x %>%
           select(roster_id, starters, starters_points) %>%
           unnest(cols = c(starters, starters_points)) %>%
@@ -102,7 +108,7 @@ starters <- map(
 # find bench players
 bench <- pmap(list(matchups, starters, projections_list), function(m, s, p){
   pmap(list(m, s, p), function(m, s, p){
-    if(nrow(m) == 0){
+    if(nrow(s) == 0){
       tibble()} else{
       m %>%
         select(roster_id, players) %>%
@@ -176,7 +182,7 @@ all_positions <- list("QB", "RB", "WR", "TE", flex, super_flex, "K", "DST")
 
 all_replacements <- map2(bench, waiver, ~{
   map2(.x, .y, ~{
-    if(!is.numeric(.x$projection[1])){
+    if(nrow(.x) == 0){
       list()
     }else{
       b <- .x
@@ -187,9 +193,11 @@ all_replacements <- map2(bench, waiver, ~{
 })
 
 # replacement's fantasy score
-find_score <- function(player, season, wk){
+find_score <- function(player, sn, wk){
   return <- sleeper_points %>%
-    filter(week == wk, name == player, season == season) %>%
+    filter(week == wk, name == player, season == sn)
+  
+  return <- return %>%
     select(sleeper_points) %>%
     pull()
   
@@ -207,10 +215,10 @@ mean_replacements <- imap(seq_len(length(all_replacements)), ~{
   }else{
     r <- .x$replacements
     p <- .x$position
-    wk <- .x$week
+    w <- .x$week
     
-    mr <- map_dbl(r, ~find_score(.x, s, wk)) %>% mean()
-    tibble(mean_replacement = mr, pos = p, season = s, week = wk)}}) %>%
+    mr <- map_dbl(r, ~find_score(.x, sn = s, wk = w)) %>% mean()
+    tibble(mean_replacement = mr, pos = p, season = s, week = w)}}) %>%
     rbindlist() %>%
     as_tibble()
 )})
@@ -227,6 +235,7 @@ overall_mean <- map(mean_replacements, ~{
       summarize(overall_mean = mean(mean_replacement))
   }})
 
+# use .3 of overall mean and .7 of specific week
 weighted_mean_replacements <- imap(seq_len(length(mean_replacements)), ~{
   s <- .x
   mean_replacements[[s]] %>% map(~{
@@ -241,7 +250,7 @@ weighted_mean_replacements <- imap(seq_len(length(mean_replacements)), ~{
 
 # find value above mean replacement - starters points by roster
 starters_revamp <- map(starters, ~.x %>% map(~{
-  if(sum(.x$starters_points) == 0){
+  if(nrow(.x) == 0){
     tibble()
   }else{
     .x %>%
@@ -313,7 +322,6 @@ value_added <- imap_dfr(seq_len(length(starters_revamp)), ~{
   }
 })
   
-
 season_value_added <- value_added %>%
   group_by(season, position, name) %>%
   summarize(
