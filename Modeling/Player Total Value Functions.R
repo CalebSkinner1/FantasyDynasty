@@ -261,7 +261,7 @@ compute_quantiles <- function(samples, resid_fit, data){
                 type = "lpmatrix")
 
   eta <- Xp %*% resid_fit$coef #linear predictor
-  sigma_hat <- resid_fit$model$family$linkinv(eta) %>% as.vector()#apply inverse link function 
+  sigma_hat <- resid_fit$model$family$linkinv(eta) %>% as.vector() #apply inverse link function 
   
   # sigma_hat <- predict(resid_fit, newdata = data %>% select(-Y), type = "response")
   

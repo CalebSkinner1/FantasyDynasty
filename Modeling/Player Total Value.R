@@ -7,7 +7,6 @@ source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE) # shortcut
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut 
-sleeper_points <- read_csv(here("Data/sleeper_points24.csv"), show_col_types = FALSE) # shortcut
 season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
@@ -40,7 +39,7 @@ historical_ktc <- read_csv(here("Data/ktc values/ktc_value082324.csv")) %>%
 # create data matrix
 hktc_data <- historical_ktc %>%
   rename("historical_value" = "value") %>%
-  left_join(season_value_added, by = join_by(name)) %>%
+  left_join(season_value_added %>% filter(season == 2024), by = join_by(name)) %>%
   select(-total_points) %>%
   mutate(
     total_value_added = replace_na(total_value_added, 0),
@@ -149,7 +148,8 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
 # reduced_ktc_list <- ktc_list
 
-future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE)
+future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE) %>%
+  filter(date != today())
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 tic()
@@ -165,12 +165,14 @@ max(future_value_time$date) %>% as_tibble() %>% write_csv(here("Data/last_date_f
 # ensure future value is the same as most recent future_value_over_time
 
 player_total_value <- future_value_time %>% filter(date == max(date)) %>%
-  full_join(season_value_added, by = join_by(name)) %>%
-  select(name, total_value_added, future_value) %>%
+  full_join(season_value_added %>%
+              select(name, season, total_value_added) %>%
+              pivot_wider(names_from = season, values_from = total_value_added, names_prefix = "sva_"), by = join_by(name)) %>%
+  select(name, contains("sva"), future_value) %>%
   left_join(player_info, by = join_by(name)) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   mutate(
-    sva_2024 = replace_na(total_value_added, 0),
+    across(contains("sva"), ~replace_na(., 0)),
     ktc_value = case_when(
       position %in% c("K", "DST") ~ 0,
       .default = ktc_value),
@@ -178,7 +180,7 @@ player_total_value <- future_value_time %>% filter(date == max(date)) %>%
       position %in% c("K", "DST") ~ 0,
       is.na(future_value) ~ 0,
       .default = future_value)) %>%
-  select(name, player_id, birth_date, position, ktc_value, sva_2024, future_value)
+  select(name, player_id, birth_date, position, ktc_value, contains("sva"), future_value)
 
 write_csv(player_total_value, here("Data/player_total_value.csv"))
 
