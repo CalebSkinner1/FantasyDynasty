@@ -30,18 +30,33 @@ basic_info_df <- player_info %>%
 
 write_csv(basic_info_df, here("Shiny/Saved Files/basic_info_df.csv"))
 
-# points for each team table
+# want points for each team table?
+
 # data, in future add more seasons here
+sn <- max(value_added$season)
+
+games <- value_added %>% filter(season == sn) %>% slice_max(week) %>% slice(1) %>% pull(week)
+
 plot_future_value_df <- imap_dfr(seq_along(player_simulations), ~{
   df <- player_simulations[[.x]] %>%
-    mutate(season = as.numeric(names(player_simulations)[.x]) + 1)
+    mutate(season = as.numeric(names(player_simulations)[.x]))
   
-  names <- colnames(df %>% select(contains("proj_tva")))
-  
-  df[names] <- t(apply(df[names], 1, sort)) #sort to ensure credible intervals aren't inverted
+  if(.x == 1){
+    df <- df %>%
+      left_join(
+        season_value_added %>% select(name, season, total_value_added), by = join_by(name, season)) %>%
+      mutate(
+        across(contains("proj_tva"), ~.*(17-games)/17 + total_value_added)) %>%
+      select(-total_value_added)
+  }else{
+    names <- colnames(df %>% select(contains("proj_tva")))
+    
+    df[names] <- t(apply(df[names], 1, sort)) #sort to ensure credible intervals aren't inverted
+  }
   
   df
 })
+
 
 write_csv(plot_future_value_df, here("Shiny/Saved Files/plot_future_value_df.csv"))
 
