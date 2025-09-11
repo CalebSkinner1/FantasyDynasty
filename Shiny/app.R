@@ -90,17 +90,21 @@ ui <- dashboardPage(
       
       tabItem( # Page 1 Tab
         tabName = "players",
-        titlePanel("Individual Players"),
-        p("Select any player and this page will report the players' value added and future value. In general, the future value for each year is the
+        fluidRow(
+          column(9,
+                 titlePanel("Individual Players"),
+                 p("Select any player and this page will report the players' value added and future value. In general, the future value for each year is the
           median of 1000 samples, while the colored regions are the 80% and 95% credible regions."),
-        selectizeInput(
-          inputId = "player_name", 
-          label = "Enter a Player's Name", 
-          choices = filter(player_total_value, position %in% c("QB", "WR", "RB", "TE")) %>% pull(name),
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5  # Limit the number of suggestions shown
-          )),
+                 selectizeInput(
+                   inputId = "player_name", 
+                   label = "Enter a Player's Name", 
+                   choices = filter(player_total_value, position %in% c("QB", "WR", "RB", "TE")) %>% pull(name),
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 5  # Limit the number of suggestions shown
+                   ))),
+          column(3, uiOutput("player_image"))
+        ),
         DTOutput("player_basic_info"),
         plotOutput("plot_future_value", height = "400px", width = "100%"),
         p("Enter a season to see the player's value added and fantasy points scored."),
@@ -386,7 +390,7 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "enter_position", 
           label = "Enter Position", 
-          choices = c("All", unique(player_total_value$position)[unique(player_total_value$position) != c("K", "DST")]),
+          choices = c("All", "QB", "RB", "WR", "TE"),
           multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -541,6 +545,13 @@ ui <- dashboardPage(
 # Define Server
 server <- function(input, output, session) {
   # Reactivity for Page 1
+  
+  output$player_image <- renderUI({ # user image
+    req(input$player_name)
+    image_url <- player_headshot %>% filter(name == input$player_name) %>% pull(headshot_url)
+    
+    tags$img(src = image_url, height = "150px")
+  })
   
   output$player_basic_info <- renderDT({ #table 1
     req(input$player_name)
