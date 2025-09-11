@@ -16,6 +16,10 @@ box_score_off25 <- nflfastR::load_player_stats(seasons = 2025) %>%
 box_score_def25 <- nflfastR::calculate_stats(seasons = 2025, summary_level = "week", stat_type = "team", season_type = "REG") %>%
   select(-contains("_list"))
 
+player_headshot <- box_score_off25 %>% select(player_display_name, headshot_url) %>%
+  rename(name = player_display_name)
+
+player_headshot %>% write_csv(here("Shiny/Saved Files/player_headshot.csv"))
 
 box_score_off25 %>% write_csv(here("Data/box_score_off25.csv"))
 box_score_def25 %>% write_csv(here("Data/box_score_def25.csv"))

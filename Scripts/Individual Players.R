@@ -16,6 +16,7 @@ player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_typ
   rowwise() %>%
   mutate(total_value = sum(c_across(contains("sva"))) + .95*future_value) %>%# devalue future
   ungroup()
+player_headshot <- read_csv(here("Shiny/Saved Files/player_headshot.csv"))
   
 # dfs to save -------------------------------------------------------------
 
@@ -33,7 +34,7 @@ write_csv(basic_info_df, here("Shiny/Saved Files/basic_info_df.csv"))
 # data, in future add more seasons here
 plot_future_value_df <- imap_dfr(seq_along(player_simulations), ~{
   df <- player_simulations[[.x]] %>%
-    mutate(season = as.numeric(names(player_simulations)[.x]))
+    mutate(season = as.numeric(names(player_simulations)[.x]) + 1)
   
   names <- colnames(df %>% select(contains("proj_tva")))
   

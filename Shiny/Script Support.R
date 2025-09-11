@@ -39,7 +39,7 @@ plot_future_value <- function(enter_name){
     geom_ribbon(aes(ymin = proj_tva_2.5, ymax = proj_tva_97.5), fill = "cadetblue1", alpha = .5) +
     labs(title = str_c(enter_name, " Projected Total Value Added"), x = "", y = "") +
     geom_point(data = season_value_added %>% filter(name == enter_name),
-               aes(x = 2024, y = total_value_added))
+               aes(x = season, y = total_value_added))
 }
 
 tabulate_realized_value <- function(va_data, enter_name, enter_season, shiny = FALSE){
