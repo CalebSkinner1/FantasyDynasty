@@ -496,7 +496,7 @@ ui <- dashboardPage(
         fluidRow(
           column(6,
                  selectizeInput(
-                   inputId = "enter_season", 
+                   inputId = "enter_season_history", 
                    label = "Enter Season", 
                    choices = unique(wins_df$season),
                    multiple = TRUE, #enable multiple selections
@@ -506,7 +506,7 @@ ui <- dashboardPage(
                    ))),
           column(6,
                  selectizeInput(
-                   inputId = "enter_round", 
+                   inputId = "enter_round_history", 
                    label = "Enter Game Type", 
                    choices = c("All", unique(wins_df$type)),
                    multiple = TRUE, #enable multiple selections
@@ -526,7 +526,7 @@ ui <- dashboardPage(
         DTOutput("highest_team_game"),
         
         selectizeInput(
-          inputId = "enter_position", 
+          inputId = "enter_position_history", 
           label = "Enter Position", 
           choices = c("All", unique(value_added$position)),
           multiple = TRUE, #enable multiple selections
@@ -1168,8 +1168,8 @@ server <- function(input, output, session) {
   })
   
   output$most_wins <- renderDT({ # table 4
-    req(input$enter_round, input$enter_season)
-    compute_most_wins(wins_df, input$enter_round, input$enter_season) %>%
+    req(input$enter_round_history, input$enter_season_history)
+    compute_most_wins(wins_df, input$enter_round_history, input$enter_season_history) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
@@ -1183,8 +1183,8 @@ server <- function(input, output, session) {
   })
   
   output$most_points <- renderDT({ # table 5
-    req(input$enter_round, input$enter_season)
-    compute_total_points(wins_df, input$enter_round, input$enter_season) %>%
+    req(input$enter_round_history, input$enter_season_history)
+    compute_total_points(wins_df, input$enter_round_history, input$enter_season_history) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
@@ -1198,8 +1198,8 @@ server <- function(input, output, session) {
   })
 
   output$highest_team_game <- renderDT({ # table 6
-    req(input$enter_round, input$enter_season)
-    highest_team_total(wins_df, input$enter_round, input$enter_season) %>%
+    req(input$enter_round_history, input$enter_season_history)
+    highest_team_total(wins_df, input$enter_round_history, input$enter_season_history) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
@@ -1212,9 +1212,9 @@ server <- function(input, output, session) {
     h3("Player's Total Fantasy Points")
   })
   
-  output$player_highest_season <- renderDT({ # table 1
-    req(input$enter_round, input$enter_season, input$enter_position)
-    compute_total_points_player(value_added, wins_df, input$enter_round, input$enter_season, input$enter_position) %>%
+  output$player_highest_season <- renderDT({ # table 7
+    req(input$enter_round_history, input$enter_season_history, input$enter_position_history)
+    compute_total_points_player(value_added, wins_df, input$enter_round_history, input$enter_season_history, input$enter_position_history) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
@@ -1227,9 +1227,9 @@ server <- function(input, output, session) {
     h3("Player's Total Realized Value")
   })
   
-  output$player_highest_va_season <- renderDT({ # table 2
-    req(input$enter_round, input$enter_season, input$enter_position)
-    compute_value_added_player(value_added, wins_df, input$enter_round, input$enter_season, input$enter_position) %>%
+  output$player_highest_va_season <- renderDT({ # table 8
+    req(input$enter_round_history, input$enter_season_history, input$enter_position_history)
+    compute_value_added_player(value_added, wins_df, input$enter_round_history, input$enter_season_history, input$enter_position_history) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
@@ -1243,8 +1243,8 @@ server <- function(input, output, session) {
   })
   
   output$player_best_game <- renderDT({ # table 3
-    req(input$enter_round, input$enter_season, input$enter_position)
-    highest_player_total(value_added, wins_df, input$enter_round, input$enter_season, input$enter_position) %>%
+    req(input$enter_round_history, input$enter_season_history, input$enter_position_history)
+    highest_player_total(value_added, wins_df, input$enter_round_history, input$enter_season_history, input$enter_position_history) %>%
       datatable(
         options = list(
           pageLength = 5,         # Set the initial number of rows per page
