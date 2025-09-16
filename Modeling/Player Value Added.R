@@ -300,15 +300,16 @@ value_added <- imap_dfr(seq_len(length(starters_revamp)), ~{
   if(length(value_added_tbl) == 0){
     tibble()
   }else{
-    value_added_tbl %>% 
+    value_added_tbl %>%
       rename("sleeper_points" = "points") %>%
       mutate(type = "starter") %>%
       # add with bench players
       bind_rows(
         bind_rows(bench[[.x]], .id = "week") %>%
           select(-projection) %>%
-          mutate(week = as.numeric(week)) %>%
-          left_join(select(sleeper_points, -season), by = join_by(name, week)) %>%
+          mutate(week = as.numeric(week),
+                 season = .x + 2023) %>%
+          left_join(sleeper_points, by = join_by(name, week, season)) %>%
           mutate(
             sleeper_points = replace_na(sleeper_points, 0),
             # obviously they have 0 value added
@@ -316,9 +317,9 @@ value_added <- imap_dfr(seq_len(length(starters_revamp)), ~{
       # add projections
       left_join(projections[[.x]], by = join_by(name, week)) %>%
       # give projected 0 if not present
-      mutate(
-        projection = replace_na(projection, 0),
-        season = .x + 2023)
+    mutate(
+      projection = replace_na(projection, 0),
+      season = .x + 2023)
   }
 })
   
