@@ -522,8 +522,8 @@ season,position,name,total_value_added,total_points
 2025,WR,Tank Dell,0,11.2
 2025,WR,Tory Horton,0,11.2
 2025,WR,Travis Hunter,0,14.5
+2025,WR,Tre Harris,0,7.5
 2025,WR,Tre Tucker,0,8.2
-2025,WR,Tre' Harris,0,0
 2025,WR,Tyquan Thornton,0,13.9
 2025,WR,Wan'Dale Robinson,0,61.300000000000004
 2025,WR,Xavier Legette,0,12.3
@@ -576,7 +576,6 @@ season,position,name,total_value_added,total_points
 2024,WR,Adam Thielen,-3.7176960784313735,130.1
 2025,WR,Ladd McConkey,-3.774999999999997,23.200000000000003
 2024,K,Nick Folk,-3.8465686274509796,10
-2025,DST,Pittsburgh Steelers,-3.9999999999999982,8
 2025,WR,Hollywood Brown,-4.008749999999999,27.9
 2025,WR,Michael Pittman Jr.,-4.008749999999999,35.1
 2024,WR,Rome Odunze,-4.061323529411764,172.89999999999998
@@ -588,6 +587,7 @@ season,position,name,total_value_added,total_points
 2025,K,Chase McLaughlin,-4.6625,4
 2025,K,Evan McPherson,-4.916666666666666,12
 2024,DST,New York Jets,-4.919509803921562,55
+2025,DST,Pittsburgh Steelers,-4.999999999999998,7
 2025,TE,Mike Gesicki,-5.0575,12
 2025,TE,Brenton Strange,-5.1575,14.600000000000001
 2024,DST,Arizona Cardinals,-5.210392156862743,26

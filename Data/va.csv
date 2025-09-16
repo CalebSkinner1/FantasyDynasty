@@ -4900,11 +4900,11 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,projectio
 12,Josh Jacobs,RB,2,14.4,2.391250000000001,starter,NA,14.8,2025
 12,Baker Mayfield,QB,2,19.9,4.245999999999999,starter,NA,18.2,2025
 12,Harrison Butker,K,2,6,-2.2541666666666664,starter,NA,24,2025
-12,Pittsburgh Steelers,DST,2,6,-0.2916666666666661,starter,NA,29,2025
+12,Pittsburgh Steelers,DST,2,5,-1.291666666666666,starter,NA,29,2025
 1,Jayden Reed,WR,1,33.1,0,bench,2,0,2025
 1,Jayden Reed,WR,1,13.5,0,bench,2,0,2025
 1,Quinn Ewers,QB,1,0,0,bench,0,0,2025
-1,Tre' Harris,WR,1,0,0,bench,0,0,2025
+1,Tre Harris,WR,1,2.1,0,bench,0,0,2025
 1,Tyler Warren,TE,1,14.9,0,bench,0,11.9,2025
 1,Shedeur Sanders,QB,1,0,0,bench,0,0,2025
 1,Tahj Brooks,RB,1,0,0,bench,0,0,2025
@@ -5136,7 +5136,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,projectio
 12,Wan'Dale Robinson,WR,1,11.5,0,bench,3,11,2025
 1,Jayden Reed,WR,2,6.6000000000000005,0,bench,2,8.8,2025
 1,Quinn Ewers,QB,2,0,0,bench,0,0,2025
-1,Tre' Harris,WR,2,0,0,bench,0,0,2025
+1,Tre Harris,WR,2,5.4,0,bench,0,0,2025
 1,Shedeur Sanders,QB,2,0,0,bench,0,0,2025
 1,Tahj Brooks,RB,2,0,0,bench,0,0,2025
 1,Kareem Hunt,RB,2,3.4000000000000004,0,bench,8,5.5,2025
