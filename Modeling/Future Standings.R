@@ -43,6 +43,7 @@ known_draft_picks_year2 <- future_draft_picks %>%
 known_draft_picks_year3 <- future_draft_picks %>%
   prep_draft_picks(this_year, "third year")
 
+# warning: this takes about 2.5 minutes
 n_sims <- 5000
 tic()
 team_tva_ranking <- future_map(1:n_sims, ~{
@@ -121,8 +122,9 @@ team_tva_list <- map(team_tva_ranking, ~.x %>% mutate(group = (row_number() - 1)
 
 current_table <- construct_table(matchups_table, season_dates, today())
 
+# warning: this takes about
 tic()
-final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, matchup_fit_coef, 3, n_sims = 50)
+final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, matchup_fit_coef, 3, n_sims = 5000)
 toc()
 
 write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))

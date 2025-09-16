@@ -21,6 +21,8 @@ source(here("Modeling", "Player Total Value.R"))
 # when future standings is allowed to vary with season, add that here
 misty::restart() #clear memory
 
+# with relative frequencey, will need to rerun Future Standings.R to update projections of the end of season results
+
 # Individual Players
 library("here")
 source(here("Scripts", "Individual Players.R"))

@@ -45,7 +45,7 @@ plot_future_value <- function(enter_name){
 tabulate_realized_value <- function(va_data, enter_name, enter_season, shiny = FALSE){
   df <- va_data %>%
     filter(name == enter_name) %>%
-    filter(season == enter_season) %>%
+    filter(season %in% enter_season) %>%
     group_by(display_name) %>%
     summarize(
       start_week = min(week),
@@ -401,7 +401,7 @@ draft_rankings <- function(enter_draft, shiny){
 weekly_results <- function(va_data, enter_name, enter_season){
   va_data %>%
     filter(name == enter_name) %>%
-    filter(season == enter_season) %>%
+    filter(season == max(enter_season)) %>%
     select(week, sleeper_points, projection, value_added) %>%
     pivot_longer(cols = c(sleeper_points, projection, value_added),
                  names_to = "type", values_to = "value") %>%
@@ -538,7 +538,7 @@ top_future_value_player <- function(player_total_value, enter_position){
     rowwise() %>%
     mutate(
       realized_value = sum(c_across(contains("sva_"))),
-      age = time_length(interval(birth_date, today()), unit = "year")) %>%
+      age = lubridate::time_length(lubridate::interval(birth_date, today()), unit = "years")) %>%
     ungroup() %>%
     select(name, position, age, realized_value, future_value) %>%
     arrange(desc(future_value)) %>%

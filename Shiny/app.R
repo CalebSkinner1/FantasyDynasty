@@ -29,12 +29,12 @@ ui <- dashboardPage(
       menuItem("Transaction Grades", tabName = "transaction", icon = icon("right-left")),
       menuItem("Trade Grades", tabName = "trade", icon = icon("handshake")),
       menuItem("Trade Machine", tabName = "trade_machine", icon = icon("handshake-slash")),
-      menuItem("Matchups", tabName = "matchups", icon = icon("calendar-days")),
       menuItem("Future Standings", tabName = "future_standings", icon = icon("ranking-star")),
       menuItem("Player Rankings", tabName = "rankings", icon = icon("arrow-trend-up")),
       menuItem("Team Rankings", tabName = "team_rankings", icon = icon("rocket")),
-      menuItem("Modeling", tabName = "modeling", icon = icon("chart-simple")),
-      menuItem("History", tabName = "history", icon = icon("bank")))
+      menuItem("Matchups", tabName = "matchups", icon = icon("calendar-days")),
+      menuItem("History", tabName = "history", icon = icon("bank")),
+      menuItem("Modeling", tabName = "modeling", icon = icon("chart-simple")))
   ),
   dashboardBody(
     tabItems(
@@ -50,7 +50,15 @@ ui <- dashboardPage(
           a("Dynasty Daddy.", href = "https://dynasty-daddy.com", target = "blank"), "In fact, several of my models leverage
           these popular ratings. That said, I believe users will find insights unique to this website, and I firmly take
           credit for any success or newfound knowledge any fantasy users derive. As for any mistakes or poor
-          advice -- well -- thank you forsupporting your local statistican."),
+          advice -- well -- thank you for supporting your local statistican."),
+        h3("What are all these tabs? Where should I start?"),
+        p("I separate the information on this website into three categories: retrospective analysis, projections, and league archives. Retrospective
+          tabs analyze previous moves by fantasy owners and attempt to identify strong and poor moves. The Draft Grades, Transaction Grades,
+          and Trade Grades tabs primarily fulfill this purpose. By attributing current value to these historical moves, users can learn from
+          past successes and failures. The Trade Machine, Future Standings, and Player Rankings tabs are projections that predict future output and results.
+          These tabs are helpful for users looking to make adjustments to their current team. The Matchups and History tabs are primarily archival.
+          That is, they chronicle past results so managers can remember their exploits."),
+        h3("How does this all work?"),
         h4("Value Added"),
         p("A fantasy players'", strong("value added"), "measures a fantasy player's actual value contributed to a user. I measure a players' value
         added as the difference in his fantasy output with the output of a replacement level player of
@@ -119,8 +127,9 @@ ui <- dashboardPage(
           )),
         uiOutput("tabulate_realized_value_title"),
         DTOutput("tabulate_realized_value"),
-        plotOutput("weekly_results")
-      ),
+        p("This visual will show the player's weekly output, projected output, and value added over the course of a season.
+          It defaults to the most recent season selected of the choices above."),
+        plotOutput("weekly_results")),
       
       tabItem( # Page 2 Tab
         tabName = "teams",
@@ -189,8 +198,7 @@ ui <- dashboardPage(
         DTOutput("worst_acquisitions"),
         uiOutput("team_composition_title"),
         p("Proportion of total value on roster acquired from various avenues."),
-        DTOutput("team_composition"),
-      ),
+        DTOutput("team_composition")),
       
       tabItem( # Page 3 Tab
         tabName = "draft",
@@ -211,8 +219,7 @@ ui <- dashboardPage(
         uiOutput("best_picks_title"),
         DTOutput("best_picks"),
         uiOutput("worst_picks_title"),
-        DTOutput("worst_picks")
-      ),
+        DTOutput("worst_picks")),
       
       tabItem( # Page 4 Tab
         tabName = "transaction",
@@ -319,47 +326,8 @@ ui <- dashboardPage(
                  DTOutput("team2_trade_outlook"))
         ),
       ),
-      
+ 
       tabItem( # Page 7 Tab
-        tabName = "matchups",
-        titlePanel("Matchups History"),
-        p("Select a team to see historical records against opponents."),
-        fluidRow(
-          column(4,
-                 selectizeInput(
-                   inputId = "team_name",
-                   label = "Enter a Team's Name",
-                   choices = users$display_name,
-                   options = list(
-                     placeholder = "Start typing...",
-                     maxOptions = 5  # Limit the number of suggestions shown
-                   ))),
-          column(4,
-                 selectizeInput(
-                   inputId = "team_seasons",
-                   label = "Enter Season",
-                   choices = unique(team_records_df$season),
-                   multiple = TRUE, #enable multiple selections
-                   options = list(
-                     placeholder = "Start typing...",
-                     maxOptions = 2  # Limit the number of suggestions shown
-                   ))),
-          column(4,
-                 selectizeInput(
-                   inputId = "enter_round",
-                   label = "Enter Round",
-                   choices = c("All", unique(team_records_df$round)),
-                   multiple = TRUE, #enable multiple selections
-                   options = list(
-                     placeholder = "Start typing...",
-                     maxOptions = 2  # Limit the number of suggestions shown
-                   )))),
-        
-        uiOutput("matchups_title"),
-        
-        DTOutput("matchup_history"),
-      ),
-      tabItem( # Page 8 Tab
         tabName = "future_standings",
         titlePanel("Future Standings"),
         p("I simulate final standings over the next three years 5000 times. In each simulation,
@@ -382,7 +350,8 @@ ui <- dashboardPage(
         p("The most likely finish for each Fantasy Team."),
         DTOutput("most_common_finish")
       ),
-      tabItem( # Page 9 Tab
+      
+      tabItem( # Page 8 Tab
         tabName = "rankings",
         titlePanel("Player Rankings"),
         p("Player's future value ranked and displayed over time.
@@ -391,7 +360,7 @@ ui <- dashboardPage(
           inputId = "enter_position", 
           label = "Enter Position", 
           choices = c("All", "QB", "RB", "WR", "TE"),
-          multiple = TRUE, #enable multiple selections
+          multiple = TRUE, # enable multiple selections
           options = list(
             placeholder = "Start typing...",
             maxOptions = 4  # Limit the number of suggestions shown
@@ -430,7 +399,8 @@ ui <- dashboardPage(
           )),
         plotlyOutput("comparable_future_value")
       ),
-      tabItem( # Page 10 Tab
+      
+      tabItem( # Page 9 Tab
         tabName = "team_rankings",
         titlePanel("Team Rankings"),
         p("Team rankings by ELO and total future value of assets."),
@@ -469,12 +439,48 @@ ui <- dashboardPage(
         uiOutput("future_assets_title"),
         DTOutput("future_assets")
       ),
-      tabItem( # Page 11 Tab
-        tabName = "modeling",
-        titlePanel("Model Explanations and Fit"),
-        p("This is a static page that will be completed at a later date. Here, I'll explain my models and show their fit.")
+      
+      tabItem( # Page 10 Tab
+        tabName = "matchups",
+        titlePanel("Matchups History"),
+        p("Select a team to see historical records against opponents."),
+        fluidRow(
+          column(4,
+                 selectizeInput(
+                   inputId = "team_name",
+                   label = "Enter a Team's Name",
+                   choices = users$display_name,
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 5  # Limit the number of suggestions shown
+                   ))),
+          column(4,
+                 selectizeInput(
+                   inputId = "team_seasons",
+                   label = "Enter Season",
+                   choices = unique(team_records_df$season),
+                   multiple = TRUE, #enable multiple selections
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 2  # Limit the number of suggestions shown
+                   ))),
+          column(4,
+                 selectizeInput(
+                   inputId = "enter_round",
+                   label = "Enter Round",
+                   choices = c("All", unique(team_records_df$round)),
+                   multiple = TRUE, #enable multiple selections
+                   options = list(
+                     placeholder = "Start typing...",
+                     maxOptions = 2  # Limit the number of suggestions shown
+                   )))),
+        
+        uiOutput("matchups_title"),
+        
+        DTOutput("matchup_history"),
       ),
-      tabItem( # Page 12 Tab
+      
+      tabItem( # Page 11 Tab
         tabName = "history",
         titlePanel("League History"),
         p("This page lists the league champions and notable records set in the league."),
@@ -537,6 +543,12 @@ ui <- dashboardPage(
       
       uiOutput("player_best_game_title"),
       DTOutput("player_best_game")
+      ),
+      
+      tabItem( # Page 12 Tab
+        tabName = "modeling",
+        titlePanel("Model Explanations and Fit"),
+        p("This is a static page that will be completed at a later date. Here, I'll explain my models and show their fit.")
       )
     )
   )
@@ -983,24 +995,6 @@ server <- function(input, output, session) {
   
   # Reactivity for Page 7
   
-  output$matchups_title <- renderUI({ #title
-    req(input$team_name)
-    h3(str_c(input$team_name, "'s Matchup Record"))
-  })
-  
-  output$matchup_history <- renderDT({ #table 1
-    req(input$team_name, input$enter_round, input$team_seasons) #require input
-    team_records_df %>% team_matchup_record(input$team_name, input$enter_round, input$team_seasons, shiny = TRUE) %>%
-      datatable(
-        options = list(
-          pageLength = 12,         # Set the initial number of rows per page
-          ordering = TRUE,        # Enable column sorting
-          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
-        ))
-  })
-  
-  # Reactivity for Page 8
-  
   output$championship_odds_title <- renderUI({ #title
     h3("Championship Odds")
   })
@@ -1031,7 +1025,7 @@ server <- function(input, output, session) {
         ))
   })
   
-  # Reactivity for Page 9
+  # Reactivity for Page 8
   
   output$players_top_future_value_title <- renderUI({ #title
     h3("Players Ranked by Future Value")
@@ -1066,7 +1060,7 @@ server <- function(input, output, session) {
     future_value_time %>% comparable_players(player_total_value, input$enter_player)
   })
   
-  # Reactivity for Page 10
+  # Reactivity for Page 9
 
   output$elo_rankings_title <- renderUI({ #title
     h3("ELO Rankings")
@@ -1104,7 +1098,25 @@ server <- function(input, output, session) {
         ))
   })
   
-  # Reactivity for Page 12
+  # Reactivity for Page 10
+  
+  output$matchups_title <- renderUI({ #title
+    req(input$team_name)
+    h3(str_c(input$team_name, "'s Matchup Record"))
+  })
+  
+  output$matchup_history <- renderDT({ #table 1
+    req(input$team_name, input$enter_round, input$team_seasons) #require input
+    team_records_df %>% team_matchup_record(input$team_name, input$enter_round, input$team_seasons, shiny = TRUE) %>%
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  # Reactivity for Page 11
   
   output$championship_title <- renderUI({ #title
     h3("Championships")
