@@ -20,6 +20,7 @@ value_avenues <- read_csv(str_c(script_data_path, "value_avenues.csv"), show_col
 basic_info_df <- read_csv(str_c(script_data_path, "basic_info_df.csv"), show_col_types = FALSE)
 plot_future_value_df <- read_csv(str_c(script_data_path, "plot_future_value_df.csv"), show_col_types = FALSE)
 value_added <- read_csv(str_c(script_data_path, "value_added.csv"), show_col_types = FALSE)
+player_headshot <- read_csv(str_c(script_data_path, "player_headshot.csv"), show_col_types = FALSE)
 
 # drafts
 picks_df <- read_csv(str_c(script_data_path, "picks_df.csv"), show_col_types = FALSE)
