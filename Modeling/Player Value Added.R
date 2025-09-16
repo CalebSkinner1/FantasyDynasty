@@ -353,6 +353,6 @@ write_csv(season_value_added, here("Data/sva.csv"))
 # remove objects and functions to declutter environment
 rm(top_replacement, find_score, clean_replacements, super_flex, flex,
    weighted_mean_replacements, waiver, starters, starters_revamp, projections_list, projections, overall_mean,
-   opp_points_scored, off_sleeper_points, kick_sleeper_points, def_sleeper_points,
-   box_score_off, box_score_kicking, box_score_def, bench, all_replacements, all_positions, mean_replacements)
+   opp_points_scored, off_sleeper_points, def_sleeper_points,
+   box_score_off, box_score_def, bench, all_replacements, all_positions, mean_replacements)
 

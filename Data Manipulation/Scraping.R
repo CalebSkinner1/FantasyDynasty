@@ -170,7 +170,7 @@ write_csv(draft_order, here("Data/draft_order.csv"))
 #   as_tibble()
 
 # # all 32 defenses
-# defenses <- box_score_def %>%
+# defenses <- box_score_def25 %>%
 #   rename(name = team) %>%
 #   select(name) %>%
 #   distinct() %>%
@@ -241,7 +241,7 @@ write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 #   name_correction()
 
 # when projections start, run this one
-projections25 <- map(list(1), ~combine_week(.x, 2025)) %>%
+projections25 <- map(c(1:max(box_score_off25$week)), ~combine_week(.x, 2025)) %>%
   rbindlist() %>%
   as_tibble() %>%
   name_correction()
