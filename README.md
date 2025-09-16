@@ -97,10 +97,6 @@ can be updated with new data and the draft pick valuation can be updated. See th
 4. trade odds over time
 5. Model Fit
 
-## once season starts
-1. Some code will surely break
-2. Compute future value as percentage of remaining season
-
 ## distant future ideas
 1. Zero-inflated model to predict value added (especially for rookie next year production)
 2. Incorporate time series technique to model a players' career.
