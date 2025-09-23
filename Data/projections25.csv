@@ -243,70 +243,70 @@ Jalen Nailor,2.8,1
 Sterling Shepard,2.8,1
 Marquez Valdes-Scantling,2.8,1
 Jahan Dotson,2.6,1
-Chris Boswell,32,1
-Will Reichard,31,1
-Matt Gay,30,1
-Jake Bates,29,1
-Brandon Aubrey,28,1
-Chase McLaughlin,27,1
-Jake Elliott,26,1
-Tyler Loop,25,1
-Harrison Butker,24,1
-Daniel Carlson,23,1
-Matt Prater,22,1
-Nick Folk,21,1
-Spencer Shrader,20,1
-Eddy Pineiro,19,1
-Wil Lutz,18,1
-Evan McPherson,17,1
-Cameron Dicker,16,1
-Jason Myers,15,1
-Joshua Karty,14,1
-Blake Grupe,13,1
-Andy Borregales,12,1
-Chad Ryland,11,1
-Cam Little,10,1
-Graham Gano,9,1
-Ka'imi Fairbairn,8,1
-Brandon McManus,7,1
-John Parker Romo,6,1
-Cairo Santos,5,1
+Brandon Aubrey,32,1
+Tyler Loop,31,1
+Jake Elliott,30,1
+Matt Prater,29,1
+Jason Myers,28,1
+Brandon McManus,27,1
+Jake Bates,26,1
+Spencer Shrader,25,1
+Wil Lutz,24,1
+Eddy Pineiro,23,1
+Chris Boswell,22,1
+Ka'imi Fairbairn,21,1
+Cam Little,20,1
+Joshua Karty,19,1
+Daniel Carlson,18,1
+Will Reichard,17,1
+Matt Gay,16,1
+Chase McLaughlin,15,1
+Harrison Butker,14,1
+Cameron Dicker,13,1
+John Parker Romo,12,1
+Evan McPherson,11,1
+Andy Borregales,10,1
+Blake Grupe,9,1
+Cairo Santos,8,1
+Joey Slye,7,1
+Nick Folk,6,1
+Graham Gano,5,1
 Riley Patterson,4,1
-Andre Szmyt,3,1
+Chad Ryland,3,1
 Ryan Fitzgerald,2,1
-Joey Slye,1,1
-Baltimore Ravens,32,1
-Los Angeles Rams,31,1
-Arizona Cardinals,30,1
-Pittsburgh Steelers,29,1
-Denver Broncos,28,1
-San Francisco 49ers,27,1
-Dallas Cowboys,26,1
-Green Bay Packers,25,1
-Philadelphia Eagles,24,1
-Los Angeles Chargers,23,1
-Detroit Lions,22,1
-New England Patriots,21,1
-Buffalo Bills,20,1
-New Orleans Saints,19,1
-Indianapolis Colts,18,1
-Houston Texans,17,1
-Minnesota Vikings,16,1
-Tampa Bay Buccaneers,15,1
+Andre Szmyt,1,1
+Buffalo Bills,32,1
+Green Bay Packers,31,1
+Atlanta Falcons,30,1
+Tampa Bay Buccaneers,29,1
+Indianapolis Colts,28,1
+Minnesota Vikings,27,1
+Seattle Seahawks,26,1
+Los Angeles Chargers,25,1
+Denver Broncos,24,1
+Kansas City Chiefs,23,1
+Baltimore Ravens,22,1
+Philadelphia Eagles,21,1
+Washington Commanders,20,1
+San Francisco 49ers,19,1
+Houston Texans,18,1
+New England Patriots,17,1
+Pittsburgh Steelers,16,1
+Arizona Cardinals,15,1
 Las Vegas Raiders,14,1
 New York Giants,13,1
-Washington Commanders,12,1
-Seattle Seahawks,11,1
-Miami Dolphins,10,1
-Carolina Panthers,9,1
+Chicago Bears,12,1
+New York Jets,11,1
+Los Angeles Rams,10,1
+Dallas Cowboys,9,1
 Tennessee Titans,8,1
-Chicago Bears,7,1
-Atlanta Falcons,6,1
-Kansas City Chiefs,5,1
-Cincinnati Bengals,4,1
-New York Jets,3,1
-Jacksonville Jaguars,2,1
-Cleveland Browns,1,1
+Miami Dolphins,7,1
+Carolina Panthers,6,1
+Cincinnati Bengals,5,1
+Jacksonville Jaguars,4,1
+Cleveland Browns,3,1
+Detroit Lions,2,1
+New Orleans Saints,1,1
 Josh Allen,24.9,2
 Lamar Jackson,22.8,2
 Jayden Daniels,22.4,2
@@ -551,67 +551,370 @@ Jalen Tolbert,2.2,2
 Luther Burden,2.1,2
 Van Jefferson,2.1,2
 Elijah Moore,2.1,2
-Chris Boswell,32,2
-Will Reichard,31,2
-Matt Gay,30,2
-Jake Bates,29,2
-Brandon Aubrey,28,2
-Chase McLaughlin,27,2
-Jake Elliott,26,2
-Tyler Loop,25,2
-Harrison Butker,24,2
-Daniel Carlson,23,2
-Matt Prater,22,2
-Nick Folk,21,2
-Spencer Shrader,20,2
-Eddy Pineiro,19,2
-Wil Lutz,18,2
-Evan McPherson,17,2
-Cameron Dicker,16,2
-Jason Myers,15,2
-Joshua Karty,14,2
-Blake Grupe,13,2
-Andy Borregales,12,2
-Chad Ryland,11,2
-Cam Little,10,2
-Graham Gano,9,2
-Ka'imi Fairbairn,8,2
-Brandon McManus,7,2
-John Parker Romo,6,2
-Cairo Santos,5,2
+Brandon Aubrey,32,2
+Tyler Loop,31,2
+Jake Elliott,30,2
+Matt Prater,29,2
+Jason Myers,28,2
+Brandon McManus,27,2
+Jake Bates,26,2
+Spencer Shrader,25,2
+Wil Lutz,24,2
+Eddy Pineiro,23,2
+Chris Boswell,22,2
+Ka'imi Fairbairn,21,2
+Cam Little,20,2
+Joshua Karty,19,2
+Daniel Carlson,18,2
+Will Reichard,17,2
+Matt Gay,16,2
+Chase McLaughlin,15,2
+Harrison Butker,14,2
+Cameron Dicker,13,2
+John Parker Romo,12,2
+Evan McPherson,11,2
+Andy Borregales,10,2
+Blake Grupe,9,2
+Cairo Santos,8,2
+Joey Slye,7,2
+Nick Folk,6,2
+Graham Gano,5,2
 Riley Patterson,4,2
-Andre Szmyt,3,2
+Chad Ryland,3,2
 Ryan Fitzgerald,2,2
-Joey Slye,1,2
-Baltimore Ravens,32,2
-Los Angeles Rams,31,2
-Arizona Cardinals,30,2
-Pittsburgh Steelers,29,2
-Denver Broncos,28,2
-San Francisco 49ers,27,2
-Dallas Cowboys,26,2
-Green Bay Packers,25,2
-Philadelphia Eagles,24,2
-Los Angeles Chargers,23,2
-Detroit Lions,22,2
-New England Patriots,21,2
-Buffalo Bills,20,2
-New Orleans Saints,19,2
-Indianapolis Colts,18,2
-Houston Texans,17,2
-Minnesota Vikings,16,2
-Tampa Bay Buccaneers,15,2
+Andre Szmyt,1,2
+Buffalo Bills,32,2
+Green Bay Packers,31,2
+Atlanta Falcons,30,2
+Tampa Bay Buccaneers,29,2
+Indianapolis Colts,28,2
+Minnesota Vikings,27,2
+Seattle Seahawks,26,2
+Los Angeles Chargers,25,2
+Denver Broncos,24,2
+Kansas City Chiefs,23,2
+Baltimore Ravens,22,2
+Philadelphia Eagles,21,2
+Washington Commanders,20,2
+San Francisco 49ers,19,2
+Houston Texans,18,2
+New England Patriots,17,2
+Pittsburgh Steelers,16,2
+Arizona Cardinals,15,2
 Las Vegas Raiders,14,2
 New York Giants,13,2
-Washington Commanders,12,2
-Seattle Seahawks,11,2
-Miami Dolphins,10,2
-Carolina Panthers,9,2
+Chicago Bears,12,2
+New York Jets,11,2
+Los Angeles Rams,10,2
+Dallas Cowboys,9,2
 Tennessee Titans,8,2
-Chicago Bears,7,2
-Atlanta Falcons,6,2
-Kansas City Chiefs,5,2
-Cincinnati Bengals,4,2
-New York Jets,3,2
-Jacksonville Jaguars,2,2
-Cleveland Browns,1,2
+Miami Dolphins,7,2
+Carolina Panthers,6,2
+Cincinnati Bengals,5,2
+Jacksonville Jaguars,4,2
+Cleveland Browns,3,2
+Detroit Lions,2,2
+New Orleans Saints,1,2
+Josh Allen,24.4,3
+Lamar Jackson,23.4,3
+Jalen Hurts,21.6,3
+Justin Herbert,20.2,3
+Patrick Mahomes,19.8,3
+Caleb Williams,18.8,3
+Kyler Murray,18.7,3
+Daniel Jones,17.9,3
+Baker Mayfield,17.9,3
+Drake Maye,17.9,3
+Dak Prescott,17.8,3
+Marcus Mariota,17.6,3
+Bo Nix,17.2,3
+Jordan Love,17,3
+Trevor Lawrence,16.8,3
+Jared Goff,16.3,3
+C.J. Stroud,16,3
+Mac Jones,15.8,3
+Bryce Young,15.8,3
+Russell Wilson,15.6,3
+Geno Smith,15.5,3
+Tyrod Taylor,15.2,3
+Matthew Stafford,15.1,3
+Michael Penix Jr.,15.1,3
+Aaron Rodgers,15,3
+Spencer Rattler,14.9,3
+Jake Browning,14.9,3
+Sam Darnold,14.8,3
+Carson Wentz,14,3
+Joe Flacco,13.7,3
+Tua Tagovailoa,13.3,3
+Cameron Ward,11.1,3
+Bijan Robinson,21.8,3
+Christian McCaffrey,20.5,3
+Jonathan Taylor,20,3
+De'Von Achane,18.9,3
+James Cook,18.4,3
+Saquon Barkley,17.6,3
+Jahmyr Gibbs,17,3
+Derrick Henry,16.4,3
+Bucky Irving,16.3,3
+Kenneth Walker III,15.6,3
+Tony Pollard,15.4,3
+Javonte Williams,15.1,3
+Josh Jacobs,15,3
+Kyren Williams,14.6,3
+Breece Hall,14.5,3
+Alvin Kamara,14.1,3
+Ashton Jeanty,14,3
+Travis Etienne,13.6,3
+Chase Brown,13.1,3
+Chuba Hubbard,12.7,3
+James Conner,12.3,3
+Omarion Hampton,12,3
+Jaylen Warren,12,3
+D'Andre Swift,11.8,3
+Jordan Mason,11.4,3
+Rhamondre Stevenson,11.3,3
+TreVeyon Henderson,10.7,3
+Kenneth Gainwell,10.3,3
+Bhayshul Tuten,10,3
+J.K. Dobbins,9.9,3
+Quinshon Judkins,9.5,3
+Tyrone Tracy Jr.,9.3,3
+Nick Chubb,9.1,3
+Cam Skattebo,8.9,3
+Jacory Croskey-Merritt,8.5,3
+Isiah Pacheco,7.9,3
+Trey Benson,7.6,3
+David Montgomery,7.6,3
+Rachaad White,7.6,3
+Dylan Sampson,6.8,3
+Najee Harris,6.3,3
+RJ Harvey,6.2,3
+Tyler Allgeier,6.1,3
+Kareem Hunt,5.8,3
+Jerome Ford,5.6,3
+Braelon Allen,5.4,3
+Woody Marks,4.9,3
+Ray Davis,4.3,3
+George Holani,3.9,3
+Rico Dowdle,3.7,3
+CeeDee Lamb,19.9,3
+Amon-Ra St. Brown,18.9,3
+Ja'Marr Chase,18.6,3
+Malik Nabers,17.9,3
+Jaxon Smith-Njigba,17.9,3
+Puka Nacua,17.3,3
+Justin Jefferson,17,3
+Courtland Sutton,17,3
+Zay Flowers,16.8,3
+Mike Evans,16.7,3
+Davante Adams,16.3,3
+DK Metcalf,15.9,3
+Rome Odunze,15.8,3
+Nico Collins,15.7,3
+Ricky Pearsall,15.3,3
+Michael Pittman Jr.,15.2,3
+Tetairoa McMillan,15.1,3
+A.J. Brown,15,3
+Ladd McConkey,15,3
+Brian Thomas Jr.,14.8,3
+Emeka Egbuka,14.5,3
+Jakobi Meyers,14.5,3
+Tyreek Hill,14.4,3
+Drake London,14.4,3
+Deebo Samuel Sr.,14.4,3
+Terry McLaurin,14.3,3
+Garrett Wilson,14.2,3
+Keon Coleman,14.1,3
+Marvin Harrison Jr.,14.1,3
+Tee Higgins,14,3
+D.J. Moore,13.9,3
+Jameson Williams,13.7,3
+DeVonta Smith,13.4,3
+Khalil Shakir,13.3,3
+Chris Olave,13,3
+Calvin Ridley,13,3
+Hollywood Brown,12.8,3
+George Pickens,12.8,3
+Keenan Allen,12.6,3
+Jaylen Waddle,12.2,3
+Quentin Johnston,11.9,3
+Jerry Jeudy,11.6,3
+Wan'Dale Robinson,11.3,3
+Rashid Shaheed,11.3,3
+Stefon Diggs,11,3
+Romeo Doubs,11,3
+Cooper Kupp,11,3
+Kayshon Boutte,10.9,3
+Matthew Golden,10.9,3
+Travis Hunter,10.9,3
+Trey McBride,16.4,3
+Brock Bowers,14.7,3
+Travis Kelce,13.3,3
+Tyler Warren,12.5,3
+Jake Ferguson,12.4,3
+Zach Ertz,12.2,3
+Tucker Kraft,11.7,3
+Juwan Johnson,11.6,3
+David Njoku,11.6,3
+T.J. Hockenson,11,3
+Harold Fannin,10.8,3
+Sam LaPorta,10.6,3
+Mark Andrews,10.2,3
+Kyle Pitts,9.7,3
+Hunter Henry,9.6,3
+Dalton Kincaid,9.6,3
+Ja'Tavion Sanders,9.3,3
+Brenton Strange,8.9,3
+Chigoziem Okonkwo,8.3,3
+Jonnu Smith,8.3,3
+Dallas Goedert,7.9,3
+Cade Otton,7.2,3
+Jake Tonges,7.2,3
+Mason Taylor,7,3
+Pat Freiermuth,6.9,3
+Dalton Schultz,6.7,3
+Theo Johnson,6.3,3
+AJ Barner,6.2,3
+Tyler Higbee,6.1,3
+Noah Fant,5.4,3
+Michael Mayer,5.1,3
+Colston Loveland,5,3
+Tyler Conklin,4.8,3
+Mike Gesicki,4.7,3
+Cole Kmet,4.6,3
+Elijah Arroyo,4.4,3
+Noah Gray,4.4,3
+Austin Hooper,4.3,3
+Adam Trautman,4.2,3
+Tanner Conner,3.6,3
+Luke Musgrave,3.1,3
+Josh Oliver,2.6,3
+Dawson Knox,2.5,3
+Julian Hill,2,3
+DJ Giddens,3.7,3
+Justice Hill,3.6,3
+Brian Robinson Jr.,3.2,3
+Ollie Gordon,2.9,3
+Chris Rodriguez Jr.,2.7,3
+Ty Johnson,2.6,3
+Samaje Perine,2.3,3
+Kendre Miller,1.9,3
+Miles Sanders,1.4,3
+Zamir White,1.3,3
+Blake Corum,1.2,3
+Kyle Monangai,1,3
+Sean Tucker,0.9,3
+Calvin Austin III,10,3
+Dontayvion Wicks,9.8,3
+Elic Ayomanor,9.7,3
+Josh Downs,9.6,3
+Troy Franklin,9.4,3
+Marvin Mims Jr.,9.2,3
+Rashod Bateman,9.1,3
+Tyquan Thornton,8.5,3
+Darnell Mooney,8.3,3
+JuJu Smith-Schuster,8.3,3
+Cedric Tillman,8.2,3
+Kendrick Bourne,8.1,3
+Hunter Renfrow,7.9,3
+Jalen Nailor,7.8,3
+Joshua Palmer,7.7,3
+Tre Tucker,7.5,3
+DeMario Douglas,7.2,3
+Olamide Zaccheaus,7.2,3
+Dyami Brown,6.7,3
+Darius Slayton,6.7,3
+Jayden Higgins,6.6,3
+Xavier Legette,6.6,3
+Christian Kirk,6.3,3
+Dont'e Thornton,6.3,3
+DeAndre Hopkins,6.1,3
+Alec Pierce,5.7,3
+Michael Wilson,5.5,3
+Jahan Dotson,5.4,3
+Tory Horton,5.4,3
+Ray-Ray McCloud,5.1,3
+Tyler Johnson,4.9,3
+Malik Washington,4.8,3
+Xavier Hutchinson,4.6,3
+Andrei Iosivas,4.4,3
+Tyler Lockett,4.4,3
+Sterling Shepard,4.3,3
+KaVontae Turpin,3.9,3
+Brandin Cooks,3.4,3
+Adam Thielen,3.3,3
+Adonai Mitchell,3,3
+Isaac TeSlaa,3,3
+Jaylin Lane,2.8,3
+Tutu Atwell,2.4,3
+Zay Jones,2.4,3
+Jalen Tolbert,2.2,3
+Roman Wilson,2.2,3
+Van Jefferson,2.1,3
+Elijah Moore,2.1,3
+Jordan Whittington,2.1,3
+Luther Burden,2,3
+Brandon Aubrey,32,3
+Tyler Loop,31,3
+Jake Elliott,30,3
+Matt Prater,29,3
+Jason Myers,28,3
+Brandon McManus,27,3
+Jake Bates,26,3
+Spencer Shrader,25,3
+Wil Lutz,24,3
+Eddy Pineiro,23,3
+Chris Boswell,22,3
+Ka'imi Fairbairn,21,3
+Cam Little,20,3
+Joshua Karty,19,3
+Daniel Carlson,18,3
+Will Reichard,17,3
+Matt Gay,16,3
+Chase McLaughlin,15,3
+Harrison Butker,14,3
+Cameron Dicker,13,3
+John Parker Romo,12,3
+Evan McPherson,11,3
+Andy Borregales,10,3
+Blake Grupe,9,3
+Cairo Santos,8,3
+Joey Slye,7,3
+Nick Folk,6,3
+Graham Gano,5,3
+Riley Patterson,4,3
+Chad Ryland,3,3
+Ryan Fitzgerald,2,3
+Andre Szmyt,1,3
+Buffalo Bills,32,3
+Green Bay Packers,31,3
+Atlanta Falcons,30,3
+Tampa Bay Buccaneers,29,3
+Indianapolis Colts,28,3
+Minnesota Vikings,27,3
+Seattle Seahawks,26,3
+Los Angeles Chargers,25,3
+Denver Broncos,24,3
+Kansas City Chiefs,23,3
+Baltimore Ravens,22,3
+Philadelphia Eagles,21,3
+Washington Commanders,20,3
+San Francisco 49ers,19,3
+Houston Texans,18,3
+New England Patriots,17,3
+Pittsburgh Steelers,16,3
+Arizona Cardinals,15,3
+Las Vegas Raiders,14,3
+New York Giants,13,3
+Chicago Bears,12,3
+New York Jets,11,3
+Los Angeles Rams,10,3
+Dallas Cowboys,9,3
+Tennessee Titans,8,3
+Miami Dolphins,7,3
+Carolina Panthers,6,3
+Cincinnati Bengals,5,3
+Jacksonville Jaguars,4,3
+Cleveland Browns,3,3
+Detroit Lions,2,3
+New Orleans Saints,1,3
