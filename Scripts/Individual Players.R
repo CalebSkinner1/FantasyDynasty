@@ -8,6 +8,9 @@ source(here("Shiny/Script Support.R"))
 
 load(here("Modeling/player_simulations.RData"))
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE)
+value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) %>%
+  left_join(users, by = join_by(roster_id)) %>%
+  arrange(season, week, desc(type), display_name)
 users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
@@ -60,10 +63,6 @@ plot_future_value_df <- imap_dfr(seq_along(player_simulations), ~{
 
 
 write_csv(plot_future_value_df, here("Shiny/Saved Files/plot_future_value_df.csv"))
-
-value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  arrange(season, week, desc(type), display_name)
 
 write_csv(value_added, here("Shiny/Saved Files/value_added.csv"))
 
