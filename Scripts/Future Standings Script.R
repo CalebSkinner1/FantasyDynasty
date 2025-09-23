@@ -18,8 +18,17 @@ champion_odds <- final_standings_odds %>%
   mutate(across(contains("20"), ~scales::percent(.x))) %>%
   rename(team = display_name)
 
-# most common finish
+# playoff odds
+playoff_odds <- final_standings_odds %>%
+  filter(rank < 7) %>%
+  group_by(season, display_name) %>%
+  summarize(playoff_perc = sum(perc), .groups = "keep") %>%
+  pivot_wider(names_from = season, values_from = playoff_perc) %>%
+  arrange(desc(`2025`)) %>%
+  mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
+  rename(team = display_name)
 
+# most common finish
 most_common_finish_df <- final_standings_odds %>%
   group_by(display_name, season) %>%
   slice_max(perc) %>%
@@ -33,4 +42,5 @@ most_common_finish_df <- final_standings_odds %>%
 
 write_csv(most_common_finish_df, here("Shiny/Saved Files/most_common_finish_df.csv"))
 write_csv(champion_odds, here("Shiny/Saved Files/champion_odds.csv"))
+write_csv(playoff_odds, here("Shiny/Saved Files/playoff_odds.csv"))
   

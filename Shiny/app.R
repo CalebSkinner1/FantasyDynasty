@@ -338,6 +338,9 @@ ui <- dashboardPage(
         uiOutput("championship_odds_title"),
         DTOutput("championship_odds"),
         
+        uiOutput("playoff_odds_title"),
+        DTOutput("playoff_odds"),
+        
         selectizeInput(
           inputId = "standings_season",
           label = "Enter Season",
@@ -1001,6 +1004,20 @@ server <- function(input, output, session) {
   
   output$championship_odds <- renderDT({ #table 1
     champion_odds %>% shiny_edit_tables() %>% 
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$playoff_odds_title <- renderUI({ #title
+    h3("Playoff Odds")
+  })
+  
+  output$playoff_odds <- renderDT({ #table 1
+    playoff_odds %>% shiny_edit_tables() %>% 
       datatable(
         options = list(
           pageLength = 12,         # Set the initial number of rows per page
