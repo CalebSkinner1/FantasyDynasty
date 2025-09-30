@@ -89,6 +89,8 @@ Several files need to be updated at a yearly rate. For example, at the completio
 can be updated with new data and the draft pick valuation can be updated. See the Yearly Updates.R for more details.
 
 # To Do
+1. Tiebreaker in final standings
+2. Update new trades?
 
 ## near future ideas
 1. Standings odds over time
