@@ -8,11 +8,11 @@ source(here("Shiny/Script Support.R"))
 
 load(here("Modeling/player_simulations.RData"))
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE)
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
+  select(-owner_id)
 value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) %>%
   left_join(users, by = join_by(roster_id)) %>%
   arrange(season, week, desc(type), display_name)
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
-  select(-owner_id)
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE) %>%
   select(name, player_id, birth_date, position, contains("sva"), future_value) %>%
