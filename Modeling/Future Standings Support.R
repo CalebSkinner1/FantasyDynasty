@@ -29,6 +29,8 @@ sample_quantiles <- function(data){
     as_tibble() %>%
     mutate(roster_id = data$roster_id) %>%
     group_by(roster_id) %>%
+    mutate(rank = rank(-value)) %>%
+    filter(rank < 13) %>% #only keep top 12 valuable players (this caps it, realistic because teams can only start 8 players each week)
     summarize(
       va = sum(value)) %>%
     filter(!is.na(roster_id)) %>%
