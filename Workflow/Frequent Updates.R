@@ -4,7 +4,6 @@
 
 # Player Value Added (this file runs scraping.R automatically) ~45 seconds
 source(here::here("Modeling", "Player Value Added.R"))
-misty::restart() #clear memory
 
 # with relative frequency, will need to rerun player_simulations to account for new ktc value
 # fair warning it will take ~5 minutes
