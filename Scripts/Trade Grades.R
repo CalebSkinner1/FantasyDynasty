@@ -259,6 +259,8 @@ individual_trades <- comparison %>%
   select(trade_id, roster_id, name, position, realized_value, future_value, total_value, value_over_expected, avenue)
   
 lopsided_trades <- individual_trades %>%
+  distinct() %>%
+  filter(total_value > 0) %>%
   arrange(desc(total_value)) %>%
   left_join(users, by = join_by(roster_id)) %>%
   select(-value_over_expected, -roster_id) %>%
@@ -267,6 +269,7 @@ lopsided_trades <- individual_trades %>%
     trade_details = "avenue",
     top_asset_acquired = name) %>%
   relocate(c(team_name, trade_details))
+  
 
 # by fantasy owner, totals don't add up because of value adjustment and future devaluation
 overall_trade_winners <- comparison %>%
