@@ -563,7 +563,7 @@ server <- function(input, output, session) {
   
   output$player_image <- renderUI({ # user image
     req(input$player_name)
-    image_url <- player_headshot %>% filter(name == input$player_name) %>% pull(headshot_url)
+    image_url <- player_headshot %>% filter(name == input$player_name) %>% slice(1) %>% pull(headshot_url)
     
     tags$img(src = image_url, height = "150px")
   })
