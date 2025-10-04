@@ -24,7 +24,6 @@ roster_id,name,position,future_value,avenue
 4,Jonathan Taylor,RB,303.1386658912482,2024 W10 trade
 9,Cam Skattebo,RB,301.18506382536145,2025 rookie draft pick 13
 1,2026 1R Draft Pick,SFOControl,298.85557538398746,2025 W3 trade
-1,2026 1R Draft Pick,SFOControl,298.85557538398746,2025 W3 trade
 4,Amon-Ra St. Brown,WR,296.92306652695675,initial draft pick 17
 8,Jaxson Dart,QB,296.7314510172005,2025 W2 transaction
 5,J.J. McCarthy,QB,294.73621495619636,2024 rookie draft pick 7
@@ -38,7 +37,6 @@ roster_id,name,position,future_value,avenue
 10,2026 1R Draft Pick,Gretsch0401,277.011219649384,own pick
 4,Joe Burrow,QB,276.17707648281527,initial draft pick 8
 12,Jordan Love,QB,275.910043830343,initial draft pick 18
-1,2027 1R Draft Pick,SFOControl,275.85832135723524,2025 W3 trade
 1,2027 1R Draft Pick,SFOControl,275.85832135723524,2025 W3 trade
 4,Tetairoa McMillan,WR,274.2568515449391,2025 rookie draft pick 5
 10,C.J. Stroud,QB,273.33798632838693,initial draft pick 4
@@ -146,7 +144,6 @@ roster_id,name,position,future_value,avenue
 7,Jaydon Blue,RB,136.9747266328093,2025 rookie draft pick 29
 10,2027 2R Draft Pick,Gretsch0401,133.8764202744382,own pick
 2,2028 2R Draft Pick,SFOControl,132.0513277466051,own pick
-6,2026 2R Draft Pick,LucasBeI,131.89854467278505,2025 W4 trade
 6,2026 2R Draft Pick,LucasBeI,131.89854467278505,2025 W4 trade
 2,J.K. Dobbins,RB,130.19809532887368,2024 W8 trade
 11,2027 2R Draft Pick,akondratieff,129.19632936400154,own pick
@@ -332,7 +329,6 @@ roster_id,name,position,future_value,avenue
 3,Jack Bech,WR,16.848033174611434,2025 rookie draft pick 19
 6,Tank Dell,WR,16.44847852183875,initial draft pick 49
 8,Kyle Williams,WR,15.655700067381453,2025 rookie draft pick 23
-5,Tyquan Thornton,WR,15.37098037138803,2025 W1 transaction
 5,Tyquan Thornton,WR,15.37098037138803,2025 W1 transaction
 9,Keenan Allen,WR,15.147075384975263,2025 W1 transaction
 3,Dyami Brown,WR,14.561109924435884,2025 W3 transaction

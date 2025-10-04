@@ -115,7 +115,6 @@ roster_id,player_id,name,position,future_value,avenue
 5,7828,Noah Gray,TE,32.07650431280927,2024 W12 transaction
 5,8150,Kyren Williams,RB,260.86926041406804,initial draft pick 39
 5,8188,Tyquan Thornton,WR,15.37098037138803,2025 W1 transaction
-5,8188,Tyquan Thornton,WR,15.37098037138803,2025 W1 transaction
 5,9500,Josh Downs,WR,28.71039856023512,initial draft pick 106
 5,IND,Indianapolis Colts,DST,0,2025 W5 transaction
 6,11559,Michael Penix Jr.,QB,257.1177908598771,2024 W3 transaction
@@ -283,7 +282,6 @@ roster_id,player_id,name,position,future_value,avenue
 12,PIT,Pittsburgh Steelers,DST,0,2024 W2 transaction
 1,NA,2026 1R Draft Pick,joeburrowmvp,237.94765590667868,own pick
 1,NA,2026 1R Draft Pick,SFOControl,298.85557538398746,2025 W3 trade
-1,NA,2026 1R Draft Pick,SFOControl,298.85557538398746,2025 W3 trade
 3,NA,2026 1R Draft Pick,lukestip,303.4155081758264,own pick
 4,NA,2026 1R Draft Pick,caskinner,205.16039455921103,own pick
 5,NA,2026 1R Draft Pick,ngernenz,250.49272083913226,own pick
@@ -302,7 +300,6 @@ roster_id,player_id,name,position,future_value,avenue
 5,NA,2026 2R Draft Pick,ngernenz,128.51422209660964,own pick
 6,NA,2026 2R Draft Pick,jzeigboi,121.98724496319501,own pick
 6,NA,2026 2R Draft Pick,LucasBeI,131.89854467278505,2025 W4 trade
-6,NA,2026 2R Draft Pick,LucasBeI,131.89854467278505,2025 W4 trade
 7,NA,2026 2R Draft Pick,Arvs,123.73306329539223,2024 W11 trade
 10,NA,2026 2R Draft Pick,Gretsch0401,139.6536171907539,own pick
 11,NA,2026 2R Draft Pick,akondratieff,140.13953416125253,own pick
@@ -319,7 +316,6 @@ roster_id,player_id,name,position,future_value,avenue
 10,NA,2026 3R Draft Pick,Gretsch0401,69.10161157365613,own pick
 11,NA,2026 3R Draft Pick,akondratieff,69.41367090171582,own pick
 12,NA,2026 3R Draft Pick,TheJandyStock,55.56935539372871,own pick
-1,NA,2027 1R Draft Pick,SFOControl,275.85832135723524,2025 W3 trade
 1,NA,2027 1R Draft Pick,SFOControl,275.85832135723524,2025 W3 trade
 3,NA,2027 1R Draft Pick,lukestip,251.9247754179998,own pick
 4,NA,2027 1R Draft Pick,Arvs,238.8860810862904,2024 W10 trade
