@@ -212,7 +212,10 @@ traded_picks <- map(all_league_ids, ~str_c("https://api.sleeper.app/v1/league/",
   parse_api() %>%
   mutate(season = as.numeric(season))) %>%
   bind_rows() %>%
-  distinct()
+  mutate(index = row_number()) %>%
+  arrange(desc(index)) %>%
+  distinct(round, season, roster_id, .keep_all = TRUE) %>%
+  select(-index)
 
 lost_picks <- assigned_picks %>% inner_join(traded_picks, by = join_by(round, season, roster_id)) %>%
   select(roster_id, round, season)
