@@ -175,9 +175,8 @@ ui <- dashboardPage(
             placeholder = "Start typing...",
             maxOptions = 3  # Limit the number of suggestions shown
           )),
-        p("Weekly starters. This will default to the most recent season selected."),
         uiOutput("team_contributors_weekly_title"),
-        p("Weekly Value"),
+        p("Weekly starters. This will default to the most recent season selected."),
         DTOutput("team_contributors_weekly"),
         uiOutput("avenue_grades_title"),
         p("Performance across acquisition avenues."),
@@ -671,7 +670,7 @@ server <- function(input, output, session) {
   
   output$team_contributors_weekly_title <- renderUI({ #title
     req(input$team_name, input$team_season) #require input
-    h3(str_c(input$team_name, ": ", input$team_season, " Season Week ", input$team_week))
+    h3(str_c(input$team_name, ": ", max(input$team_season), " Season Week ", input$team_week))
   })
   
   output$team_contributors_weekly <- renderDT({ #table 4

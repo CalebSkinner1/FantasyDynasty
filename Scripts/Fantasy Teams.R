@@ -146,7 +146,7 @@ player_avenues <- total_assets %>%
     is.na(avenue) & position == "K" ~ "initial draft",
     is.na(avenue) & str_detect(name, "Draft Pick") ~ "own pick",
     .default = avenue
-  ))
+  )) %>% distinct()
 
 # overall draft, trade, transaction grades
 
