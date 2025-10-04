@@ -90,8 +90,6 @@ can be updated with new data and the draft pick valuation can be updated. See th
 
 # To Do
 1. Tiebreaker in final standings
-2. Update new trades
-3. sum over multiple seasons - Fantasy Teams page
 
 ## near future ideas
 1. Standings odds over time
