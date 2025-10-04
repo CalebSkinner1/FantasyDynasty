@@ -128,7 +128,7 @@ grab_team_contributors <- function(enter_roster_id, enter_season, shiny = FALSE)
     pull(display_name)
   
   df <- value_added %>% 
-    filter(roster_id == enter_roster_id, season == enter_season) %>%
+    filter(roster_id == enter_roster_id, season %in% enter_season) %>%
     group_by(name, position) %>%
     summarize(
       weeks = n(),
@@ -156,6 +156,8 @@ grab_team_contributors <- function(enter_roster_id, enter_season, shiny = FALSE)
 
 # week by week
 grab_team_contributors_weekly <- function(enter_roster_id, enter_season, enter_week, shiny = FALSE){
+  enter_season <- max(enter_season)
+  
   team_name <- users %>%
     filter(roster_id == enter_roster_id) %>%
     pull(display_name)
