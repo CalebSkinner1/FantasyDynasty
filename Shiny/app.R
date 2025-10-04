@@ -158,7 +158,7 @@ ui <- dashboardPage(
           inputId = "team_season", 
           label = "Enter Season", 
           choices = c(2024, 2025),
-          # multiple = TRUE, #enable multiple selections
+          multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
             maxOptions = 2  # Limit the number of suggestions shown
@@ -175,6 +175,7 @@ ui <- dashboardPage(
             placeholder = "Start typing...",
             maxOptions = 3  # Limit the number of suggestions shown
           )),
+        p("Weekly starters. This will default to the most recent season selected."),
         uiOutput("team_contributors_weekly_title"),
         p("Weekly Value"),
         DTOutput("team_contributors_weekly"),
@@ -653,7 +654,7 @@ server <- function(input, output, session) {
   
   output$team_contributors_title <- renderUI({ #title
     req(input$team_name, input$team_season) #require input
-    h3(str_c(input$team_name, ": ", input$team_season, " Season"))
+    h3(str_c(input$team_name, ": ", str_flatten(input$team_season, ", "), " Season"))
   })
   
   output$team_contributors <- renderDT({ #table 3
