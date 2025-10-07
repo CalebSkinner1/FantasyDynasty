@@ -12,9 +12,7 @@ misty::restart() #clear memory
 
 # with relative frequency, will need to rerun Future Standings.R to update projections of the end of season results
 # fair warning, it will take ~8 minutes
-tictoc::tic()
 source(here::here("Modeling", "Future Standings.R"))
-tictoc::toc()
 misty::restart()
 
 # Individual Players
