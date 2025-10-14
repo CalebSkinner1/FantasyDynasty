@@ -87,6 +87,7 @@ name_correction <- function(df){
         name == "Harold Fannin Jr." ~ "Harold Fannin",
         name == "Andres Borregales" ~ "Andy Borregales",
         name == "Tre' Harris" ~ "Tre Harris",
+        name == "Zonovan Knight" ~ "Bam Harris", # bruh
         .default = name))}
 
 # Sleeper API -------------------------------------------------------------
