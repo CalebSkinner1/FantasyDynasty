@@ -15,8 +15,13 @@ users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
 player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE) %>%
-  select(name, player_id, birth_date, position, sva_2024, future_value) %>%
-  mutate(total_value = sva_2024 + .95*future_value) # devalue future
+  select(name, player_id, birth_date, position, contains("sva"), future_value) %>%
+  rowwise() %>% 
+  mutate(
+    realized_value = sum(c_across(contains("sva"))),
+    total_value =  realized_value + .95*future_value) %>% # devalue future
+  ungroup() %>%
+  select(-contains("sva"))
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 
 # because drafting a kicker gave rookie draft order, I need to account for the rookie draft order
@@ -50,7 +55,6 @@ draft_values <- map(draft_picks, ~{
     left_join(player_info, by = join_by(player_id)) %>%
     select(player_id, roster_id, draft_slot, name, position) %>% 
     left_join(player_total_value, by = join_by(player_id, name, position)) %>%
-    rename(realized_value = sva_2024) %>%
     mutate(
       pick_no = row_number(),
       across(contains("_value"), ~replace_na(., 0))) %>%
@@ -197,6 +201,7 @@ write_csv(picks_df, here("Shiny/Saved Files/picks_df.csv"))
 
 # Examples ----------------------------------------------------------------
 
+draft_rankings("2025 rookie draft", shiny = TRUE)
 
 # best_picks("initial draft", shiny = TRUE)
 # best_picks("2024 rookie draft", shiny = TRUE)
