@@ -17,6 +17,7 @@ users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
 
 total_transaction_value <- transactions %>%
   filter(type %in% c("waiver", "free_agent")) %>%
+  filter(status == "complete") %>%
   split(seq_len(nrow(.))) %>%
   map(., ~{
   this_season <- .x$season %>% as.numeric()
