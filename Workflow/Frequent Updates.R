@@ -36,6 +36,7 @@ source(here::here("Scripts", "Team Rankings.R"))
 # History
 source(here::here("Scripts", "History.R"))
 
+# Relocate Files to be accessed by website
 source(here::here("Scripts", "Relocate Files.R"))
 
 misty::restart() #clear memory
