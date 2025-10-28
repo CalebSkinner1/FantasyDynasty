@@ -270,6 +270,15 @@ ui <- dashboardPage(
       tabItem( # Page 6 Tab
         tabName = "trade_machine",
         h2("Trade Machine"),
+        p("This Trade Machine compares the projected future value of various assets in a potential trade.
+        It outputs the net future value and net next year value for each fantasy team. Please note that
+        fantasy trades are incredibly contextual. Consider your own team composition
+        and championship window carefully before making a trade. Like many trade calculators,
+        Trade Machine treats player's value as additive, but, obviously, this is an approximate way to compute
+        value (for example, 1 first round pick is more valuable than 3 third round picks, even though the sum of the latter's
+        KTC value is higher). The *value added* metric helps account for this, but nothing is perfect. Also, please note
+          that the model does not know when a player is injured. A player's future value will dynamically respond to an injury,
+          but an injury does not directly impact the projections."),
         p("Enter two teams and select assets from each team to view projected trade grade."),
         fluidRow(
           column(6,
@@ -935,21 +944,21 @@ server <- function(input, output, session) {
   
   output$overall_value <- renderUI({ #overall value statement
     req(input$team1_assets, input$team2_assets) #require input
-    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, input$team1_assets, input$team2_assets)
     
     h3(trade_valuation$ov_statement)
   })
   
   output$immediate_value <- renderUI({ #immediate value statement
     req(input$team1_assets, input$team2_assets) #require input
-    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, input$team1_assets, input$team2_assets)
     
     h3(trade_valuation$iv_statement)
   })
   
   output$plot_trade_assets <- renderPlot({ #first plot
     req(input$team1_assets, input$team2_assets)
-    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, input$team1_assets, input$team2_assets)
     p <- graph_trade(trade_valuation$team1, trade_valuation$team2)
     plot(p)
   })
@@ -962,7 +971,7 @@ server <- function(input, output, session) {
   
   output$team1_trade_outlook <- renderDT({ #table 1
     req(input$team1_assets, input$team2_assets) #require input
-    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, input$team1_assets, input$team2_assets)
     
     trade_valuation$team1 %>%
       select(-team) %>% 
@@ -983,7 +992,7 @@ server <- function(input, output, session) {
   
   output$team2_trade_outlook <- renderDT({ #table 2
     req(input$team1_assets, input$team2_assets) #require input
-    trade_valuation <- grade_trade_wrapper(assets_df, input$team1_assets, input$team2_assets)
+    trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, input$team1_assets, input$team2_assets)
     
     trade_valuation$team2 %>%
       select(-team) %>% 

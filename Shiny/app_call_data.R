@@ -37,7 +37,9 @@ lopsided_trades <- read_csv(str_c(script_data_path, "lopsided_trades.csv"), show
 comparison <- read_csv(str_c(script_data_path, "comparison.csv"), show_col_types = FALSE)
 load(str_c(script_data_path, "total_trade_value.Rdata"))
 
+# trade grades
 assets_df <- read_csv(str_c(script_data_path, "assets_df.csv"), show_col_types = FALSE)
+marginal_transaction_value <- read_csv(str_c(script_data_path, "marginal_transaction_value.csv"), show_col_types = FALSE)
 
 # matchups
 team_records_df <- read_csv(str_c(script_data_path, "team_records_df.csv"), show_col_types = FALSE)

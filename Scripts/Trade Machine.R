@@ -23,13 +23,15 @@ assets_df <- grab_team_assets_df %>% mutate(
 write_csv(assets_df, here("Shiny/Saved Files/assets_df.csv"))
 
 # examples
+marginal_transaction_value <- read_csv(here("Data/marginal_transaction_value.csv"), show_col_types = FALSE)
+
 team1_players <- assets_df %>% filter(display_name == "caskinner") %>%
-  slice(1, 3, 6) %>% pull(name_code)
+  slice(1, 3, 5) %>% pull(name_code)
 
 team2_players <- assets_df %>% filter(display_name == "DepressedBroncosFan") %>%
   slice(1, 3, 6) %>% pull(name_code)
 
-trade_valuation <- grade_trade_wrapper(assets_df, team1_players, team2_players)
+trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, team2_players, team1_players)
 
 team1_assets_received <- trade_valuation$team1
 
