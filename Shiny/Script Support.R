@@ -259,7 +259,8 @@ worst_acquisitions <- function(acquisitions, enter_roster_id, enter_avenue = "Al
   df <- acquisitions %>%
     filter(str_detect(avenue, enter_avenue), roster_id == enter_roster_id) %>%
     # slice_min(value_over_expected, n = 5) %>%
-    select(-roster_id, -total_value)
+    select(-roster_id, -total_value) %>%
+    arrange(value_over_expected)
   
   if(shiny){
     df %>%

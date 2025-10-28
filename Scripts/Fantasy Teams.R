@@ -232,8 +232,6 @@ write_csv(player_avenues, here("Shiny/Saved Files/player_avenues.csv"))
 
 write_csv(all_draft_pick_exp_values, here("Data/all_draft_pick_exp_values.csv"))
 
-source(here("Scripts/Relocate Files.R"))
-
 # Examples ----------------------------------------------------------------
 # grab_team_assets(4, shiny = TRUE)
 # 
