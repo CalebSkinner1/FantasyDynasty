@@ -90,6 +90,8 @@ can be updated with new data and the draft pick valuation can be updated. See th
 
 # To Do
 1. Tiebreaker in final standings
+2. Peak Team Rankings, high low for each season
+3. add recent games in Team Rankings
 
 ## near future ideas
 1. Standings odds over time
