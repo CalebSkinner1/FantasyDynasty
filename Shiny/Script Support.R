@@ -736,8 +736,8 @@ grade_trade_wrapper <- function(assets_df, mvt, team1_players, team2_players){
   team2_assets_gained <- team1_assets_lost %>% mutate(team = team2_assets_lost$display_name[1]) %>%
     select(team, name, position, future_value, upcoming_year)
   
-  roster_size_adj <- length(team1_players) - length(team2_players) +
-    sum(str_count(team1_players, "Draft")) - sum(str_count(team2_players, "Draft"))
+  roster_size_adj <- length(team1_players) - length(team2_players) -
+    sum(str_count(team1_players, "Draft")) + sum(str_count(team2_players, "Draft"))
   
   if(roster_size_adj > 0){
     team1_assets_gained <- team1_assets_gained %>%
