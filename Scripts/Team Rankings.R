@@ -27,7 +27,9 @@ compute_week <- function(matchups, elo_table, K){
       elo_winner = if_else(points > opp_points, elo, opp_elo),
       elo_loser = if_else(points > opp_points, opp_elo, elo),
       elo = elo + movm(point_diff, elo_winner, elo_loser, K)*sign(point_diff)) %>%
-    select(roster_id, elo)
+    select(roster_id, elo) %>%
+    group_by(roster_id) %>%
+    summarize(elo = mean(elo))
   
    anti_join(elo_table, df, by = join_by(roster_id)) %>%
     select(roster_id, elo) %>%
@@ -40,6 +42,12 @@ elo_init <- users %>% mutate(elo = 1500)
 # weeks
 matchup_list <- matchups_table %>%
   filter(points != 0) %>%
+  select(season, week, roster_id, points) %>%
+  left_join(
+    matchups_table %>% filter(points != 0) %>%
+      select(season, week, opponent_id, opp_points),
+    by = join_by(season, week), relationship = "many-to-many") %>%
+  filter(roster_id != opponent_id) %>%
   group_split(season, week)
 
 # function computes elo over time
@@ -73,6 +81,7 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75){
   master_table %>% select(-roster_id)
 }
 
+tic()
 weekly_elo <- compute_elo(matchup_list, elo_init) %>%
   rename("2024_week0" = start) %>%
   pivot_longer(cols = contains("week"), names_to = "date", values_to = "elo") %>%
@@ -82,8 +91,26 @@ weekly_elo <- compute_elo(matchup_list, elo_init) %>%
          date_hide = as.numeric(season) + (as.numeric(week)-1)/18,
          date = str_c(str_sub(season, 3, 4), "w", week)) %>%
   select(-season, -week)
+toc()
 
-graph_elo(weekly_elo)
+# example
+# graph_elo(weekly_elo)
+
+# peak rankings
+total_success <- weekly_elo %>%
+  group_by(team) %>%
+  summarize(
+    max_elo = max(elo),
+    min_elo = min(elo),
+    composite_rating = round(mean(elo - 1500), digits = 2)) %>%
+  left_join(rename(weekly_elo, "max_elo_date" = date) %>% select(-date_hide), by = join_by(team, max_elo == elo)) %>%
+  left_join(rename(weekly_elo, "min_elo_date" = date) %>% select(-date_hide), by = join_by(team, min_elo == elo)) %>%
+  mutate(
+    "peak" = str_c(round(max_elo, 2), " in 20", str_sub(max_elo_date, 1, 2), " week ", str_sub(max_elo_date, start = 4)),
+    "low" = str_c(round(min_elo, 2), " in 20", str_sub(min_elo_date, 1, 2), " week ", str_sub(min_elo_date, start = 4))) %>%
+  select(team, composite_rating, peak, low) %>%
+  arrange(desc(composite_rating))
+
 
 # Future Value Assets -----------------------------------------------------
 
@@ -96,11 +123,12 @@ all_assets_summary_df <- grab_team_assets_df %>%
   select(team, total_future_value)
 
 
+
 # dfs to save -------------------------------------------------------------
 
 write_csv(weekly_elo, here("Shiny/Saved Files/weekly_elo.csv"))
 write_csv(all_assets_summary_df, here("Shiny/Saved Files/all_assets_summary_df.csv"))
-
+write_csv(total_success, here("Shiny/Saved Files/total_success.csv"))
 
 
 

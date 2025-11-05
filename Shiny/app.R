@@ -422,7 +422,9 @@ ui <- dashboardPage(
           for losing. The strength of opponent and margin of victory are taken into account. The average score is 1500 and ratings
           are discounted by 25% at the end of each season. ELO gives more weight to recent games, but all games have non-zero impact
           on the rating. ELO is simple to compute and interpret, but it is not a perfect fit for Fantasy sports. Teams have no direct
-          impact on their opponent's score, but their 'Points Against' are factored into the score. Nevertheless, ELO is an useful tool
+          impact on their opponent's score, but their 'Points Against' are factored into the score. For this reason, each
+          week, I compute the adjustments as if each fantasy team had played all other teams in the league, and I average the adjustments
+          together. This removes any scheduling bias from the rating. ELO is not a forward facing predictive metric, but it is useful
           to understand team strength over time."),
         plotlyOutput("elo_rankings", height = "400px", width = "100%"),
         p("ELO also gives implied win probabilities. Select two teams to compare their win probability."),
@@ -447,6 +449,9 @@ ui <- dashboardPage(
                    )))
         ),
         DTOutput("elo_win_prob"),
+        
+        uiOutput("total_success_title"),
+        DTOutput("total_success"),
         
         uiOutput("future_assets_title"),
         DTOutput("future_assets")
@@ -1105,6 +1110,20 @@ server <- function(input, output, session) {
       datatable(
         options = list(
           pageLength = 2,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$total_success_title <- renderUI({ #title
+    h3("High and Low ELO Rating")
+  })
+  
+  output$total_success <- renderDT({ #table 2
+    total_success %>% shiny_edit_tables() %>%
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
           ordering = TRUE,        # Enable column sorting
           scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
         ))

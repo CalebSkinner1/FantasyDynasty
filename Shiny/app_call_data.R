@@ -52,6 +52,7 @@ playoff_odds <- read_csv(str_c(script_data_path, "playoff_odds.csv"), show_col_t
 # team rankings
 weekly_elo <- read_csv(str_c(script_data_path, "weekly_elo.csv"), show_col_types = FALSE)
 all_assets_summary_df <- read_csv(str_c(script_data_path, "all_assets_summary_df.csv"), show_col_types = FALSE)
+total_success <- read_csv(str_c(script_data_path, "total_success.csv"), show_col_types = FALSE)
 
 # history
 championships_df <- read_csv(str_c(script_data_path, "championships_df.csv"), show_col_types = FALSE)
