@@ -540,6 +540,7 @@ ui <- dashboardPage(
         DTOutput("most_points"),
         
         uiOutput("highest_team_game_title"),
+        p("Note: reverse to see the lowest team total in league history."),
         DTOutput("highest_team_game"),
         
         selectizeInput(

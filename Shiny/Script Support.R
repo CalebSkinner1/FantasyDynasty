@@ -663,9 +663,10 @@ highest_team_total <- function(wins_df, enter_round, enter_season){
   
   wins_df %>% arrange(desc(points)) %>%
     filter(type %in% enter_round, season %in% enter_season) %>%
-    mutate(date = str_c(season, " Week ", week)) %>%
+    mutate(date = str_c(season, " Week ", week),
+           index = row_number()) %>%
+    filter(index < 51 | index > nrow(.) - 50) %>%
     select(team, points, date, opponent) %>%
-    slice_max(points, n = 100) %>%
     shiny_edit_tables()
 }
 

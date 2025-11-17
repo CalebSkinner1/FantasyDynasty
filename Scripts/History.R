@@ -50,7 +50,7 @@ wins_df <- matchups_table %>%
 # compute_total_points(wins_df, "All", 2024)
 
 # highest total in a game
-# highest_team_total(wins_df, "All", 2024)
+highest_team_total(wins_df, "All", c(2024, 2025))
 
 # highest season total by a player
 # compute_total_points_player(value_added, wins_df, "All", 2024, "All")
