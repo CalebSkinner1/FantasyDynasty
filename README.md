@@ -91,6 +91,7 @@ can be updated with new data and the draft pick valuation can be updated. See th
 # To Do
 1. Tiebreaker in final standings
 2. add recent games in Team Rankings
+3. schedule table - perhaps in matchups?
 
 ## near future ideas
 1. Standings odds over time
