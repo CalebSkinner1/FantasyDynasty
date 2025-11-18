@@ -744,7 +744,7 @@ grade_trade_wrapper <- function(assets_df, mvt, team1_players, team2_players){
     team1_assets_gained <- team1_assets_gained %>%
       add_row(team = team1_assets_gained$team[1], name = "roster size adjustment", position = "gained",
               future_value = filter(mvt, season == max(mvt$season), type == "add")$total_value_added[1]*roster_size_adj,
-              upcoming_year = future_value*.5)
+              upcoming_year = future_value*.25)
     
     team2_assets_gained <- team2_assets_gained %>%
       add_row(team = team2_assets_gained$team[1], name = "roster size adjustment", position = "lost",
