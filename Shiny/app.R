@@ -271,12 +271,15 @@ ui <- dashboardPage(
         tabName = "trade_machine",
         h2("Trade Machine"),
         p("This Trade Machine compares the projected future value of various assets in a potential trade.
-        It outputs the net future value and net next year value for each fantasy team. Please note that
+        It outputs the net future value and net next year value for each fantasy team. ", strong("NOTE:"), " net next year value is the estimated
+          value over the next 17 games, so this may span multiple seasons. Conversely, draft picks are never assumed to have any net next year value.
+          This isn't perfect, so I'll fix this later."),
+        p("Please note that
         fantasy trades are incredibly contextual. Consider your own team composition
         and championship window carefully before making a trade. Like many trade calculators,
         Trade Machine treats player's value as additive, but, obviously, this is an approximate way to compute
         value (for example, 1 first round pick is more valuable than 3 third round picks, even though the sum of the latter's
-        KTC value is higher). The *value added* metric helps account for this, but nothing is perfect. Also, please note
+        KTC value is higher). The ", strong("value added"), " metric helps account for this, but nothing is perfect. Also, please note
           that the model does not know when a player is injured. A player's future value will dynamically respond to an injury,
           but an injury does not directly impact the projections."),
         p("Enter two teams and select assets from each team to view projected trade grade."),
