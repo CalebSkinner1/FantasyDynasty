@@ -315,3 +315,15 @@ season,week,round,roster_id,points,opponent_id,opp_points,team,opponent,result,t
 2025,10,regular season,1,133.84,10,145.68,joeburrowmvp,Gretsch0401,loss,regular season
 2025,10,regular season,2,150.06,11,117.34,SFOControl,akondratieff,win,regular season
 2025,10,regular season,9,126.1,12,123.06,Arvs,TheJandyStock,win,regular season
+2025,11,regular season,2,137.74,1,89.34,SFOControl,joeburrowmvp,win,regular season
+2025,11,regular season,1,89.34,2,137.74,joeburrowmvp,SFOControl,loss,regular season
+2025,11,regular season,8,82.7,3,112.96,LucasBeI,lukestip,loss,regular season
+2025,11,regular season,9,67.32,4,172.72,Arvs,caskinner,loss,regular season
+2025,11,regular season,12,155.88,5,87.62,TheJandyStock,ngernenz,win,regular season
+2025,11,regular season,7,156.18,6,133.48,DepressedBroncosFan,jzeigboi,win,regular season
+2025,11,regular season,6,133.48,7,156.18,jzeigboi,DepressedBroncosFan,loss,regular season
+2025,11,regular season,3,112.96,8,82.7,lukestip,LucasBeI,win,regular season
+2025,11,regular season,4,172.72,9,67.32,caskinner,Arvs,win,regular season
+2025,11,regular season,11,111.78,10,143.86,akondratieff,Gretsch0401,loss,regular season
+2025,11,regular season,10,143.86,11,111.78,Gretsch0401,akondratieff,win,regular season
+2025,11,regular season,5,87.62,12,155.88,ngernenz,TheJandyStock,loss,regular season
