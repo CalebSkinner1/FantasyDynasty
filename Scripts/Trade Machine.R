@@ -31,7 +31,7 @@ marginal_transaction_value <- read_csv(here("Data/marginal_transaction_value.csv
 # team2_players <- assets_df %>% filter(display_name == "Arvs") %>%
 #   slice(9) %>% pull(name_code)
 # 
-trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, team2_players, team1_players)
+# trade_valuation <- grade_trade_wrapper(assets_df, marginal_transaction_value, team2_players, team1_players)
 # 
 # team1_assets_received <- trade_valuation$team1
 # 
