@@ -11,16 +11,16 @@ final_standings_odds <- read_csv(here("Data/final_standings_odds.csv"), show_col
 
 # championship odds
 champion_odds <- final_standings_odds %>%
-  filter(rank == 1) %>%
+  filter(type == "rank", result == 1) %>%
   pivot_wider(names_from = season, values_from = perc) %>%
-  select(-rank) %>%
+  select(-result, -type) %>%
   arrange(desc(`2025`)) %>%
   mutate(across(contains("20"), ~scales::percent(.x))) %>%
   rename(team = display_name)
 
 # playoff odds
 playoff_odds <- final_standings_odds %>%
-  filter(rank < 7) %>%
+  filter(type == "rank", result < 7) %>%
   group_by(season, display_name) %>%
   summarize(playoff_perc = sum(perc), .groups = "keep") %>%
   pivot_wider(names_from = season, values_from = playoff_perc) %>%
@@ -28,19 +28,43 @@ playoff_odds <- final_standings_odds %>%
   mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
   rename(team = display_name)
 
+# first round bye odds
+bye_odds <- final_standings_odds %>%
+  filter(type == "bye", result == 1) %>%
+  group_by(season, display_name) %>%
+  summarize(bye_perc = sum(perc), .groups = "keep") %>%
+  pivot_wider(names_from = season, values_from = bye_perc) %>%
+  arrange(desc(`2025`)) %>%
+  mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
+  rename(team = display_name)
+
+# number one pick odds
+n1_pick_odds <- final_standings_odds %>%
+  filter(type == "rank", result == 12) %>%
+  group_by(season, display_name) %>%
+  summarize(n1_pick_perc = sum(perc), .groups = "keep") %>%
+  pivot_wider(names_from = season, values_from = n1_pick_perc) %>%
+  arrange(desc(`2025`)) %>%
+  mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
+  rename(team = display_name)
+
 # most common finish
 most_common_finish_df <- final_standings_odds %>%
+  filter(type == "rank") %>%
   group_by(display_name, season) %>%
   slice_max(perc) %>%
   slice_head(n = 1) %>%
-  arrange(rank, desc(perc)) %>%
+  arrange(result, desc(perc)) %>%
   ungroup() %>%
   mutate(probability = scales::percent(perc)) %>%
-  rename(finish = rank, team = display_name)
+  rename(finish = result, team = display_name) %>%
+  select(-type)
 
 # dfs to save -------------------------------------------------------------
 
 write_csv(most_common_finish_df, here("Shiny/Saved Files/most_common_finish_df.csv"))
 write_csv(champion_odds, here("Shiny/Saved Files/champion_odds.csv"))
 write_csv(playoff_odds, here("Shiny/Saved Files/playoff_odds.csv"))
+write_csv(bye_odds, here("Shiny/Saved Files/bye_odds.csv"))
+write_csv(n1_pick_odds, here("Shiny/Saved Files/n1_pick_odds.csv"))
   

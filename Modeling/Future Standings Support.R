@@ -77,17 +77,26 @@ construct_table <- function(matchups_table, season_dates, date){
     select(season, week, round, roster_id, opponent_id, points, opp_points)
 }
 
-
-win_probability <- function(table, fit_coef){
-  n <- nrow(table)
-  odds <- runif(n)
-  
-  table %>%
-    mutate(
-      .pred_1 = exp(va_diff*fit_coef[[1]])/(1+ exp(va_diff*fit_coef[[1]])),
-      winner = if_else(odds > .pred_1, opponent_id, roster_id),
-           loser = if_else(winner == roster_id, opponent_id, roster_id)) %>%
-    select(-contains(".pred"), -contains("points"), -contains("va"))
+win_probability <- function(table, fit_coef, points_method = TRUE){
+  if(points_method){
+    table %>%
+      mutate(
+        # mean and add normal error
+        points = team_tva*fit_coef[[1]] + sqrt(team_tva)*fit_coef[[2]] + rnorm(1, 0, fit_coef[[3]]),
+        opp_points = opp_tva*fit_coef[[1]] + sqrt(opp_tva)*fit_coef[[2]] + rnorm(1, 0, fit_coef[[3]]),
+        winner = if_else(points > opp_points, roster_id, opponent_id),
+        loser = if_else(winner == roster_id, opponent_id, roster_id)) %>%
+      select(-contains(".pred"), -contains("va"), -contains("draft_order"), -contains("rank")) %>%
+      return()
+  }else{
+    table %>%
+      mutate(
+        .pred_1 = exp(va_diff*fit_coef[[1]])/(1+ exp(va_diff*fit_coef[[1]])),
+        winner = if_else(odds > .pred_1, opponent_id, roster_id),
+        loser = if_else(winner == roster_id, opponent_id, roster_id)) %>%
+      select(-contains(".pred"), -contains("points"), -contains("va")) %>%
+      return()
+  }
 }
 
 sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
@@ -172,19 +181,36 @@ year_sim <- function(current_table, team_tva, fit_coef){
   completed_results <- current_table %>% filter(points != 0) %>%
     mutate(winner = if_else(points > opp_points, roster_id, opponent_id),
            loser = if_else(winner == roster_id, opponent_id, roster_id)) %>%
-    select(season, week, roster_id, opponent_id, winner, loser)
+    select(season, week, roster_id, opponent_id, winner, loser, points, opp_points)
+  
+  furthest_week <- max(completed_results$week)
   
   results <- current_table %>%
     prep_table_tva(team_tva) %>%
-    filter(week <= 14) %>%
+    filter(week <= 14, week > furthest_week) %>%
     win_probability(fit_coef) %>%
     bind_rows(., completed_results)
   
+  tiebreaker <- bind_rows(
+    results %>% group_by(roster_id) %>%
+    summarize(total_points = sum(points)),
+    results %>% group_by(opponent_id) %>%
+      summarize(total_points = sum(opp_points)) %>%
+      rename("roster_id" = opponent_id)) %>%
+    group_by(roster_id) %>%
+    summarize(total_points = sum(total_points)) %>%
+    mutate(rank = rank(total_points))
+  
   end_season_standings <- results %>% group_by(winner) %>%
     summarize(wins = n()) %>%
-    mutate(rank = rank(desc(wins), ties.method = "random")) #random ties is enough for this I think
+    left_join(tiebreaker, by = join_by(winner == roster_id)) %>%
+    mutate(wins = wins + rank * 0.01) %>%
+    mutate(rank = rank(desc(wins))) #shouldn't need any ties (tiebreaker accounted for it)
   
-  end_season_standings %>% sim_playoffs(team_tva, fit_coef, current_table)
+  end_season_standings %>% sim_playoffs(team_tva, fit_coef, current_table) %>%
+    left_join(end_season_standings %>% rename("season_rank" = rank), by = join_by(roster_id == winner)) %>%
+    mutate(bye = if_else(season_rank < 3, TRUE, FALSE)) %>%
+    select(roster_id, rank, bye)
 }
 
 multi_year_sim <- function(current_table, team_tva, fit_coef, years = 3){
@@ -219,10 +245,20 @@ compute_final_standings_odds <- function(current_table, team_tva_list, fit_coef,
   
   # compute final_standings_odds
   final_standings_odds <- map(sim_standings, ~{
-    bind_rows(.x) %>% group_by(roster_id, rank) %>%
+    rank <- bind_rows(.x) %>% group_by(roster_id, rank) %>%
       summarize(perc = n()/n_sims,
                 .groups = "keep") %>%
-      ungroup()}) %>%
+      ungroup() %>%
+      rename("result" = rank) %>%
+      mutate(type = "rank")
+    bye <- bind_rows(.x) %>% group_by(roster_id, bye) %>%
+      summarize(perc = n()/n_sims,
+                .groups = "keep") %>%
+      ungroup() %>%
+      rename("result" = bye) %>%
+      mutate(type = "bye")
+    bind_rows(rank, bye)
+    }) %>%
     bind_rows(.id = "season") %>%
     mutate(season = current_table$season[1] + as.numeric(str_remove(season, "year")) - 1)
   

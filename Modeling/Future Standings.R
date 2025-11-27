@@ -93,28 +93,49 @@ toc()
 save(team_tva_ranking, file = here("Modeling/team_tva_ranking.RData"))
 load(here("Modeling/team_tva_ranking.RData"))
 
-# Here, I'll simulate a season week-by-week.
+# Here, I simulate a season week-by-week.
 # this is a more intense and specific approach to the future standings question. 
 
 # first, estimate win probability of matchup based on value added ---------
-team_va <- va %>% group_by(roster_id) %>% summarize(total_va = sum(value_added))
+team_va <- va %>%
+  filter(season == 2024) %>%
+  group_by(roster_id, name) %>%
+  summarize(total_va = sum(value_added)) %>%
+  mutate(rank = rank(desc(total_va))) %>%
+  filter(rank <= 12) %>%
+  ungroup() %>%
+  group_by(roster_id) %>%
+  summarize(total_va = sum(total_va))
 
 matchup_va_data <- matchups_table %>% filter(points != 0) %>%
   left_join(team_va, by = join_by(roster_id)) %>%
   left_join(team_va %>% rename(opp_va = total_va), by = join_by(opponent_id == roster_id)) %>%
   mutate(
     victory = as.factor(if_else(points > opp_points, 1, 0)),
-    va_diff = total_va - opp_va)
+    va_diff = total_va - opp_va,
+    total_va_sqrt = sqrt(total_va))
 
-matchup_fit <- logistic_reg() %>%
+# matchup_fit <- logistic_reg() %>%
+#   set_engine("glm") %>%
+#   set_mode("classification") %>%
+#   fit(
+#     victory ~ va_diff - 1,
+#     data = matchup_va_data)
+# 
+# matchup_fit_coef <- matchup_fit$fit %>% coef() %>% as.data.frame()
+# write_csv(matchup_fit_coef, here("Modeling/matchup_fit_coef.csv"))
+
+points_fit <- linear_reg() %>%
   set_engine("glm") %>%
-  set_mode("classification") %>%
+  set_mode("regression") %>%
   fit(
-    victory ~ va_diff - 1,
+    points ~ total_va + total_va_sqrt - 1,
     data = matchup_va_data)
 
-matchup_fit_coef <- matchup_fit$fit %>% coef() %>% as.data.frame()
-write_csv(matchup_fit_coef, here("Modeling/matchup_fit_coef.csv"))
+points_fit_coef <- points_fit$fit %>% coef() %>% 
+  t() %>% as.data.frame() %>%
+  mutate(standard_error = sqrt(sum(points_fit$fit$residuals^2)/(length(points_fit$fit$residuals)-2)))
+write_csv(points_fit_coef, here("Modeling/points_fit_coef.csv"))
 # Run Season --------------------------------------------------------------
 
 team_tva_list <- map(team_tva_ranking, ~.x %>% mutate(group = (row_number() - 1)%/% 12) %>% group_split(group, .keep = FALSE)) %>%
@@ -122,9 +143,9 @@ team_tva_list <- map(team_tva_ranking, ~.x %>% mutate(group = (row_number() - 1)
 
 current_table <- construct_table(matchups_table, season_dates, today())
 
-# warning: this takes about
+# warning: 8 min; check warning
 tic()
-final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, matchup_fit_coef, 3, n_sims = 5000)
+final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, points_fit_coef, years = 3, n_sims = 5000)
 toc()
 
 write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))

@@ -353,6 +353,12 @@ ui <- dashboardPage(
         uiOutput("playoff_odds_title"),
         DTOutput("playoff_odds"),
         
+        uiOutput("bye_odds_title"),
+        DTOutput("bye_odds"),
+        
+        uiOutput("n1_pick_odds_title"),
+        DTOutput("n1_pick_odds"),
+        
         selectizeInput(
           inputId = "standings_season",
           label = "Enter Season",
@@ -1034,8 +1040,36 @@ server <- function(input, output, session) {
     h3("Playoff Odds")
   })
   
-  output$playoff_odds <- renderDT({ #table 1
+  output$playoff_odds <- renderDT({ #table 2
     playoff_odds %>% shiny_edit_tables() %>% 
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$bye_odds_title <- renderUI({ #title
+    h3("First Round Bye Odds")
+  })
+  
+  output$bye_odds <- renderDT({ #table 3
+    bye_odds %>% shiny_edit_tables() %>% 
+      datatable(
+        options = list(
+          pageLength = 12,         # Set the initial number of rows per page
+          ordering = TRUE,        # Enable column sorting
+          scrollX = TRUE          # Allow horizontal scrolling if columns exceed width
+        ))
+  })
+  
+  output$n1_pick_odds_title <- renderUI({ #title
+    h3("Number 1 Pick Odds")
+  })
+  
+  output$n1_pick_odds <- renderDT({ #table 4
+    n1_pick_odds %>% shiny_edit_tables() %>% 
       datatable(
         options = list(
           pageLength = 12,         # Set the initial number of rows per page
@@ -1049,7 +1083,7 @@ server <- function(input, output, session) {
     h3(str_c(input$standings_season, " Most Likely Finish"))
   })
   
-  output$most_common_finish <- renderDT({ #table 2
+  output$most_common_finish <- renderDT({ #table 5
     req(input$standings_season) #require input
     most_common_finish_df %>% most_common_finish(input$standings_season, shiny = TRUE) %>%
       datatable(
