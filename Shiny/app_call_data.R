@@ -48,6 +48,8 @@ team_records_df <- read_csv(str_c(script_data_path, "team_records_df.csv"), show
 most_common_finish_df <- read_csv(str_c(script_data_path, "most_common_finish_df.csv"), show_col_types = FALSE)
 champion_odds <- read_csv(str_c(script_data_path, "champion_odds.csv"), show_col_types = FALSE)
 playoff_odds <- read_csv(str_c(script_data_path, "playoff_odds.csv"), show_col_types = FALSE)
+bye_odds <- read_csv(str_c(script_data_path, "bye_odds.csv"), show_col_types = FALSE)
+n1_pick_odds <- read_csv(str_c(script_data_path, "n1_pick_odds.csv"), show_col_types = FALSE)
 
 # team rankings
 weekly_elo <- read_csv(str_c(script_data_path, "weekly_elo.csv"), show_col_types = FALSE)
