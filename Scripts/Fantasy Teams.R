@@ -44,8 +44,10 @@ known_draft_picks <-
 
 # but! we also need to value all of the draft picks of which we don't know the order
 exp_draft_values <- final_standings_odds %>%
+  filter(type == "rank") %>%
+  select(-type) %>%
   expand_grid(round = 1:3) %>%
-  mutate(pick_no = (round-1)*12 + (13-rank)) %>%
+  mutate(pick_no = (round-1)*12 + (13-result)) %>%
   left_join(rookie_draft_values, by = join_by(pick_no)) %>%
   # weight each potential draft pick by odds of receiving it
   mutate(weight_value = perc*proj_tva_50) %>%
