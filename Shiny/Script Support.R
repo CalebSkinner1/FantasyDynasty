@@ -1,12 +1,15 @@
 # Grades Support
 
 # libraries
-library("gt")
-library("gtExtras")
-library("tidyverse"); theme_set(theme_minimal())
-library("janitor")
-library("tictoc")
-library("plotly")
+suppressPackageStartupMessages({
+  library("gt")
+  library("gtExtras")
+  library("tidyverse")
+  theme_set(theme_minimal())
+  library("janitor")
+  library("tictoc")
+  library("plotly")
+})
 
 # All Scripts --------------------------------------------------------------
 # function to edit tables for shiny

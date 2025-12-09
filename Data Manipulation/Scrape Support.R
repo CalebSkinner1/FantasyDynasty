@@ -1,10 +1,13 @@
 # Scraping Functions
 
-library("tidyverse"); theme_set(theme_minimal())
-library("jsonlite")
-library("httr")
-library("rvest")
-library("data.table")
+suppressPackageStartupMessages({
+  library("tidyverse")
+  theme_set(theme_minimal())
+  library("jsonlite")
+  library("httr")
+  library("rvest")
+  library("data.table")
+  })
 
 # Misc --------------------------------------------------------------------
 `%!in%` = Negate(`%in%`)

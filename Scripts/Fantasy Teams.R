@@ -2,8 +2,10 @@
 # this page is for interesting summaries of fantasy teams- eventually I'd like this to be a page in
 # an RShiny
 
-library("here")
-library("tidymodels")
+suppressPackageStartupMessages({
+  library("here")
+  library("tidymodels")
+})
 
 # load data
 source(here("Shiny/Script Support.R"))
@@ -12,6 +14,8 @@ source(here("Shiny/Script Support.R"))
 source(here("Scripts/Draft Grades.R")) #Draft Grades, about one second
 source(here("Scripts/Trade Grades.R")) #Trade Grades, less than one second
 source(here("Scripts/Transaction Grades.R")) #Transaction Grades, nine seconds
+
+message("begin computing Fantasy Team...")
 
 # load data
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE)

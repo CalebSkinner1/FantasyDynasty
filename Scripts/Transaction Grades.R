@@ -1,7 +1,9 @@
 # Transaction Grades
 # similar to Draft Grades.R and Trade Grades.R, this page grades each transaction by a fantasy user
 
-library("here")
+suppressPackageStartupMessages(library("here"))
+
+message("begin computing Transaction Grades...")
 
 # load data
 source(here("Shiny/Script Support.R"))

@@ -1,10 +1,13 @@
 # Future Standings Support
 # this holds functions utilized in Future Standings.R
-library("tictoc")
-library("tidyverse"); theme_set(theme_minimal())
-library("furrr")
-library("tidymodels")
 
+suppressPackageStartupMessages({
+  library("tictoc")
+  library("tidyverse")
+  theme_set(theme_minimal())
+  library("furrr")
+  library("tidymodels")
+})
 
 # team rva ranking --------------------------------------------------------
 
@@ -183,7 +186,7 @@ year_sim <- function(current_table, team_tva, fit_coef){
            loser = if_else(winner == roster_id, opponent_id, roster_id)) %>%
     select(season, week, roster_id, opponent_id, winner, loser, points, opp_points)
   
-  furthest_week <- max(completed_results$week)
+  furthest_week <- max(c(0,completed_results$week))
   
   results <- current_table %>%
     prep_table_tva(team_tva) %>%

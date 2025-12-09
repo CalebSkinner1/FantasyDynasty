@@ -1,7 +1,10 @@
 # Future Value and Total Value
 
-library("here")
-library("bundle")
+suppressPackageStartupMessages({
+  library("here")
+  library("bundle")})
+
+message("begin computing Player Total Value...")
 
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
@@ -29,7 +32,7 @@ keep_trade_cut <- ktc_list$ktc_value082425.csv
 # organize data sets
 
 # get ktc value from beginning of 2024 season
-historical_ktc <- read_csv(here("Data/ktc values/ktc_value082324.csv")) %>%
+historical_ktc <- read_csv(here("Data/ktc values/ktc_value082324.csv"), show_col_types = FALSE) %>%
   filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
   name_correction() %>%
   group_by(name) %>%
@@ -129,7 +132,7 @@ ktc_resid_fit <- readRDS(here("Modeling/ktc_resid_fit.rds"))
 # Run Player Intervals ----------------------------------------------------
 
 # compute future value over time
-last_date_fvt <- read_csv(here("Data/last_date_fvt.csv")) %>% pull(value)
+last_date_fvt <- read_csv(here("Data/last_date_fvt.csv"), show_col_types = FALSE) %>% pull(value)
 
 # origin data set, set at beginning of last year
 sim_df <- select_ktc_list(ktc_list, last_date_fvt)[[1]] %>%
@@ -150,6 +153,8 @@ reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
 
 future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE) %>%
   filter(date != today())
+
+message("begin mapping future value over time...")
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 tic()

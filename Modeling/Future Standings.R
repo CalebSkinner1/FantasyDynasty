@@ -2,27 +2,29 @@
 # on the expected value added from players on the roster. It is by no means comprehensive and mainly necessary
 # for valuing future draft picks
 
-library("here")
+suppressPackageStartupMessages(library("here"))
+  
+message("begin computing Future Standings...")
 
 source(here("Modeling/Future Standings Support.R"))
 # load data ---------------------------------------------------------------
 load(here("Modeling/player_simulations.RData"))
-player_info <- read_csv(here("Data/player_info.csv"))
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 
-future_draft_picks <- read_csv(here("Data/future_draft_picks.csv"))
-rookie_draft_values <- read_csv(here("Data/rookie_draft_values.csv"))
+future_draft_picks <- read_csv(here("Data/future_draft_picks.csv"), show_col_types = FALSE)
+rookie_draft_values <- read_csv(here("Data/rookie_draft_values.csv"), show_col_types = FALSE)
 
-current_roster <- read_csv(here("Data/current_roster.csv")) %>%
+current_roster <- read_csv(here("Data/current_roster.csv"), show_col_types = FALSE) %>%
   left_join(player_info, by = join_by(player_id)) %>%
   select(name, position, roster_id)
 
-va <- read_csv(here("Data/va.csv"))
+va <- read_csv(here("Data/va.csv"), show_col_types = FALSE)
 
-draft_order <- read_csv(here("Data/draft_order.csv"))
+draft_order <- read_csv(here("Data/draft_order.csv"), show_col_types = FALSE)
 
-matchups_table <- read_csv(here("Data/matchups_table.csv"))
+matchups_table <- read_csv(here("Data/matchups_table.csv"), show_col_types = FALSE)
 
-season_dates <- read_csv(here("Data/season_dates.csv"))
+season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
 
 # the idea here, is for each player, I randomly sample from one of their quartiles, this accounts for the variation
 # in their season, but also keeps the mean where it should be. It trims the variance, slightly,
@@ -44,6 +46,8 @@ known_draft_picks_year3 <- future_draft_picks %>%
   prep_draft_picks(this_year, "third year")
 
 # warning: this takes about 2.5 minutes
+message("begin 5000 simulations of total value added projections...")
+
 n_sims <- 5000
 tic()
 team_tva_ranking <- future_map(1:n_sims, ~{
@@ -100,7 +104,7 @@ load(here("Modeling/team_tva_ranking.RData"))
 team_va <- va %>%
   filter(season == 2024) %>%
   group_by(roster_id, name) %>%
-  summarize(total_va = sum(value_added)) %>%
+  summarize(total_va = sum(value_added), .groups = "keep") %>%
   mutate(rank = rank(desc(total_va))) %>%
   filter(rank <= 12) %>%
   ungroup() %>%
@@ -142,6 +146,8 @@ team_tva_list <- map(team_tva_ranking, ~.x %>% mutate(group = (row_number() - 1)
   transpose()
 
 current_table <- construct_table(matchups_table, season_dates, today())
+
+message("begin 5000 final standings simulations...")
 
 # warning: 8 min; check warning
 tic()

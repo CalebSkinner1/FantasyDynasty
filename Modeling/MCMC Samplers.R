@@ -1,12 +1,14 @@
 # MCMC Samplers
 
 # libraries
-library("LaplacesDemon")
-library("invgamma")
-library("matlib")
-library("tidyverse")
-library("tictoc")
-library("mcmcr")
+suppressPackageStartupMessages({
+  library("LaplacesDemon")
+  library("invgamma")
+  library("matlib")
+  library("tidyverse")
+  library("tictoc")
+  library("mcmcr")
+})
 
 # paper that explains
 # https://arxiv.org/pdf/2110.10565

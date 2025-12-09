@@ -6,11 +6,15 @@
 # if a team doesn't have a replacement player, then the top waiver pick is selected
 
 # load data
-library("here")
-library("tidyverse")
+suppressPackageStartupMessages({
+  library("here")
+  library("tidyverse")})
+
 source(here("Data Manipulation/Scraping.R")) #run data ~45 seconds
 
-player_info <- read_csv(here("Data/player_info.csv"))
+message("begin computing Player Value Added...")
+
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 
 # Sleeper Score -----------------------------------------------------------
 # load

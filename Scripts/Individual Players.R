@@ -1,10 +1,12 @@
 # Player Page
 # this is essentially a group of functions that allow one to call any player
 # and see their past tva and/or future value
-library("here")
+suppressPackageStartupMessages(library("here"))
 
 # load data
 source(here("Shiny/Script Support.R"))
+
+message("begin computing Individual Players...")
 
 load(here("Modeling/player_simulations.RData"))
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE)
@@ -19,7 +21,7 @@ player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_typ
   rowwise() %>%
   mutate(total_value = sum(c_across(contains("sva"))) + .95*future_value) %>%# devalue future
   ungroup()
-player_headshot <- read_csv(here("Shiny/Saved Files/player_headshot.csv"))
+player_headshot <- read_csv(here("Shiny/Saved Files/player_headshot.csv"), show_col_types = FALSE)
   
 # dfs to save -------------------------------------------------------------
 

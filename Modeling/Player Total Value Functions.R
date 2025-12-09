@@ -1,15 +1,18 @@
 # Player Total Value Functions
 # this file stores all the functions needed for the Player Total Value Page
 
-library("tidyverse"); theme_set(theme_minimal())
-library("tidymodels")
-library("parsnip")
-library("dbarts")
-library("vip")
-library("here")
-library("tictoc")
-library("furrr")
-
+suppressPackageStartupMessages({
+  library("tidyverse")
+  theme_set(theme_minimal())
+  library("tidymodels")
+  library("parsnip")
+  library("dbarts")
+  library("vip")
+  library("here")
+  library("tictoc")
+  library("furrr")
+})
+  
 # Prep Data ---------------------------------------------------------------
 
 compile_data_set <- function(keep_trade_cut, future_value_names, date, season_start, season_end){

@@ -2,7 +2,9 @@
 
 # alright this is what this was all for amiright
 
-library("here")
+suppressPackageStartupMessages(library("here"))
+
+message("begin computing Trade Grades...")
 
 # Ok now this is fun
 source(here("Shiny/Script Support.R"))
@@ -30,7 +32,7 @@ player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) %>
 users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
-season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"))
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
 
 # realized_rookie_picks <- bind_rows(draft_picks, .id = "draft_id") %>%
 #   group_by(draft_id) %>%

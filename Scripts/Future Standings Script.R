@@ -1,4 +1,7 @@
 # Future Standings Script
+suppressPackageStartupMessages(library("here"))
+
+message("begin computing Future Standings Script...")
 
 source(here("Shiny/Script Support.R"))
 

@@ -1,12 +1,14 @@
 # Draft Grades!
 
-library("here")
+suppressPackageStartupMessages(library("here"))
 
 # Ok now this is fun
 source(here("Shiny/Script Support.R"))
 # samplers
 source(here("Modeling/MCMC Samplers.R"))
 source(here("Modeling/Player Total Value Functions.R"))
+
+message("begin computing Draft Grades...")
 
 # load data
 load(here("Data/draft_picks.RData"))

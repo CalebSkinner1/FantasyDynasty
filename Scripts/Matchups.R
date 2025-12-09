@@ -1,13 +1,14 @@
 # Matchups
-library("here")
+suppressPackageStartupMessages(library("here"))
+
+message("begin computing Matchups...")
 
 # this hosts a function that spits out the matchups on a certain day
 source(here("Shiny/Script Support.R"))
 
+matchups_table <- read_csv(here("Data/matchups_table.csv"), show_col_types = FALSE)
 
-matchups_table <- read_csv(here("Data/matchups_table.csv"))
-
-users <- read_csv(here("Data/users.csv")) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
 matchups_table_names <- matchups_table %>%
@@ -24,7 +25,8 @@ team_records_df <- matchups_table_names %>%
 yearly_record <- team_records_df %>%
   group_by(season, team) %>%
   summarize(wins = sum(outcome == "win"),
-            losses = sum(outcome == "loss")) %>%
+            losses = sum(outcome == "loss"),
+            .groups = "keep") %>%
   ungroup()
 
 

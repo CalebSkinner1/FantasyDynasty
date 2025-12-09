@@ -1,13 +1,14 @@
 # Team Rankings Script
-library("here")
+suppressPackageStartupMessages(library("here"))
+
+message("begin computing Team Rankings...")
 
 source(here("Shiny/Script Support.R"))
 
-matchups_table <- read_csv(here("Data/matchups_table.csv"))
-grab_team_assets_df <- read_csv(here("Shiny/Saved Files/grab_team_assets_df.csv"))
-users <- read_csv(here("Data/users.csv")) %>%
+matchups_table <- read_csv(here("Data/matchups_table.csv"), show_col_types = FALSE)
+grab_team_assets_df <- read_csv(here("Shiny/Saved Files/grab_team_assets_df.csv"), show_col_types = FALSE)
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
-
 
 # ELO Rankings ------------------------------------------------------------
 
@@ -81,7 +82,6 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75){
   master_table %>% select(-roster_id)
 }
 
-tic()
 weekly_elo <- compute_elo(matchup_list, elo_init) %>%
   rename("2024_week0" = start) %>%
   pivot_longer(cols = contains("week"), names_to = "date", values_to = "elo") %>%
@@ -91,7 +91,6 @@ weekly_elo <- compute_elo(matchup_list, elo_init) %>%
          date_hide = as.numeric(season) + (as.numeric(week)-1)/18,
          date = str_c(str_sub(season, 3, 4), "w", week)) %>%
   select(-season, -week)
-toc()
 
 # example
 # graph_elo(weekly_elo)

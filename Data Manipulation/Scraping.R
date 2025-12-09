@@ -1,7 +1,11 @@
 # Scraping
 
-library("nflfastR")
-library("here")
+message("begin Scraping")
+
+suppressPackageStartupMessages({
+  library("nflfastR")
+  library("here")
+})
 
 options(nflreadr.verbose = FALSE)
 
@@ -250,7 +254,7 @@ projections25 <- map(c(1:max(box_score_off25$week)), ~combine_week(.x, 2025)) %>
   name_correction()
 
 write_csv(projections25, here("Data/projections25.csv"))
-projections24 <- read_csv(here("Data/projections24.csv"))
+projections24 <- read_csv(here("Data/projections24.csv"), show_col_types = FALSE)
 
 projections <- list(projections24, projections25)
 

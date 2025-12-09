@@ -1,7 +1,9 @@
 # Relocating Files
 
 # this script moves some files from data folder in Saved Files folder, so it can be inside the app
-library("here")
+suppressPackageStartupMessages(library("here"))
+
+message("begin Relocating Files...")
 
 load_path <- "Shiny/Saved Files"
 

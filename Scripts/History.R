@@ -1,12 +1,14 @@
 # League History Script
-library("here")
+suppressPackageStartupMessages(library("here"))
+
+message("begin computing History...")
 
 source(here("Shiny/Script Support.R"))
 
 # load data
-matchups_table <- read_csv(here("Data/matchups_table.csv"))
-users <- read_csv(here("Data/users.csv")) %>% select(-owner_id)
-value_added <- read_csv(here("Shiny/Saved Files/value_added.csv"))
+matchups_table <- read_csv(here("Data/matchups_table.csv"), show_col_types = FALSE)
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>% select(-owner_id)
+value_added <- read_csv(here("Shiny/Saved Files/value_added.csv"), show_col_types = FALSE)
 
 # most championships
 championships_df <- matchups_table %>% filter(round == "Championship", points > opp_points) %>%
