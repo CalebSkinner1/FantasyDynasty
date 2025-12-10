@@ -51,6 +51,3 @@ rsconnect::deployApp(appName = "fantasy-dashboard",
                      forceUpdate = TRUE,
                      appPrimaryDoc = "app.R",
                      appFiles = NULL)
-
-
-# edit this here...
