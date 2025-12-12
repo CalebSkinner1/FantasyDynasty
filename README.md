@@ -1,8 +1,5 @@
 # Fantasy Dynasty
 
-![R](https://img.shields.io/badge/R-276DC3?logo=r&logoColor=white)
-![Shiny](https://img.shields.io/badge/Shiny-009CA6?logo=r&logoColor=white)
-![Status](https://img.shields.io/badge/status-active-brightgreen)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
 
 A repository for modeling fantasy football player value, simulating multi-year player careers,
