@@ -22,7 +22,8 @@ ktc_list <- list.files(
 future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
   left_join(player_info, by = join_by(name)) %>%
   select(-player_id) %>%
-  filter(!str_detect(name, c("Mid")), !str_detect(name, c("Early")), !str_detect(name, c("Late")))
+  filter(!str_detect(name, c("Mid")), !str_detect(name, c("Early")), !str_detect(name, c("Late"))) |>
+  bind_rows(player_info |> filter(name == "Marshawn Lynch") |> select(name, position, birth_date, years_exp))
 
 write_csv(future_value_names, here("Data/future_value_names.csv"))
 
@@ -185,6 +186,7 @@ player_total_value <- future_value_time %>% filter(date == max(date)) %>%
       position %in% c("K", "DST") ~ 0,
       is.na(future_value) ~ 0,
       .default = future_value)) %>%
+  arrange(desc(future_value)) |>
   select(name, player_id, birth_date, position, ktc_value, contains("sva"), future_value)
 
 write_csv(player_total_value, here("Data/player_total_value.csv"))
