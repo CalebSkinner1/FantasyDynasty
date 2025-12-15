@@ -575,7 +575,17 @@ ui <- dashboardPage(
       tabItem( # Page 12 Tab
         tabName = "modeling",
         titlePanel("Model Explanations and Fit"),
-        p("This is a static page that will be completed at a later date. Here, I'll explain my models and show their fit.")
+        p("This site makes dozens of projections and draws substantial conclusions. Why should you trust them? Let me try to convince you."),
+        h4("Value Added"), # mathematically show
+        p("Debates are waged and numbers are crunched to project the future of fantasy players, but far less energy is allocated
+        to reflect on the past success and value of fantasy players. It's a silly glimpse into human nature; repetitively
+        abandoning our past exploits in hopes of a better future. This is a big mistake. I propose the ", strong("value added"), " metric
+        to summarize the realized value a player has contributed to your fantasy team. This metric enables sentimental reflection
+        and thorough analysis. But, how does it work?"),
+        p(""),
+        h4("Future Value"), # math, model, plot fit
+        h4("Draft Picks"), # math, model, plot fit
+        h4("Future Standings"), # math, model, plot fit
       )
     )
   )
