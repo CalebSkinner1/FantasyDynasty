@@ -163,7 +163,6 @@ roster_id,player_id,name,position,future_value,avenue
 7,9504,Kayshon Boutte,WR,35.27617613354985,2025 W11 trade
 7,9509,Bijan Robinson,RB,529.2540545129611,initial draft pick 13
 7,9757,Kendre Miller,RB,101.36148216045387,2024 W15 transaction
-7,BAL,Baltimore Ravens,DST,0,2025 W10 transaction
 7,NO,New Orleans Saints,DST,0,2025 W7 transaction
 8,10232,Michael Wilson,WR,33.17393570622068,2025 W11 transaction
 8,10236,Dalton Kincaid,TE,84.48535410013508,2025 W11 trade
@@ -278,114 +277,114 @@ roster_id,player_id,name,position,future_value,avenue
 12,8137,George Pickens,WR,230.6853417541596,initial draft pick 66
 12,CLE,Cleveland Browns,DST,0,2025 W5 transaction
 12,PIT,Pittsburgh Steelers,DST,0,2024 W2 transaction
-1,NA,2026 1R Draft Pick,joeburrowmvp,213.29710394850875,own pick
-1,NA,2026 1R Draft Pick,SFOControl,212.62009929595334,2025 W3 trade
+1,NA,2026 1R Draft Pick,joeburrowmvp,198.11479226182388,own pick
+1,NA,2026 1R Draft Pick,SFOControl,229.07993039254833,2025 W3 trade
 3,NA,2026 1R Draft Pick,lukestip,326.19321723673164,own pick
-4,NA,2026 1R Draft Pick,caskinner,190.92759607064036,own pick
+4,NA,2026 1R Draft Pick,caskinner,189.72763902786895,own pick
 5,NA,2026 1R Draft Pick,ngernenz,249.00323499387846,own pick
 8,NA,2026 1R Draft Pick,LucasBeI,300.986222820564,own pick
-8,NA,2026 1R Draft Pick,ElatedBroncosFan,187.6052424470914,2024 W9 trade
-8,NA,2026 1R Draft Pick,jzeigboi,209.4548588566214,2025 W11 trade
+8,NA,2026 1R Draft Pick,ElatedBroncosFan,186.83917742129967,2024 W9 trade
+8,NA,2026 1R Draft Pick,jzeigboi,225.59489863894177,2025 W11 trade
 9,NA,2026 1R Draft Pick,Arvs,264.815380526133,own pick
-10,NA,2026 1R Draft Pick,Gretsch0401,217.68374827830326,own pick
+10,NA,2026 1R Draft Pick,Gretsch0401,202.23221115463585,own pick
 11,NA,2026 1R Draft Pick,akondratieff,359.1403327081412,own pick
 12,NA,2026 1R Draft Pick,TheJandyStock,282.98142049222673,own pick
-1,NA,2026 2R Draft Pick,joeburrowmvp,112.31494380895897,own pick
-1,NA,2026 2R Draft Pick,ElatedBroncosFan,97.96568424825465,2024 W8 trade
-2,NA,2026 2R Draft Pick,SFOControl,112.15173755212626,own pick
+1,NA,2026 2R Draft Pick,joeburrowmvp,103.84235435345207,own pick
+1,NA,2026 2R Draft Pick,ElatedBroncosFan,97.54741380017025,2024 W8 trade
+2,NA,2026 2R Draft Pick,SFOControl,121.37958737248046,own pick
 3,NA,2026 2R Draft Pick,lukestip,162.0775209648157,own pick
 5,NA,2026 2R Draft Pick,ngernenz,128.58096904476656,own pick
-5,NA,2026 2R Draft Pick,caskinner,99.904695487031,2025 W11 trade
-6,NA,2026 2R Draft Pick,jzeigboi,110.10065480918772,own pick
+5,NA,2026 2R Draft Pick,caskinner,99.27022016436965,2025 W11 trade
+6,NA,2026 2R Draft Pick,jzeigboi,119.04420676624989,own pick
 6,NA,2026 2R Draft Pick,LucasBeI,151.77428359889933,2025 W4 trade
 7,NA,2026 2R Draft Pick,Arvs,137.14673085708688,2024 W11 trade
-10,NA,2026 2R Draft Pick,Gretsch0401,115.0597746683414,own pick
+10,NA,2026 2R Draft Pick,Gretsch0401,106.4137081171777,own pick
 11,NA,2026 2R Draft Pick,akondratieff,168.33734087968082,own pick
 12,NA,2026 2R Draft Pick,TheJandyStock,143.26944069412266,own pick
-2,NA,2026 3R Draft Pick,SFOControl,51.319274113624374,own pick
+2,NA,2026 3R Draft Pick,SFOControl,57.272250556923474,own pick
 3,NA,2026 3R Draft Pick,lukestip,83.28996730247208,own pick
 4,NA,2026 3R Draft Pick,ngernenz,62.291827585071914,2025 W11 trade
-6,NA,2026 3R Draft Pick,joeburrowmvp,51.68197830970848,2025 W11 trade
-7,NA,2026 3R Draft Pick,ElatedBroncosFan,41.65855305547638,own pick
-7,NA,2026 3R Draft Pick,jzeigboi,50.2393000149511,2025 W4 trade
+6,NA,2026 3R Draft Pick,joeburrowmvp,45.80011444325373,2025 W11 trade
+7,NA,2026 3R Draft Pick,ElatedBroncosFan,41.35882022503866,own pick
+7,NA,2026 3R Draft Pick,jzeigboi,56.51345723373584,2025 W4 trade
 8,NA,2026 3R Draft Pick,LucasBeI,77.2094085454543,own pick
 9,NA,2026 3R Draft Pick,Arvs,68.00996591326779,own pick
-10,NA,2026 3R Draft Pick,Gretsch0401,53.10484729986625,own pick
-10,NA,2026 3R Draft Pick,caskinner,42.96099481611163,2025 W5 trade
+10,NA,2026 3R Draft Pick,Gretsch0401,47.53665068752581,own pick
+10,NA,2026 3R Draft Pick,caskinner,42.4836544632607,2025 W5 trade
 11,NA,2026 3R Draft Pick,akondratieff,88.19061175694014,own pick
 12,NA,2026 3R Draft Pick,TheJandyStock,70.2891261604091,own pick
-1,NA,2027 1R Draft Pick,SFOControl,273.6332858875579,2025 W3 trade
-3,NA,2027 1R Draft Pick,lukestip,253.5222520756358,own pick
-4,NA,2027 1R Draft Pick,Arvs,245.62200670809162,2024 W10 trade
-5,NA,2027 1R Draft Pick,ngernenz,248.95642188823294,own pick
-5,NA,2027 1R Draft Pick,joeburrowmvp,217.8348357473035,2025 W11 trade
-6,NA,2027 1R Draft Pick,jzeigboi,217.39134227654822,own pick
-8,NA,2027 1R Draft Pick,TheJandyStock,219.89612525338535,2024 W9 trade
-9,NA,2027 1R Draft Pick,ElatedBroncosFan,199.52400397364,2024 W10 trade
-9,NA,2027 1R Draft Pick,caskinner,207.42965431262445,2025 W5 trade
-10,NA,2027 1R Draft Pick,Gretsch0401,271.1285838806306,own pick
-11,NA,2027 1R Draft Pick,akondratieff,269.1823344884107,own pick
-12,NA,2027 1R Draft Pick,LucasBeI,239.85218829899293,2024 W9 trade
-1,NA,2027 2R Draft Pick,joeburrowmvp,112.85391866162504,own pick
-2,NA,2027 2R Draft Pick,SFOControl,136.81921652687709,own pick
-3,NA,2027 2R Draft Pick,lukestip,128.63922708344782,own pick
-4,NA,2027 2R Draft Pick,caskinner,107.6724504785086,own pick
-5,NA,2027 2R Draft Pick,ngernenz,126.58537997915799,own pick
-5,NA,2027 2R Draft Pick,Arvs,125.24293653442298,2025 W11 trade
-6,NA,2027 2R Draft Pick,jzeigboi,112.61039047075714,own pick
-7,NA,2027 2R Draft Pick,LucasBeI,122.7136328374159,2024 W9 trade
-7,NA,2027 2R Draft Pick,ElatedBroncosFan,103.86593861029365,2025 W11 trade
-10,NA,2027 2R Draft Pick,Gretsch0401,135.87391649320574,own pick
-11,NA,2027 2R Draft Pick,akondratieff,135.15315123895172,own pick
-12,NA,2027 2R Draft Pick,TheJandyStock,113.71942886794479,own pick
-1,NA,2027 3R Draft Pick,joeburrowmvp,52.79093938263946,own pick
-2,NA,2027 3R Draft Pick,SFOControl,68.34597207140132,own pick
-3,NA,2027 3R Draft Pick,lukestip,63.048801724289206,own pick
-4,NA,2027 3R Draft Pick,caskinner,49.43815386422653,own pick
-4,NA,2027 3R Draft Pick,LucasBeI,59.18862387311536,2025 W1 trade
-5,NA,2027 3R Draft Pick,ngernenz,61.69989373860891,own pick
-6,NA,2027 3R Draft Pick,jzeigboi,52.59892438008184,own pick
-6,NA,2027 3R Draft Pick,ElatedBroncosFan,46.92974728568999,2025 W4 trade
-7,NA,2027 3R Draft Pick,Arvs,60.861115688478186,2024 W11 trade
-10,NA,2027 3R Draft Pick,Gretsch0401,67.75182901701228,own pick
-11,NA,2027 3R Draft Pick,akondratieff,67.26198374043432,own pick
-12,NA,2027 3R Draft Pick,TheJandyStock,53.317577363708466,own pick
-1,NA,2028 1R Draft Pick,joeburrowmvp,210.08349164631392,own pick
-3,NA,2028 1R Draft Pick,lukestip,237.84352198800318,own pick
-4,NA,2028 1R Draft Pick,caskinner,202.98836337079527,own pick
-5,NA,2028 1R Draft Pick,ElatedBroncosFan,213.83580784518438,2025 W8 trade
-6,NA,2028 1R Draft Pick,jzeigboi,210.80273918444632,own pick
-7,NA,2028 1R Draft Pick,Arvs,233.43693717695135,2025 W11 trade
-7,NA,2028 1R Draft Pick,ngernenz,216.41900844759317,2025 W8 trade
-7,NA,2028 1R Draft Pick,SFOControl,267.4441362455245,2025 W3 trade
-8,NA,2028 1R Draft Pick,LucasBeI,221.80244518983153,own pick
-10,NA,2028 1R Draft Pick,Gretsch0401,245.85771227440387,own pick
-11,NA,2028 1R Draft Pick,akondratieff,236.793416209543,own pick
-12,NA,2028 1R Draft Pick,TheJandyStock,223.4668034729105,own pick
-1,NA,2028 2R Draft Pick,joeburrowmvp,108.52617498797815,own pick
-2,NA,2028 2R Draft Pick,SFOControl,132.61577968558956,own pick
-3,NA,2028 2R Draft Pick,lukestip,120.65961402122998,own pick
-4,NA,2028 2R Draft Pick,caskinner,104.97060043135757,own pick
-5,NA,2028 2R Draft Pick,ngernenz,111.39519019610242,own pick
-5,NA,2028 2R Draft Pick,ElatedBroncosFan,110.06809890301096,2025 W11 trade
-6,NA,2028 2R Draft Pick,jzeigboi,108.86190047263891,own pick
-6,NA,2028 2R Draft Pick,Arvs,118.84949397744157,2025 W5 trade
-8,NA,2028 2R Draft Pick,TheJandyStock,114.47366675768907,2025 W1 trade
-10,NA,2028 2R Draft Pick,Gretsch0401,124.12166762967183,own pick
-11,NA,2028 2R Draft Pick,akondratieff,120.3495263120097,own pick
-12,NA,2028 2R Draft Pick,LucasBeI,113.77039501875812,2025 W1 trade
-1,NA,2028 3R Draft Pick,joeburrowmvp,50.991281444383645,own pick
-2,NA,2028 3R Draft Pick,SFOControl,66.66230029859248,own pick
-3,NA,2028 3R Draft Pick,lukestip,58.90196648015435,own pick
-4,NA,2028 3R Draft Pick,caskinner,48.690230984628265,own pick
-5,NA,2028 3R Draft Pick,ngernenz,52.829050871135095,own pick
-5,NA,2028 3R Draft Pick,ElatedBroncosFan,52.0019768421441,2025 W11 trade
-6,NA,2028 3R Draft Pick,jzeigboi,51.19542492656757,own pick
-6,NA,2028 3R Draft Pick,TheJandyStock,54.881074442740434,2025 W11 trade
-9,NA,2028 3R Draft Pick,Arvs,57.70850400102543,own pick
-10,NA,2028 3R Draft Pick,Gretsch0401,61.14506896790356,own pick
-11,NA,2028 3R Draft Pick,akondratieff,58.66549026450874,own pick
-12,NA,2028 3R Draft Pick,LucasBeI,54.399514499417855,2025 W1 trade
+1,NA,2027 1R Draft Pick,SFOControl,271.943509917469,2025 W3 trade
+3,NA,2027 1R Draft Pick,lukestip,253.617620136401,own pick
+4,NA,2027 1R Draft Pick,Arvs,243.8000878867941,2024 W10 trade
+5,NA,2027 1R Draft Pick,ngernenz,249.73183566003925,own pick
+5,NA,2027 1R Draft Pick,joeburrowmvp,217.23120102006854,2025 W11 trade
+6,NA,2027 1R Draft Pick,jzeigboi,218.88429466146295,own pick
+8,NA,2027 1R Draft Pick,TheJandyStock,221.77131088939797,2024 W9 trade
+9,NA,2027 1R Draft Pick,ElatedBroncosFan,199.8762572832161,2024 W10 trade
+9,NA,2027 1R Draft Pick,caskinner,207.31215194706076,2025 W5 trade
+10,NA,2027 1R Draft Pick,Gretsch0401,271.05178729746757,own pick
+11,NA,2027 1R Draft Pick,akondratieff,269.95708502076735,own pick
+12,NA,2027 1R Draft Pick,LucasBeI,238.79589307090913,2024 W9 trade
+1,NA,2027 2R Draft Pick,joeburrowmvp,112.66437371395602,own pick
+2,NA,2027 2R Draft Pick,SFOControl,136.15194668592545,own pick
+3,NA,2027 2R Draft Pick,lukestip,128.59623838447936,own pick
+4,NA,2027 2R Draft Pick,caskinner,107.56834126294486,own pick
+5,NA,2027 2R Draft Pick,ngernenz,126.89091709096314,own pick
+5,NA,2027 2R Draft Pick,Arvs,124.45867000598572,2025 W11 trade
+6,NA,2027 2R Draft Pick,jzeigboi,113.30501300029003,own pick
+7,NA,2027 2R Draft Pick,LucasBeI,122.24096744681854,2024 W9 trade
+7,NA,2027 2R Draft Pick,ElatedBroncosFan,104.07601483211305,2025 W11 trade
+10,NA,2027 2R Draft Pick,Gretsch0401,135.82486518158615,own pick
+11,NA,2027 2R Draft Pick,akondratieff,135.36508938365364,own pick
+12,NA,2027 2R Draft Pick,TheJandyStock,114.6071507938924,own pick
+1,NA,2027 3R Draft Pick,joeburrowmvp,52.63899256956815,own pick
+2,NA,2027 3R Draft Pick,SFOControl,67.92151479333965,own pick
+3,NA,2027 3R Draft Pick,lukestip,63.01380066793802,own pick
+4,NA,2027 3R Draft Pick,caskinner,49.33473085919204,own pick
+4,NA,2027 3R Draft Pick,LucasBeI,58.89419199003972,2025 W1 trade
+5,NA,2027 3R Draft Pick,ngernenz,61.898241198770606,own pick
+6,NA,2027 3R Draft Pick,jzeigboi,53.07207074634291,own pick
+6,NA,2027 3R Draft Pick,ElatedBroncosFan,47.068160025533416,2025 W4 trade
+7,NA,2027 3R Draft Pick,Arvs,60.338623460186525,2024 W11 trade
+10,NA,2027 3R Draft Pick,Gretsch0401,67.70411125995803,own pick
+11,NA,2027 3R Draft Pick,akondratieff,67.4380160503727,own pick
+12,NA,2027 3R Draft Pick,TheJandyStock,53.91110850844409,own pick
+1,NA,2028 1R Draft Pick,joeburrowmvp,209.72260818772966,own pick
+3,NA,2028 1R Draft Pick,lukestip,238.32737180105727,own pick
+4,NA,2028 1R Draft Pick,caskinner,203.39444539786575,own pick
+5,NA,2028 1R Draft Pick,ElatedBroncosFan,213.94853705665122,2025 W8 trade
+6,NA,2028 1R Draft Pick,jzeigboi,211.21068062831802,own pick
+7,NA,2028 1R Draft Pick,Arvs,233.0772094764282,2025 W11 trade
+7,NA,2028 1R Draft Pick,ngernenz,216.40436042773393,2025 W8 trade
+7,NA,2028 1R Draft Pick,SFOControl,266.45363204300605,2025 W3 trade
+8,NA,2028 1R Draft Pick,LucasBeI,223.16641123580928,own pick
+10,NA,2028 1R Draft Pick,Gretsch0401,244.22305952212318,own pick
+11,NA,2028 1R Draft Pick,akondratieff,237.7162356162241,own pick
+12,NA,2028 1R Draft Pick,TheJandyStock,223.12983165855417,own pick
+1,NA,2028 2R Draft Pick,joeburrowmvp,108.31909172657879,own pick
+2,NA,2028 2R Draft Pick,SFOControl,132.33585505065082,own pick
+3,NA,2028 2R Draft Pick,lukestip,120.83923027905104,own pick
+4,NA,2028 2R Draft Pick,caskinner,105.1478625026224,own pick
+5,NA,2028 2R Draft Pick,ngernenz,111.37241119352403,own pick
+5,NA,2028 2R Draft Pick,ElatedBroncosFan,110.22394603525929,2025 W11 trade
+6,NA,2028 2R Draft Pick,jzeigboi,109.11085627418001,own pick
+6,NA,2028 2R Draft Pick,Arvs,118.74661874369981,2025 W5 trade
+8,NA,2028 2R Draft Pick,TheJandyStock,114.22620517525488,2025 W1 trade
+10,NA,2028 2R Draft Pick,Gretsch0401,123.3859011854001,own pick
+11,NA,2028 2R Draft Pick,akondratieff,120.64835372694655,own pick
+12,NA,2028 2R Draft Pick,LucasBeI,114.3057765003101,2025 W1 trade
+1,NA,2028 3R Draft Pick,joeburrowmvp,50.83992778845293,own pick
+2,NA,2028 3R Draft Pick,SFOControl,66.48007587008857,own pick
+3,NA,2028 3R Draft Pick,lukestip,59.01416863828704,own pick
+4,NA,2028 3R Draft Pick,caskinner,48.8124849307681,own pick
+5,NA,2028 3R Draft Pick,ngernenz,52.835787364474555,own pick
+5,NA,2028 3R Draft Pick,ElatedBroncosFan,52.090686317405186,2025 W11 trade
+6,NA,2028 3R Draft Pick,jzeigboi,51.33729667863136,own pick
+6,NA,2028 3R Draft Pick,TheJandyStock,54.71461122975706,2025 W11 trade
+9,NA,2028 3R Draft Pick,Arvs,57.63426839315831,own pick
+10,NA,2028 3R Draft Pick,Gretsch0401,60.66256827687273,own pick
+11,NA,2028 3R Draft Pick,akondratieff,58.901320343476876,own pick
+12,NA,2028 3R Draft Pick,LucasBeI,54.748688191828755,2025 W1 trade
 1,NA,2029 1R Draft Pick,joeburrowmvp,0,own pick
 2,NA,2029 1R Draft Pick,SFOControl,0,own pick
 3,NA,2029 1R Draft Pick,lukestip,0,own pick
