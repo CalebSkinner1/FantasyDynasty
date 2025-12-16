@@ -363,3 +363,11 @@ season,week,round,roster_id,points,opponent_id,opp_points,team,opponent,result,t
 2025,14,regular season,12,89.98,10,101.34,TheJandyStock,Gretsch0401,loss,regular season
 2025,14,regular season,8,146.48,11,101.36,LucasBeI,akondratieff,win,regular season
 2025,14,regular season,10,101.34,12,89.98,Gretsch0401,TheJandyStock,win,regular season
+2025,15,loser's bracket,6,152.02,1,159.98,jzeigboi,joeburrowmvp,loss,loser's bracket
+2025,15,loser's bracket,10,159.54,2,130.96,Gretsch0401,SFOControl,win,loser's bracket
+2025,15,loser's bracket,8,107.98,5,172.7,LucasBeI,ngernenz,loss,loser's bracket
+2025,15,loser's bracket,1,159.98,6,152.02,joeburrowmvp,jzeigboi,win,loser's bracket
+2025,15,loser's bracket,5,172.7,8,107.98,ngernenz,LucasBeI,win,loser's bracket
+2025,15,loser's bracket,12,128.48,9,100.44,TheJandyStock,Arvs,win,loser's bracket
+2025,15,loser's bracket,2,130.96,10,159.54,SFOControl,Gretsch0401,loss,loser's bracket
+2025,15,loser's bracket,9,100.44,12,128.48,Arvs,TheJandyStock,loss,loser's bracket
