@@ -214,14 +214,16 @@ find_score <- function(player, sn, wk){
 mean_replacements <- imap(seq_len(length(all_replacements)), ~{
   s <- .x + 2023 # season
   map(all_replacements[[.x]], ~map(.x, ~{
-  if(length(.x) == 0){ #catch if empty (week has not played yet)
+  if(length(.x) == 0){ # catch if empty (week has not played yet)
     list()
   }else{
     r <- .x$replacements
     p <- .x$position
     w <- .x$week
     
-    mr <- map_dbl(r, ~find_score(.x, sn = s, wk = w)) %>% mean()
+    r_scores <- map_dbl(r, ~find_score(.x, sn = s, wk = w))
+    r_scores <- c(r_scores, rep(0, 12 - length(r_scores))) # fill vector up to 12 (add 0s)
+    mr <- mean(r_scores)
     tibble(mean_replacement = mr, pos = p, season = s, week = w)}}) %>%
     rbindlist() %>%
     as_tibble()
