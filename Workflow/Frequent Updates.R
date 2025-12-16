@@ -8,12 +8,10 @@ source(here::here("Modeling", "Player Value Added.R"))
 # with relative frequency, will need to rerun player_simulations to account for new ktc value
 # fair warning it will take ~5 minutes
 source(here::here("Modeling", "Player Total Value.R"))
-misty::restart() #clear memory
 
 # with relative frequency, will need to rerun Future Standings.R to update projections of the end of season results
 # fair warning, it will take ~8 minutes
 source(here::here("Modeling", "Future Standings.R"))
-misty::restart()
 
 # Individual Players
 source(here::here("Scripts", "Individual Players.R"))
@@ -39,7 +37,7 @@ source(here::here("Scripts", "History.R"))
 # Relocate Files to be accessed by website
 source(here::here("Scripts", "Relocate Files.R"))
 
-misty::restart() #clear memory
+rstudioapi::restartSession() #clear memory
 
 if (interactive()) {
   setwd(here::here("Shiny"))
