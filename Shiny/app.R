@@ -580,9 +580,22 @@ ui <- dashboardPage(
         p("Debates are waged and numbers are crunched to project the future of fantasy players, but far less energy is allocated
         to reflect on the past success and value of fantasy players. It's a silly glimpse into human nature; repetitively
         abandoning our past exploits in hopes of a better future. This is a big mistake. I propose the ", strong("value added"), " metric
-        to summarize the realized value a player has contributed to your fantasy team. This metric enables sentimental reflection
+        to summarize the realized value a player has contributed to your fantasy team. In short, value added computes
+        the fantasy points a player contributes towards his fantasy team above his replacement. This metric enables sentimental reflection
         and thorough analysis. But, how does it work?"),
-        p(""),
+        p("Let \\(x_{j t i}\\) be the fantasy points that the \\(j^{\\text{th}}\\) player scores in the \\(i = 1, \\ldots, 17\\)
+        week of a particular season for fantasy team \\(t\\). Fantasy players can only earn points if they are started in their league, so let
+        \\(\\mathcal{S_i}\\) be the set of starters in a particular week. The player's position is essential, because it determines
+        the player's potential replacement. There are eight positions:
+          $$\\mathcal{P} = \\{\\text{QB, RB, WR, TE, SUPERFLEX, FLEX, K, DEF} \\},$$
+        and each player's position is determined by their placement in the starting lineup. However, please note that many players
+        are exhangeable in the starting lineup. These exchangeable players share the same position. For example, if a RB is in the FLEX
+        position, then all other RBs are treated as FLEX, because they may be exchanged. The replacement level players are determined
+        by the pre-game projections for each player. The player at each position with the largest projection is the replacement level player.
+        Formally, the replacement level player given the player projections \\(\\hat{x}_{j t i}\\) is
+        $$r_{p t i} = \\underset{j}{\\text{arg max} \\hat{x}_{j t i} $$
+          
+          "),
         h4("Future Value"), # math, model, plot fit
         h4("Draft Picks"), # math, model, plot fit
         h4("Future Standings"), # math, model, plot fit
