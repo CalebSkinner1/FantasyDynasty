@@ -95,6 +95,20 @@ weekly_elo <- compute_elo(matchup_list, elo_init) %>%
 # example
 # graph_elo(weekly_elo)
 
+max_elo <- rename(weekly_elo, "max_elo_date" = date) %>%
+  select(-date_hide) |>
+  group_by(team) |>
+  mutate(max_elo = max(elo)) |>
+  filter(max_elo == elo) |>
+  slice(1)
+
+min_elo <- rename(weekly_elo, "min_elo_date" = date) %>%
+  select(-date_hide) |>
+  group_by(team) |>
+  mutate(min_elo = min(elo)) |>
+  filter(min_elo == elo) |>
+  slice(1)
+
 # peak rankings
 total_success <- weekly_elo %>%
   group_by(team) %>%
@@ -102,8 +116,8 @@ total_success <- weekly_elo %>%
     max_elo = max(elo),
     min_elo = min(elo),
     composite_rating = round(mean(elo - 1500), digits = 2)) %>%
-  left_join(rename(weekly_elo, "max_elo_date" = date) %>% select(-date_hide), by = join_by(team, max_elo == elo)) %>%
-  left_join(rename(weekly_elo, "min_elo_date" = date) %>% select(-date_hide), by = join_by(team, min_elo == elo)) %>%
+  left_join(max_elo, by = join_by(team, max_elo == elo)) %>%
+  left_join(min_elo, by = join_by(team, min_elo == elo)) %>%
   mutate(
     "peak" = str_c(round(max_elo, 2), " in 20", str_sub(max_elo_date, 1, 2), " week ", str_sub(max_elo_date, start = 4)),
     "low" = str_c(round(min_elo, 2), " in 20", str_sub(min_elo_date, 1, 2), " week ", str_sub(min_elo_date, start = 4))) %>%
