@@ -575,28 +575,53 @@ ui <- dashboardPage(
       tabItem( # Page 12 Tab
         tabName = "modeling",
         titlePanel("Model Explanations and Fit"),
+        withMathJax(),
         p("This site makes dozens of projections and draws substantial conclusions. Why should you trust them? Let me try to convince you."),
         h4("Value Added"), # mathematically show
-        p("Debates are waged and numbers are crunched to project the future of fantasy players, but far less energy is allocated
-        to reflect on the past success and value of fantasy players. It's a silly glimpse into human nature; repetitively
-        abandoning our past exploits in hopes of a better future. This is a big mistake. I propose the ", strong("value added"), " metric
-        to summarize the realized value a player has contributed to your fantasy team. In short, value added computes
-        the fantasy points a player contributes towards his fantasy team above his replacement. This metric enables sentimental reflection
-        and thorough analysis. But, how does it work?"),
-        p("Let \\(x_{j t i}\\) be the fantasy points that the \\(j^{\\text{th}}\\) player scores in the \\(i = 1, \\ldots, 17\\)
-        week of a particular season for fantasy team \\(t\\). Fantasy players can only earn points if they are started in their league, so let
-        \\(\\mathcal{S_i}\\) be the set of starters in a particular week. The player's position is essential, because it determines
-        the player's potential replacement. There are eight positions:
-          $$\\mathcal{P} = \\{\\text{QB, RB, WR, TE, SUPERFLEX, FLEX, K, DEF} \\},$$
-        and each player's position is determined by their placement in the starting lineup. However, please note that many players
-        are exhangeable in the starting lineup. These exchangeable players share the same position. For example, if a RB is in the FLEX
-        position, then all other RBs are treated as FLEX, because they may be exchanged. The replacement level players are determined
-        by the pre-game projections for each player. The player at each position with the largest projection is the replacement level player.
-        Formally, the replacement level player given the player projections \\(\\hat{x}_{j t i}\\) is
-        $$r_{p t i} = \\underset{j}{\\text{arg max} \\hat{x}_{j t i} $$
-          
-          "),
+        p("Debates are waged and numbers are crunched to project the future of fantasy players, but far less attention is devoted
+        to understanding their realized value. As Robert Kiyosaki once said, 'the best way to predict the future is to study the past.'
+        To address this, I propose the ", strong("value added"), "
+        metric, which summarizes the contribution a player has maks to a fantasy team relative
+        to his position-specific replacement level."),
+        p("Let \\(x_{j w}\\) denote the fantasy points that player \\(j\\) in week \\(w = 1, \\ldots, 17\\)
+        of a season. Players earn points only when started, so let
+        \\(\\mathcal{S}_w\\) denote the set of starters in week \\(w\\). A player’s position
+        determines their potential replacement. There are eight positions:",
+          "\\[P = \\{\\text{QB, RB, WR, TE, SUPERFLEX, FLEX, K, DEF} \\}.\\]"),
+        p("Replacement players are determined using pre-game projections \\hat{x}_{j w}.
+        The replacement-level player for position \\(p\\), team \\(t\\), and week \\(w\\) is defined as",
+          "\\[j^{*}_{p t w} = \\arg\\max \\{j \\in p \\cap {S_w}^c \\cap t \\} \\hat{x}_{j w},\\]"),
+        p("The realized replacement output is",
+          "\\[r_{p t w} = \\sum_{t} \\mathbb{1}_{j \\in t} x_{j^{*}_{p t w} w}.\\]"),
+        p("The realized replacement output is very volatile across each week and team. A more stable estimate of the replacement value
+        is obtained by averaging across teams:",
+          "\\[\\bar{r}_{p w} = \\frac{1}{12}\\sum_{t} r_{p t w}.\\]"),
+        p("Even this estimate can fluctuate some week to week, so I smooth the weekly replacement estimate \\(\\bar{r}_{p w}\\) toward
+        the season-long average at each position, yielding the weighted-weekly replacement:",
+          "\\[wr_{p w} = (1- \\alpha) \\bar{r}_{p w} + \\alpha \\sum_{u = 1}^{17} \\bar{r}_{p u},\\]"),
+        p("where \\(\\alpha \\in (0, 1)\\) is a mixing parameter. I set \\(\\alpha = 0.3\\).
+        Finally, value added for player \\(j\\) in week \\(w\\) is defined",
+          "\\[
+          v_{j w} =
+            \\begin{cases}
+            x_{j w} - wr_{p w}, & \\text{if } j \\in S_w \\\\
+            0, &\\text{otherwise} \\end{cases}
+            \\],"),
+        p("and the value added over the course of an entire season is",
+          "\\[
+          sv_j = \\sum_{w = 1}^{17} v_{j w}.
+          \\]"),
         h4("Future Value"), # math, model, plot fit
+        p("Now that we have measurements of each player's worth over the course of an entire season,
+        it is useful to model it, so we can predict a player's future success prior to a season.
+        At the beginning of a season, I obtain each players' age \\(a_j\\), keep-trade-cut value \\(k_j\\), position \\(p_j\\).
+        I model the players value added over the course of the entire season",
+        "\\[sv_j = f_{\\text{BART}(a_j, k_j, p_j) + \\epsilon_j, \\epsilon_j = \\sigma_j z_j, z_j \\sim N(0, 1),\\]",
+        "where the conditional variance is modeled as",
+        "\\[\\text{log} \\sigma_j = g_{\\text{GAM}}(a_j, k_j, p_j) \\]",
+        "The mean structure is modeled using Bayesian Additive Regression Trees (BART),
+        while the heteroskedasticity in the residuals is accomodated by modeling the log standard deviation as a smooth
+        function of the same covariates using a generalized additive model (GAM)."),
         h4("Draft Picks"), # math, model, plot fit
         h4("Future Standings"), # math, model, plot fit
       )
