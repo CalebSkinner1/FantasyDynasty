@@ -80,7 +80,7 @@ construct_table <- function(matchups_table, season_dates, date){
     select(season, week, round, roster_id, opponent_id, points, opp_points)
 
   current_table <- tibble(
-      season = year_table[[i]]$season[1] + 1,
+      season = current_table$season[1] + 1,
       round = c(
         rep("1st round", each = 2), rep("loser's bracket", each = 2),
         rep("2nd round", each = 2), "5th place", rep("loser's bracket", each = 3),
@@ -131,8 +131,10 @@ sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
     # first round
     first_round <- current_table %>%
       filter(week == 15, roster_id %in% standings[standings$rank %in% c(3, 4, 5, 6),]$roster_id) %>%
-      prep_table_tva(team_tva) %>%
-      win_probability(fit_coef)
+      mutate(
+        winner = if_else(points > opp_points, roster_id, opponent_id),
+        loser = if_else(winner == roster_id, opponent_id, roster_id)
+      )
   }
   if(current_table %>% filter(week == 16) %>% slice(1) %>% pull(points) == 0){
     # fifth place
@@ -152,14 +154,16 @@ sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
     # fifth place
     fifth_place <- current_table %>%
       filter(week == 16, roster_id %in% first_round$loser) %>%
-      prep_table_tva(team_tva) %>%
-      win_probability(fit_coef)
+      mutate(
+        winner = if_else(points > opp_points, roster_id, opponent_id),
+        loser = if_else(winner == roster_id, opponent_id, roster_id))
     
     # second round
     second_round <- current_table %>%
       filter(week == 16, roster_id %in% c(first_round$winner, standings[standings$rank %in% c(2,1),]$roster_id)) %>%
-      prep_table_tva(team_tva) %>%
-      win_probability(fit_coef)
+      mutate(
+        winner = if_else(points > opp_points, roster_id, opponent_id),
+        loser = if_else(winner == roster_id, opponent_id, roster_id))
   }
   
   if(current_table %>% filter(week == 17) %>% slice(1) %>% pull(points) == 0){
@@ -180,14 +184,16 @@ sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
     # third place
     third_place <- current_table %>%
       filter(week == 17, roster_id %in% second_round$loser) %>%
-      prep_table_tva(team_tva) %>%
-      win_probability(fit_coef)
+      mutate(
+        winner = if_else(points > opp_points, roster_id, opponent_id),
+        loser = if_else(winner == roster_id, opponent_id, roster_id))
     
     # championship
     championship <- current_table %>%
       filter(week == 17, roster_id %in% second_round$winner) %>%
-      prep_table_tva(team_tva) %>%
-      win_probability(fit_coef)
+      mutate(
+        winner = if_else(points > opp_points, roster_id, opponent_id),
+        loser = if_else(winner == roster_id, opponent_id, roster_id))
   }
 
   # final standings for season
