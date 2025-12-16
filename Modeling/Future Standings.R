@@ -151,7 +151,7 @@ message("begin 5000 final standings simulations...")
 
 # warning: 8 min; check warning
 tic()
-final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, points_fit_coef, years = 3, n_sims = 5000)
+final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, points_fit_coef, years = 3, n_sims = n_sims)
 toc()
 
 write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))

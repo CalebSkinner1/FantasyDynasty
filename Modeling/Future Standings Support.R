@@ -65,7 +65,7 @@ construct_table <- function(matchups_table, season_dates, date){
   # find season_end and season_start
   season_end <- season_dates$season_end[season_dates$season_end > date] %>% min()
   season_start <- season_dates$season_start[season_dates$season_start < season_end] %>% max()
-  
+
   current_table <- matchups_table %>%
     filter(season == year(season_start)) %>%
     mutate(
@@ -78,6 +78,18 @@ construct_table <- function(matchups_table, season_dates, date){
     ungroup() %>%
     distinct(season, week, matchup, .keep_all = TRUE) %>%
     select(season, week, round, roster_id, opponent_id, points, opp_points)
+
+  current_table <- tibble(
+      season = year_table[[i]]$season[1] + 1,
+      round = c(
+        rep("1st round", each = 2), rep("loser's bracket", each = 2),
+        rep("2nd round", each = 2), "5th place", rep("loser's bracket", each = 3),
+        "Championship", "3rd place", rep("loser's bracket", each = 2)),
+      week = c(rep(15, each = 4), rep(16, each = 6), rep(17, each = 4)),
+      points = 0,
+      opp_points = 0) |>
+    filter(week > max(current_table$week)) %>%
+    bind_rows(current_table, .)
 }
 
 win_probability <- function(table, fit_coef, points_method = TRUE){
@@ -105,6 +117,7 @@ win_probability <- function(table, fit_coef, points_method = TRUE){
   }
 }
 
+# need to build up empty current_table... this should fix issues.
 sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
   
   if(current_table %>% filter(week == 15) %>% slice(1) %>% pull(points) == 0){
@@ -114,7 +127,14 @@ sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
       opponent_id = standings[standings$rank %in% c(6,5),]$roster_id) %>%
       prep_table_tva(team_tva) %>%
       win_probability(fit_coef)
-    
+  }else{
+    # first round
+    first_round <- current_table %>%
+      filter(week == 15, roster_id %in% standings[standings$rank %in% c(3, 4, 5, 6),]$roster_id) %>%
+      prep_table_tva(team_tva) %>%
+      win_probability(fit_coef)
+  }
+  if(current_table %>% filter(week == 16) %>% slice(1) %>% pull(points) == 0){
     # fifth place
     fifth_place <- tibble(
       roster_id = first_round$loser[1],
@@ -130,17 +150,19 @@ sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
       win_probability(fit_coef)
   }else{
     # fifth place
-    fifth_place <- current_table %>% filter(round == "5th place") %>%
+    fifth_place <- current_table %>%
+      filter(week == 16, roster_id %in% first_round$loser) %>%
       prep_table_tva(team_tva) %>%
       win_probability(fit_coef)
     
     # second round
-    second_round <- current_table %>% filter(round == "2nd round") %>%
+    second_round <- current_table %>%
+      filter(week == 16, roster_id %in% c(first_round$winner, standings[standings$rank %in% c(2,1),]$roster_id)) %>%
       prep_table_tva(team_tva) %>%
       win_probability(fit_coef)
   }
   
-  if(current_table %>% filter(week == 16) %>% slice(1) %>% pull(points) == 0){
+  if(current_table %>% filter(week == 17) %>% slice(1) %>% pull(points) == 0){
     # third place
     third_place <- tibble(
       roster_id = second_round$loser[1],
@@ -156,12 +178,14 @@ sim_playoffs <- function(standings, team_tva, fit_coef, current_table){
       win_probability(fit_coef)
   }else{
     # third place
-    third_place <- current_table %>% filter(round == "3rd place") %>%
+    third_place <- current_table %>%
+      filter(week == 17, roster_id %in% second_round$loser) %>%
       prep_table_tva(team_tva) %>%
       win_probability(fit_coef)
     
     # championship
-    championship <- current_table %>% filter(round == "Championship") %>%
+    championship <- current_table %>%
+      filter(week == 17, roster_id %in% second_round$winner) %>%
       prep_table_tva(team_tva) %>%
       win_probability(fit_coef)
   }
@@ -198,9 +222,11 @@ year_sim <- function(current_table, team_tva, fit_coef){
     bind_rows(., completed_results)
   
   tiebreaker <- bind_rows(
-    results %>% group_by(roster_id) %>%
+    results %>% filter(week < 15) |>
+      group_by(roster_id) %>%
     summarize(total_points = sum(points)),
-    results %>% group_by(opponent_id) %>%
+    results %>% filter(week < 15) |>
+      group_by(opponent_id) %>%
       summarize(total_points = sum(opp_points)) %>%
       rename("roster_id" = opponent_id)) %>%
     group_by(roster_id) %>%
@@ -208,6 +234,7 @@ year_sim <- function(current_table, team_tva, fit_coef){
     mutate(rank = rank(total_points))
   
   end_season_standings <- results %>%
+    filter(week < 15) |> 
     pivot_longer(cols = c(roster_id, opponent_id), names_to = "position", values_to = "roster_id") |>
     mutate(win = if_else(roster_id == winner, 1, 0)) |>
     group_by(roster_id) %>%
