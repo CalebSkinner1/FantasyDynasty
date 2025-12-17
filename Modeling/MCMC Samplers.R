@@ -184,7 +184,6 @@ het_reg_mh_sampler <- function(Y, X, new_X, iter = 6000, burn_in = 1000, thin = 
       }
       accept_count[j] <- accept_count[j] + acc[j]
     }
-
     
     # adjust proposal_sd every adapt_sd steps
     if(i %% adapt_sd == 0 & i <= burn_in){
