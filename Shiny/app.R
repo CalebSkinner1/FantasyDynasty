@@ -589,13 +589,13 @@ ui <- dashboardPage(
         determines their potential replacement. There are eight positions:",
           "\\[P = \\{\\text{QB, RB, WR, TE, SUPERFLEX, FLEX, K, DEF} \\}.\\]"),
         p("Replacement players are determined using pre-game projections \\hat{x}_{j w}.
-        The replacement-level player for position \\(p\\), team \\(t\\), and week \\(w\\) is defined as",
-          "\\[j^{*}_{p t w} = \\arg\\max \\{j \\in p \\cap {S_w}^c \\cap t \\} \\hat{x}_{j w},\\]"),
+        The replacement-level player for position \\(p\\), team \\(T\\), and week \\(w\\) is defined as",
+          "\\[j^{*}_{p T w} = \\arg\\max \\{j \\in p \\cap {S_w}^c \\cap T \\} \\hat{x}_{j w},\\]"),
         p("The realized replacement output is",
-          "\\[r_{p t w} = \\sum_{t} \\mathbb{1}_{j \\in t} x_{j^{*}_{p t w} w}.\\]"),
+          "\\[r_{p T w} = \\sum_{T} \\mathbb{1}_{j \\in T} x_{j^{*}_{p T w} w}.\\]"),
         p("The realized replacement output is very volatile across each week and team. A more stable estimate of the replacement value
         is obtained by averaging across teams:",
-          "\\[\\bar{r}_{p w} = \\frac{1}{12}\\sum_{t} r_{p t w}.\\]"),
+          "\\[\\bar{r}_{p w} = \\frac{1}{12}\\sum_{T} r_{p T w}.\\]"),
         p("Even this estimate can fluctuate some week to week, so I smooth the weekly replacement estimate \\(\\bar{r}_{p w}\\) toward
         the season-long average at each position, yielding the weighted-weekly replacement:",
           "\\[wr_{p w} = (1- \\alpha) \\bar{r}_{p w} + \\alpha \\sum_{u = 1}^{17} \\bar{r}_{p u},\\]"),
@@ -611,12 +611,15 @@ ui <- dashboardPage(
           "\\[
           sv_j = \\sum_{w = 1}^{17} v_{j w}.
           \\]"),
+
         h4("Future Value"), # math, model
         p("Now that we have measurements of each player's worth over the course of an entire season,
         it is useful to model this quantity in order to predict a player's future success prior to a season.
         At the beginning of a season \\(t\\), I observe each players' age \\(a_{j t}\\), KeepTradeCut value \\(k_{j t}\\),
         position \\(p_{j t}\\). I model the player's value added over the course of the subsequent season as",
-        "\\[sv_{j, t + 1}= f_{\\text{BART}}(a_{j t}, k_{j t}, p_{j t}) + \\epsilon_{j, t + 1}, \\epsilon_{j, t + 1} = \\sigma_{j, t + 1} z_{j, t + 1}, z_{j, t + 1} \\sim N(0, 1),\\]",
+        "\\[sv_{j, t + 1} = f_{\\text{BART}}(a_{j t}, k_{j t}, p_{j t}) + \\epsilon_{j, t + 1}, \\\\
+        \\epsilon_{j, t + 1} = \\sigma_{j, t + 1} z_{j, t + 1}, \\\\
+        z_{j, t + 1} \\sim N(0, 1),\\]",
         "where the conditional variance is modeled as",
         "\\[\\text{log} \\sigma_{j, t + 1} = g_{\\text{GAM}}(a_{j t}, k_{j t}, p_{j t}) \\]",
         "The mean structure is modeled using Bayesian Additive Regression Trees (BART),
@@ -630,31 +633,56 @@ ui <- dashboardPage(
         p("To model a player's entire career, seasonal value added is predicted iteratively over multiple years.
         Age and position naturally carry forward from one season to the next, but the KeepTradeCut value requires additioanl modeling.
         I therefore model a player's KeepTradeCut at the beginning of the next season using an additional BART model:",
-        "\\[k_{j t + 1}= f_{\\text{BART}}(a_{j t}, sv_{j t + 1}, p_{j t}) + \\delta{j t + 1}, \\delta{j t + 1} = \\tau_{j t + 1} z_{j t + 1}, z_{j t + 1} \\sim N(0, 1),\\]",
+        "\\[k_{j t + 1}= f_{\\text{BART}}(a_{j t}, sv_{j t + 1}, p_{j t}) + \\delta{j t + 1}, \\\\
+        \\delta{j t + 1} = \\tau_{j t + 1} z_{j t + 1}, \\\\
+        z_{j t + 1} \\sim N(0, 1),\\]",
         "where, again, the conditional variance is modeled as",
         "\\[\\text{log} \\tau_{j t + 1} = g_{\\text{GAM}}(a_{j t}, sv_{j t + 1}, p_{j t}). \\]"),
         p("By iterating these two models, a player's entire career trajectory can be simulated year by year. Posterior samples are generated
         at each season and propogate forward through subsequent models, with downsampling used to mitigate computational cost.
         Additional constraints are imposed to prevent unrealistic extrapolation (for example, predicting performance for 50-year old players)."),
         p("Finally, a players future value is defined as a discounted sum of the median predicted seasonal value over the next eight seasons:",
-        "\\[f_j = \\sum_{t=1}^8 (1-\\gamma)^t sv_{j t}, \\]",
+        "\\[f_j = \\sum_{t=1}^8 (1-\\gamma)^t \\hat{sv}_{j t}, \\]",
         "where \\(\\gamma = 0.05 \\) is temporal discount factor."),
+
         h4("Draft Picks"), # math, model
-        p("One of the most challenging assets to value in a Dynasty Fantasy Football League is a rookie draft pick. Under this framework, however,
-        draft pick valuation is a simple modeling task. The player's total value is defined as the sum of his realized value and discounted future value:",
+        p("One of the most challenging assets to value in a dynasty Fantasy Football league is a rookie draft pick.
+        Under this framework, however, draft pick valuation becomes a straightforward modeling task.
+        The player's total value is defined as the sum of his realized value and discounted future value:",
         "\\[t_j = \\sum_{t = 1}^{\\tau} sv_{j t} + f_j,\\]",
-        "where \\(\\tau\\) is the player's years experience."),
-        p("To isolate the value of a draft pick, I model the player's total value added as a function of the draft position \\(d_j\\):",
-        "\\[t_j =  \\beta_0 + \\beta_1 d_j + \\beta_2 \\sqrt{d_j} + \\epsilon_j, \\epsilon_j = \\sigma_j z_j, z_j \\sim N(0, 1),\\]",
-        "where \\(\\sigma^2_j\\) is the player-specific variance."),
-        p("I give \\(\\beta\\) the popular g-prior and \\(\\sigma^2_j\\) a conjugate inverse-gamma prior
-        (see Sosa and Aristizabal (2021) for a great summary of Bayesian hierarchical linear modeling).
-        I explore the posterior distribution using a standard Gibbs sampler with a Metropolis-Hastings step
-        for estimating the heteroskedastic variance. The full MCMC is available on ",
+        "where \\(\\tau\\) denotes the number of seasons the player has already completed."),
+        p("To isolate the value of a draft pick, I model a player's total value added as a function of their
+        draft position \\(d_j\\):",
+        "\\[t_j =  \\beta_0 + \\beta_1 d_j + \\beta_2 \\sqrt{d_j} + \\epsilon_j, \\\\
+        \\epsilon_j = \\sigma_j z_j, \\\\
+        z_j \\sim N(0, 1).\\]",
+        "Here, \\(\\sigma_j^2\\) represents player-specific variance,
+        allowing for heteroskedasticity across draft positions."),
+        p("I assign the regression coefficients \\(\\beta\\) a standard g-prior and place a conjugate inverse-gamma prior
+        on \\(\\sigma_j^2\\) (see Sosa and Aristizabal (2021) for an accessible overview of Bayesian hierarchical linear regression).
+        Posterior inference is conducted using a Gibbs sampler with an embedded Metropolis-Hastings step
+        to estimate the heteroskedastic variance structure. The full MCMC implementation is available on ",
         a("GitHub", href = "https://github.com/CalebSkinner1/FantasyDynasty/blob/main-branch/Modeling/MCMC%20Samplers.R", target = "_blank"),
         "."),
+
         h4("Future Standings"), # math, model
-        p("Finally, I leverage the simulated careers of fantasy players to predict ")
+        p("Finally, I leverage the simulated player career trajectories to predict the outcomes of future
+        fantasy matchups. I approximate the strength \\(s_T\\) of a fantasy team \\(T\\) by summing the projected
+        season value added of the top twelve players on the roster:
+          \\[\\tilde{s_T} = \\sum_{j \\in T}^12 \\tilde{sv}_{j}. \\]"),
+        p("I model the total fantasy points scored \\(o_{T w}\\) given the team's strength with
+        a simple linear regression:",
+        "\\[o_{T w} = \\beta_0 + \\beta_1 \\tilde{s_T} + \\beta_2 \\sqrt{\\tilde{s_T}} + \\epsilon_{T w}, \\\\
+        \\epsilon \\sim N(0, \\sigma^2)\\]"),
+        p("To simulate each fantasy matchup within a given season, I draw new noise terms
+        \\(\\epsilon_{T w} \\sim N(0, \\hat{\\sigma^2})\\) and generate weekly outcomes:",
+        "\\[\\tilde{o}_{T w} = \\hat{\\beta}_0 + \\hat{\\beta}_1 s_T + \\hat{\\beta}_2 \\sqrt{s_T} + \\tilde{\\epsilon}_{T w} \\]."),
+        p("Because the weekly schedule is known, simulated weekly outputs for each team are sufficient to generate
+        complete season outcomes. To associate probabilities with each possible finishing position, 5,000 posterior
+        samples of each player's projected seasonal value added are generated, and the full
+        season simulation is repeated independetly for each sample. After simulating both the regular season and playoffs,
+        draft positions are determined and incorporate into each team's asset portfolio. By iterating this process,
+        I generate projected league standings for the next three seasons."),
       )
     )
   )
