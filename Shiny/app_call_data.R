@@ -71,3 +71,8 @@ users <- read_csv(str_c(script_data_path, "users.csv"), show_col_types = FALSE)
 season_value_added <- read_csv(str_c(script_data_path, "season_value_added.csv"), show_col_types = FALSE)
 avatar <- read_csv(str_c(script_data_path, "avatar.csv"), show_col_types = FALSE)
 future_value_time <- read_csv(str_c(script_data_path, "future_value_time.csv"), show_col_types = FALSE)
+
+# modeling
+toy_tva_plot_data <- read_csv(str_c(script_data_path, "toy_tva_plot_data.csv"), show_col_types = FALSE)
+toy_ktc_plot_data <- read_csv(str_c(script_data_path, "toy_ktc_plot_data.csv"), show_col_types = FALSE)
+draft_fit_plot <- read_csv(str_c(script_data_path, "draft_fit_plot.csv"), show_col_types = FALSE)

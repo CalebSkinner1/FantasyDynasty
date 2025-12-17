@@ -75,15 +75,27 @@ toc()
 quantiles_tv <- apply(samples_tv$new_y, 2, quantile, probs = seq(.025, .975, by = .025))
 
 # plot fit, looks pretty good
-tibble(.pred = quantiles_tv[20,],
-       lower = quantiles_tv[1,],
-       upper = quantiles_tv[39,],
-       pick_no = c(1:36)) %>%
-  right_join(rookie_drafts, by = join_by(pick_no)) %>%
+draft_fit_plot <- tibble(
+    .pred = quantiles_tv[20,],
+    lower = quantiles_tv[1,],
+    upper = quantiles_tv[39,],
+    pick_no = c(1:36)) %>%
+  right_join(rookie_drafts, by = join_by(pick_no)) |>
+  mutate("Total Value" = round(total_value, digits = 2)) |>
+  select(name, pick_no, .pred, lower, upper, `Total Value`) |>
+  distinct() |>
+  rename(median = .pred)
+  
+  
+
+p <- draft_fit_plot |>
   ggplot(aes(x = pick_no)) +
-  geom_point(aes(y = total_value)) +
-  geom_line(aes(y = .pred)) +
-  geom_errorbar(aes(ymin = lower, ymax = upper))
+  geom_point(aes(y = `Total Value`, text = paste0("Name: ", name))) +
+  geom_line(aes(y = median), color = "cadetblue4") +
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "cadetblue3", alpha = .2) +
+  labs(x = "Draft Pick", y = "Total Value Added")
+
+ggplotly(p, tooltip = c("y", "text"))
 
 # plot residuals against pick_no, looks ok enough
 tibble(.pred = quantiles_tv[20,],
@@ -263,6 +275,8 @@ rookie_draft_values <- imap_dfr(1:4, ~{
   relocate(pick_no, metric)
 
 # write_csv(rookie_draft_values, here("Data/rookie_draft_values.csv"))
+
+write_csv(draft_fit_plot, here("Data/draft_fit_plot.csv"))
 
 
 

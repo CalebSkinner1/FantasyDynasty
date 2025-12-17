@@ -585,7 +585,7 @@ ui <- dashboardPage(
         to his position-specific replacement level."),
         p("Let \\(x_{j w}\\) denote the fantasy points that player \\(j\\) in week \\(w = 1, \\ldots, 17\\)
         of a season. Players earn points only when started, so let
-        \\(\\mathcal{S}_w\\) denote the set of starters in week \\(w\\). A player’s position
+        \\(S_w\\) denote the set of starters in week \\(w\\). A player’s position
         determines their potential replacement. There are eight positions:",
           "\\[P = \\{\\text{QB, RB, WR, TE, SUPERFLEX, FLEX, K, DEF} \\}.\\]"),
         p("Replacement players are determined using pre-game projections \\hat{x}_{j w}.
@@ -627,17 +627,27 @@ ui <- dashboardPage(
         function of the same covariates using a generalized additive model (GAM)."),
         p("It is clear that seasonal value added is not linear in age or KeepTradeCut value. Players tend to peak at a certain age,
         and value added accelerates nonlinearly as KeepTradeCut value increases. While many modeling techniques would struggle to identify
-        these patterns, BART is well suited to learning complex, nonlinear relationships. Moreover, younger players tend to exhibit greater volatility than older players,
-        and the player's KeepTradeCut and position are informative about their uncertainty. Modeling the residual scale using these
-        allows uncertainty quantification to adapt to player-specific conditions."),
+        these patterns, BART is well suited to learning complex, nonlinear relationships. Moreover, younger players tend to exhibit
+        greater volatility than older players, and the player's KeepTradeCut and position are informative about their uncertainty.
+        Modeling the residual scale using these allows uncertainty quantification to adapt to player-specific conditions."),
+        p("Below, I display the projected seasonal value added across a range of predictor values. The shaded portion
+        denote the 80\\% credible region. Each panel corresponds to a fixed player age, the x-axis
+        represents the player's pre-season KeepTradeCut value, and the color indicates the player's position. The stepwise behavior
+        observed along the x-axis is characteristic of the BART framework. Notably, uncertainty is substantially larger for younger players."),
+        plotOutput("sva_fit", height = "400px", width = "100%"),
         p("To model a player's entire career, seasonal value added is predicted iteratively over multiple years.
-        Age and position naturally carry forward from one season to the next, but the KeepTradeCut value requires additioanl modeling.
+        Age and position naturally carry forward from one season to the next, but the KeepTradeCut value requires additional modeling.
         I therefore model a player's KeepTradeCut at the beginning of the next season using an additional BART model:",
-        "\\[k_{j t + 1}= f_{\\text{BART}}(a_{j t}, sv_{j t + 1}, p_{j t}) + \\delta{j t + 1}, \\\\
+        "\\[k_{j t + 1} = f_{\\text{BART}}(a_{j t}, sv_{j t + 1}, p_{j t}, k_{j t}) + \\delta{j t + 1}, \\\\
         \\delta{j t + 1} = \\tau_{j t + 1} z_{j t + 1}, \\\\
         z_{j t + 1} \\sim N(0, 1),\\]",
         "where, again, the conditional variance is modeled as",
-        "\\[\\text{log} \\tau_{j t + 1} = g_{\\text{GAM}}(a_{j t}, sv_{j t + 1}, p_{j t}). \\]"),
+        "\\[\\text{log} \\tau_{j t + 1} = g_{\\text{GAM}}(a_{j t}, sv_{j t + 1}, p_{j t}, k_{j t}). \\]"),
+        p("Here, I plot the projected KeepTradeCut value for a player with a preseason KeepTradeCut value of 5,000.
+        As before, the shaded areas represent 80% credible intervals, color denotes player position, and the x-axis
+        is the total seasonal value added. Interestingly, the greatest uncertainty is observed among
+        underperforming players, particularly at older ages."),
+        plotOutput("ktc_fit", height = "400px", width = "100%"),
         p("By iterating these two models, a player's entire career trajectory can be simulated year by year. Posterior samples are generated
         at each season and propogate forward through subsequent models, with downsampling used to mitigate computational cost.
         Additional constraints are imposed to prevent unrealistic extrapolation (for example, predicting performance for 50-year old players)."),
@@ -664,6 +674,9 @@ ui <- dashboardPage(
         to estimate the heteroskedastic variance structure. The full MCMC implementation is available on ",
         a("GitHub", href = "https://github.com/CalebSkinner1/FantasyDynasty/blob/main-branch/Modeling/MCMC%20Samplers.R", target = "_blank"),
         "."),
+        p("I plot drafted player's Total Value Added across their rookie draft position. The blue line is the median projected
+        value, while the shaded region corresponds to 95\\% credible intervals. Hover on the point to see the player's name."),
+        plotlyOutput("draft_fit", height = "400px", width = "100%"),
 
         h4("Future Standings"), # math, model
         p("Finally, I leverage the simulated player career trajectories to predict the outcomes of future
@@ -890,8 +903,9 @@ server <- function(input, output, session) {
   })
   
   # Reactivity for Page 3
-  
-  output$draft_ranking_title <- renderUI({ #title
+
+  output$draft_ranking_title <- renderUI({
+    #title
     req(input$draft_selection) #require input
     h3(str_c(str_to_title(input$draft_selection), " Draft Grades"))
   })
@@ -1442,6 +1456,47 @@ server <- function(input, output, session) {
           scrollX = FALSE          # Allow horizontal scrolling if columns exceed width
         ))
   })
+
+
+  # Reactivity for Page 12
+
+    output$sva_fit <- renderPlot({ #first plot
+      p <- toy_tva_plot_data |>
+        ggplot() +
+        geom_line(aes(x = historical_value, y = median_tva, color = position)) +
+        geom_ribbon(aes(x = historical_value, ymin = q10, ymax = q90, fill = position), alpha = 0.2) +
+        facet_wrap(~age, nrow = 3) +
+        labs(x = "KeepTradeCut", y = "Season Value Added") +
+        theme(
+          axis.text.x = element_text(angle = 30, vjust = 1.25, hjust = 1),
+          legend.title = element_blank())
+      
+      plot(p)
+    })
+  
+    output$ktc_fit <- renderPlot({ #first plot
+      p <- toy_ktc_plot_data |>
+        ggplot() +
+        geom_line(aes(x = tva_adj, y = median_ktc, color = position)) +
+        geom_ribbon(aes(x = tva_adj, ymin = q10, ymax = q90, fill = position), alpha = 0.2) +
+        facet_wrap(~age, nrow = 3) +
+        labs(x = "Total Value Added", y = "Post-season KeepTradeCut") +
+        coord_cartesian(ylim = c(0, 10000)) + 
+        theme(legend.title = element_blank())
+      
+      plot(p)
+    })
+  
+    output$draft_fit <- renderPlotly({ #first plot
+      p <- draft_fit_plot |>
+        ggplot(aes(x = pick_no)) +
+        geom_point(aes(y = `Total Value`, text = paste0("Name: ", name))) +
+        geom_line(aes(y = median), color = "cadetblue4") +
+        geom_ribbon(aes(ymin = lower, ymax = upper), fill = "cadetblue3", alpha = .2) +
+        labs(x = "Draft Pick", y = "Total Value Added")
+
+      ggplotly(p, tooltip = c("y", "text"))
+    })
 }
 
 # Run the App

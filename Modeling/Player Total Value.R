@@ -191,4 +191,86 @@ player_total_value <- future_value_time %>% filter(date == max(date)) %>%
 
 write_csv(player_total_value, here("Data/player_total_value.csv"))
 
+# # Demonstrate Model Fit ----------------------------------------------------
+# # tva
+# toy_tva_data <- tibble(
+#   position = c(rep("QB", 1200), rep("RB", 1200), rep("WR", 1200), rep("TE", 1200)),
+#   age = rep(
+#     c(rep(22, 100), rep(23, 100), rep(24, 100), rep(25, 100),
+#     rep(26, 100), rep(27, 100), rep(28, 100), rep(29, 100),
+#     rep(30, 100), rep(31, 100), rep(32, 100), rep(33, 100)), 4),
+#   historical_value =  rep(seq(from = 100, to = 10000, length.out = 100), 48),
+#   tva_adj = NA
+# )
 
+# prep_toy_tva_data <- toy_tva_data |> prep_data_tva(tva_scales)
+
+# tic()
+# toy_tva_quantiles <- generate_samples(tva_fit, prep_toy_tva_data$full_data) |>
+#   compute_quantiles(tva_resid_fit, prep_toy_tva_data$full_data)
+# toc()
+
+# toy_tva_plot_data <- toy_tva_data |> bind_cols(as_tibble(t(toy_tva_quantiles))) |>
+#   mutate(age = factor(age)) |>
+#   rename(
+#     median_tva = "V20",
+#     q05 = "V2",
+#     q10 = "V4",
+#     q90 = "V36",
+#     q95 = "V38") |>
+#   select(historical_value, age, position, median_tva, q05, q10, q90, q95)
+
+# toy_tva_plot_data |>
+#   ggplot() +
+#   geom_line(aes(x = historical_value, y = median_tva, color = position)) +
+#   geom_ribbon(aes(x = historical_value, ymin = q10, ymax = q90, fill = position), alpha = 0.2) +
+#   facet_wrap(~age, nrow = 3) +
+#   labs(x = "KeepTradeCut", y = "Season Value Added") +
+#   theme(
+#     axis.text.x = element_text(angle = 30, vjust = 1.25, hjust = 1),
+#     legend.title = element_blank())
+
+# # ktc
+# toy_ktc_data <- tibble(
+#   position = c(rep("QB", 24000), rep("RB", 24000), rep("WR", 24000), rep("TE", 24000)),
+#   age = rep(
+#     c(rep(23, 2000), rep(24, 2000), rep(25, 2000), rep(26, 2000), 
+#     rep(27, 2000), rep(28, 2000), rep(29, 2000), rep(30, 2000), 
+#     rep(31, 2000), rep(32, 2000), rep(33, 2000), rep(34, 2000)), 4),
+#   historical_value =  rep(seq(from = 100, to = 10000, length.out = 100), 960),
+#   tva_adj = rep(
+#     c(rep(-28, 100), rep(-16, 100), rep(-4, 100), rep(8, 100), rep(20, 100),
+#     rep(32, 100), rep(44, 100), rep(56, 100), rep(68, 100), rep(80, 100),
+#     rep(92, 100), rep(104, 100), rep(116, 100), rep(128, 100), rep(140, 100),
+#     rep(152, 100), rep(164, 100), rep(176, 100), rep(188, 100), rep(200, 100)), 48),
+#   ktc_value = 0)
+
+# prep_toy_ktc_data <- prep_data_ktc(toy_ktc_data, ktc_scales)
+
+# tic()
+# toy_ktc_quantiles <- generate_samples(ktc_fit, prep_toy_ktc_data$full_data) |>
+#   compute_quantiles(ktc_resid_fit, prep_toy_ktc_data$full_data)
+# toc()
+
+# toy_ktc_plot_data <- toy_ktc_data |>
+#   bind_cols(as_tibble(t(toy_ktc_quantiles))) |>
+#   mutate(age = factor(age)) |>
+#   rename(
+#     median_ktc = "V20",
+#     q05 = "V2",
+#     q10 = "V4",
+#     q90 = "V36",
+#     q95 = "V38") |>
+#   select(historical_value, age, position, tva_adj, median_ktc, q05, q10, q90, q95) |>
+#   filter(historical_value == 5000)
+
+# toy_ktc_plot_data |> ggplot() +
+#   geom_line(aes(x = tva_adj, y = median_ktc, color = position)) +
+#   geom_ribbon(aes(x = tva_adj, ymin = q10, ymax = q90, fill = position), alpha = 0.2) +
+#   facet_wrap(~age, nrow = 3) +
+#   labs(x = "Total Value Added", y = "Post-season KeepTradeCut") +
+#   coord_cartesian(ylim = c(0, 10000)) + 
+#   theme(legend.title = element_blank())
+
+# write_csv(toy_tva_plot_data, here("Data/toy_tva_plot_data.csv"))
+# write_csv(toy_ktc_plot_data, here("Data/toy_ktc_plot_data.csv"))
