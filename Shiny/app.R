@@ -46,7 +46,7 @@ ui <- dashboardPage(
         rests on the novel", strong("value added"), "metric. I model player's future success and organize data in an (hopefully)
         accessible method. This website contains relevant and niche information that informs the twelve users of
         the league. It should supplement- and not replace- the league information you find on Sleeper and the popular fantasy player valuing
-          websites like", a("Keep Trade Cut", href = "https://keeptradecut.com/dynasty-rankings", target = "_blank"), "or",
+          websites like", a("KeepTradeCut", href = "https://keeptradecut.com/dynasty-rankings", target = "_blank"), "or",
           a("Dynasty Daddy.", href = "https://dynasty-daddy.com", target = "blank"), "In fact, several of my models leverage
           these popular ratings. That said, I believe users will find insights unique to this website, and I firmly take
           credit for any success or newfound knowledge any fantasy users derive. As for any mistakes or poor
@@ -77,7 +77,7 @@ ui <- dashboardPage(
           This dynamic rating system adjusts players' value to the fantasy team's composition."),
         h4("Future Value"),
         p("Put simply, a player's ", strong("future value"), " is his expected value added in future seasons. It's difficult to project this
-        directly, so I model a player's future value as a function of his position, age, and current keep trade cut value. I employ a
+        directly, so I model a player's future value as a function of his position, age, and current KeepTradeCut value. I employ a
         bayesian additive regression tree to predict each player's value added in future years.
         (If you want to know the full details please see my ",
           a("GitHub", href = "https://github.com/CalebSkinner1/FantasyDynasty", target = "_blank"), "for more information).
@@ -611,19 +611,50 @@ ui <- dashboardPage(
           "\\[
           sv_j = \\sum_{w = 1}^{17} v_{j w}.
           \\]"),
-        h4("Future Value"), # math, model, plot fit
+        h4("Future Value"), # math, model
         p("Now that we have measurements of each player's worth over the course of an entire season,
-        it is useful to model it, so we can predict a player's future success prior to a season.
-        At the beginning of a season, I obtain each players' age \\(a_j\\), keep-trade-cut value \\(k_j\\), position \\(p_j\\).
-        I model the players value added over the course of the entire season",
-        "\\[sv_j = f_{\\text{BART}(a_j, k_j, p_j) + \\epsilon_j, \\epsilon_j = \\sigma_j z_j, z_j \\sim N(0, 1),\\]",
+        it is useful to model this quantity in order to predict a player's future success prior to a season.
+        At the beginning of a season \\(t\\), I observe each players' age \\(a_{j t}\\), KeepTradeCut value \\(k_{j t}\\),
+        position \\(p_{j t}\\). I model the player's value added over the course of the subsequent season as",
+        "\\[sv_{j, t + 1}= f_{\\text{BART}}(a_{j t}, k_{j t}, p_{j t}) + \\epsilon_{j, t + 1}, \\epsilon_{j, t + 1} = \\sigma_{j, t + 1} z_{j, t + 1}, z_{j, t + 1} \\sim N(0, 1),\\]",
         "where the conditional variance is modeled as",
-        "\\[\\text{log} \\sigma_j = g_{\\text{GAM}}(a_j, k_j, p_j) \\]",
+        "\\[\\text{log} \\sigma_{j, t + 1} = g_{\\text{GAM}}(a_{j t}, k_{j t}, p_{j t}) \\]",
         "The mean structure is modeled using Bayesian Additive Regression Trees (BART),
-        while the heteroskedasticity in the residuals is accomodated by modeling the log standard deviation as a smooth
+        while heteroskedasticity in the residuals is accomodated by modeling the log standard deviation as a smooth
         function of the same covariates using a generalized additive model (GAM)."),
-        h4("Draft Picks"), # math, model, plot fit
-        h4("Future Standings"), # math, model, plot fit
+        p("It is clear that seasonal value added is not linear in age or KeepTradeCut value. Players tend to peak at a certain age,
+        and value added accelerates nonlinearly as KeepTradeCut value increases. While many modeling techniques would struggle to identify
+        these patterns, BART is well suited to learning complex, nonlinear relationships. Moreover, younger players tend to exhibit greater volatility than older players,
+        and the player's KeepTradeCut and position are informative about their uncertainty. Modeling the residual scale using these
+        allows uncertainty quantification to adapt to player-specific conditions."),
+        p("To model a player's entire career, seasonal value added is predicted iteratively over multiple years.
+        Age and position naturally carry forward from one season to the next, but the KeepTradeCut value requires additioanl modeling.
+        I therefore model a player's KeepTradeCut at the beginning of the next season using an additional BART model:",
+        "\\[k_{j t + 1}= f_{\\text{BART}}(a_{j t}, sv_{j t + 1}, p_{j t}) + \\delta{j t + 1}, \\delta{j t + 1} = \\tau_{j t + 1} z_{j t + 1}, z_{j t + 1} \\sim N(0, 1),\\]",
+        "where, again, the conditional variance is modeled as",
+        "\\[\\text{log} \\tau_{j t + 1} = g_{\\text{GAM}}(a_{j t}, sv_{j t + 1}, p_{j t}). \\]"),
+        p("By iterating these two models, a player's entire career trajectory can be simulated year by year. Posterior samples are generated
+        at each season and propogate forward through subsequent models, with downsampling used to mitigate computational cost.
+        Additional constraints are imposed to prevent unrealistic extrapolation (for example, predicting performance for 50-year old players)."),
+        p("Finally, a players future value is defined as a discounted sum of the median predicted seasonal value over the next eight seasons:",
+        "\\[f_j = \\sum_{t=1}^8 (1-\\gamma)^t sv_{j t}, \\]",
+        "where \\(\\gamma = 0.05 \\) is temporal discount factor."),
+        h4("Draft Picks"), # math, model
+        p("One of the most challenging assets to value in a Dynasty Fantasy Football League is a rookie draft pick. Under this framework, however,
+        draft pick valuation is a simple modeling task. The player's total value is defined as the sum of his realized value and discounted future value:",
+        "\\[t_j = \\sum_{t = 1}^{\\tau} sv_{j t} + f_j,\\]",
+        "where \\(\\tau\\) is the player's years experience."),
+        p("To isolate the value of a draft pick, I model the player's total value added as a function of the draft position \\(d_j\\):",
+        "\\[t_j =  \\beta_0 + \\beta_1 d_j + \\beta_2 \\sqrt{d_j} + \\epsilon_j, \\epsilon_j = \\sigma_j z_j, z_j \\sim N(0, 1),\\]",
+        "where \\(\\sigma^2_j\\) is the player-specific variance."),
+        p("I give \\(\\beta\\) the popular g-prior and \\(\\sigma^2_j\\) a conjugate inverse-gamma prior
+        (see Sosa and Aristizabal (2021) for a great summary of Bayesian hierarchical linear modeling).
+        I explore the posterior distribution using a standard Gibbs sampler with a Metropolis-Hastings step
+        for estimating the heteroskedastic variance. The full MCMC is available on ",
+        a("GitHub", href = "https://github.com/CalebSkinner1/FantasyDynasty/blob/main-branch/Modeling/MCMC%20Samplers.R", target = "_blank"),
+        "."),
+        h4("Future Standings"), # math, model
+        p("Finally, I leverage the simulated careers of fantasy players to predict ")
       )
     )
   )
