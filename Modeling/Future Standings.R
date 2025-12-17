@@ -105,6 +105,8 @@ team_va <- va %>%
   filter(season == 2024) %>%
   group_by(roster_id, name) %>%
   summarize(total_va = sum(value_added), .groups = "keep") %>%
+  ungroup() |>
+  group_by(roster_id) |>
   mutate(rank = rank(desc(total_va))) %>%
   filter(rank <= 12) %>%
   ungroup() %>%
@@ -135,6 +137,8 @@ points_fit <- linear_reg() %>%
   fit(
     points ~ total_va + total_va_sqrt - 1,
     data = matchup_va_data)
+
+# compare AIC with different sums
 
 points_fit_coef <- points_fit$fit %>% coef() %>% 
   t() %>% as.data.frame() %>%
