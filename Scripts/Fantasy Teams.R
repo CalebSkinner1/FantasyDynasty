@@ -215,13 +215,15 @@ realized_value <- value_added %>%
   # filter(roster_id == enter_roster_id) %>%
   group_by(roster_id, position) %>%
   summarize(
-    realized_value = sum(value_added)) %>%
+    realized_value = sum(value_added),
+    .groups = "keep") %>%
   ungroup()
 
 position_outlook_df <- current_roster %>%
   group_by(roster_id, position) %>%
   summarize(
-    future_value = sum(future_value)) %>%
+    future_value = sum(future_value),
+    .groups = "keep") %>%
   ungroup() %>%
   left_join(realized_value, by = join_by(position, roster_id)) %>%
   mutate(
