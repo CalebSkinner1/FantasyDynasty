@@ -605,8 +605,8 @@ ui <- dashboardPage(
           v_{j w} =
             \\begin{cases}
             x_{j w} - wr_{p w}, & \\text{if } j \\in S_w \\\\
-            0, &\\text{otherwise} \\end{cases}
-            \\],"),
+            0, &\\text{otherwise,} \\end{cases}
+            \\]"),
         p("and the value added over the course of an entire season is",
           "\\[
           sv_j = \\sum_{w = 1}^{17} v_{j w}.
@@ -631,7 +631,7 @@ ui <- dashboardPage(
         greater volatility than older players, and the player's KeepTradeCut and position are informative about their uncertainty.
         Modeling the residual scale using these allows uncertainty quantification to adapt to player-specific conditions."),
         p("Below, I display the projected seasonal value added across a range of predictor values. The shaded portion
-        denote the 80\\% credible region. Each panel corresponds to a fixed player age, the x-axis
+        denote the 80% credible region. Each panel corresponds to a fixed player age, the x-axis
         represents the player's pre-season KeepTradeCut value, and the color indicates the player's position. The stepwise behavior
         observed along the x-axis is characteristic of the BART framework. Notably, uncertainty is substantially larger for younger players."),
         plotOutput("sva_fit", height = "400px", width = "100%"),
@@ -675,21 +675,21 @@ ui <- dashboardPage(
         a("GitHub", href = "https://github.com/CalebSkinner1/FantasyDynasty/blob/main-branch/Modeling/MCMC%20Samplers.R", target = "_blank"),
         "."),
         p("I plot drafted player's Total Value Added across their rookie draft position. The blue line is the median projected
-        value, while the shaded region corresponds to 95\\% credible intervals. Hover on the point to see the player's name."),
+        value, while the shaded region corresponds to 95% credible intervals. Hover on the point to see the player's name."),
         plotlyOutput("draft_fit", height = "400px", width = "100%"),
 
         h4("Future Standings"), # math, model
         p("Finally, I leverage the simulated player career trajectories to predict the outcomes of future
         fantasy matchups. I approximate the strength \\(s_T\\) of a fantasy team \\(T\\) by summing the projected
         season value added of the top twelve players on the roster:
-          \\[\\tilde{s_T} = \\sum_{j \\in T}^12 \\tilde{sv}_{j}. \\]"),
+          \\[\\tilde{s_T} = \\sum_{j \\in T}^{12} \\tilde{sv}_{j}. \\]"),
         p("I model the total fantasy points scored \\(o_{T w}\\) given the team's strength with
         a simple linear regression:",
         "\\[o_{T w} = \\beta_0 + \\beta_1 \\tilde{s_T} + \\beta_2 \\sqrt{\\tilde{s_T}} + \\epsilon_{T w}, \\\\
-        \\epsilon \\sim N(0, \\sigma^2)\\]"),
+        \\epsilon_{T w} \\sim N(0, \\sigma^2)\\]"),
         p("To simulate each fantasy matchup within a given season, I draw new noise terms
         \\(\\epsilon_{T w} \\sim N(0, \\hat{\\sigma^2})\\) and generate weekly outcomes:",
-        "\\[\\tilde{o}_{T w} = \\hat{\\beta}_0 + \\hat{\\beta}_1 s_T + \\hat{\\beta}_2 \\sqrt{s_T} + \\tilde{\\epsilon}_{T w} \\]."),
+        "\\[\\tilde{o}_{T w} = \\hat{\\beta}_0 + \\hat{\\beta}_1 s_T + \\hat{\\beta}_2 \\sqrt{s_T} + \\tilde{\\epsilon}_{T w}. \\]"),
         p("Because the weekly schedule is known, simulated weekly outputs for each team are sufficient to generate
         complete season outcomes. To associate probabilities with each possible finishing position, 5,000 posterior
         samples of each player's projected seasonal value added are generated, and the full
