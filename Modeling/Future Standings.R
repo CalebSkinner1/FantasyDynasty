@@ -49,7 +49,6 @@ known_draft_picks_year3 <- future_draft_picks %>%
 message("begin 5000 simulations of total value added projections...")
 
 n_sims <- 5000
-tic()
 team_tva_ranking <- future_map(1:n_sims, ~{
   # year 1 all assets with quantiles
   data1 <- player_simulations[[1]] %>%
@@ -92,7 +91,6 @@ team_tva_ranking <- future_map(1:n_sims, ~{
   .options=furrr_options(seed=TRUE)) %>%
   transpose() %>%
   map(bind_rows)
-toc()
 
 save(team_tva_ranking, file = here("Modeling/team_tva_ranking.RData"))
 load(here("Modeling/team_tva_ranking.RData"))
@@ -153,10 +151,8 @@ current_table <- construct_table(matchups_table, season_dates, today())
 
 message("begin 5000 final standings simulations...")
 
-# warning: 8 min; check warning
-tic()
+# warning: 8 min
 final_standings_odds <- compute_final_standings_odds(current_table, team_tva_list, points_fit_coef, years = 3, n_sims = n_sims)
-toc()
 
 write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))
 

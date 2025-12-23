@@ -1,6 +1,6 @@
 # Scraping
 
-message("begin Scraping")
+message("begin Scraping...")
 
 suppressPackageStartupMessages({
   library("nflfastR")

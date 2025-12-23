@@ -139,10 +139,9 @@ last_date_fvt <- read_csv(here("Data/last_date_fvt.csv"), show_col_types = FALSE
 sim_df <- select_ktc_list(ktc_list, last_date_fvt)[[1]] %>%
   compile_data_set(future_value_names, today(), season_dates$season_start[2], season_dates$season_end[2])
 
-tic() # ~3 mins
+# ~3 mins
 player_simulations <- next_years(origin_data = sim_df, n_years = 10, tva_scales = tva_scales, ktc_scales = ktc_scales,
                                  tva_fit = tva_fit, ktc_fit = ktc_fit, tva_resid_fit = tva_resid_fit, ktc_resid_fit = ktc_resid_fit)
-toc()
 
 save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
@@ -158,11 +157,9 @@ future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), s
 message("begin mapping future value over time...")
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
-tic()
 future_value_time <- map_future_value_time(future_value_names, reduced_ktc_list, tva_scales, ktc_scales,
                                            tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) %>%
   bind_rows(future_value_time)
-toc()
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 # make list of the dates already computed, so I don't have to compute them again
