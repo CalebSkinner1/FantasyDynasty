@@ -17,7 +17,7 @@ champion_odds <- final_standings_odds %>%
   filter(type == "rank", result == 1) %>%
   pivot_wider(names_from = season, values_from = perc) %>%
   select(-result, -type) %>%
-  arrange(desc(`2025`)) %>%
+  arrange(desc(`2026`)) %>%
   mutate(across(contains("20"), ~scales::percent(.x))) %>%
   rename(team = display_name)
 
@@ -27,7 +27,7 @@ playoff_odds <- final_standings_odds %>%
   group_by(season, display_name) %>%
   summarize(playoff_perc = sum(perc), .groups = "keep") %>%
   pivot_wider(names_from = season, values_from = playoff_perc) %>%
-  arrange(desc(`2025`)) %>%
+  arrange(desc(`2026`)) %>%
   mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
   rename(team = display_name)
 
@@ -37,7 +37,7 @@ bye_odds <- final_standings_odds %>%
   group_by(season, display_name) %>%
   summarize(bye_perc = sum(perc), .groups = "keep") %>%
   pivot_wider(names_from = season, values_from = bye_perc) %>%
-  arrange(desc(`2025`)) %>%
+  arrange(desc(`2026`)) %>%
   mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
   rename(team = display_name)
 
@@ -47,9 +47,10 @@ n1_pick_odds <- final_standings_odds %>%
   group_by(season, display_name) %>%
   summarize(n1_pick_perc = sum(perc), .groups = "keep") %>%
   pivot_wider(names_from = season, values_from = n1_pick_perc) %>%
-  arrange(desc(`2025`)) %>%
+  arrange(desc(`2026`)) %>%
   mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
-  rename(team = display_name)
+  rename(team = display_name) |>
+  ungroup()
 
 # most common finish
 most_common_finish_df <- final_standings_odds %>%
