@@ -66,7 +66,20 @@ construct_table <- function(matchups_table, season_dates, date){
   season_end <- season_dates$season_end[season_dates$season_end > date] %>% min()
   season_start <- season_dates$season_start[season_dates$season_start < season_end] %>% max()
 
-  current_table <- matchups_table %>%
+  if(year(season_start) > max(matchups_table$season)){
+    last_years_table <- matchups_table %>%
+      filter(season == year(season_start) - 1)
+
+    current_table <- last_years_table |>
+      slice(c(19:98)) %>%
+      bind_rows(slice(last_years_table, c(19:36))) %>%
+      mutate(
+        season = last_years_table$season[1] + 1,
+        week = c(rep(1:14, each = 6), rep(15, each = 4), rep(16, each = 6), rep(17, each = 4)),
+        points = 0,
+        opp_points = 0)
+  }else{
+      current_table <- matchups_table %>%
     filter(season == year(season_start)) %>%
     mutate(
       game_date = season_start + weeks(week - 1) + days(4),
@@ -78,9 +91,10 @@ construct_table <- function(matchups_table, season_dates, date){
     ungroup() %>%
     distinct(season, week, matchup, .keep_all = TRUE) %>%
     select(season, week, round, roster_id, opponent_id, points, opp_points)
+  }
 
   current_table <- tibble(
-      season = current_table$season[1] + 1,
+      season = current_table$season[1],
       round = c(
         rep("1st round", each = 2), rep("loser's bracket", each = 2),
         rep("2nd round", each = 2), "5th place", rep("loser's bracket", each = 3),

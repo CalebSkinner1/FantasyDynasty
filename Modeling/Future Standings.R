@@ -100,7 +100,7 @@ load(here("Modeling/team_tva_ranking.RData"))
 
 # first, estimate win probability of matchup based on value added ---------
 team_va <- va %>%
-  filter(season == 2024) %>%
+  filter(season %in% c(2024, 2025)) %>%
   group_by(roster_id, name) %>%
   summarize(total_va = sum(value_added), .groups = "keep") %>%
   ungroup() |>
