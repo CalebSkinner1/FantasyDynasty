@@ -52,6 +52,8 @@ rookie_draft_order_value <- read_csv(here("Data/draft_order.csv"), show_col_type
 
 # realized value from each draft pick
 draft_values <- map(draft_picks, ~{
+  if(nrow(.x) > 0){
+
   draft_values <- .x %>%
     select(player_id, roster_id, draft_slot) %>%
     left_join(player_info, by = join_by(player_id)) %>%
@@ -82,6 +84,9 @@ draft_values <- map(draft_picks, ~{
       bind_rows(draft_values, .)
   }
   draft_values
+  }else{
+    tibble()
+  }
 })
 
 # Expected Value per pick slot -------------------------------------------------
@@ -93,9 +98,9 @@ initial_draft_data <- draft_values[[2]] %>%
   group_by(pick_no) %>%
   summarize(total_value = sum(total_value))
 
-initial_draft_data %>%
-  ggplot() +
-  geom_point(aes(x = pick_no, y = total_value))
+# initial_draft_data %>%
+#   ggplot() +
+#   geom_point(aes(x = pick_no, y = total_value))
 
 X_id <- initial_draft_data %>% select(pick_no) %>%
   mutate(
@@ -171,14 +176,20 @@ initial_draft_value <- draft_values[[2]] %>%
 # rookie draft individual picks vs expectation
 rookie_vs_expecations <- draft_values[-2] %>%
   map(~{
-    .x %>%
+    if(nrow(.x) > 0){
+      .x %>%
       left_join(rookie_draft_pick_values, by = join_by(pick_no)) %>%
-      mutate(value_over_expected = total_value - proj_tva_50)})
+      mutate(value_over_expected = total_value - proj_tva_50)
+    }else{
+      tibble()
+    }
+    })
 
 # rookie draft rankings
 rookie_draft_value <- rookie_vs_expecations %>%
   map(~{
-    .x %>%
+    if(nrow(.x) >0){
+          .x %>%
       group_by(roster_id) %>%
       summarize(
         value_over_expected = sum(value_over_expected),
@@ -187,6 +198,9 @@ rookie_draft_value <- rookie_vs_expecations %>%
         total_future_value = sum(future_value)) %>%
       left_join(users, by = join_by(roster_id)) %>%
       arrange(desc(value_over_expected))
+    }else{
+      tibble()
+    }
   })
 
 # dfs to save -------------------------------------------------------------
@@ -203,7 +217,7 @@ write_csv(picks_df, here("Shiny/Saved Files/picks_df.csv"))
 
 # Examples ----------------------------------------------------------------
 
-draft_rankings("2025 rookie draft", shiny = TRUE)
+# draft_rankings("2025 rookie draft", shiny = TRUE)
 
 # best_picks("initial draft", shiny = TRUE)
 # best_picks("2024 rookie draft", shiny = TRUE)
