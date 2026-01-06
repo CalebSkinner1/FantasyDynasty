@@ -15,10 +15,43 @@ suppressPackageStartupMessages({
   
 # Prep Data ---------------------------------------------------------------
 
+compile_training_data <- function(ktc_list, player_info, pre_ktc_date, post_ktc_date){
+  this_season <- year(pre_ktc_date)
+
+  # compute ktc before the start of the season
+  pre_ktc <- ktc_list[[str_c("ktc_value", str_pad(month(pre_ktc_date), width = 2, side = "left", pad = 0),
+  str_pad(day(pre_ktc_date), width = 2, side = "left", pad = 0), str_sub(year(pre_ktc_date), 3, 4), ".csv")]] |>
+  filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
+  name_correction()
+  
+  post_ktc <- ktc_list[[str_c("ktc_value", str_pad(month(post_ktc_date), width = 2, side = "left", pad = 0),
+  str_pad(day(post_ktc_date), width = 2, side = "left", pad = 0), str_sub(year(post_ktc_date), 3, 4), ".csv")]] |>
+  filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
+  name_correction()
+  
+  colnames(pre_ktc) <- c("name", "ktc_value")
+  colnames(post_ktc) <- c("name", "ktc_value")
+  
+  # create data table
+  pre_ktc %>%
+  rename("historical_value" = "ktc_value") %>%
+  left_join(season_value_added %>% filter(season == this_season), by = join_by(name)) %>%
+  select(-total_points) %>%
+  mutate(
+    total_value_added = replace_na(total_value_added, 0)) %>%
+  rename(tva_adj = total_value_added) %>%
+  left_join(post_ktc, by = join_by(name)) %>%
+  select(-position) %>%
+  left_join(player_info, by = join_by(name)) %>%
+  select(-player_id, -years_exp) %>%
+  mutate(
+    age = interval(birth_date, pre_ktc_date)/years(1))  
+}
+
 compile_data_set <- function(keep_trade_cut, future_value_names, date, season_start, season_end){
   day_multiplier <- years(1)/days(season_end - season_start)
   
-  season <- if_else(date < season_end, year(season_end) - 2, year(season_end) - 1)
+  season <- if_else(date < season_end, year(season_start) - 1, year(season_start))
   
   # number of days since the season ended (in years)
   days_past_season_start <- if_else(date > season_start, time_length(interval(season_start, date), unit = "years"), 0)
@@ -407,7 +440,7 @@ future_value_over_time <- function(future_value_names, keep_trade_cut, date,
   
   # compile data - age and season look to be too small, but will be added in next_year
   df <- compile_data_set(keep_trade_cut, future_value_names, date, season_start, season_end) %>%
-    filter(years_exp > diff) #remove rookies or 1st years that shouldn't appear yet
+    filter(years_exp > diff) # remove players that shouldn't appear yet
     
   # compute fraction of remaining season
   # weeks_in <- time_length(interval(season_start, date), unit = "week") %>% floor()

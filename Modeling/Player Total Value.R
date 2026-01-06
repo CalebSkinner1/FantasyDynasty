@@ -10,7 +10,7 @@ source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE) # shortcut
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut 
-season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
   path = here("Data/ktc values"),
@@ -27,37 +27,12 @@ future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
 
 write_csv(future_value_names, here("Data/future_value_names.csv"))
 
-ktc_dates <- names(ktc_list) %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
-keep_trade_cut <- ktc_list$ktc_value082425.csv
-
 # organize data sets
+ktc_begin_end_dates <- list(
+  year1 = list(pre_ktc_date = ymd("2024-08-23"), post_ktc_date = ymd("2025-08-24")),
+  year2 = list(pre_ktc_date = ymd("2025-08-24"), post_ktc_date = ymd("2026-01-06"))) # push back as far as possible
 
-# get ktc value from beginning of 2024 season
-historical_ktc <- read_csv(here("Data/ktc values/ktc_value082324.csv"), show_col_types = FALSE) %>%
-  filter(!str_detect(name, "Early"), !str_detect(name, "Mid"), !str_detect(name, "Late")) %>%
-  name_correction() %>%
-  group_by(name) %>%
-  summarize(value = max(value)) %>%
-  arrange(desc(value))
-
-# create data matrix
-hktc_data <- historical_ktc %>%
-  rename("historical_value" = "value") %>%
-  left_join(season_value_added %>% filter(season == 2024), by = join_by(name)) %>%
-  select(-total_points) %>%
-  mutate(
-    total_value_added = replace_na(total_value_added, 0),
-    # adjust total value added to account for missing games
-    # tva_adj = case_when(
-    #   total_value_added < 0 ~ total_value_added,
-    #   .default = total_value_added * 17/max(sleeper_points$week)),
-    ) %>% rename(tva_adj = total_value_added) %>%
-  left_join(keep_trade_cut, by = join_by(name)) %>%
-  select(-position) %>%
-  left_join(player_info, by = join_by(name)) %>%
-  select(-player_id, -years_exp) %>%
-  mutate(
-    age = interval(birth_date, ymd("2024-08-23"))/years(1))
+hktc_data <- map_dfr(ktc_begin_end_dates, ~compile_training_data(ktc_list, player_info, pre_ktc_date = .x$pre_ktc_date, post_ktc_date = .x$post_ktc_date))
 
 # hktc_data_list <- hktc_data %>%
 #   group_by(position) %>%
@@ -74,10 +49,10 @@ tva_scales <- hktc_data %>% compute_tva_scales()
 # prep data
 tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 
-# run model ~95 seconds
+# run model ~2.5 minutes
 # tic()
-# tva_fit <- fit_bart(tva_data$full_data)
-# # tva_fit <- fit_bart(tva_data$train_data)
+# # tva_fit <- fit_bart(tva_data$full_data)
+# tva_fit <- fit_bart(tva_data$train_data)
 # toc()
 
 # saveRDS(bundle(tva_fit), file = here("Modeling/tva_fit.rds"))
@@ -85,10 +60,10 @@ tva_data <- hktc_data %>% prep_data_tva(tva_scales)
 # compute accuracy (RMSE)
 # model_accuracy(tva_fit, tva_data$test_data)
 
-# graph residuals
+# # graph residuals
 # graph_residuals(tva_fit, tva_data$test_data)
 
-# tva_samples <- generate_samples(tva_fit, tva_data$train_data)
+# tva_samples <- generate_samples(tva_fit, tva_data$test_data)
 
 # compute_coverage(tva_fit, tva_data$test_data, confidence = .95)
 
@@ -100,9 +75,9 @@ ktc_scales <- hktc_data %>% compute_ktc_scales()
 # prep data
 ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 
-# run model ~98 seconds
+# run model ~2.5 minutes
 # tic()
-# # # ktc_fit <- fit_bart(ktc_data$train_data)
+# # ktc_fit <- fit_bart(ktc_data$train_data)
 # ktc_fit <- fit_bart(ktc_data$full_data)
 # toc()
 # 
@@ -111,33 +86,37 @@ ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 # compute accuracy (RMSE)
 # model_accuracy(ktc_fit, ktc_data$test_data)
 
-# graph residuals
+# # graph residuals
 # graph_residuals(ktc_fit, ktc_data$test_data)
 
-# ktc_samples <- generate_samples(ktc_fit, ktc_data$full_data)
+# ktc_samples <- generate_samples(ktc_fit, ktc_data$test_data)
+
+# compute_coverage(ktc_fit, ktc_data$test_data, confidence = .95)
+
+# Model Residuals --------------------------------------------------------
+# tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
+# saveRDS(tva_resid_fit, file = here("Modeling/tva_resid_fit.rds"))
+
+# ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
+# saveRDS(ktc_resid_fit, file = here("Modeling/ktc_resid_fit.rds"))
 
 # Load Models -------------------------------------------------------------
 
 tva_fit <- readRDS(here("Modeling/tva_fit.rds")) %>% unbundle()
 tva_resid_fit <- readRDS(here("Modeling/tva_resid_fit.rds"))
 
-# tva_resid_fit <- model_residuals(tva_fit, tva_data$full_data)
-# saveRDS(tva_resid_fit, file = here("Modeling/tva_resid_fit.rds"))
-
 ktc_fit <- readRDS(here("Modeling/ktc_fit.rds")) %>% unbundle()
 ktc_resid_fit <- readRDS(here("Modeling/ktc_resid_fit.rds"))
-
-# ktc_resid_fit <- model_residuals(ktc_fit, ktc_data$full_data)
-# saveRDS(ktc_resid_fit, file = here("Modeling/ktc_resid_fit.rds"))
 
 # Run Player Intervals ----------------------------------------------------
 
 # compute future value over time
 last_date_fvt <- read_csv(here("Data/last_date_fvt.csv"), show_col_types = FALSE) %>% pull(value)
+keep_trade_cut <- select_ktc_list(ktc_list, last_date_fvt)[[1]]
 
 # origin data set, set at beginning of last year
 sim_df <- select_ktc_list(ktc_list, last_date_fvt)[[1]] %>%
-  compile_data_set(future_value_names, today(), season_dates$season_start[2], season_dates$season_end[2])
+  compile_data_set(future_value_names, today(), max(season_dates$season_start), max(season_dates$season_end))
 
 # ~3 mins
 player_simulations <- next_years(origin_data = sim_df, n_years = 10, tva_scales = tva_scales, ktc_scales = ktc_scales,
@@ -149,7 +128,7 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 # goal is to only run one at a time, while keeping the previous models
 
 reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
-# reduced_ktc_list <- ktc_list
+# reduced_ktc_list <- ktc_list # if running all again
 
 future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE) %>%
   filter(date != today())
@@ -158,8 +137,8 @@ message("begin mapping future value over time...")
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 future_value_time <- map_future_value_time(future_value_names, reduced_ktc_list, tva_scales, ktc_scales,
-                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) %>%
-  bind_rows(future_value_time)
+                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) #%>%
+  # bind_rows(future_value_time)
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 # make list of the dates already computed, so I don't have to compute them again
