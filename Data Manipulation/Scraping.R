@@ -33,13 +33,14 @@ box_score_def25 %>% write_csv(here("Data/box_score_def25.csv"))
 
 league_id_24 <- "1066207868321370112"
 league_id_25 <- "1180629816344895488"
-all_league_ids <- c(league_id_24, league_id_25)
+league_id_26 <- "1312620216915595264"
+all_league_ids <- c(league_id_24, league_id_25, league_id_26)
 
 # someday maybe use this to grab information about the league or grab name/avatar
 # league_info <- parse_api_list(str_c("https://api.sleeper.app/v1/league/", league_id_25))
 
 # rosters
-rosters <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "/rosters")) %>%
+rosters <- parse_api(str_c("https://api.sleeper.app/v1/league/", all_league_ids[[length(all_league_ids)]], "/rosters")) %>%
   select(roster_id, owner_id, players) %>%
   unnest(cols = c(players)) %>%
   rename(player_id = players)
@@ -51,13 +52,13 @@ users <- rosters %>%
   select(owner_id, roster_id) %>%
   distinct() %>%
   left_join(
-    parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "/users")) %>%
+    parse_api(str_c("https://api.sleeper.app/v1/league/", all_league_ids[[length(all_league_ids)]], "/users")) %>%
       select(display_name, user_id),
     by = join_by(owner_id == user_id))
 
 write_csv(users, here("Data/users.csv"))
 
-avatar <- parse_api(str_c("https://api.sleeper.app/v1/league/", league_id_25, "/users")) %>%
+avatar <- parse_api(str_c("https://api.sleeper.app/v1/league/", all_league_ids[[length(all_league_ids)]], "/users")) %>%
   mutate(avatar_url = str_c("https://sleepercdn.com/avatars/", avatar)) %>%
   left_join(users, by = join_by(display_name)) %>%
   select(roster_id, display_name, avatar_url)
@@ -159,9 +160,9 @@ draft_order <- draft_urls %>% str_remove("/picks") %>%
 write_csv(draft_order, here("Data/draft_order.csv"))
 
 # player information don't run a lot because it takes a lot of time/memory
-# player_info2 <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
-# 
-# player_information <- map(player_info2, ~{
+# player_info_temp <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
+
+# player_information <- map(player_info_temp, ~{
 #   tibble(
 #     name = .x$full_name,
 #     player_id = .x$player_id,
@@ -200,7 +201,7 @@ write_csv(draft_order, here("Data/draft_order.csv"))
 #   distinct() %>%
 #   bind_rows(defenses) %>%
 #   name_correction()
-# 
+
 # write_csv(player_info, here("Data/player_info.csv"))
 
 rm(draft_urls)
@@ -242,21 +243,19 @@ write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 # need weekly player ranking for above replacement metric
 # https://www.fftoday.com/rankings/playerwkproj.php?Season=2025&GameWeek=1&PosID=10&LeagueID=208518
 
-# projections24 <- map(1:17, ~combine_week(.x, 2024)) %>%
+projections26 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
+
+# when projections start, run this one
+# projections26 <- map(c(1:max(box_score_off26$week)), ~combine_week(.x, 2026)) %>%
 #   rbindlist() %>%
 #   as_tibble() %>%
 #   name_correction()
+# write_csv(projections26, here("Data/projections26.csv"))
 
-# when projections start, run this one
-projections25 <- map(c(1:max(box_score_off25$week)), ~combine_week(.x, 2025)) %>%
-  rbindlist() %>%
-  as_tibble() %>%
-  name_correction()
-
-write_csv(projections25, here("Data/projections25.csv"))
 projections24 <- read_csv(here("Data/projections24.csv"), show_col_types = FALSE)
+projections25 <- read_csv(here("Data/projections25.csv"), show_col_types = FALSE)
 
-projections <- list(projections24, projections25)
+projections <- list(projections24, projections25, projections26)
 
 # Scrape Future Value -----------------------------------------------------
 # https://keeptradecut.com/dynasty-rankings
@@ -387,8 +386,8 @@ date <- str_c(month(today()) %>% str_pad(2, side="left", pad="0"),
 
 keep_trade_cut %>% write_csv(here(paste0("Data/ktc values/ktc_value", date, ".csv")))
 
-season_dates <- tibble(season_start = c(ymd("2024-09-05"), ymd("2025-09-04")),
-                       season_end = c(ymd("2025-01-05"), ymd("2026-01-04"))) %>%
+season_dates <- tibble(season_start = c(ymd("2024-09-05"), ymd("2025-09-04"), ymd("2026-09-10")),
+                       season_end = c(ymd("2024-12-30"), ymd("2025-12-29"), ymd("2027-01-04"))) %>%
   write_csv(here("Data/season_dates.csv"))
 
 # remove objects and functions to declutter environment
