@@ -82,10 +82,11 @@ write_csv(sleeper_points, here("Data/sleeper_points.csv"))
 # Find Value at Replacement -----------------------------------------------
 
 # get projections in list format
-projections_list <- map(projections, ~.x %>%
+projections_list <- map(projections, ~{
+  .x %>%
   group_by(week) %>%
   reframe(week = list(tibble(name, projection, week))) %>%
-  deframe())
+  deframe()})
 
 fill_n <- 17 - projections[[length(projections)]]$week %>% max()
 if(fill_n > 0){
@@ -97,7 +98,8 @@ if(fill_n > 0){
 starters <- map(
   matchups, ~.x %>%
     map(~{
-      if(sum(.x$points) != 0){
+      if(nrow(.x) != 0){
+              if(sum(.x$points) != 0){
         .x %>%
           select(roster_id, starters, starters_points) %>%
           unnest(cols = c(starters, starters_points)) %>%
@@ -106,6 +108,9 @@ starters <- map(
           select(-starters, -birth_date)}else{
             tibble()
           }
+      }else{
+        tibble()
+      }
     })
 )
   
