@@ -3,6 +3,7 @@
 # how good the rookies are, but we can see how good previous rookies turned out to be one year later
 
 library("here")
+library("plotly")
 
 # load MCMC Samplers
 source(here("Modeling/MCMC Samplers.R"))
@@ -12,10 +13,11 @@ source(here("Modeling/Player Total Value Functions.R"))
 load(here("Data/draft_picks.RData"))
 load(here("Modeling/player_simulations.RData"))
 player_total_value <- read_csv(here("Data/player_total_value.csv")) %>%
+  rowwise() |>
   mutate(
-    total_value = sva_2024 + future_value*.95, # devalue the future
+    total_value = sum(c_across(contains("sva_"))) + future_value*.95, # devalue the future
     player_id = as.character(player_id)) %>%
-  select(name, player_id, position, total_value, sva_2024, contains("ny"))
+  select(name, player_id, position, total_value, contains("sva"), contains("ny"))
 player_info <- read_csv(here("Data/player_info.csv"))
 
 # future value projections of players
@@ -64,7 +66,7 @@ X_tv <- rookie_drafts %>%
   as.matrix()
 
 Y_tv <- rookie_drafts %>% distinct(season, pick_no, name, total_value) %>% pull(total_value)
-Y_tv/100
+
 
 tic()
 samples_tv <- het_reg_mh_sampler(Y = Y_tv, X = X_tv, new_X = X_tv[c(1:36),],
@@ -86,8 +88,6 @@ draft_fit_plot <- tibble(
   distinct() |>
   rename(median = .pred)
   
-  
-
 p <- draft_fit_plot |>
   ggplot(aes(x = pick_no)) +
   geom_point(aes(y = `Total Value`, text = paste0("Name: ", name))) +
@@ -274,7 +274,7 @@ rookie_draft_values <- imap_dfr(1:4, ~{
       metric = names(quantiles_list)[.x])}) %>%
   relocate(pick_no, metric)
 
-# write_csv(rookie_draft_values, here("Data/rookie_draft_values.csv"))
+write_csv(rookie_draft_values, here("Data/rookie_draft_values.csv"))
 
 write_csv(draft_fit_plot, here("Data/draft_fit_plot.csv"))
 
