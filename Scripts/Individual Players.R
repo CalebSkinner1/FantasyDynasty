@@ -45,10 +45,11 @@ sn <- max(value_added$season)
 games <- value_added %>% filter(season == sn) %>% slice_max(week) %>% slice(1) %>% pull(week)
 
 plot_future_value_df <- imap_dfr(seq_along(player_simulations), ~{
+  current_season <- as.numeric(names(player_simulations)[.x])
   df <- player_simulations[[.x]] %>%
-    mutate(season = as.numeric(names(player_simulations)[.x]))
+    mutate(season = current_season)
   
-  if(.x == 1){
+  if(current_season == sn){
     df <- df %>%
       left_join(
         season_value_added %>% select(name, season, total_value_added), by = join_by(name, season)) %>%
