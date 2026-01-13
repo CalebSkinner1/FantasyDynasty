@@ -137,8 +137,8 @@ message("begin mapping future value over time...")
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
 future_value_time <- map_future_value_time(future_value_names, reduced_ktc_list, tva_scales, ktc_scales,
-                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) #%>%
-  # bind_rows(future_value_time)
+                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) %>%
+  bind_rows(future_value_time)
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 # make list of the dates already computed, so I don't have to compute them again

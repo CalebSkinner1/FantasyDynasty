@@ -17,6 +17,7 @@ name_correction <- function(df){
   df %>%
     mutate(
       name = case_when(
+        name == "Nyheim Miller-Hines" ~ "Nyheim Hines",
         name == "Andrew Ogletree" ~ "Drew Ogletree",
         name == "Brian Robinson" ~ "Brian Robinson Jr.",
         name == "Marvin Harrison" ~ "Marvin Harrison Jr.",
