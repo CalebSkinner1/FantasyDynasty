@@ -6,11 +6,11 @@
 source(here::here("Modeling", "Player Value Added.R"))
 
 # with relative frequency, will need to rerun player_simulations to account for new ktc value
-# fair warning it will take ~5 minutes
+# fair warning: it will take ~5 minutes
 source(here::here("Modeling", "Player Total Value.R"))
 
 # with relative frequency, will need to rerun Future Standings.R to update projections of the end of season results
-# fair warning, it will take ~8 minutes
+# fair warning: it will take ~8 minutes
 source(here::here("Modeling", "Future Standings.R"))
 
 # Individual Players
