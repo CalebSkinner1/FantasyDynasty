@@ -7,13 +7,13 @@ suppressPackageStartupMessages({
   library("httr")
   library("rvest")
   library("data.table")
-  })
+})
 
 # Misc --------------------------------------------------------------------
 `%!in%` = Negate(`%in%`)
 
 # syncs up name styles
-name_correction <- function(df){
+name_correction <- function(df) {
   df %>%
     mutate(
       name = case_when(
@@ -92,51 +92,55 @@ name_correction <- function(df){
         name == "Andres Borregales" ~ "Andy Borregales",
         name == "Tre' Harris" ~ "Tre Harris",
         name == "Zonovan Knight" ~ "Bam Knight", # bruh
-        .default = name))}
+        .default = name
+      )
+    )
+}
 
 # Sleeper API -------------------------------------------------------------
-# enter url, return parsed object 
-parse_api <- function(url){
+# enter url, return parsed object
+parse_api <- function(url) {
   response <- GET(url)
   content <- content(response, "text")
   parsed <- fromJSON(content) %>%
     as_tibble()
-  
+
   return(parsed)
 }
 
 # leave as list
-parse_api_list <- function(url){
+parse_api_list <- function(url) {
   response <- GET(url)
   content <- content(response, "text")
   parsed <- fromJSON(content)
-  
+
   return(parsed)
 }
 
 # Scrape Projections ------------------------------------------------------
 
 # player projections (qb (10), rb (20), wr (30), te (40))
-grab_projection <- function(fftoday_page_html, wk){
+grab_projection <- function(fftoday_page_html, wk) {
   table <- read_html(fftoday_page_html) %>%
     html_element("body") %>%
     html_element("center") %>%
     html_elements("table") %>%
     pluck(2) %>%
     html_element(".bodycontent") %>%
-    html_elements("table") %>% 
+    html_elements("table") %>%
     pluck(6) %>%
     html_elements("table") %>%
     html_table()
-  
-  table[[1]][,-1][-c(1:2),] %>%
+
+  table[[1]][, -1][-c(1:2), ] %>%
     as_tibble() %>%
     select(X2, last_col()) %>%
     rename(name = "X2") %>%
-    rename_with(~paste0("projection"), .cols = last_col()) %>%
+    rename_with(~ paste0("projection"), .cols = last_col()) %>%
     mutate(
       projection = as.numeric(projection),
-      week = wk) %>%
+      week = wk
+    ) %>%
     return()
 }
 
@@ -144,44 +148,44 @@ grab_projection <- function(fftoday_page_html, wk){
 # grab_projection("https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=1&PosID=20&LeagueID=208518&order_by=FFPts&sort_order=DESC&cur_page=1", 1)
 
 # position rankings (k, dst)
-grab_rankings <- function(fftoday_page_html, wk){
+grab_rankings <- function(fftoday_page_html, wk) {
   all <- read_html(fftoday_page_html) %>%
     html_element("body") %>%
     html_element("center") %>%
     html_elements("table") %>%
     pluck(2) %>%
     html_element(".bodycontent") %>%
-    html_elements("table") %>% 
+    html_elements("table") %>%
     pluck(4)
-  
+
   kickers <- all %>%
     html_elements("table") %>%
     pluck(2) %>%
     html_table() %>%
     select(X2, X3) %>%
-    slice(-c(1,2)) %>%
+    slice(-c(1, 2)) %>%
     filter(!str_detect(X2, "Tier")) %>%
-    rename(projection = "X2",
-           name = "X3") %>%
+    rename(projection = "X2", name = "X3") %>%
     relocate(name) %>%
     mutate(
       week = wk,
-      projection = 33 - as.numeric(projection))
-  
+      projection = 33 - as.numeric(projection)
+    )
+
   defenses <- all %>%
     html_elements("table") %>%
     pluck(4) %>%
     html_table() %>%
     select(X2, X3) %>%
-    slice(-c(1,2)) %>%
+    slice(-c(1, 2)) %>%
     filter(!str_detect(X2, "Tier")) %>%
-    rename(projection = "X2",
-           name = "X3") %>%
+    rename(projection = "X2", name = "X3") %>%
     relocate(name) %>%
     mutate(
       week = wk,
-      projection = 33 - as.numeric(projection))
-  
+      projection = 33 - as.numeric(projection)
+    )
+
   list(kickers, defenses) %>%
     return()
 }
@@ -191,20 +195,44 @@ grab_rankings <- function(fftoday_page_html, wk){
 # combine them into one function
 # make sure url doesn't change for some reason
 # QB URL: "https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=1&PosID=10&LeagueID=208518"
-combine_week <- function(week, season){
-  kick_def_rankings <- str_c("https://www.fftoday.com/rankings/playerwkrank.php?Season=", season, "&GGameWeek=",
-                             week, "&PosID=80&LeagueID=208518") %>%
+combine_week <- function(week, season) {
+  kick_def_rankings <- str_c(
+    "https://www.fftoday.com/rankings/playerwkrank.php?Season=",
+    season,
+    "&GGameWeek=",
+    week,
+    "&PosID=80&LeagueID=208518"
+  ) %>%
     grab_rankings(week)
-  
-  
-  rb_wr <- map(c(20,30), ~str_c("https://www.fftoday.com/rankings/playerwkproj.php?Season=", season, "&GameWeek=",
-                                week, "&PosID=", .x, "&LeagueID=208518&order_by=FFPts&sort_order=DESC&cur_page=1") %>%
-                 grab_projection(week)) %>%
+
+  rb_wr <- map(
+    c(20, 30),
+    ~ str_c(
+      "https://www.fftoday.com/rankings/playerwkproj.php?Season=",
+      season,
+      "&GameWeek=",
+      week,
+      "&PosID=",
+      .x,
+      "&LeagueID=208518&order_by=FFPts&sort_order=DESC&cur_page=1"
+    ) %>%
+      grab_projection(week)
+  ) %>%
     append(kick_def_rankings)
-  
-  map(c(10, 20, 30, 40), ~str_c("https://www.fftoday.com/rankings/playerwkproj.php?Season=", season, "&GameWeek=",
-                                week, "&PosID=", .x, "&LeagueID=208518") %>%
-        grab_projection(week)) %>%
+
+  map(
+    c(10, 20, 30, 40),
+    ~ str_c(
+      "https://www.fftoday.com/rankings/playerwkproj.php?Season=",
+      season,
+      "&GameWeek=",
+      week,
+      "&PosID=",
+      .x,
+      "&LeagueID=208518"
+    ) %>%
+      grab_projection(week)
+  ) %>%
     append(rb_wr) %>%
     rbindlist() %>%
     as_tibble() %>%
@@ -214,7 +242,7 @@ combine_week <- function(week, season){
 # Scrape Future Value -----------------------------------------------------
 
 # scrape future value from ktc
-player_value <- function(ktc_page_html){
+player_value <- function(ktc_page_html) {
   players <- read_html(ktc_page_html) %>%
     html_element("body") %>%
     html_element("main") %>%
@@ -222,25 +250,24 @@ player_value <- function(ktc_page_html){
     html_elements(".onePlayer") %>%
     html_element(".single-ranking-wrapper") %>%
     html_element(".single-ranking")
-  
+
   # grabs player name
   name <- players %>%
     html_element(".player-name") %>%
     html_node("p") %>%
     html_node("a") %>%
     html_text2()
-  
+
   # grabs player value
   value <- players %>%
     html_element(".value") %>%
     html_node("p") %>%
     html_text2()
-  
+
   # return in tibble
   tibble(
     name = name,
-    value = as.numeric(value)) %>%
+    value = as.numeric(value)
+  ) %>%
     return()
-  
 }
-

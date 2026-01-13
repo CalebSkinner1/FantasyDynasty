@@ -16,22 +16,41 @@ value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) %>%
   left_join(users, by = join_by(roster_id)) %>%
   arrange(season, week, desc(type), display_name)
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
-player_total_value <- read_csv(here("Data/player_total_value.csv"), show_col_types = FALSE) %>%
-  select(name, player_id, birth_date, position, contains("sva"), future_value) %>%
+player_total_value <- read_csv(
+  here("Data/player_total_value.csv"),
+  show_col_types = FALSE
+) %>%
+  select(
+    name,
+    player_id,
+    birth_date,
+    position,
+    contains("sva"),
+    future_value
+  ) %>%
   rowwise() %>%
-  mutate(total_value = sum(c_across(contains("sva"))) + .95*future_value) %>%# devalue future
+  mutate(total_value = sum(c_across(contains("sva"))) + .95 * future_value) %>% # devalue future
   ungroup()
-player_headshot <- read_csv(here("Shiny/Saved Files/player_headshot.csv"), show_col_types = FALSE)
-  
+player_headshot <- read_csv(
+  here("Shiny/Saved Files/player_headshot.csv"),
+  show_col_types = FALSE
+)
+
 # dfs to save -------------------------------------------------------------
 
 basic_info_df <- player_info %>%
-  left_join(player_total_value %>% select(-name, -position, -birth_date),
-            by = join_by(player_id)) %>%
+  left_join(
+    player_total_value %>% select(-name, -position, -birth_date),
+    by = join_by(player_id)
+  ) %>%
   mutate(
     age = time_length(lubridate::interval(birth_date, today()), "years"),
-    across(sva_2024:total_value, ~replace_na(.x, 0))) %>%
-  rename_with(~str_replace(.x, "sva_", "total value added "), starts_with("sva")) %>%
+    across(sva_2024:total_value, ~ replace_na(.x, 0))
+  ) %>%
+  rename_with(
+    ~ str_replace(.x, "sva_", "total value added "),
+    starts_with("sva")
+  ) %>%
   select(-player_id) %>%
   relocate(age, .after = birth_date)
 
@@ -42,31 +61,47 @@ write_csv(basic_info_df, here("Shiny/Saved Files/basic_info_df.csv"))
 # data, in future add more seasons here
 sn <- max(value_added$season)
 
-games <- value_added %>% filter(season == sn) %>% slice_max(week) %>% slice(1) %>% pull(week)
+games <- value_added %>%
+  filter(season == sn) %>%
+  slice_max(week) %>%
+  slice(1) %>%
+  pull(week)
 
-plot_future_value_df <- imap_dfr(seq_along(player_simulations), ~{
-  current_season <- as.numeric(names(player_simulations)[.x])
-  df <- player_simulations[[.x]] %>%
-    mutate(season = current_season)
-  
-  if(current_season == sn){
-    df <- df %>%
-      left_join(
-        season_value_added %>% select(name, season, total_value_added), by = join_by(name, season)) %>%
-      mutate(
-        across(contains("proj_tva"), ~.*(17-games)/17 + total_value_added)) %>%
-      select(-total_value_added)
-  }else{
-    names <- colnames(df %>% select(contains("proj_tva")))
-    
-    df[names] <- t(apply(df[names], 1, sort)) #sort to ensure credible intervals aren't inverted
+plot_future_value_df <- imap_dfr(
+  seq_along(player_simulations),
+  ~ {
+    current_season <- as.numeric(names(player_simulations)[.x])
+    df <- player_simulations[[.x]] %>%
+      mutate(season = current_season)
+
+    if (current_season == sn) {
+      df <- df %>%
+        left_join(
+          season_value_added %>% select(name, season, total_value_added),
+          by = join_by(name, season)
+        ) %>%
+        mutate(
+          across(
+            contains("proj_tva"),
+            ~ . * (17 - games) / 17 + total_value_added
+          )
+        ) %>%
+        select(-total_value_added)
+    } else {
+      names <- colnames(df %>% select(contains("proj_tva")))
+
+      df[names] <- t(apply(df[names], 1, sort)) #sort to ensure credible intervals aren't inverted
+    }
+
+    df
   }
-  
-  df
-})
+)
 
 
-write_csv(plot_future_value_df, here("Shiny/Saved Files/plot_future_value_df.csv"))
+write_csv(
+  plot_future_value_df,
+  here("Shiny/Saved Files/plot_future_value_df.csv")
+)
 
 write_csv(value_added, here("Shiny/Saved Files/value_added.csv"))
 

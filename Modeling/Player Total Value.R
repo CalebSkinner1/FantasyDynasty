@@ -2,37 +2,63 @@
 
 suppressPackageStartupMessages({
   library("here")
-  library("bundle")})
+  library("bundle")
+})
 
 message("begin computing Player Total Value...")
 
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE) # shortcut
-player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut 
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut
 season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
   path = here("Data/ktc values"),
-  full.names = T) %>%
+  full.names = T
+) %>%
   set_names(basename(.)) %>%
-  map(~read_csv(.x, show_col_types = FALSE))
+  map(~ read_csv(.x, show_col_types = FALSE))
 
 # these are the names of the dudes that I'll compute the future value of repetitively
-future_value_names <- map_dfr(ktc_list, name_correction) %>% distinct(name) %>%
+future_value_names <- map_dfr(ktc_list, name_correction) %>%
+  distinct(name) %>%
   left_join(player_info, by = join_by(name)) %>%
   select(-player_id) %>%
-  filter(!str_detect(name, c("Mid")), !str_detect(name, c("Early")), !str_detect(name, c("Late"))) |>
-  bind_rows(player_info |> filter(name == "Marshawn Lynch") |> select(name, position, birth_date, years_exp))
+  filter(
+    !str_detect(name, c("Mid")),
+    !str_detect(name, c("Early")),
+    !str_detect(name, c("Late"))
+  ) |>
+  bind_rows(
+    player_info |>
+      filter(name == "Marshawn Lynch") |>
+      select(name, position, birth_date, years_exp)
+  )
 
 write_csv(future_value_names, here("Data/future_value_names.csv"))
 
 # organize data sets
 ktc_begin_end_dates <- list(
-  year1 = list(pre_ktc_date = ymd("2024-08-23"), post_ktc_date = ymd("2025-08-24")),
-  year2 = list(pre_ktc_date = ymd("2025-08-24"), post_ktc_date = ymd("2026-01-06"))) # push back as far as possible
+  year1 = list(
+    pre_ktc_date = ymd("2024-08-23"),
+    post_ktc_date = ymd("2025-08-24")
+  ),
+  year2 = list(
+    pre_ktc_date = ymd("2025-08-24"),
+    post_ktc_date = ymd("2026-01-06")
+  )
+) # push back as far as possible
 
-hktc_data <- map_dfr(ktc_begin_end_dates, ~compile_training_data(ktc_list, player_info, pre_ktc_date = .x$pre_ktc_date, post_ktc_date = .x$post_ktc_date))
+hktc_data <- map_dfr(
+  ktc_begin_end_dates,
+  ~ compile_training_data(
+    ktc_list,
+    player_info,
+    pre_ktc_date = .x$pre_ktc_date,
+    post_ktc_date = .x$post_ktc_date
+  )
+)
 
 # hktc_data_list <- hktc_data %>%
 #   group_by(position) %>%
@@ -80,7 +106,7 @@ ktc_data <- hktc_data %>% prep_data_ktc(ktc_scales)
 # # ktc_fit <- fit_bart(ktc_data$train_data)
 # ktc_fit <- fit_bart(ktc_data$full_data)
 # toc()
-# 
+#
 # saveRDS(bundle(ktc_fit), file = here("Modeling/ktc_fit.rds"))
 
 # compute accuracy (RMSE)
@@ -111,16 +137,33 @@ ktc_resid_fit <- readRDS(here("Modeling/ktc_resid_fit.rds"))
 # Run Player Intervals ----------------------------------------------------
 
 # compute future value over time
-last_date_fvt <- read_csv(here("Data/last_date_fvt.csv"), show_col_types = FALSE) %>% pull(value)
+last_date_fvt <- read_csv(
+  here("Data/last_date_fvt.csv"),
+  show_col_types = FALSE
+) %>%
+  pull(value)
 keep_trade_cut <- select_ktc_list(ktc_list, last_date_fvt)[[1]]
 
 # origin data set, set at beginning of last year
 sim_df <- select_ktc_list(ktc_list, last_date_fvt)[[1]] %>%
-  compile_data_set(future_value_names, today(), max(season_dates$season_start), max(season_dates$season_end))
+  compile_data_set(
+    future_value_names,
+    today(),
+    max(season_dates$season_start),
+    max(season_dates$season_end)
+  )
 
 # ~3 mins
-player_simulations <- next_years(origin_data = sim_df, n_years = 10, tva_scales = tva_scales, ktc_scales = ktc_scales,
-                                 tva_fit = tva_fit, ktc_fit = ktc_fit, tva_resid_fit = tva_resid_fit, ktc_resid_fit = ktc_resid_fit)
+player_simulations <- next_years(
+  origin_data = sim_df,
+  n_years = 10,
+  tva_scales = tva_scales,
+  ktc_scales = ktc_scales,
+  tva_fit = tva_fit,
+  ktc_fit = ktc_fit,
+  tva_resid_fit = tva_resid_fit,
+  ktc_resid_fit = ktc_resid_fit
+)
 
 save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
@@ -130,40 +173,73 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 reduced_ktc_list <- select_ktc_list(ktc_list, last_date_fvt)
 # reduced_ktc_list <- ktc_list # if running all again
 
-future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"), show_col_types = FALSE) %>%
+future_value_time <- read_csv(
+  here("Shiny/Saved Files/future_value_time.csv"),
+  show_col_types = FALSE
+) %>%
   filter(date != today())
 
 message("begin mapping future value over time...")
 
 # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
-future_value_time <- map_future_value_time(future_value_names, reduced_ktc_list, tva_scales, ktc_scales,
-                                           tva_fit, ktc_fit, tva_resid_fit, ktc_resid_fit, season_dates) %>%
+future_value_time <- map_future_value_time(
+  future_value_names,
+  reduced_ktc_list,
+  tva_scales,
+  ktc_scales,
+  tva_fit,
+  ktc_fit,
+  tva_resid_fit,
+  ktc_resid_fit,
+  season_dates
+) %>%
   bind_rows(future_value_time)
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 # make list of the dates already computed, so I don't have to compute them again
-max(future_value_time$date) %>% as_tibble() %>% write_csv(here("Data/last_date_fvt.csv"))
+max(future_value_time$date) %>%
+  as_tibble() %>%
+  write_csv(here("Data/last_date_fvt.csv"))
 
 # ensure future value is the same as most recent future_value_over_time
 
-player_total_value <- future_value_time %>% filter(date == max(date)) %>%
-  full_join(season_value_added %>%
-              select(name, season, total_value_added) %>%
-              pivot_wider(names_from = season, values_from = total_value_added, names_prefix = "sva_"), by = join_by(name)) %>%
+player_total_value <- future_value_time %>%
+  filter(date == max(date)) %>%
+  full_join(
+    season_value_added %>%
+      select(name, season, total_value_added) %>%
+      pivot_wider(
+        names_from = season,
+        values_from = total_value_added,
+        names_prefix = "sva_"
+      ),
+    by = join_by(name)
+  ) %>%
   select(name, contains("sva"), future_value) %>%
   left_join(player_info, by = join_by(name)) %>%
   left_join(keep_trade_cut, by = join_by(name)) %>%
   mutate(
-    across(contains("sva"), ~replace_na(., 0)),
+    across(contains("sva"), ~ replace_na(., 0)),
     ktc_value = case_when(
       position %in% c("K", "DST") ~ 0,
-      .default = ktc_value),
+      .default = ktc_value
+    ),
     future_value = case_when(
       position %in% c("K", "DST") ~ 0,
       is.na(future_value) ~ 0,
-      .default = future_value)) %>%
+      .default = future_value
+    )
+  ) %>%
   arrange(desc(future_value)) |>
-  select(name, player_id, birth_date, position, ktc_value, contains("sva"), future_value)
+  select(
+    name,
+    player_id,
+    birth_date,
+    position,
+    ktc_value,
+    contains("sva"),
+    future_value
+  )
 
 write_csv(player_total_value, here("Data/player_total_value.csv"))
 
@@ -210,8 +286,8 @@ write_csv(player_total_value, here("Data/player_total_value.csv"))
 # toy_ktc_data <- tibble(
 #   position = c(rep("QB", 24000), rep("RB", 24000), rep("WR", 24000), rep("TE", 24000)),
 #   age = rep(
-#     c(rep(23, 2000), rep(24, 2000), rep(25, 2000), rep(26, 2000), 
-#     rep(27, 2000), rep(28, 2000), rep(29, 2000), rep(30, 2000), 
+#     c(rep(23, 2000), rep(24, 2000), rep(25, 2000), rep(26, 2000),
+#     rep(27, 2000), rep(28, 2000), rep(29, 2000), rep(30, 2000),
 #     rep(31, 2000), rep(32, 2000), rep(33, 2000), rep(34, 2000)), 4),
 #   historical_value =  rep(seq(from = 100, to = 10000, length.out = 100), 960),
 #   tva_adj = rep(
@@ -245,7 +321,7 @@ write_csv(player_total_value, here("Data/player_total_value.csv"))
 #   geom_ribbon(aes(x = tva_adj, ymin = q10, ymax = q90, fill = position), alpha = 0.2) +
 #   facet_wrap(~age, nrow = 3) +
 #   labs(x = "Total Value Added", y = "Post-season KeepTradeCut") +
-#   coord_cartesian(ylim = c(0, 10000)) + 
+#   coord_cartesian(ylim = c(0, 10000)) +
 #   theme(legend.title = element_blank())
 
 # write_csv(toy_tva_plot_data, here("Data/toy_tva_plot_data.csv"))

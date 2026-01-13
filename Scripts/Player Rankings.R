@@ -11,7 +11,10 @@ future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"))
 # top_future_value_player(player_total_value, "WR")
 
 # future value over time
-plot_over_time(future_value_time, c("Josh Allen", "Lamar Jackson", "Jayden Daniels", "Patrick Mahomes"))
+plot_over_time(
+  future_value_time,
+  c("Josh Allen", "Lamar Jackson", "Jayden Daniels", "Patrick Mahomes")
+)
 
 # single player with comparable players
 comparable_players(future_value_time, player_total_value, "Rico Dowdle")

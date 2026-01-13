@@ -14,4 +14,3 @@ source(here("Modeling", "Draft Pick Value.R"))
 
 # future standings
 source(here("Modeling", "Future Standings.R"))
-

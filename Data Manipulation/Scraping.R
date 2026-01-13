@@ -11,16 +11,25 @@ options(nflreadr.verbose = FALSE)
 
 source(here("Data Manipulation/Scrape Support.R"))
 
+# change to true if want to update player_info
+run_player_info <- FALSE
+
 # load box score data from NFL 2025
 # https://www.nflfastr.com
 
 box_score_off25 <- nflfastR::load_player_stats(seasons = 2025) %>%
   select(-contains("_list"))
 
-box_score_def25 <- nflfastR::calculate_stats(seasons = 2025, summary_level = "week", stat_type = "team", season_type = "REG") %>%
+box_score_def25 <- nflfastR::calculate_stats(
+  seasons = 2025,
+  summary_level = "week",
+  stat_type = "team",
+  season_type = "REG"
+) %>%
   select(-contains("_list"))
 
-player_headshot <- box_score_off25 %>% select(player_display_name, headshot_url) %>%
+player_headshot <- box_score_off25 %>%
+  select(player_display_name, headshot_url) %>%
   rename(name = player_display_name)
 
 player_headshot %>% write_csv(here("Shiny/Saved Files/player_headshot.csv"))
@@ -40,7 +49,11 @@ all_league_ids <- c(league_id_24, league_id_25, league_id_26)
 # league_info <- parse_api_list(str_c("https://api.sleeper.app/v1/league/", league_id_25))
 
 # rosters
-rosters <- parse_api(str_c("https://api.sleeper.app/v1/league/", all_league_ids[[length(all_league_ids)]], "/rosters")) %>%
+rosters <- parse_api(str_c(
+  "https://api.sleeper.app/v1/league/",
+  all_league_ids[[length(all_league_ids)]],
+  "/rosters"
+)) %>%
   select(roster_id, owner_id, players) %>%
   unnest(cols = c(players)) %>%
   rename(player_id = players)
@@ -52,13 +65,22 @@ users <- rosters %>%
   select(owner_id, roster_id) %>%
   distinct() %>%
   left_join(
-    parse_api(str_c("https://api.sleeper.app/v1/league/", all_league_ids[[length(all_league_ids)]], "/users")) %>%
+    parse_api(str_c(
+      "https://api.sleeper.app/v1/league/",
+      all_league_ids[[length(all_league_ids)]],
+      "/users"
+    )) %>%
       select(display_name, user_id),
-    by = join_by(owner_id == user_id))
+    by = join_by(owner_id == user_id)
+  )
 
 write_csv(users, here("Data/users.csv"))
 
-avatar <- parse_api(str_c("https://api.sleeper.app/v1/league/", all_league_ids[[length(all_league_ids)]], "/users")) %>%
+avatar <- parse_api(str_c(
+  "https://api.sleeper.app/v1/league/",
+  all_league_ids[[length(all_league_ids)]],
+  "/users"
+)) %>%
   mutate(avatar_url = str_c("https://sleepercdn.com/avatars/", avatar)) %>%
   left_join(users, by = join_by(display_name)) %>%
   select(roster_id, display_name, avatar_url)
@@ -66,166 +88,254 @@ avatar <- parse_api(str_c("https://api.sleeper.app/v1/league/", all_league_ids[[
 write_csv(avatar, here("Data/avatar.csv"))
 
 # matchups
-matchups <- map(seq_along(all_league_ids), ~{
+matchups <- map(
+  seq_along(all_league_ids),
+  ~ {
     league_id <- all_league_ids[[.x]]
-    map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/matchups/", .x) %>%
-          parse_api())
-  })
+    map(
+      1:17,
+      ~ str_c(
+        "https://api.sleeper.app/v1/league/",
+        league_id,
+        "/matchups/",
+        .x
+      ) %>%
+        parse_api()
+    )
+  }
+)
 
-matchups_temp <- map(matchups, ~bind_rows(.x, .id = "week")) %>% bind_rows(.id = "season") %>%
+matchups_temp <- map(matchups, ~ bind_rows(.x, .id = "week")) %>%
+  bind_rows(.id = "season") %>%
   mutate(
     season = as.numeric(season) + 2023,
-    week = as.numeric(week))
+    week = as.numeric(week)
+  )
 
 # playoff bracket
-playoff_bracket <- map(all_league_ids, ~parse_api(str_c("https://api.sleeper.app/v1/league/", .x, "/winners_bracket")) %>%
-                         filter(!is.na(w)) %>%
-                         transmute(roster_id = t1, opponent_id = t2,
-                                   round = case_when(
-                                     r == 1 ~ "1st round",
-                                     r == 2 & is.na(p) ~ "2nd round",
-                                     p == 5 ~ "5th place",
-                                     p == 1 ~ "Championship",
-                                     p == 3 ~ "3rd place",
-                                     .default = NA),
-                                   week = r + 14)) %>%
+playoff_bracket <- map(
+  all_league_ids,
+  ~ parse_api(str_c(
+    "https://api.sleeper.app/v1/league/",
+    .x,
+    "/winners_bracket"
+  )) %>%
+    filter(!is.na(w)) %>%
+    transmute(
+      roster_id = t1,
+      opponent_id = t2,
+      round = case_when(
+        r == 1 ~ "1st round",
+        r == 2 & is.na(p) ~ "2nd round",
+        p == 5 ~ "5th place",
+        p == 1 ~ "Championship",
+        p == 3 ~ "3rd place",
+        .default = NA
+      ),
+      week = r + 14
+    )
+) %>%
   bind_rows(.id = "season") %>%
   mutate(season = as.numeric(season) + 2023)
 
 matchups_table <- matchups_temp %>%
   mutate(
     opponent_id = roster_id,
-    opp_points = points) %>%
+    opp_points = points
+  ) %>%
   select(season, week, opp_points, opponent_id, matchup_id) %>%
-  left_join(matchups_temp %>% select(season, week, points, roster_id, matchup_id),
-            by = join_by(season, week, matchup_id), relationship = "many-to-many") %>%
+  left_join(
+    matchups_temp %>% select(season, week, points, roster_id, matchup_id),
+    by = join_by(season, week, matchup_id),
+    relationship = "many-to-many"
+  ) %>%
   filter(opponent_id != roster_id, !is.na(matchup_id)) %>%
-  left_join(playoff_bracket %>% select(-roster_id), by = join_by(season, week, roster_id == opponent_id)) %>%
-  left_join(playoff_bracket %>% select(-opponent_id), by = join_by(season, week, roster_id == roster_id)) %>%
-  mutate(round = case_when(
-    !is.na(round.x) ~ round.x,
-    !is.na(round.y) ~ round.y,
-    between(week, 15, 17) ~ "loser's bracket",
-    .default = "regular season")) %>%
+  left_join(
+    playoff_bracket %>% select(-roster_id),
+    by = join_by(season, week, roster_id == opponent_id)
+  ) %>%
+  left_join(
+    playoff_bracket %>% select(-opponent_id),
+    by = join_by(season, week, roster_id == roster_id)
+  ) %>%
+  mutate(
+    round = case_when(
+      !is.na(round.x) ~ round.x,
+      !is.na(round.y) ~ round.y,
+      between(week, 15, 17) ~ "loser's bracket",
+      .default = "regular season"
+    )
+  ) %>%
   select(season, week, round, roster_id, points, opponent_id, opp_points)
 
 write_csv(matchups_table, here("Data/matchups_table.csv"))
 
 # transactions (this includes trades)
-transactions <- map(all_league_ids, ~{
-  league_id <- .x
-  map(1:17, ~str_c("https://api.sleeper.app/v1/league/", league_id, "/transactions/", .x) %>%
-                      parse_api) %>%
-    bind_rows(.id = "week")
-  }) %>% bind_rows(.id = "season") %>%
+transactions <- map(
+  all_league_ids,
+  ~ {
+    league_id <- .x
+    map(
+      1:17,
+      ~ str_c(
+        "https://api.sleeper.app/v1/league/",
+        league_id,
+        "/transactions/",
+        .x
+      ) %>%
+        parse_api
+    ) %>%
+      bind_rows(.id = "week")
+  }
+) %>%
+  bind_rows(.id = "season") %>%
   mutate(season = as.numeric(season) + 2023)
-  
+
 save(transactions, file = here("Data/transactions.RData"))
 
 # Get all drafts urls for a league
-draft_urls <- 
-  map(all_league_ids, ~str_c("https://api.sleeper.app/v1/league/", .x, "/drafts") %>%
-  parse_api() %>%
-  transmute(url = str_c("https://api.sleeper.app/v1/draft/", draft_id, "/picks")) %>%
-  pull()) %>%
+draft_urls <-
+  map(
+    all_league_ids,
+    ~ str_c("https://api.sleeper.app/v1/league/", .x, "/drafts") %>%
+      parse_api() %>%
+      transmute(
+        url = str_c("https://api.sleeper.app/v1/draft/", draft_id, "/picks")
+      ) %>%
+      pull()
+  ) %>%
   unlist()
 
 # Get all draft trade urls for a league
 draft_trades_urls <- draft_urls %>% str_replace("/picks", "/traded_picks")
 
 # Get picks in a draft
-draft_picks <- map(draft_urls, ~parse_api(.x))
+draft_picks <- map(draft_urls, ~ parse_api(.x))
 save(draft_picks, file = here("Data/draft_picks.RData"))
 
 # Get trades in a draft
 draft_trades <- map(draft_trades_urls, parse_api)
 
-draft_order <- draft_urls %>% str_remove("/picks") %>%
-  map(., ~{
-    list <- parse_api_list(.x)
-    list$draft_order %>% enframe(name = "owner_id", value = "draft_order") %>%
-      unnest(cols = draft_order) %>%
-      left_join(users, by = join_by(owner_id)) %>%
-      select(roster_id, draft_order)
-    }) %>%
+draft_order <- draft_urls %>%
+  str_remove("/picks") %>%
+  map(
+    .,
+    ~ {
+      list <- parse_api_list(.x)
+      list$draft_order %>%
+        enframe(name = "owner_id", value = "draft_order") %>%
+        unnest(cols = draft_order) %>%
+        left_join(users, by = join_by(owner_id)) %>%
+        select(roster_id, draft_order)
+    }
+  ) %>%
   bind_rows(.id = "season_id") %>%
   mutate(
     season_id = as.numeric(season_id),
     season = case_when(
       season_id < 3 ~ 2024,
-      .default = 2022 + season_id),
-    type = if_else(season_id == 2, "veteran", "rookie")) %>%
+      .default = 2022 + season_id
+    ),
+    type = if_else(season_id == 2, "veteran", "rookie")
+  ) %>%
   select(-season_id)
 
 write_csv(draft_order, here("Data/draft_order.csv"))
 
 # player information don't run a lot because it takes a lot of time/memory
-# player_info_temp <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
+if (run_player_info) {
+  player_info_temp <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
 
-# player_information <- map(player_info_temp, ~{
-#   tibble(
-#     name = .x$full_name,
-#     player_id = .x$player_id,
-#     position = .x$fantasy_positions,
-#     birth_date = .x$birth_date,
-#     height = .x$height,
-#     weight = .x$weight,
-#     years_exp = .x$years_exp)}) %>%
-#   rbindlist(fill = TRUE) %>%
-#   as_tibble()
+  player_information <- map(
+    player_info_temp,
+    ~ {
+      tibble(
+        name = .x$full_name,
+        player_id = .x$player_id,
+        position = .x$fantasy_positions,
+        birth_date = .x$birth_date,
+        height = .x$height,
+        weight = .x$weight,
+        years_exp = .x$years_exp
+      )
+    }
+  ) %>%
+    rbindlist(fill = TRUE) %>%
+    as_tibble()
 
-# # all 32 defenses
-# defenses <- box_score_def25 %>%
-#   rename(name = team) %>%
-#   select(name) %>%
-#   distinct() %>%
-#   mutate(
-#     name = recode(name, "LA" = "LAR"),
-#     player_id = name,
-#     position = "DST")
+  # all 32 defenses
+  defenses <- box_score_def25 %>%
+    rename(name = team) %>%
+    select(name) %>%
+    distinct() %>%
+    mutate(
+      name = recode(name, "LA" = "LAR"),
+      player_id = name,
+      position = "DST"
+    )
 
-# # load player info
-# player_info <- player_information %>%
-#   select(name, player_id, position, birth_date, years_exp) %>%
-#   filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
-#   # remove duplicate names
-#   filter(player_id != 4634, player_id != 748, player_id != 232, player_id != 7437, player_id != 638) %>%
-#   mutate(
-#     position = case_when(
-#       name == "Taysom Hill" ~ "TE",
-#       .default = position),
-#     birth_date = case_when(
-#       name == "Efton Chism" ~ "2001-10-26",
-#       name == "Isaiah Bond" ~ "2004-03-15",
-#       .default = birth_date)) %>%
-#   distinct() %>%
-#   bind_rows(defenses) %>%
-#   name_correction()
+  # load player info
+  player_info <- player_information %>%
+    select(name, player_id, position, birth_date, years_exp) %>%
+    filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
+    # remove duplicate names
+    filter(
+      player_id != 4634,
+      player_id != 748,
+      player_id != 232,
+      player_id != 7437,
+      player_id != 638
+    ) %>%
+    mutate(
+      position = case_when(
+        name == "Taysom Hill" ~ "TE",
+        .default = position
+      ),
+      birth_date = case_when(
+        name == "Efton Chism" ~ "2001-10-26",
+        name == "Isaiah Bond" ~ "2004-03-15",
+        .default = birth_date
+      )
+    ) %>%
+    distinct() %>%
+    bind_rows(defenses) %>%
+    name_correction()
 
-# write_csv(player_info, here("Data/player_info.csv"))
-
+  write_csv(player_info, here("Data/player_info.csv"))
+}
 rm(draft_urls)
 
 # Now, I want to compile each players total assets
 
 # assigned picks
-assigned_picks <- expand_grid(roster_id = 1:12, round = 1:3,
-                              season = (2023 + length(draft_picks)):(2026 + length(draft_picks)))
+assigned_picks <- expand_grid(
+  roster_id = 1:12,
+  round = 1:3,
+  season = (2023 + length(draft_picks)):(2026 + length(draft_picks))
+)
 
 # traded picks
-traded_picks <- map(all_league_ids, ~str_c("https://api.sleeper.app/v1/league/", .x, "/traded_picks") %>%
-  parse_api() %>%
-  mutate(season = as.numeric(season))) %>%
+traded_picks <- map(
+  all_league_ids,
+  ~ str_c("https://api.sleeper.app/v1/league/", .x, "/traded_picks") %>%
+    parse_api() %>%
+    mutate(season = as.numeric(season))
+) %>%
   bind_rows() %>%
   mutate(index = row_number()) %>%
   arrange(desc(index)) %>%
   distinct(round, season, roster_id, .keep_all = TRUE) %>%
   select(-index)
 
-lost_picks <- assigned_picks %>% inner_join(traded_picks, by = join_by(round, season, roster_id)) %>%
+lost_picks <- assigned_picks %>%
+  inner_join(traded_picks, by = join_by(round, season, roster_id)) %>%
   select(roster_id, round, season)
 
-gained_picks <- assigned_picks %>% inner_join(traded_picks, by = join_by(round, season, roster_id == owner_id)) %>%
+gained_picks <- assigned_picks %>%
+  inner_join(
+    traded_picks,
+    by = join_by(round, season, roster_id == owner_id)
+  ) %>%
   rename(pick_slot = roster_id.y) %>%
   select(-previous_owner_id)
 
@@ -233,8 +343,10 @@ future_draft_picks <- assigned_picks %>%
   anti_join(lost_picks, by = join_by(roster_id, round, season)) %>%
   mutate(pick_slot = roster_id) %>%
   bind_rows(gained_picks) %>%
-  left_join(draft_order %>% select(-type),
-            by = join_by(season, pick_slot == roster_id)) %>%
+  left_join(
+    draft_order %>% select(-type),
+    by = join_by(season, pick_slot == roster_id)
+  ) %>%
   arrange(season, round, roster_id)
 
 write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
@@ -252,8 +364,14 @@ projections26 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary 
 #   name_correction()
 # write_csv(projections26, here("Data/projections26.csv"))
 
-projections24 <- read_csv(here("Data/projections24.csv"), show_col_types = FALSE)
-projections25 <- read_csv(here("Data/projections25.csv"), show_col_types = FALSE)
+projections24 <- read_csv(
+  here("Data/projections24.csv"),
+  show_col_types = FALSE
+)
+projections25 <- read_csv(
+  here("Data/projections25.csv"),
+  show_col_types = FALSE
+)
 
 projections <- list(projections24, projections25, projections26)
 
@@ -262,7 +380,7 @@ projections <- list(projections24, projections25, projections26)
 
 # # keep_trade_cut value 8/23 (only top 50 players)
 # t50 <- player_value("http://web.archive.org/web/20240823002052/https://keeptradecut.com/dynasty-rankings")
-# 
+#
 # # need to add more than just top 50
 # b51 <- tibble(
 #   name = c("James Cook", "Tee Higgins", "Mark Andrews", "Jordan Addison", "Drake Maye", "Rashee Rice",
@@ -363,33 +481,55 @@ projections <- list(projections24, projections25, projections26)
 #             789.2, 889, 795.2, 376, 178, 575.0,
 #             724, 790, 493, 425, 1439, 731.8,
 #             172, 960, 902, 678.0))
-# 
+#
 # bind_rows(t50, b51) %>% write_csv(here("Data/ktc_value082324"))
 
 # instantaneous keep_trade_cut value
 ktc_rows <- 0
 
-while(ktc_rows != 500){
-  keep_trade_cut <- map_dfr(0:9, ~str_c("https://keeptradecut.com/dynasty-rankings?page=", .x, "&filters=QB|WR|RB|TE|RDP&format=2") %>%
-                          player_value()) %>%
+while (ktc_rows != 500) {
+  keep_trade_cut <- map_dfr(
+    0:9,
+    ~ str_c(
+      "https://keeptradecut.com/dynasty-rankings?page=",
+      .x,
+      "&filters=QB|WR|RB|TE|RDP&format=2"
+    ) %>%
+      player_value()
+  ) %>%
     mutate(ktc_value = as.numeric(value)) %>%
     select(name, ktc_value) %>%
     name_correction()
-  
+
   ktc_rows <- keep_trade_cut %>% distinct(name) %>% nrow()
 }
 
 # periodically save
-date <- str_c(month(today()) %>% str_pad(2, side="left", pad="0"),
-              day(today()) %>% str_pad(2, side="left", pad="0"),
-              year(today()) %>% str_sub(start = 3, end = 4))
+date <- str_c(
+  month(today()) %>% str_pad(2, side = "left", pad = "0"),
+  day(today()) %>% str_pad(2, side = "left", pad = "0"),
+  year(today()) %>% str_sub(start = 3, end = 4)
+)
 
-keep_trade_cut %>% write_csv(here(paste0("Data/ktc values/ktc_value", date, ".csv")))
+keep_trade_cut %>%
+  write_csv(here(paste0("Data/ktc values/ktc_value", date, ".csv")))
 
-season_dates <- tibble(season_start = c(ymd("2024-09-05"), ymd("2025-09-04"), ymd("2026-09-10")),
-                       season_end = c(ymd("2024-12-30"), ymd("2025-12-29"), ymd("2027-01-04"))) %>%
+season_dates <- tibble(
+  season_start = c(ymd("2024-09-05"), ymd("2025-09-04"), ymd("2026-09-10")),
+  season_end = c(ymd("2024-12-30"), ymd("2025-12-29"), ymd("2027-01-04"))
+) %>%
   write_csv(here("Data/season_dates.csv"))
 
 # remove objects and functions to declutter environment
-rm(league_id_24, league_id_25, combine_week, grab_projection, grab_rankings, parse_api, parse_api_list, player_value, ktc_rows,
-   draft_trades_urls)
+rm(
+  league_id_24,
+  league_id_25,
+  combine_week,
+  grab_projection,
+  grab_rankings,
+  parse_api,
+  parse_api_list,
+  player_value,
+  ktc_rows,
+  draft_trades_urls
+)

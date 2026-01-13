@@ -8,7 +8,10 @@ source(here("Shiny/Script Support.R"))
 users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
   select(-owner_id)
 
-final_standings_odds <- read_csv(here("Data/final_standings_odds.csv"), show_col_types = FALSE) %>%
+final_standings_odds <- read_csv(
+  here("Data/final_standings_odds.csv"),
+  show_col_types = FALSE
+) %>%
   left_join(users, by = join_by(roster_id)) %>%
   select(-roster_id)
 
@@ -18,7 +21,7 @@ champion_odds <- final_standings_odds %>%
   pivot_wider(names_from = season, values_from = perc) %>%
   select(-result, -type) %>%
   arrange(desc(`2026`)) %>%
-  mutate(across(contains("20"), ~scales::percent(.x))) %>%
+  mutate(across(contains("20"), ~ scales::percent(.x))) %>%
   rename(team = display_name)
 
 # playoff odds
@@ -28,7 +31,7 @@ playoff_odds <- final_standings_odds %>%
   summarize(playoff_perc = sum(perc), .groups = "keep") %>%
   pivot_wider(names_from = season, values_from = playoff_perc) %>%
   arrange(desc(`2026`)) %>%
-  mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
+  mutate(across(contains("20"), ~ scales::percent(.x, accuracy = .01))) %>%
   rename(team = display_name)
 
 # first round bye odds
@@ -38,7 +41,7 @@ bye_odds <- final_standings_odds %>%
   summarize(bye_perc = sum(perc), .groups = "keep") %>%
   pivot_wider(names_from = season, values_from = bye_perc) %>%
   arrange(desc(`2026`)) %>%
-  mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
+  mutate(across(contains("20"), ~ scales::percent(.x, accuracy = .01))) %>%
   rename(team = display_name)
 
 # number one pick odds
@@ -48,7 +51,7 @@ n1_pick_odds <- final_standings_odds %>%
   summarize(n1_pick_perc = sum(perc), .groups = "keep") %>%
   pivot_wider(names_from = season, values_from = n1_pick_perc) %>%
   arrange(desc(`2026`)) %>%
-  mutate(across(contains("20"), ~scales::percent(.x, accuracy = .01))) %>%
+  mutate(across(contains("20"), ~ scales::percent(.x, accuracy = .01))) %>%
   rename(team = display_name) |>
   ungroup()
 
@@ -66,9 +69,11 @@ most_common_finish_df <- final_standings_odds %>%
 
 # dfs to save -------------------------------------------------------------
 
-write_csv(most_common_finish_df, here("Shiny/Saved Files/most_common_finish_df.csv"))
+write_csv(
+  most_common_finish_df,
+  here("Shiny/Saved Files/most_common_finish_df.csv")
+)
 write_csv(champion_odds, here("Shiny/Saved Files/champion_odds.csv"))
 write_csv(playoff_odds, here("Shiny/Saved Files/playoff_odds.csv"))
 write_csv(bye_odds, here("Shiny/Saved Files/bye_odds.csv"))
 write_csv(n1_pick_odds, here("Shiny/Saved Files/n1_pick_odds.csv"))
-  

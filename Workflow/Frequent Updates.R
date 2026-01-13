@@ -44,8 +44,10 @@ if (interactive()) {
 }
 
 # run app
-rsconnect::deployApp(appName = "fantasy-dashboard",
-                     account = "calebskinner",
-                     forceUpdate = TRUE,
-                     appPrimaryDoc = "app.R",
-                     appFiles = NULL)
+rsconnect::deployApp(
+  appName = "fantasy-dashboard",
+  account = "calebskinner",
+  forceUpdate = TRUE,
+  appPrimaryDoc = "app.R",
+  appFiles = NULL
+)
