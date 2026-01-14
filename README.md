@@ -3,7 +3,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
 
 A repository for modeling fantasy football player value, simulating multi-year player careers,
-valuing draft picks, projecting team outcomes, and powering a Shiny dashboard for tehe **Baylor Seniors Dynasty League**.
+valuing draft picks, projecting team outcomes, and powering a Shiny dashboard for the **Baylor Seniors Dynasty League**.
 
 ---
 
