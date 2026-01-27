@@ -23,7 +23,8 @@ championships_df <- matchups_table %>%
   left_join(users, by = join_by(roster_id)) %>%
   rename(team = display_name) %>%
   group_by(team) %>%
-  summarize(championships = n(), most_recent = max(season))
+  summarize(championships = n(), most_recent = max(season)) |>
+  arrange(desc(championships), desc(most_recent))
 
 # most finals appearances
 finals_df <- matchups_table %>%
@@ -31,7 +32,8 @@ finals_df <- matchups_table %>%
   left_join(users, by = join_by(roster_id)) %>%
   rename(team = display_name) %>%
   group_by(team) %>%
-  summarize(finals_appearances = n(), most_recent = max(season))
+  summarize(finals_appearances = n(), most_recent = max(season)) |>
+  arrange(desc(finals_appearances), desc(most_recent))
 
 # most playoff berths
 playoffs_df <- matchups_table %>%
@@ -40,7 +42,8 @@ playoffs_df <- matchups_table %>%
   rename(team = display_name) %>%
   distinct(season, team, .keep = "all") %>%
   group_by(team) %>%
-  summarize(playoff_berths = n(), most_recent = max(season))
+  summarize(playoff_berths = n(), most_recent = max(season)) |>
+  arrange(desc(playoff_berths), desc(most_recent))
 
 # most wins
 wins_df <- matchups_table %>%

@@ -1819,7 +1819,7 @@ server <- function(input, output, session) {
       shiny_edit_tables() %>%
       datatable(
         options = list(
-          pageLength = 2, # Set the initial number of rows per page
+          pageLength = 5, # Set the initial number of rows per page
           ordering = TRUE, # Enable column sorting
           scrollX = TRUE # Allow horizontal scrolling if columns exceed width
         )
@@ -1837,7 +1837,7 @@ server <- function(input, output, session) {
       shiny_edit_tables() %>%
       datatable(
         options = list(
-          pageLength = 2, # Set the initial number of rows per page
+          pageLength = 5, # Set the initial number of rows per page
           ordering = TRUE, # Enable column sorting
           scrollX = TRUE # Allow horizontal scrolling if columns exceed width
         )
