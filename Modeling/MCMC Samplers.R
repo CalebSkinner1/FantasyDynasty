@@ -4,6 +4,7 @@
 suppressPackageStartupMessages({
   library("LaplacesDemon")
   library("invgamma")
+  options(rgl.useNULL = TRUE)
   library("matlib")
   library("tidyverse")
   library("tictoc")
