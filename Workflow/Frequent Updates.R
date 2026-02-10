@@ -25,7 +25,7 @@ source(here::here("Scripts", "Trade Machine.R"))
 # Matchups
 source(here::here("Scripts", "Matchups.R"))
 
-# Future Stqndings Script
+# Future Standings Script
 source(here::here("Scripts", "Future Standings Script.R"))
 
 # Team Rankings
