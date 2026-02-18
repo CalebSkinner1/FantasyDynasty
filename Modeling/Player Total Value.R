@@ -163,6 +163,20 @@ sim_df <- select_ktc_list(ktc_list, last_date_fvt)[[1]] %>%
     max(season_dates$season_end)
   )
 
+message(
+  "There are ",
+  sim_df |> filter(is.na(birth_date)) |> nrow(),
+  " missing players"
+)
+
+sim_df <- sim_df |>
+  filter(!is.na(birth_date))
+
+diff <- (sim_df |> nrow()) - (sim_df |> drop_na() |> nrow())
+if (diff != 0) {
+  message("Warning: ", diff, " missing players")
+}
+
 # ~3 mins
 player_simulations <- next_years(
   origin_data = sim_df,
