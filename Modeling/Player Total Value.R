@@ -36,7 +36,8 @@ future_value_names <- map_dfr(ktc_list, name_correction) %>%
     player_info |>
       filter(name == "Marshawn Lynch") |>
       select(name, position, birth_date, years_exp)
-  )
+  ) |>
+  drop_na()
 
 write_csv(future_value_names, here("Data/future_value_names.csv"))
 
