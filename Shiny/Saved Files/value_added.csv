@@ -172,7 +172,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 2,Brandon McManus,K,1,0,0,bench,13,2024,0,SFOControl
 2,Joshua Dobbs,QB,1,0,0,bench,9,2024,0,SFOControl
 2,Daniel Jones,QB,1,6.94,0,bench,7,2024,17.6,SFOControl
-2,Matt Gay,K,1,0,0,bench,6,2024,1,SFOControl
+2,Matt Gay,K,1,0,0,bench,7,2024,1,SFOControl
 2,A.J. Dillon,RB,1,0,0,bench,6,2024,0,SFOControl
 2,Drake London,WR,1,3.5,0,bench,4,2024,16.4,SFOControl
 2,Isaiah Likely,TE,1,26.1,0,bench,4,2024,3.8,SFOControl
@@ -435,7 +435,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 2,Joshua Dobbs,QB,2,0,0,bench,9,2024,0,SFOControl
 2,Daniel Jones,QB,2,18.32,0,bench,7,2024,16.7,SFOControl
 2,Deebo Samuel Sr.,WR,2,18,0,bench,7,2024,18.5,SFOControl
-2,Matt Gay,K,2,3,0,bench,6,2024,13,SFOControl
+2,Matt Gay,K,2,3,0,bench,7,2024,13,SFOControl
 2,A.J. Dillon,RB,2,0,0,bench,6,2024,0,SFOControl
 2,Isaiah Likely,TE,2,4.6,0,bench,4,2024,10.1,SFOControl
 2,Greg Dulcich,TE,2,4.6,0,bench,4,2024,4.9,SFOControl
@@ -697,7 +697,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 2,Joshua Dobbs,QB,3,0,0,bench,9,2024,0,SFOControl
 2,Daniel Jones,QB,3,19.44,0,bench,7,2024,15.7,SFOControl
 2,Deebo Samuel Sr.,WR,3,0,0,bench,7,2024,0,SFOControl
-2,Matt Gay,K,3,3,0,bench,6,2024,20,SFOControl
+2,Matt Gay,K,3,3,0,bench,7,2024,20,SFOControl
 2,A.J. Dillon,RB,3,0,0,bench,6,2024,0,SFOControl
 2,Isaiah Likely,TE,3,1.4,0,bench,4,2024,9.8,SFOControl
 2,Greg Dulcich,TE,3,0,0,bench,4,2024,4.5,SFOControl
@@ -959,7 +959,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 2,Joshua Dobbs,QB,4,0,0,bench,9,2024,0,SFOControl
 2,Daniel Jones,QB,4,10.54,0,bench,7,2024,15.6,SFOControl
 2,Deebo Samuel Sr.,WR,4,10.2,0,bench,7,2024,12.9,SFOControl
-2,Matt Gay,K,4,8,0,bench,6,2024,8,SFOControl
+2,Matt Gay,K,4,8,0,bench,7,2024,8,SFOControl
 2,A.J. Dillon,RB,4,0,0,bench,6,2024,0,SFOControl
 2,Isaiah Likely,TE,4,3.6,0,bench,4,2024,8.6,SFOControl
 2,Greg Dulcich,TE,4,0,0,bench,4,2024,4.9,SFOControl
@@ -1222,7 +1222,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 2,Joshua Dobbs,QB,5,0,0,bench,9,2024,0,SFOControl
 2,Daniel Jones,QB,5,21.08,0,bench,7,2024,14.1,SFOControl
 2,Deebo Samuel Sr.,WR,5,3,0,bench,7,2024,15.6,SFOControl
-2,Matt Gay,K,5,10,0,bench,6,2024,6,SFOControl
+2,Matt Gay,K,5,10,0,bench,7,2024,6,SFOControl
 2,A.J. Dillon,RB,5,0,0,bench,6,2024,0,SFOControl
 2,Isaiah Likely,TE,5,16.3,0,bench,4,2024,9.8,SFOControl
 2,Greg Dulcich,TE,5,0,0,bench,4,2024,4.4,SFOControl
