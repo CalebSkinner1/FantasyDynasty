@@ -72,7 +72,7 @@ compile_training_data <- function(
     left_join(player_info, by = join_by(name)) %>%
     select(-player_id, -years_exp) %>%
     mutate(
-      age = interval(birth_date, pre_ktc_date) / years(1)
+      age = as.numeric(pre_ktc_date - birth_date) / 365.25
     )
 }
 
