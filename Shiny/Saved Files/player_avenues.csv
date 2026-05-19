@@ -1,380 +1,380 @@
 roster_id,player_id,name,position,future_value,avenue
-1,10222,Jayden Reed,WR,46.611924253445515,2024 W8 trade
-1,12500,Quinn Ewers,QB,120.63629579318015,2025 W1 transaction
-1,12518,Tyler Warren,TE,385.1097021220081,2025 rookie draft pick 8
-1,12524,Shedeur Sanders,QB,191.8121897926072,2025 rookie draft pick 22
-1,12527,Ashton Jeanty,RB,491.93108146176,2025 rookie draft pick 3
-1,12543,Tahj Brooks,RB,63.75492340887511,2025 W1 transaction
+1,10222,Jayden Reed,WR,46.45212785796644,2024 W8 trade
+1,12500,Quinn Ewers,QB,120.68710780265442,2025 W1 transaction
+1,12518,Tyler Warren,TE,382.6856171332605,2025 rookie draft pick 8
+1,12524,Shedeur Sanders,QB,183.21213502956928,2025 rookie draft pick 22
+1,12527,Ashton Jeanty,RB,489.53199175328785,2025 rookie draft pick 3
+1,12543,Tahj Brooks,RB,63.674433029000994,2025 W1 transaction
 1,12713,Andy Borregales,K,0,2025 W15 transaction
-1,3163,Jared Goff,QB,317.82056111578447,2025 W3 trade
-1,4098,Kareem Hunt,RB,53.18715454731132,2024 W2 transaction
-1,4988,Nick Chubb,RB,0,2024 W15 transaction
-1,5849,Kyler Murray,QB,314.1850820076794,initial draft pick 23
-1,5892,David Montgomery,RB,112.45939515587514,initial draft pick 98
-1,6783,Jerry Jeudy,WR,15.50995474004304,2024 W2 trade
-1,6803,Brandon Aiyuk,WR,15.735777927280305,2025 W9 trade
-1,7525,DeVonta Smith,WR,169.66351783203,2024 W2 trade
-1,7553,Kyle Pitts,TE,304.3880563356064,2025 W1 trade
-1,7564,Ja'Marr Chase,WR,450.91667309283974,2024 W9 trade
-1,7569,Nico Collins,WR,197.9320453388291,2025 W3 trade
-1,8154,Brian Robinson Jr.,RB,80.05933547617265,2025 W9 transaction
-1,8180,Jalen Nailor,WR,14.501485027976578,2025 W15 transaction
-1,96,Aaron Rodgers,QB,41.79778384733022,initial draft pick 119
+1,3163,Jared Goff,QB,318.099797856973,2025 W3 trade
+1,4098,Kareem Hunt,RB,53.184942101407735,2024 W2 transaction
+1,4988,Nick Chubb,RB,50.790030885806935,2024 W15 transaction
+1,5849,Kyler Murray,QB,318.82344760666547,initial draft pick 23
+1,5892,David Montgomery,RB,114.29314847789618,initial draft pick 98
+1,6783,Jerry Jeudy,WR,14.770091336140837,2024 W2 trade
+1,6803,Brandon Aiyuk,WR,15.744936885627574,2025 W9 trade
+1,7525,DeVonta Smith,WR,169.85163854484017,2024 W2 trade
+1,7553,Kyle Pitts,TE,304.9183503146545,2025 W1 trade
+1,7564,Ja'Marr Chase,WR,450.8636602734495,2024 W9 trade
+1,7569,Nico Collins,WR,188.60971021963672,2025 W3 trade
+1,8154,Brian Robinson Jr.,RB,80.21911651086143,2025 W9 transaction
+1,8180,Jalen Nailor,WR,14.139977724586927,2025 W15 transaction
+1,96,Aaron Rodgers,QB,44.51183625557417,initial draft pick 119
 1,HOU,Houston Texans,DST,0,2025 W1 transaction
 1,SF,San Francisco 49ers,DST,0,2025 W15 transaction
-2,2216,Mike Evans,WR,57.154139355460494,initial draft pick 83
+2,2216,Mike Evans,WR,57.3200429259908,initial draft pick 83
 2,331,Philip Rivers,QB,0,2025 W16 transaction
-2,4046,Patrick Mahomes,QB,570.9068530249565,2024 W8 trade
+2,4046,Patrick Mahomes,QB,565.3034602344336,2024 W8 trade
 2,4663,Austin Ekeler,RB,0,initial draft pick 107
 2,5095,Daniel Carlson,K,0,2025 W2 transaction
 2,5189,Eddy Pineiro,K,0,2025 W5 transaction
-2,5848,Hollywood Brown,WR,7.361770682728165,2025 W3 trade
-2,5872,Deebo Samuel Sr.,WR,14.216136733535798,initial draft pick 62
-2,6130,Devin Singletary,RB,60.07821495858011,2025 W12 transaction
-2,6149,Darius Slayton,WR,6.2748938192956105,2024 W9 transaction
-2,6786,CeeDee Lamb,WR,297.38204222258616,initial draft pick 14
-2,6806,J.K. Dobbins,RB,96.24266663053147,2024 W8 trade
-2,7002,Juwan Johnson,TE,41.0597539431322,2025 W3 trade
+2,5848,Hollywood Brown,WR,6.834534594440435,2025 W3 trade
+2,5872,Deebo Samuel Sr.,WR,14.20637609129275,initial draft pick 62
+2,6130,Devin Singletary,RB,59.61541418876554,2025 W12 transaction
+2,6149,Darius Slayton,WR,6.261435895359343,2024 W9 transaction
+2,6786,CeeDee Lamb,WR,297.8580392959525,initial draft pick 14
+2,6806,J.K. Dobbins,RB,96.22318685727696,2024 W8 trade
+2,7002,Juwan Johnson,TE,41.001108359162885,2025 W3 trade
 2,7042,Tyler Bass,K,0,2024 W16 transaction
-2,8112,Drake London,WR,336.35630261933636,initial draft pick 59
-2,8122,Bam Knight,RB,57.337242836467766,2025 W12 transaction
-2,8131,Isaiah Likely,TE,97.7169645015067,initial draft pick 134
-2,8183,Brock Purdy,QB,474.97182591196776,initial draft pick 11
-2,8698,Jake Tonges,TE,56.64230615886804,2025 W8 transaction
-2,9226,De'Von Achane,RB,459.2395168579717,initial draft pick 35
+2,8112,Drake London,WR,341.34674620223154,initial draft pick 59
+2,8122,Bam Knight,RB,57.15922183534109,2025 W12 transaction
+2,8131,Isaiah Likely,TE,87.16471537014054,initial draft pick 134
+2,8183,Brock Purdy,QB,472.4729969541841,initial draft pick 11
+2,8698,Jake Tonges,TE,55.32601781011919,2025 W8 transaction
+2,9226,De'Von Achane,RB,463.43240557338066,initial draft pick 35
 2,BUF,Buffalo Bills,DST,0,2024 W1 transaction
 2,DET,Detroit Lions,DST,0,2024 W14 transaction
-3,11435,Emanuel Wilson,RB,74.9196228423562,2025 W9 transaction
-3,11604,Brock Bowers,TE,520.1748942507774,2024 rookie draft pick 5
-3,11625,Adonai Mitchell,WR,23.307346718582636,2024 rookie draft pick 17
-3,11646,Jalen Coker,WR,37.23665289987598,2025 W9 transaction
-3,11655,Tyrone Tracy Jr.,RB,85.70672788286458,2024 W1 transaction
-3,12476,Devin Neal,RB,88.6070211792798,2025 rookie draft pick 31
-3,12483,Jack Bech,WR,23.072481873868192,2025 rookie draft pick 19
-3,12501,Matthew Golden,WR,123.92074720357915,2025 rookie draft pick 7
-3,3294,Dak Prescott,QB,346.001936305885,initial draft pick 20
+3,11435,Emanuel Wilson,RB,74.60524544477809,2025 W9 transaction
+3,11604,Brock Bowers,TE,520.7164212928345,2024 rookie draft pick 5
+3,11625,Adonai Mitchell,WR,23.529478865955035,2024 rookie draft pick 17
+3,11646,Jalen Coker,WR,37.07839292560672,2025 W9 transaction
+3,11655,Tyrone Tracy Jr.,RB,85.71991548354715,2024 W1 transaction
+3,12476,Devin Neal,RB,82.82988630705839,2025 rookie draft pick 31
+3,12483,Jack Bech,WR,21.971166631948137,2025 rookie draft pick 19
+3,12501,Matthew Golden,WR,129.30740165752394,2025 rookie draft pick 7
+3,3294,Dak Prescott,QB,343.13812499359614,initial draft pick 20
 3,3678,Wil Lutz,K,0,2025 W14 transaction
-3,4018,Joe Mixon,RB,56.18445981660435,initial draft pick 92
+3,4018,Joe Mixon,RB,56.33684489517279,initial draft pick 92
 3,4195,Jake Elliott,K,0,initial draft
-3,4943,Sam Darnold,QB,341.00889878180806,2024 W1 transaction
-3,4983,D.J. Moore,WR,73.56660766580781,initial draft pick 53
-3,6768,Tua Tagovailoa,QB,165.53704332690768,initial draft pick 29
-3,6794,Justin Jefferson,WR,309.79854292417053,initial draft pick 5
-3,7588,Javonte Williams,RB,213.43521467075988,initial draft pick 68
-3,8142,Alec Pierce,WR,135.7325119175501,2025 W7 transaction
-3,8151,Kenneth Walker III,RB,295.1319456026694,initial draft pick 44
-3,9506,Sean Tucker,RB,92.4427504353536,2025 W11 transaction
-3,9999,Will Levis,QB,123.45060607828378,initial draft pick 116
+3,4943,Sam Darnold,QB,331.6148620342368,2024 W1 transaction
+3,4983,D.J. Moore,WR,72.51483120687371,initial draft pick 53
+3,6768,Tua Tagovailoa,QB,165.7579659462222,initial draft pick 29
+3,6794,Justin Jefferson,WR,309.88691999010354,initial draft pick 5
+3,7588,Javonte Williams,RB,213.58826679175291,initial draft pick 68
+3,8142,Alec Pierce,WR,131.2157331712371,2025 W7 transaction
+3,8151,Kenneth Walker III,RB,295.239388352249,initial draft pick 44
+3,9506,Sean Tucker,RB,92.33656194014505,2025 W11 transaction
+3,9999,Will Levis,QB,117.54844385113152,initial draft pick 116
 3,MIN,Minnesota Vikings,DST,0,2025 W14 transaction
 3,NE,New England Patriots,DST,0,2025 W3 transaction
-4,11589,Trey Benson,RB,88.39823559722154,2024 rookie draft pick 11
-4,11638,Ricky Pearsall,WR,83.52098448440435,2024 rookie draft pick 23
-4,12471,DJ Giddens,RB,84.87183513812239,2025 W1 transaction
-4,12495,Ollie Gordon,RB,99.49404291277892,2025 W1 transaction
-4,12504,Kaleb Johnson,RB,96.15169025641303,2025 rookie draft pick 15
-4,12526,Tetairoa McMillan,WR,369.3410311565442,2025 rookie draft pick 5
-4,421,Matthew Stafford,QB,218.65351137480815,initial draft pick 113
-4,5001,Dalton Schultz,TE,41.7778601474834,initial draft pick 128
-4,5022,Dallas Goedert,TE,44.5899538025794,2025 W13 transaction
-4,5045,Courtland Sutton,WR,37.236368960288374,2025 W11 trade
-4,5870,Daniel Jones,QB,266.49622690611295,2024 W12 transaction
-4,5927,Terry McLaurin,WR,59.87351093370323,2024 W10 trade
+4,11589,Trey Benson,RB,87.32522579502094,2024 rookie draft pick 11
+4,11638,Ricky Pearsall,WR,73.60982642286407,2024 rookie draft pick 23
+4,12471,DJ Giddens,RB,86.0613167338125,2025 W1 transaction
+4,12495,Ollie Gordon,RB,99.94226650347514,2025 W1 transaction
+4,12504,Kaleb Johnson,RB,95.89982908543116,2025 rookie draft pick 15
+4,12526,Tetairoa McMillan,WR,372.0722783714613,2025 rookie draft pick 5
+4,421,Matthew Stafford,QB,219.57251028169424,initial draft pick 113
+4,5001,Dalton Schultz,TE,41.78145412533912,initial draft pick 128
+4,5022,Dallas Goedert,TE,45.155774640863555,2025 W13 transaction
+4,5045,Courtland Sutton,WR,40.59711741962187,2025 W11 trade
+4,5870,Daniel Jones,QB,290.0677976115849,2024 W12 transaction
+4,5927,Terry McLaurin,WR,59.91938315195849,2024 W10 trade
 4,6650,Chase McLaughlin,K,0,2025 W13 transaction
-4,6770,Joe Burrow,QB,616.8709547339072,initial draft pick 8
-4,6813,Jonathan Taylor,RB,307.42007593390315,2024 W10 trade
-4,7527,Mac Jones,QB,161.93965515945226,2025 W12 transaction
-4,7547,Amon-Ra St. Brown,WR,323.37240616591896,initial draft pick 17
-4,8130,Trey McBride,TE,442.9726544491154,initial draft pick 41
-4,8138,James Cook,RB,318.7934040469331,initial draft pick 60
-4,9224,Chase Brown,RB,225.630398549066,2025 W5 trade
-4,9225,Tank Bigsby,RB,96.75378640781902,2025 W15 transaction
-4,9228,Bryce Young,QB,395.10875674764645,initial draft pick 89
-4,9508,Tyjae Spears,RB,89.09034654429517,initial draft pick 80
-4,9754,Quentin Johnston,WR,81.73298573143471,2024 W10 trade
+4,6770,Joe Burrow,QB,617.4288556907829,initial draft pick 8
+4,6813,Jonathan Taylor,RB,295.29791894455485,2024 W10 trade
+4,7527,Mac Jones,QB,162.15636190565095,2025 W12 transaction
+4,7547,Amon-Ra St. Brown,WR,326.14524938062624,initial draft pick 17
+4,8130,Trey McBride,TE,447.8472330564303,initial draft pick 41
+4,8138,James Cook,RB,312.3546294578165,initial draft pick 60
+4,9224,Chase Brown,RB,222.96068782496988,2025 W5 trade
+4,9225,Tank Bigsby,RB,96.73920717391722,2025 W15 transaction
+4,9228,Bryce Young,QB,395.2487347747133,initial draft pick 89
+4,9508,Tyjae Spears,RB,88.76023429048563,initial draft pick 80
+4,9754,Quentin Johnston,WR,82.51707438291378,2024 W10 trade
 4,TB,Tampa Bay Buccaneers,DST,0,2025 W13 transaction
-5,11565,J.J. McCarthy,QB,200.8305463169075,2024 rookie draft pick 7
-5,11584,Bucky Irving,RB,325.083048902153,2024 rookie draft pick 31
-5,11596,Ben Sinnott,TE,42.27289587026423,2025 W14 transaction
-5,11628,Marvin Harrison Jr.,WR,231.786673731134,2024 W9 trade
-5,11635,Ladd McConkey,WR,244.22704178933253,2024 W11 trade
-5,11647,Kimani Vidal,RB,87.49106734567883,2025 W8 trade
-5,12484,Jayden Higgins,WR,85.53178766050124,2025 rookie draft pick 14
-5,12485,Tez Johnson,WR,15.238686277687004,2025 W11 trade
-5,12497,Tory Horton,WR,23.13176972633992,2025 W1 transaction
-5,12502,Gunnar Helm,TE,88.07942977338396,2025 W11 trade
-5,12510,Jalen Milroe,QB,173.94771995069473,2025 rookie draft pick 20
-5,12514,Emeka Egbuka,WR,342.6360185945274,2025 rookie draft pick 6
-5,12521,Elijah Arroyo,TE,75.51449794988044,2025 rookie draft pick 32
+5,11565,J.J. McCarthy,QB,200.9152403089743,2024 rookie draft pick 7
+5,11584,Bucky Irving,RB,296.179519384348,2024 rookie draft pick 31
+5,11596,Ben Sinnott,TE,42.569171391427666,2025 W14 transaction
+5,11628,Marvin Harrison Jr.,WR,231.07775940050496,2024 W9 trade
+5,11635,Ladd McConkey,WR,241.95177112821088,2024 W11 trade
+5,11647,Kimani Vidal,RB,87.7352000256821,2025 W8 trade
+5,12484,Jayden Higgins,WR,86.29615331472147,2025 rookie draft pick 14
+5,12485,Tez Johnson,WR,14.712187498056904,2025 W11 trade
+5,12497,Tory Horton,WR,23.611256397814397,2025 W1 transaction
+5,12502,Gunnar Helm,TE,88.26651565939291,2025 W11 trade
+5,12510,Jalen Milroe,QB,172.66072038172658,2025 rookie draft pick 20
+5,12514,Emeka Egbuka,WR,319.8981772585018,2025 rookie draft pick 6
+5,12521,Elijah Arroyo,TE,78.27699347216337,2025 rookie draft pick 32
 5,12711,Tyler Loop,K,0,2025 W10 transaction
-5,1466,Travis Kelce,TE,51.427484098565,2025 W17 transaction
-5,4033,David Njoku,TE,45.04582542711425,initial draft pick 63
-5,6865,Colby Parkinson,TE,43.71195591095541,2025 W12 transaction
-5,7523,Trevor Lawrence,QB,524.6704042356415,initial draft pick 15
-5,7543,Travis Etienne,RB,200.93451835115332,initial draft pick 34
-5,9500,Josh Downs,WR,81.48394733024222,initial draft pick 106
-5,9757,Kendre Miller,RB,67.72763474569022,2026 W1 trade
-6,10216,Kenny McIntosh,RB,54.69001013702743,2026 W1 transaction
-6,10219,Chris Rodriguez Jr.,RB,85.02752655724166,2025 W10 transaction
-6,11586,Blake Corum,RB,127.6148467626588,2025 W1 transaction
-6,11620,Rome Odunze,WR,219.4341629104673,2024 W5 trade
-6,11627,Troy Franklin,WR,22.876020515759148,2025 W4 trade
-6,12505,Jalen Royals,WR,10.564955959561916,2025 rookie draft pick 28
-6,12517,Colston Loveland,TE,462.1507696926088,2025 rookie draft pick 11
-6,12535,Isaac TeSlaa,WR,25.2068516350653,2025 W1 transaction
-6,12540,Chimere Dike,WR,22.69544240926948,2025 W11 transaction
-6,4984,Josh Allen,QB,770.8626249335449,initial draft pick 1
-6,5967,Tony Pollard,RB,85.29053240830208,initial draft pick 96
-6,6790,D'Andre Swift,RB,125.08554277294908,initial draft pick 72
-6,6801,Tee Higgins,WR,144.88937650071952,2024 W2 trade
-6,6904,Jalen Hurts,QB,505.1473953991979,2025 W11 trade
-6,7528,Najee Harris,RB,69.95566107927286,2025 W12 transaction
-6,8134,Khalil Shakir,WR,31.259622672290725,initial draft pick 168
+5,1466,Travis Kelce,TE,51.28302205186828,2025 W17 transaction
+5,4033,David Njoku,TE,45.16765202286344,initial draft pick 63
+5,6865,Colby Parkinson,TE,40.63116072972839,2025 W12 transaction
+5,7523,Trevor Lawrence,QB,525.1723819387895,initial draft pick 15
+5,7543,Travis Etienne,RB,200.43151223796977,initial draft pick 34
+5,9500,Josh Downs,WR,83.75584211533597,initial draft pick 106
+5,9757,Kendre Miller,RB,67.8993569204827,2026 W1 trade
+6,10216,Kenny McIntosh,RB,54.697373659809685,2026 W1 transaction
+6,10219,Chris Rodriguez Jr.,RB,84.548159091132,2025 W10 transaction
+6,11586,Blake Corum,RB,127.67299604020656,2025 W1 transaction
+6,11620,Rome Odunze,WR,221.28883159345665,2024 W5 trade
+6,11627,Troy Franklin,WR,22.000037364588543,2025 W4 trade
+6,12505,Jalen Royals,WR,10.5787952250489,2025 rookie draft pick 28
+6,12517,Colston Loveland,TE,466.00576675191985,2025 rookie draft pick 11
+6,12535,Isaac TeSlaa,WR,25.37596588690893,2025 W1 transaction
+6,12540,Chimere Dike,WR,22.41104086076461,2025 W11 transaction
+6,4984,Josh Allen,QB,771.3983145053332,initial draft pick 1
+6,5967,Tony Pollard,RB,85.37026545600591,initial draft pick 96
+6,6790,D'Andre Swift,RB,125.14396167693134,initial draft pick 72
+6,6801,Tee Higgins,WR,144.9126308027079,2024 W2 trade
+6,6904,Jalen Hurts,QB,506.97766387503657,2025 W11 trade
+6,7528,Najee Harris,RB,69.39493088835175,2025 W12 transaction
+6,8134,Khalil Shakir,WR,26.853915044463996,initial draft pick 168
 6,8259,Cameron Dicker,K,0,2025 W12 transaction
-6,9221,Jahmyr Gibbs,RB,554.5854141318401,initial draft pick 24
-6,9480,Brenton Strange,TE,93.13453358871374,2025 W1 transaction
-6,9502,Tank Dell,WR,17.88534153288148,initial draft pick 49
-6,9997,Zay Flowers,WR,185.22526885107405,2025 W11 trade
+6,9221,Jahmyr Gibbs,RB,554.4817235169812,initial draft pick 24
+6,9480,Brenton Strange,TE,92.96239125847744,2025 W1 transaction
+6,9502,Tank Dell,WR,18.57274880100541,initial draft pick 49
+6,9997,Zay Flowers,WR,182.6697415018699,2025 W11 trade
 6,JAX,Jacksonville Jaguars,DST,0,2025 W14 transaction
-7,11564,Drake Maye,QB,681.4120806881874,2024 W8 trade
-7,11603,AJ Barner,TE,76.42987484800803,2025 W11 transaction
-7,11618,Jalen McMillan,WR,34.488656326822486,2024 W11 transaction
-7,11637,Keon Coleman,WR,24.411862916765394,2024 rookie draft pick 13
-7,12457,Jaydon Blue,RB,77.73744152293509,2025 rookie draft pick 29
-7,12492,Pat Bryant,WR,22.14735274640975,2025 rookie draft pick 30
-7,12493,Oronde Gadsden,TE,255.45922084857463,2025 W6 transaction
-7,12498,Mason Taylor,TE,107.00189329801778,2025 rookie draft pick 25
-7,12547,Kyle Williams,WR,23.091822067866776,2025 W17 transaction
-7,4034,Christian McCaffrey,RB,228.90595028309932,2024 W11 trade
-7,5846,DK Metcalf,WR,66.03957836675197,2025 W1 trade
-7,5859,A.J. Brown,WR,133.387035504064,2025 W4 trade
-7,6797,Justin Herbert,QB,561.2816425480503,initial draft pick 12
-7,7021,Rico Dowdle,RB,100.36427044950408,initial draft pick 205
+7,11564,Drake Maye,QB,681.9243853120661,2024 W8 trade
+7,11603,AJ Barner,TE,76.47557207351939,2025 W11 transaction
+7,11618,Jalen McMillan,WR,31.949824455543467,2024 W11 transaction
+7,11637,Keon Coleman,WR,24.03397900458142,2024 rookie draft pick 13
+7,12457,Jaydon Blue,RB,77.84717647876775,2025 rookie draft pick 29
+7,12492,Pat Bryant,WR,22.20110197544875,2025 rookie draft pick 30
+7,12493,Oronde Gadsden,TE,250.4868635445546,2025 W6 transaction
+7,12498,Mason Taylor,TE,92.48486698222436,2025 rookie draft pick 25
+7,12547,Kyle Williams,WR,23.12113497984348,2025 W17 transaction
+7,4034,Christian McCaffrey,RB,221.03659289850427,2024 W11 trade
+7,5846,DK Metcalf,WR,64.88228048497044,2025 W1 trade
+7,5859,A.J. Brown,WR,133.4270568360165,2025 W4 trade
+7,6797,Justin Herbert,QB,557.3204785592067,initial draft pick 12
+7,7021,Rico Dowdle,RB,95.85476259187053,initial draft pick 205
 7,7839,Evan McPherson,K,0,2025 W12 transaction
-7,8150,Kyren Williams,RB,255.7687894023685,2025 W11 trade
-7,8161,Malik Willis,QB,322.61404274643564,2025 W17 transaction
-7,9487,Parker Washington,WR,93.98223550175112,2025 W9 transaction
-7,9488,Jaxon Smith-Njigba,WR,475.05974060348024,2025 W5 trade
-7,9493,Puka Nacua,WR,417.3232284939491,2024 W1 trade
-7,9504,Kayshon Boutte,WR,19.61502794119256,2025 W11 trade
-7,9509,Bijan Robinson,RB,560.5858266338297,initial draft pick 13
+7,8150,Kyren Williams,RB,256.25541004661966,2025 W11 trade
+7,8161,Malik Willis,QB,298.4069568249822,2025 W17 transaction
+7,9487,Parker Washington,WR,93.95762035037257,2025 W9 transaction
+7,9488,Jaxon Smith-Njigba,WR,475.3564446727384,2025 W5 trade
+7,9493,Puka Nacua,WR,421.4758164604866,2024 W1 trade
+7,9504,Kayshon Boutte,WR,19.772178115533553,2025 W11 trade
+7,9509,Bijan Robinson,RB,560.6155738261543,initial draft pick 13
 7,NO,New Orleans Saints,DST,0,2025 W7 transaction
-8,10232,Michael Wilson,WR,71.99804346783154,2025 W11 transaction
-8,10236,Dalton Kincaid,TE,87.0776574855235,2025 W11 trade
+8,10232,Michael Wilson,WR,57.87778465294502,2025 W11 transaction
+8,10236,Dalton Kincaid,TE,87.27895898251846,2025 W11 trade
 8,11539,Jake Bates,K,0,2025 W8 transaction
-8,11563,Bo Nix,QB,503.95775970208626,2024 W9 trade
-8,11626,Xavier Legette,WR,13.738619874659992,2025 W5 transaction
-8,12482,Savion Williams,WR,11.074126116825774,2025 W1 transaction
-8,12489,RJ Harvey,RB,159.31329814239808,2025 rookie draft pick 12
-8,12503,Isaiah Bond,WR,15.875537780811142,2025 W1 transaction
-8,12507,Omarion Hampton,RB,471.7138390494029,2025 rookie draft pick 4
-8,12508,Jaxson Dart,QB,575.031278692523,2025 W2 transaction
-8,12511,Will Howard,QB,161.3711710371391,2026 W1 transaction
-8,12519,Luther Burden,WR,298.5374298348653,2025 rookie draft pick 18
-8,12533,Jacory Croskey-Merritt,RB,98.91660223184972,2025 W11 trade
-8,3257,Jacoby Brissett,QB,137.54745202836972,2025 W9 transaction
-8,5844,T.J. Hockenson,TE,66.46048837279706,initial draft pick 43
-8,7090,Darnell Mooney,WR,14.482404888030562,2025 W11 transaction
-8,7594,Chuba Hubbard,RB,109.249419398073,initial draft pick 126
-8,8132,Tyler Allgeier,RB,86.89607671024227,initial draft pick 163
-8,8136,Rachaad White,RB,83.48035454618801,initial draft pick 54
-8,9229,Anthony Richardson,QB,158.70474541668884,initial draft pick 19
-8,9753,Zach Charbonnet,RB,140.13554184620494,initial draft pick 102
-8,9756,Jordan Addison,WR,156.89692851400804,initial draft pick 67
+8,11563,Bo Nix,QB,506.8495718354614,2024 W9 trade
+8,11626,Xavier Legette,WR,13.984999167121858,2025 W5 transaction
+8,12482,Savion Williams,WR,11.063620853427883,2025 W1 transaction
+8,12489,RJ Harvey,RB,159.32716153138466,2025 rookie draft pick 12
+8,12503,Isaiah Bond,WR,15.808954474195108,2025 W1 transaction
+8,12507,Omarion Hampton,RB,471.5155312536614,2025 rookie draft pick 4
+8,12508,Jaxson Dart,QB,575.2171997956438,2025 W2 transaction
+8,12511,Will Howard,QB,151.1666484086203,2026 W1 transaction
+8,12519,Luther Burden,WR,293.06932401699936,2025 rookie draft pick 18
+8,12533,Jacory Croskey-Merritt,RB,98.58575817374992,2025 W11 trade
+8,3257,Jacoby Brissett,QB,137.61857281986482,2025 W9 transaction
+8,5844,T.J. Hockenson,TE,66.32726864505386,initial draft pick 43
+8,7090,Darnell Mooney,WR,15.026869648656628,2025 W11 transaction
+8,7594,Chuba Hubbard,RB,108.93329250614174,initial draft pick 126
+8,8132,Tyler Allgeier,RB,87.1689836197636,initial draft pick 163
+8,8136,Rachaad White,RB,85.4852596461176,initial draft pick 54
+8,9229,Anthony Richardson,QB,159.0312212780293,initial draft pick 19
+8,9753,Zach Charbonnet,RB,139.80399219136984,initial draft pick 102
+8,9756,Jordan Addison,WR,134.06509953920187,initial draft pick 67
 8,DEN,Denver Broncos,DST,0,2024 W8 trade
-9,11559,Michael Penix Jr.,QB,195.86282439960175,2024 rookie draft pick 15
-9,11560,Caleb Williams,QB,601.871772012899,2024 W11 trade
-9,11597,Theo Johnson,TE,65.62760458345097,2025 W5 transaction
-9,11624,Xavier Worthy,WR,74.40322182053536,2025 W11 trade
-9,11632,Malik Nabers,WR,375.8384651829342,2024 rookie draft pick 3
-9,12474,Woody Marks,RB,101.7622236081702,2025 W11 trade
-9,12481,Cam Skattebo,RB,288.209343389141,2025 rookie draft pick 13
-9,12487,Terrance Ferguson,TE,80.51591313956527,2025 W17 transaction
-9,12522,Cameron Ward,QB,443.7352472941681,2025 rookie draft pick 1
-9,12534,Kyle Monangai,RB,168.22824954984952,2025 W1 transaction
-9,1373,Geno Smith,QB,124.3934436269973,2026 W1 transaction
+9,11559,Michael Penix Jr.,QB,195.80463522265345,2024 rookie draft pick 15
+9,11560,Caleb Williams,QB,600.4997011374435,2024 W11 trade
+9,11597,Theo Johnson,TE,67.85168139414316,2025 W5 transaction
+9,11624,Xavier Worthy,WR,74.44949698102337,2025 W11 trade
+9,11632,Malik Nabers,WR,376.30632108856906,2024 rookie draft pick 3
+9,12474,Woody Marks,RB,98.4308054171481,2025 W11 trade
+9,12481,Cam Skattebo,RB,290.6473414521445,2025 rookie draft pick 13
+9,12487,Terrance Ferguson,TE,80.86967825762531,2025 W17 transaction
+9,12522,Cameron Ward,QB,437.3633621626905,2025 rookie draft pick 1
+9,12534,Kyle Monangai,RB,168.24133973476737,2025 W1 transaction
+9,1373,Geno Smith,QB,124.34834995497712,2026 W1 transaction
 9,3451,Ka'imi Fairbairn,K,0,2025 W11 transaction
-9,4037,Chris Godwin,WR,23.186120971058912,initial draft pick 99
-9,4199,Aaron Jones,RB,68.1065363922176,2025 W11 trade
-9,5012,Mark Andrews,TE,50.51805726332033,2025 W9 trade
-9,8110,Jake Ferguson,TE,83.68526889958531,2024 W13 transaction
-9,8146,Garrett Wilson,WR,207.58222069653192,2025 W11 trade
-9,8228,Jaylen Warren,RB,99.64623193030454,2024 W10 trade
-9,8408,Jordan Mason,RB,81.43894128794363,2025 W1 transaction
-9,8676,Rashid Shaheed,WR,22.627202150840635,initial draft pick 171
+9,4037,Chris Godwin,WR,25.0190847393163,initial draft pick 99
+9,4199,Aaron Jones,RB,68.09016161806929,2025 W11 trade
+9,5012,Mark Andrews,TE,50.520504031863766,2025 W9 trade
+9,8110,Jake Ferguson,TE,83.67532118425693,2024 W13 transaction
+9,8146,Garrett Wilson,WR,206.2623071618613,2025 W11 trade
+9,8228,Jaylen Warren,RB,99.59185426666316,2024 W10 trade
+9,8408,Jordan Mason,RB,81.19126781081484,2025 W1 transaction
+9,8676,Rashid Shaheed,WR,22.723644202003776,initial draft pick 171
 9,SEA,Seattle Seahawks,DST,0,2025 W9 transaction
 10,11533,Brandon Aubrey,K,0,initial draft
-10,11566,Jayden Daniels,QB,591.3529830693634,2024 rookie draft pick 4
-10,12499,Elic Ayomanor,WR,22.97895698549311,2025 rookie draft pick 34
-10,12512,Quinshon Judkins,RB,394.4704348320918,2025 rookie draft pick 10
-10,2133,Davante Adams,WR,62.484134177153635,initial draft pick 69
-10,2307,Marcus Mariota,QB,107.6103069138195,2025 W3 transaction
+10,11566,Jayden Daniels,QB,591.9573563080214,2024 rookie draft pick 4
+10,12499,Elic Ayomanor,WR,23.80186048040616,2025 rookie draft pick 34
+10,12512,Quinshon Judkins,RB,392.1819352603021,2025 rookie draft pick 10
+10,2133,Davante Adams,WR,60.81717628384782,initial draft pick 69
+10,2307,Marcus Mariota,QB,107.57963536555556,2025 W3 transaction
 10,2747,Jason Myers,K,0,2025 W10 transaction
-10,3321,Tyreek Hill,WR,11.948173389485682,initial draft pick 21
-10,4035,Alvin Kamara,RB,65.08106639982559,2024 W11 trade
-10,4217,George Kittle,TE,94.25477560942336,initial draft pick 52
-10,5947,Jakobi Meyers,WR,28.409016986177523,initial draft pick 148
-10,7567,Kenneth Gainwell,RB,84.68922800993533,2025 W9 transaction
-10,7591,Justin Fields,QB,151.052884767297,initial draft pick 28
-10,8121,Romeo Doubs,WR,29.48392255147562,2025 W1 transaction
-10,8144,Chris Olave,WR,198.81032383754865,2025 W5 trade
-10,8167,Christian Watson,WR,60.58389326057471,initial draft pick 93
-10,8205,Isiah Pacheco,RB,79.25667160868656,initial draft pick 45
-10,8225,Daniel Bellinger,TE,34.61988936106899,2025 W17 transaction
+10,3321,Tyreek Hill,WR,12.019719464552276,initial draft pick 21
+10,4035,Alvin Kamara,RB,67.03290768576531,2024 W11 trade
+10,4217,George Kittle,TE,94.32943364833592,initial draft pick 52
+10,5947,Jakobi Meyers,WR,28.499096672920185,initial draft pick 148
+10,7567,Kenneth Gainwell,RB,84.73931386117393,2025 W9 transaction
+10,7591,Justin Fields,QB,149.75357018747238,initial draft pick 28
+10,8121,Romeo Doubs,WR,27.567502552767323,2025 W1 transaction
+10,8144,Chris Olave,WR,178.79135847268188,2025 W5 trade
+10,8167,Christian Watson,WR,59.871001211212835,initial draft pick 93
+10,8205,Isiah Pacheco,RB,79.86768803756493,initial draft pick 45
+10,8225,Daniel Bellinger,TE,34.39247330752022,2025 W17 transaction
 10,8413,Chris Oladokun,QB,0,2025 W17 transaction
-10,9758,C.J. Stroud,QB,451.15462146772256,initial draft pick 4
+10,9758,C.J. Stroud,QB,451.6535192895941,initial draft pick 4
 10,KC,Kansas City Chiefs,DST,0,2024 W1 transaction
 10,PHI,Philadelphia Eagles,DST,0,2024 W6 transaction
-11,10213,Tre Tucker,WR,20.770593245525472,2025 W2 transaction
-11,11631,Brian Thomas Jr.,WR,249.3297447506938,2024 rookie draft pick 12
-11,12469,Dylan Sampson,RB,133.78520802392924,2025 W12 transaction
-11,12490,Bhayshul Tuten,RB,218.0864429503169,2025 rookie draft pick 26
-11,12530,Travis Hunter,WR,82.71906545615869,2025 rookie draft pick 2
+11,10213,Tre Tucker,WR,20.06910622747553,2025 W2 transaction
+11,11631,Brian Thomas Jr.,WR,251.0030723013263,2024 rookie draft pick 12
+11,12469,Dylan Sampson,RB,127.29817476538491,2025 W12 transaction
+11,12490,Bhayshul Tuten,RB,200.5813498679873,2025 rookie draft pick 26
+11,12530,Travis Hunter,WR,80.25790166433887,2025 rookie draft pick 2
 11,2020,Cairo Santos,K,0,2025 W10 transaction
-11,2374,Tyler Lockett,WR,7.4393711169374415,2025 W11 transaction
-11,3214,Hunter Henry,TE,38.045878938360865,2025 W1 trade
-11,4066,Evan Engram,TE,30.90668097169488,2025 W14 transaction
-11,4137,James Conner,RB,60.28766062300981,2025 W1 trade
-11,4881,Lamar Jackson,QB,617.4474976444087,initial draft pick 9
-11,6819,Michael Pittman Jr.,WR,49.81647347179145,initial draft pick 40
-11,7049,Jauan Jennings,WR,20.568565918676324,2024 W11 trade
-11,7526,Jaylen Waddle,WR,139.84876548789933,initial draft pick 33
-11,7611,Rhamondre Stevenson,RB,94.01251040627248,initial draft pick 105
-11,8147,John Metchie III,WR,7.434275778563513,2025 W12 transaction
-11,8148,Jameson Williams,WR,185.84584731418943,initial draft pick 112
-11,8155,Breece Hall,RB,284.1030712806376,initial draft pick 16
-11,9484,Tucker Kraft,TE,311.4648702104482,initial draft pick 177
+11,2374,Tyler Lockett,WR,0,2025 W11 transaction
+11,3214,Hunter Henry,TE,37.769633884648485,2025 W1 trade
+11,4066,Evan Engram,TE,30.581987586405752,2025 W14 transaction
+11,4137,James Conner,RB,60.30894136375083,2025 W1 trade
+11,4881,Lamar Jackson,QB,613.0995586554853,initial draft pick 9
+11,6819,Michael Pittman Jr.,WR,40.499195949373565,initial draft pick 40
+11,7049,Jauan Jennings,WR,20.52660203247174,2024 W11 trade
+11,7526,Jaylen Waddle,WR,140.0553080619107,initial draft pick 33
+11,7611,Rhamondre Stevenson,RB,94.03534002178144,initial draft pick 105
+11,8147,John Metchie III,WR,6.697445181936773,2025 W12 transaction
+11,8148,Jameson Williams,WR,189.04317251191856,initial draft pick 112
+11,8155,Breece Hall,RB,278.72565478639433,initial draft pick 16
+11,9484,Tucker Kraft,TE,310.98564196233326,initial draft pick 177
 11,GB,Green Bay Packers,DST,0,2024 W11 transaction
 11,LAR,Los Angeles Rams,DST,0,2025 W1 transaction
-12,10229,Rashee Rice,WR,175.7373426136064,initial draft pick 42
-12,10859,Sam LaPorta,TE,302.8562209590044,initial draft pick 7
-12,11583,Jonathon Brooks,RB,119.8177362531096,2024 rookie draft pick 10
+12,10229,Rashee Rice,WR,169.7889642097554,initial draft pick 42
+12,10859,Sam LaPorta,TE,302.0981373181705,initial draft pick 7
+12,11583,Jonathon Brooks,RB,119.95387617147686,2024 rookie draft pick 10
 12,1234,Russell Wilson,QB,0,initial draft pick 138
-12,12455,Brashard Smith,RB,64.41980264179362,2025 W4 transaction
-12,12506,Harold Fannin,TE,407.83216160785446,2025 rookie draft pick 33
-12,12529,TreVeyon Henderson,RB,337.5496403278465,2025 rookie draft pick 9
-12,12536,Jaylin Noel,WR,25.264312230621265,2025 rookie draft pick 24
-12,12545,Tyler Shough,QB,372.9734414330288,2025 rookie draft pick 21
+12,12455,Brashard Smith,RB,64.41107691800632,2025 W4 transaction
+12,12506,Harold Fannin,TE,407.6686596632601,2025 rookie draft pick 33
+12,12529,TreVeyon Henderson,RB,338.31655317867643,2025 rookie draft pick 9
+12,12536,Jaylin Noel,WR,22.59608440726147,2025 rookie draft pick 24
+12,12545,Tyler Shough,QB,363.7186407635109,2025 rookie draft pick 21
 12,1945,Chris Boswell,K,0,2025 W1 transaction
-12,2449,Stefon Diggs,WR,14.402835976799826,2025 W1 trade
-12,3198,Derrick Henry,RB,145.26164745543014,initial draft pick 90
+12,2449,Stefon Diggs,WR,14.404050073371202,2025 W1 trade
+12,3198,Derrick Henry,RB,147.70206517874658,initial draft pick 90
 12,4227,Harrison Butker,K,0,2025 W1 transaction
-12,4866,Saquon Barkley,RB,202.7224409496647,initial draft pick 31
-12,4892,Baker Mayfield,QB,329.51090023293796,initial draft pick 79
-12,4981,Calvin Ridley,WR,9.156114221098631,initial draft pick 103
-12,5850,Josh Jacobs,RB,191.87842279526112,initial draft pick 55
-12,6804,Jordan Love,QB,432.8253657537308,initial draft pick 18
-12,8126,Wan'Dale Robinson,WR,83.76093778411175,initial draft pick 162
-12,8137,George Pickens,WR,278.7832943340646,initial draft pick 66
+12,4866,Saquon Barkley,RB,212.11247479855405,initial draft pick 31
+12,4892,Baker Mayfield,QB,342.8145227474939,initial draft pick 79
+12,4981,Calvin Ridley,WR,9.225437013203756,initial draft pick 103
+12,5850,Josh Jacobs,RB,191.7955370411402,initial draft pick 55
+12,6804,Jordan Love,QB,427.8816979805015,initial draft pick 18
+12,8126,Wan'Dale Robinson,WR,89.04591272502155,initial draft pick 162
+12,8137,George Pickens,WR,272.16447951640856,initial draft pick 66
 12,CLE,Cleveland Browns,DST,0,2025 W5 transaction
 12,PIT,Pittsburgh Steelers,DST,0,2024 W2 transaction
-1,NA,2027 1R Draft Pick,SFOControl,307.54519356567715,2025 W3 trade
-3,NA,2027 1R Draft Pick,lukestip,278.4563563957498,own pick
-4,NA,2027 1R Draft Pick,Arvs,309.7468705408681,2024 W10 trade
-5,NA,2027 1R Draft Pick,ngernenz,367.7192695681713,own pick
-5,NA,2027 1R Draft Pick,joeburrowmvp,263.3231828500598,2025 W11 trade
-6,NA,2027 1R Draft Pick,jzeigboi,289.7897630493586,own pick
-8,NA,2027 1R Draft Pick,TheJandyStock,261.74838431422376,2024 W9 trade
-9,NA,2027 1R Draft Pick,ElatedBroncosFan,221.60199569584074,2024 W10 trade
-9,NA,2027 1R Draft Pick,caskinner,230.30970554540352,2025 W5 trade
-10,NA,2027 1R Draft Pick,Gretsch0401,346.15371150961585,own pick
-11,NA,2027 1R Draft Pick,akondratieff,320.06848228241023,own pick
-12,NA,2027 1R Draft Pick,LucasBeI,304.2083964689434,2024 W9 trade
-1,NA,2027 2R Draft Pick,joeburrowmvp,127.00063666303274,own pick
-2,NA,2027 2R Draft Pick,SFOControl,144.73480220154852,own pick
-3,NA,2027 2R Draft Pick,lukestip,133.2931648029148,own pick
-4,NA,2027 2R Draft Pick,caskinner,112.58278597422942,own pick
-5,NA,2027 2R Draft Pick,ngernenz,164.4108975981182,own pick
-5,NA,2027 2R Draft Pick,Arvs,145.2898609562596,2025 W11 trade
-6,NA,2027 2R Draft Pick,jzeigboi,137.7929265518865,own pick
-7,NA,2027 2R Draft Pick,LucasBeI,143.22936943442312,2024 W9 trade
-7,NA,2027 2R Draft Pick,ElatedBroncosFan,108.46393277726148,2025 W11 trade
-10,NA,2027 2R Draft Pick,Gretsch0401,157.85103389752513,own pick
-11,NA,2027 2R Draft Pick,akondratieff,148.67766706668263,own pick
-12,NA,2027 2R Draft Pick,TheJandyStock,126.36166736248633,own pick
-1,NA,2027 3R Draft Pick,joeburrowmvp,60.66386903121233,own pick
-2,NA,2027 3R Draft Pick,SFOControl,70.01787348761529,own pick
-3,NA,2027 3R Draft Pick,lukestip,63.95454527780536,own pick
-4,NA,2027 3R Draft Pick,caskinner,53.08644722969212,own pick
-4,NA,2027 3R Draft Pick,LucasBeI,69.29072322647917,2025 W1 trade
-5,NA,2027 3R Draft Pick,ngernenz,81.23698600151427,own pick
-6,NA,2027 3R Draft Pick,jzeigboi,66.29074587113195,own pick
-6,NA,2027 3R Draft Pick,ElatedBroncosFan,50.976544052135864,2025 W4 trade
-7,NA,2027 3R Draft Pick,Arvs,70.38099706218385,2024 W11 trade
-10,NA,2027 3R Draft Pick,Gretsch0401,77.33539019164425,own pick
-11,NA,2027 3R Draft Pick,akondratieff,72.36242189577496,own pick
-12,NA,2027 3R Draft Pick,TheJandyStock,60.269574422014514,own pick
-1,NA,2028 1R Draft Pick,joeburrowmvp,257.02716929207025,own pick
-3,NA,2028 1R Draft Pick,lukestip,271.57121567949474,own pick
-4,NA,2028 1R Draft Pick,caskinner,231.7545177013186,own pick
-5,NA,2028 1R Draft Pick,ElatedBroncosFan,214.58618779455173,2025 W8 trade
-6,NA,2028 1R Draft Pick,jzeigboi,252.0454987441667,own pick
-7,NA,2028 1R Draft Pick,Arvs,300.2953157139275,2025 W11 trade
-7,NA,2028 1R Draft Pick,ngernenz,298.4196329756362,2025 W8 trade
-7,NA,2028 1R Draft Pick,SFOControl,308.7510707706066,2025 W3 trade
-8,NA,2028 1R Draft Pick,LucasBeI,293.56963228376384,own pick
-10,NA,2028 1R Draft Pick,Gretsch0401,349.0822720056536,own pick
-11,NA,2028 1R Draft Pick,akondratieff,305.0316835495964,own pick
-12,NA,2028 1R Draft Pick,TheJandyStock,243.50354968621957,own pick
-1,NA,2028 2R Draft Pick,joeburrowmvp,123.40149227902937,own pick
-2,NA,2028 2R Draft Pick,SFOControl,142.93654667570195,own pick
-3,NA,2028 2R Draft Pick,lukestip,129.4399529915099,own pick
-4,NA,2028 2R Draft Pick,caskinner,112.73578807430113,own pick
-5,NA,2028 2R Draft Pick,ngernenz,139.40481652743935,own pick
-5,NA,2028 2R Draft Pick,ElatedBroncosFan,104.9483867015856,2025 W11 trade
-6,NA,2028 2R Draft Pick,jzeigboi,121.35012593607856,own pick
-6,NA,2028 2R Draft Pick,Arvs,140.16060876964582,2025 W5 trade
-8,NA,2028 2R Draft Pick,TheJandyStock,117.55517332730263,2025 W1 trade
-10,NA,2028 2R Draft Pick,Gretsch0401,155.98230335929227,own pick
-11,NA,2028 2R Draft Pick,akondratieff,141.7118308854419,own pick
-12,NA,2028 2R Draft Pick,LucasBeI,137.57728249472132,2025 W1 trade
-1,NA,2028 3R Draft Pick,joeburrowmvp,59.07351914453108,own pick
-2,NA,2028 3R Draft Pick,SFOControl,69.61471009729227,own pick
-3,NA,2028 3R Draft Pick,lukestip,62.19640898687652,own pick
-4,NA,2028 3R Draft Pick,caskinner,53.474341514403285,own pick
-5,NA,2028 3R Draft Pick,ngernenz,67.63277391571292,own pick
-5,NA,2028 3R Draft Pick,ElatedBroncosFan,49.439145897167506,2025 W11 trade
-6,NA,2028 3R Draft Pick,jzeigboi,57.97074828078459,own pick
-6,NA,2028 3R Draft Pick,TheJandyStock,56.04045340254106,2025 W11 trade
-9,NA,2028 3R Draft Pick,Arvs,68.02442938140565,own pick
-10,NA,2028 3R Draft Pick,Gretsch0401,77.06731189896217,own pick
-11,NA,2028 3R Draft Pick,akondratieff,68.91132154668671,own pick
-12,NA,2028 3R Draft Pick,LucasBeI,66.62764779537984,2025 W1 trade
-1,NA,2029 1R Draft Pick,joeburrowmvp,249.03885540225392,own pick
-2,NA,2029 1R Draft Pick,SFOControl,303.0207753229162,own pick
-3,NA,2029 1R Draft Pick,lukestip,273.8189817426685,own pick
-4,NA,2029 1R Draft Pick,caskinner,241.16842280615015,own pick
-5,NA,2029 1R Draft Pick,ngernenz,286.8768883865157,own pick
-6,NA,2029 1R Draft Pick,jzeigboi,254.74063576076023,own pick
-7,NA,2029 1R Draft Pick,ElatedBroncosFan,201.24507031005464,own pick
-8,NA,2029 1R Draft Pick,LucasBeI,254.1778369817735,own pick
-9,NA,2029 1R Draft Pick,Arvs,270.805950251049,own pick
-10,NA,2029 1R Draft Pick,Gretsch0401,286.9268488376103,own pick
-11,NA,2029 1R Draft Pick,akondratieff,288.0469708877769,own pick
-12,NA,2029 1R Draft Pick,TheJandyStock,249.48862219762643,own pick
-1,NA,2029 2R Draft Pick,joeburrowmvp,118.84796829846604,own pick
-2,NA,2029 2R Draft Pick,SFOControl,138.5747708793478,own pick
-3,NA,2029 2R Draft Pick,lukestip,128.5891469441508,own pick
-4,NA,2029 2R Draft Pick,caskinner,115.84214321785322,own pick
-5,NA,2029 2R Draft Pick,ngernenz,133.4257802348348,own pick
-6,NA,2029 2R Draft Pick,jzeigboi,121.42500817360545,own pick
-7,NA,2029 2R Draft Pick,ElatedBroncosFan,98.45189060544372,own pick
-8,NA,2029 2R Draft Pick,LucasBeI,120.99152820292069,own pick
-9,NA,2029 2R Draft Pick,Arvs,127.3668512049688,own pick
-10,NA,2029 2R Draft Pick,Gretsch0401,132.89160958766564,own pick
-11,NA,2029 2R Draft Pick,akondratieff,133.43212829358853,own pick
-12,NA,2029 2R Draft Pick,TheJandyStock,119.00526697810179,own pick
-1,NA,2029 3R Draft Pick,joeburrowmvp,57.065042306229664,own pick
-2,NA,2029 3R Draft Pick,SFOControl,67.85932089130453,own pick
-3,NA,2029 3R Draft Pick,lukestip,62.18337427340099,own pick
-4,NA,2029 3R Draft Pick,caskinner,55.36628810901963,own pick
-5,NA,2029 3R Draft Pick,ngernenz,64.79840758308572,own pick
-6,NA,2029 3R Draft Pick,jzeigboi,58.304089103425525,own pick
-7,NA,2029 3R Draft Pick,ElatedBroncosFan,46.25876875068095,own pick
-8,NA,2029 3R Draft Pick,LucasBeI,58.161420052870135,own pick
-9,NA,2029 3R Draft Pick,Arvs,61.57187679900267,own pick
-10,NA,2029 3R Draft Pick,Gretsch0401,64.6692610573904,own pick
-11,NA,2029 3R Draft Pick,akondratieff,64.93000234050261,own pick
-12,NA,2029 3R Draft Pick,TheJandyStock,57.10132000174361,own pick
+1,NA,2027 1R Draft Pick,SFOControl,307.1748358946779,2025 W3 trade
+3,NA,2027 1R Draft Pick,lukestip,279.91358467425397,own pick
+4,NA,2027 1R Draft Pick,Arvs,312.42505048098775,2024 W10 trade
+5,NA,2027 1R Draft Pick,ngernenz,368.3860309135267,own pick
+5,NA,2027 1R Draft Pick,joeburrowmvp,263.6282599850679,2025 W11 trade
+6,NA,2027 1R Draft Pick,jzeigboi,288.90839043729875,own pick
+8,NA,2027 1R Draft Pick,TheJandyStock,257.4530568915285,2024 W9 trade
+9,NA,2027 1R Draft Pick,ElatedBroncosFan,221.66356325880923,2024 W10 trade
+9,NA,2027 1R Draft Pick,caskinner,229.37172776527206,2025 W5 trade
+10,NA,2027 1R Draft Pick,Gretsch0401,347.99018164404583,own pick
+11,NA,2027 1R Draft Pick,akondratieff,318.8890989665998,own pick
+12,NA,2027 1R Draft Pick,LucasBeI,304.8675308742539,2024 W9 trade
+1,NA,2027 2R Draft Pick,joeburrowmvp,127.01026308518054,own pick
+2,NA,2027 2R Draft Pick,SFOControl,144.65504739948844,own pick
+3,NA,2027 2R Draft Pick,lukestip,134.0041503207426,own pick
+4,NA,2027 2R Draft Pick,caskinner,112.18357704503114,own pick
+5,NA,2027 2R Draft Pick,ngernenz,164.63136635706707,own pick
+5,NA,2027 2R Draft Pick,Arvs,146.33741179533004,2025 W11 trade
+6,NA,2027 2R Draft Pick,jzeigboi,137.47004771899964,own pick
+7,NA,2027 2R Draft Pick,LucasBeI,143.43235494663023,2024 W9 trade
+7,NA,2027 2R Draft Pick,ElatedBroncosFan,108.52503978872491,2025 W11 trade
+10,NA,2027 2R Draft Pick,Gretsch0401,158.50305162600526,own pick
+11,NA,2027 2R Draft Pick,akondratieff,148.40697636246745,own pick
+12,NA,2027 2R Draft Pick,TheJandyStock,124.52945884070111,own pick
+1,NA,2027 3R Draft Pick,joeburrowmvp,60.69570072729852,own pick
+2,NA,2027 3R Draft Pick,SFOControl,69.95182255201127,own pick
+3,NA,2027 3R Draft Pick,lukestip,64.33521951293557,own pick
+4,NA,2027 3R Draft Pick,caskinner,52.87223650304653,own pick
+4,NA,2027 3R Draft Pick,LucasBeI,69.41738197861342,2025 W1 trade
+5,NA,2027 3R Draft Pick,ngernenz,81.36891292955855,own pick
+6,NA,2027 3R Draft Pick,jzeigboi,66.11875549947518,own pick
+6,NA,2027 3R Draft Pick,ElatedBroncosFan,50.998662190462454,2025 W4 trade
+7,NA,2027 3R Draft Pick,Arvs,70.9361632109289,2024 W11 trade
+10,NA,2027 3R Draft Pick,Gretsch0401,77.69954945179799,own pick
+11,NA,2027 3R Draft Pick,akondratieff,72.14023212408074,own pick
+12,NA,2027 3R Draft Pick,TheJandyStock,59.33148106899483,own pick
+1,NA,2028 1R Draft Pick,joeburrowmvp,255.49672921862725,own pick
+3,NA,2028 1R Draft Pick,lukestip,272.10306061185923,own pick
+4,NA,2028 1R Draft Pick,caskinner,229.53834892548002,own pick
+5,NA,2028 1R Draft Pick,ElatedBroncosFan,215.4546622240186,2025 W8 trade
+6,NA,2028 1R Draft Pick,jzeigboi,251.28341667231805,own pick
+7,NA,2028 1R Draft Pick,Arvs,300.35091804655593,2025 W11 trade
+7,NA,2028 1R Draft Pick,ngernenz,296.81311930426415,2025 W8 trade
+7,NA,2028 1R Draft Pick,SFOControl,309.94208125118416,2025 W3 trade
+8,NA,2028 1R Draft Pick,LucasBeI,296.1549645158588,own pick
+10,NA,2028 1R Draft Pick,Gretsch0401,346.86341430382106,own pick
+11,NA,2028 1R Draft Pick,akondratieff,309.4682635092034,own pick
+12,NA,2028 1R Draft Pick,TheJandyStock,242.1687676138154,own pick
+1,NA,2028 2R Draft Pick,joeburrowmvp,122.75294002718445,own pick
+2,NA,2028 2R Draft Pick,SFOControl,143.42838199462958,own pick
+3,NA,2028 2R Draft Pick,lukestip,129.67141518650922,own pick
+4,NA,2028 2R Draft Pick,caskinner,111.82660325310906,own pick
+5,NA,2028 2R Draft Pick,ngernenz,138.6948572681226,own pick
+5,NA,2028 2R Draft Pick,ElatedBroncosFan,105.31379300475399,2025 W11 trade
+6,NA,2028 2R Draft Pick,jzeigboi,121.16162027752482,own pick
+6,NA,2028 2R Draft Pick,Arvs,140.23944997118144,2025 W5 trade
+8,NA,2028 2R Draft Pick,TheJandyStock,117.06368318973672,2025 W1 trade
+10,NA,2028 2R Draft Pick,Gretsch0401,155.28446451662296,own pick
+11,NA,2028 2R Draft Pick,akondratieff,143.23426758491215,own pick
+12,NA,2028 2R Draft Pick,LucasBeI,138.53283174776288,2025 W1 trade
+1,NA,2028 3R Draft Pick,joeburrowmvp,58.72478066399643,own pick
+2,NA,2028 3R Draft Pick,SFOControl,69.84872931284546,own pick
+3,NA,2028 3R Draft Pick,lukestip,62.36723097684651,own pick
+4,NA,2028 3R Draft Pick,caskinner,52.9725414138729,own pick
+5,NA,2028 3R Draft Pick,ngernenz,67.26330817474798,own pick
+5,NA,2028 3R Draft Pick,ElatedBroncosFan,49.62131414212199,2025 W11 trade
+6,NA,2028 3R Draft Pick,jzeigboi,57.870983275656215,own pick
+6,NA,2028 3R Draft Pick,TheJandyStock,55.785156109102005,2025 W11 trade
+9,NA,2028 3R Draft Pick,Arvs,68.05077590573823,own pick
+10,NA,2028 3R Draft Pick,Gretsch0401,76.67754070464126,own pick
+11,NA,2028 3R Draft Pick,akondratieff,69.74173202961948,own pick
+12,NA,2028 3R Draft Pick,LucasBeI,67.1487191525552,2025 W1 trade
+1,NA,2029 1R Draft Pick,joeburrowmvp,249.35491277101784,own pick
+2,NA,2029 1R Draft Pick,SFOControl,305.2400716333846,own pick
+3,NA,2029 1R Draft Pick,lukestip,273.1008602823635,own pick
+4,NA,2029 1R Draft Pick,caskinner,239.91016414334055,own pick
+5,NA,2029 1R Draft Pick,ngernenz,285.2984090846329,own pick
+6,NA,2029 1R Draft Pick,jzeigboi,253.89809088332504,own pick
+7,NA,2029 1R Draft Pick,ElatedBroncosFan,201.11358643133673,own pick
+8,NA,2029 1R Draft Pick,LucasBeI,255.44752660163473,own pick
+9,NA,2029 1R Draft Pick,Arvs,271.48856966672275,own pick
+10,NA,2029 1R Draft Pick,Gretsch0401,286.7045619474444,own pick
+11,NA,2029 1R Draft Pick,akondratieff,287.8314452262745,own pick
+12,NA,2029 1R Draft Pick,TheJandyStock,249.96766021567802,own pick
+1,NA,2029 2R Draft Pick,joeburrowmvp,119.07309135086386,own pick
+2,NA,2029 2R Draft Pick,SFOControl,139.30611043747274,own pick
+3,NA,2029 2R Draft Pick,lukestip,128.29778498407967,own pick
+4,NA,2029 2R Draft Pick,caskinner,115.41278056677038,own pick
+5,NA,2029 2R Draft Pick,ngernenz,132.7035469226044,own pick
+6,NA,2029 2R Draft Pick,jzeigboi,121.010571719394,own pick
+7,NA,2029 2R Draft Pick,ElatedBroncosFan,98.3961512085461,own pick
+8,NA,2029 2R Draft Pick,LucasBeI,121.39853814418237,own pick
+9,NA,2029 2R Draft Pick,Arvs,127.61424823621742,own pick
+10,NA,2029 2R Draft Pick,Gretsch0401,132.87718692232917,own pick
+11,NA,2029 2R Draft Pick,akondratieff,133.50188554269025,own pick
+12,NA,2029 2R Draft Pick,TheJandyStock,119.25219658579694,own pick
+1,NA,2029 3R Draft Pick,joeburrowmvp,57.13849512396225,own pick
+2,NA,2029 3R Draft Pick,SFOControl,68.2735426829951,own pick
+3,NA,2029 3R Draft Pick,lukestip,62.053074187250424,own pick
+4,NA,2029 3R Draft Pick,caskinner,55.10961202082889,own pick
+5,NA,2029 3R Draft Pick,ngernenz,64.43805510968895,own pick
+6,NA,2029 3R Draft Pick,jzeigboi,58.114761437586246,own pick
+7,NA,2029 3R Draft Pick,ElatedBroncosFan,46.26959131539555,own pick
+8,NA,2029 3R Draft Pick,LucasBeI,58.37865900987621,own pick
+9,NA,2029 3R Draft Pick,Arvs,61.70947942536768,own pick
+10,NA,2029 3R Draft Pick,Gretsch0401,64.64318103252216,own pick
+11,NA,2029 3R Draft Pick,akondratieff,64.92777380003092,own pick
+12,NA,2029 3R Draft Pick,TheJandyStock,57.21294612315208,own pick
 1,NA,2030 1R Draft Pick,joeburrowmvp,0,own pick
 2,NA,2030 1R Draft Pick,SFOControl,0,own pick
 3,NA,2030 1R Draft Pick,lukestip,0,own pick

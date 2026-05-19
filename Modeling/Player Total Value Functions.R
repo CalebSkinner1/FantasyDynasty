@@ -94,7 +94,7 @@ compile_data_set <- function(
   # number of days since the season ended (in years)
   days_past_season_start <- if_else(
     date > season_start,
-    time_length(interval(season_start, date), unit = "years"),
+    time_length(lubridate::interval(season_start, date), unit = "years"),
     0
   )
 
@@ -102,7 +102,11 @@ compile_data_set <- function(
     left_join(keep_trade_cut, by = join_by(name)) %>%
     mutate(
       # this is supposed to represent the values at the end of last season (hence the minus 1)
-      age = time_length(interval(birth_date, season_start), unit = "years") - 1,
+      age = time_length(
+        lubridate::interval(birth_date, season_start),
+        unit = "years"
+      ) -
+        1,
       age = age + days_past_season_start * day_multiplier,
       season = season,
       ktc_value = replace_na(ktc_value, 0)
@@ -585,7 +589,7 @@ future_value_over_time <- function(
 
   # this is my arbitrary cutoff to include rookies
   diff <- time_length(
-    interval(date, ymd(str_c(year(today()), "-03-01"))),
+    lubridate::interval(date, ymd(str_c(year(today()), "-03-01"))),
     unit = "year"
   ) %>%
     floor()
