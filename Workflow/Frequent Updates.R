@@ -37,7 +37,7 @@ source(here::here("Scripts", "History.R"))
 # Relocate Files to be accessed by website
 source(here::here("Scripts", "Relocate Files.R"))
 
-rstudioapi::restartSession() #clear memory
+rstudioapi::restartSession() # clear memory
 
 if (interactive()) {
   setwd(here::here("Shiny"))
