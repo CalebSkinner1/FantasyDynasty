@@ -3,6 +3,7 @@
 suppressPackageStartupMessages({
   library("here")
   library("bundle")
+  library("face")
 })
 
 message("begin computing Player Total Value...")
@@ -39,7 +40,7 @@ future_value_names <- map_dfr(ktc_list, name_correction) %>%
   ) |>
   drop_na()
 
-write_csv(future_value_names, here("Data/future_value_names.csv"))
+# write_csv(future_value_names, here("Data/future_value_names.csv"))
 
 # organize data sets
 ktc_begin_end_dates <- list(
@@ -53,6 +54,8 @@ ktc_begin_end_dates <- list(
   )
 ) # push back as far as possible
 
+# build dataset ----------------------------------------------------------
+
 hktc_data <- map_dfr(
   ktc_begin_end_dates,
   ~ compile_training_data(
@@ -62,6 +65,319 @@ hktc_data <- map_dfr(
     post_ktc_date = .x$post_ktc_date
   )
 )
+
+players_2024 <- season_value_added |>
+  filter(season == 2024, !(position %in% c("K", "DST"))) |>
+  bind_rows(hktc_data |> filter(season == 2024)) |>
+  distinct(name) |>
+  pull(name)
+players_2025 <- season_value_added |>
+  filter(season == 2025, !(position %in% c("K", "DST"))) |>
+  bind_rows(hktc_data |> filter(season == 2025)) |>
+  distinct(name) |>
+  pull(name)
+only_2025 <- setdiff(players_2025, players_2024)
+
+empty_2024 <- hktc_data |>
+  filter(
+    season == 2024,
+    !(name %in% pull(season_value_added |> filter(season == 2024), name))
+  ) |>
+  rename(total_value_added = tva_adj) |>
+  select(name, season, age, position, total_value_added)
+
+new_rows <- season_value_added |>
+  select(name, season, position, season, total_value_added) |>
+  left_join(player_info, by = join_by(name, position)) |>
+  mutate(
+    age = as.numeric(ktc_begin_end_dates$year1$pre_ktc_date - birth_date) /
+      365.25 +
+      season -
+      2024
+  ) |>
+  select(name, season, age, position, total_value_added) |>
+  bind_rows(empty_2024) |>
+  filter(
+    season == 2024,
+    !(name %in% players_2025),
+    !position %in% c("K", "DST")
+  ) |>
+  mutate(
+    season = season + 1,
+    age = age + 1,
+    position = position,
+    total_value_added = 0
+  )
+
+fpca_data <- season_value_added |>
+  left_join(player_info, by = join_by(name, position)) |>
+  mutate(
+    age = as.numeric(ktc_begin_end_dates$year1$pre_ktc_date - birth_date) /
+      365.25 +
+      season -
+      2024
+  ) |>
+  select(name, season, age, position, total_value_added) |>
+  bind_rows(
+    hktc_data |>
+      filter(season == 2025) |>
+      rename(total_value_added = tva_adj) |>
+      select(name, season, age, position, total_value_added)
+  ) |>
+  filter(!position %in% c("K", "DST")) |>
+  bind_rows(empty_2024) |>
+  bind_rows(new_rows) |>
+  distinct(name, season, .keep_all = TRUE) |>
+  transmute(
+    subj = name,
+    argvals = age,
+    y = total_value_added,
+    position,
+    season
+  ) |>
+  arrange(position, subj, argvals)
+
+fpca_data |> group_by(subj) |> summarize(count = n()) |> filter(count == 1)
+
+fpca_data |> count(position)
+
+fpca_data |>
+  ggplot(aes(argvals, y, group = subj)) +
+  geom_line(alpha = 0.15) +
+  geom_point(alpha = 0.3, size = 0.8) +
+  facet_wrap(~position) +
+  labs(x = "Age", y = "VA (tva_adj)", title = "Raw career points by position")
+
+# Stage 1 ----------------------------------------------------------------
+age_grid <- seq(20, 43, length.out = 100)
+
+fit_fpca_position <- function(pos_data, pve = 0.90, knots = 6, K_cap = 4) {
+  d <- pos_data |>
+    transmute(argvals, subj = factor(subj), y) |>
+    as.data.frame()
+
+  fit <- face.sparse(
+    d,
+    argvals.new = age_grid,
+    knots = knots,
+    pve = pve
+  )
+
+  K <- min(ncol(fit$eigenfunctions), K_cap)
+  fit$eigenfunctions <- fit$eigenfunctions[, 1:K, drop = FALSE]
+  fit$eigenvalues <- fit$eigenvalues[1:K]
+  fit$K <- K
+  fit
+}
+
+positions <- sort(unique(fpca_data$position))
+
+fpca_by_position <- positions |>
+  set_names() |>
+  map(~ fit_fpca_position(filter(fpca_data, position == .x)))
+
+walk(positions, function(p) {
+  fit <- fpca_by_position[[p]]
+  mu_df <- tibble(age = age_grid, mu = fit$mu.new)
+  print(
+    fpca_data %>%
+      filter(position == p) %>%
+      ggplot(aes(argvals, y)) +
+      geom_point(alpha = 0.2) +
+      geom_line(
+        data = mu_df,
+        aes(age, mu),
+        color = "firebrick",
+        linewidth = 1
+      ) +
+      labs(title = paste("Population mean curve --", p), x = "Age", y = "VA")
+  )
+})
+
+map(fpca_by_position, ~ .x$eigenvalues / sum(.x$eigenvalues))
+
+make_mu_fun <- function(fit) {
+  function(a) approx(age_grid, fit$mu.new, xout = a, rule = 2)$y
+}
+
+make_phi_fun <- function(fit) {
+  function(a) {
+    apply(fit$eigenfunctions, 2, function(col) {
+      approx(age_grid, col, xout = a, rule = 2)$y
+    })
+  }
+}
+
+blup_scores <- function(
+  y_obs,
+  ages_obs,
+  mu_fun,
+  phi_fun,
+  prior_mean,
+  prior_var,
+  sigma2
+) {
+  K <- length(prior_mean)
+  Tinv <- diag(1 / prior_var, K)
+
+  if (length(y_obs) == 0) {
+    return(list(mean = prior_mean, cov = diag(prior_var, K)))
+  }
+
+  Phi_i <- matrix(sapply(ages_obs, phi_fun), ncol = K, byrow = TRUE)
+  mu_i <- mu_fun(ages_obs)
+  resid <- y_obs - mu_i
+
+  Sigma_inv <- Tinv + (1 / sigma2) * crossprod(Phi_i)
+  Sigma <- solve(Sigma_inv)
+  post_mean <- Sigma %*%
+    (Tinv %*% prior_mean + (1 / sigma2) * t(Phi_i) %*% resid)
+
+  list(mean = as.vector(post_mean), cov = Sigma)
+}
+
+extract_raw_scores <- function(pos_data, fit) {
+  mu_fun <- make_mu_fun(fit)
+  phi_fun <- make_phi_fun(fit)
+  sigma2 <- fit$sigma2
+
+  pos_data %>%
+    group_by(subj) %>%
+    group_modify(
+      ~ {
+        res <- blup_scores(
+          y_obs = .x$y,
+          ages_obs = .x$argvals,
+          mu_fun = mu_fun,
+          phi_fun = phi_fun,
+          prior_mean = rep(0, fit$K),
+          prior_var = fit$eigenvalues,
+          sigma2 = sigma2
+        )
+        as_tibble(matrix(res$mean, nrow = 1)) %>%
+          set_names(paste0("xi", seq_len(fit$K)))
+      }
+    ) %>%
+    ungroup()
+}
+
+raw_scores_by_position <- positions |>
+  set_names() |>
+  map(
+    ~ extract_raw_scores(
+      filter(fpca_data, position == .x),
+      fpca_by_position[[.x]]
+    )
+  )
+
+# Stage 2 ----------------------------------------------------------------
+
+ktc_lookup <- hktc_data |>
+  transmute(subj = name, season, ktc_in = historical_value)
+
+fit_score_models <- function(pos_data, raw_scores, fit, ktc_lookup) {
+  d <- pos_data |>
+    distinct(subj, season, argvals) |>
+    inner_join(ktc_lookup, by = c("subj", "season")) |>
+    left_join(raw_scores, by = "subj")
+
+  score_models <- map(seq_len(fit$K), function(k) {
+    lm(as.formula(paste0("xi", k, " ~ ktc_in + argvals")), data = d)
+  })
+  names(score_models) <- paste0("xi", seq_len(fit$K))
+
+  tau2 <- map_dbl(seq_len(fit$K), function(k) {
+    pmin(sigma(score_models[[k]])^2, fit$eigenvalues[k])
+  })
+
+  list(models = score_models, tau2 = tau2, n_train = nrow(d))
+}
+
+score_models_by_position <- positions |>
+  set_names() |>
+  map(
+    ~ fit_score_models(
+      filter(fpca_data, position == .x),
+      raw_scores_by_position[[.x]],
+      fpca_by_position[[.x]],
+      ktc_lookup
+    )
+  )
+
+# How much does KTC explain of each mode? (1 - tau2/lambda)
+map(score_models_by_position, "n_train")
+
+# How much does KTC explain of each mode? (1 - tau2/lambda)
+map2(score_models_by_position, fpca_by_position, function(sm, fit) {
+  1 - sm$tau2 / fit$eigenvalues
+})
+
+project_career <- function(
+  position,
+  ktc_in,
+  age_in,
+  history = NULL,
+  ages_out = seq(21, 36, by = 1)
+) {
+  fit <- fpca_by_position[[position]]
+  sm <- score_models_by_position[[position]]
+  mu_fun <- make_mu_fun(fit)
+  phi_fun <- make_phi_fun(fit)
+
+  g_mean <- map_dbl(
+    sm$models,
+    ~ predict(.x, newdata = tibble(ktc_in = ktc_in, argvals = age_in))
+  )
+
+  if (is.null(history) || nrow(history) == 0) {
+    y_obs <- numeric(0)
+    ages_obs <- numeric(0)
+  } else {
+    y_obs <- history$tva_adj
+    ages_obs <- history$age
+  }
+
+  post <- blup_scores(
+    y_obs = y_obs,
+    ages_obs = ages_obs,
+    mu_fun = mu_fun,
+    phi_fun = phi_fun,
+    prior_mean = g_mean,
+    prior_var = sm$tau2,
+    sigma2 = fit$sigma2
+  )
+
+  mu_out <- mu_fun(ages_out)
+  Phi_out <- matrix(sapply(ages_out, phi_fun), ncol = fit$K, byrow = TRUE)
+  pred_va <- as.vector(mu_out + Phi_out %*% post$mean)
+  var_va <- diag(Phi_out %*% post$cov %*% t(Phi_out))
+
+  tibble(
+    age = ages_out,
+    pred_va = pred_va,
+    se = sqrt(pmax(var_va, 0)),
+    lower80 = pred_va - 1.28 * se,
+    upper80 = pred_va + 1.28 * se
+  )
+}
+
+proj_new <- project_career("WR", ktc_in = 8600, age_in = 24.5)
+
+hist_example <- fpca_data |>
+  filter(subj == "Trey Benson") |>
+  select(age = argvals, tva_adj = y)
+
+proj_existing <- project_career(
+  "RB",
+  ktc_in = 2181,
+  age_in = 24,
+  history = hist_example
+)
+
+ggplot(proj_existing, aes(age, pred_va)) +
+  geom_ribbon(aes(ymin = lower80, ymax = upper80), alpha = 0.2) +
+  geom_line(linewidth = 1) +
+  labs(title = "Projected career VA curve", x = "Age", y = "Predicted VA")
 
 # hktc_data_list <- hktc_data %>%
 #   group_by(position) %>%
