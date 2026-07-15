@@ -674,3 +674,198 @@ select_ktc_list <- function(ktc_list, last_date_fvt) {
 
   ktc_list[dates > last_date_fvt]
 }
+
+
+# GP Stuff ---------------------------------------------------------------
+
+fit_fpca_position <- function(pos_data, pve = 0.90, knots = 6, K_cap = 4) {
+  d <- pos_data |>
+    transmute(argvals, subj = factor(subj), y) |>
+    filter(!is.na(argvals), !is.na(y))
+
+  n_dropped <- nrow(pos_data) - nrow(d)
+  if (n_dropped > 0) {
+    warning(sprintf(
+      "Dropped %d row(s) with NA argvals/y before face.sparse",
+      n_dropped
+    ))
+  }
+  if (n_distinct(d$argvals) < 2) {
+    stop(
+      "Fewer than 2 unique ages available -- cannot fit face.sparse for this position"
+    )
+  }
+
+  pos_age_grid <- seq(min(d$argvals), max(d$argvals), length.out = 100)
+
+  fit <- face.sparse(
+    as.data.frame(d),
+    argvals.new = pos_age_grid,
+    knots = knots,
+    pve = pve
+  )
+  K <- min(ncol(fit$eigenfunctions), K_cap)
+  fit$eigenfunctions <- fit$eigenfunctions[, 1:K, drop = FALSE]
+  fit$eigenvalues <- fit$eigenvalues[1:K]
+  fit$K <- K
+  fit$age_grid <- pos_age_grid
+  fit
+}
+
+make_mu_fun <- function(fit) {
+  function(a) approx(fit$age_grid, fit$mu.new, xout = a, rule = 2)$y
+}
+
+make_phi_fun <- function(fit) {
+  function(a) {
+    apply(fit$eigenfunctions, 2, function(col) {
+      approx(fit$age_grid, col, xout = a, rule = 2)$y
+    })
+  }
+}
+
+blup_scores <- function(
+  y_obs,
+  ages_obs,
+  mu_fun,
+  phi_fun,
+  prior_mean,
+  prior_var,
+  sigma2
+) {
+  K <- length(prior_mean)
+  Tinv <- diag(1 / prior_var, K)
+
+  if (length(y_obs) == 0) {
+    return(list(mean = prior_mean, cov = diag(prior_var, K)))
+  }
+
+  Phi_i <- matrix(sapply(ages_obs, phi_fun), ncol = K, byrow = TRUE)
+  mu_i <- mu_fun(ages_obs)
+  resid <- y_obs - mu_i
+
+  Sigma_inv <- Tinv + (1 / sigma2) * crossprod(Phi_i)
+  Sigma <- solve(Sigma_inv)
+  post_mean <- Sigma %*%
+    (Tinv %*% prior_mean + (1 / sigma2) * t(Phi_i) %*% resid)
+
+  list(mean = as.vector(post_mean), cov = Sigma)
+}
+
+extract_raw_scores <- function(pos_data, fit) {
+  mu_fun <- make_mu_fun(fit)
+  phi_fun <- make_phi_fun(fit)
+  sigma2 <- fit$sigma2
+
+  pos_data |>
+    group_by(subj) |>
+    group_modify(
+      ~ {
+        res <- blup_scores(
+          y_obs = .x$y,
+          ages_obs = .x$argvals,
+          mu_fun = mu_fun,
+          phi_fun = phi_fun,
+          prior_mean = rep(0, fit$K),
+          prior_var = fit$eigenvalues,
+          sigma2 = sigma2
+        )
+        as_tibble(matrix(res$mean, nrow = 1)) |>
+          set_names(paste0("xi", seq_len(fit$K)))
+      }
+    ) |>
+    ungroup()
+}
+
+fit_score_models <- function(pos_data, raw_scores, fit, ktc_lookup) {
+  d <- pos_data |>
+    distinct(subj, season, argvals) |>
+    inner_join(ktc_lookup, by = c("subj", "season")) |>
+    left_join(raw_scores, by = "subj")
+
+  score_models <- map(seq_len(fit$K), function(k) {
+    lm(as.formula(paste0("xi", k, " ~ ktc_in + argvals")), data = d)
+  })
+  names(score_models) <- paste0("xi", seq_len(fit$K))
+
+  tau2_const <- map_dbl(seq_len(fit$K), function(k) {
+    pmin(sigma(score_models[[k]])^2, fit$eigenvalues[k])
+  })
+
+  var_models <- map(seq_len(fit$K), function(k) {
+    resid2 <- residuals(score_models[[k]])^2
+    floor_val <- fit$eigenvalues[k] * 1e-4
+    d_var <- d |> mutate(log_resid2 = log(pmax(resid2, floor_val)))
+    lm(log_resid2 ~ ktc_in + argvals, data = d_var)
+  })
+  names(var_models) <- paste0("xi", seq_len(fit$K))
+
+  tau2_fun <- function(ktc_in, age) {
+    map_dbl(seq_len(fit$K), function(k) {
+      raw <- exp(predict(
+        var_models[[k]],
+        newdata = tibble(ktc_in = ktc_in, argvals = age)
+      ))
+      pmin(raw, fit$eigenvalues[k])
+    })
+  }
+
+  list(
+    models = score_models,
+    var_models = var_models,
+    tau2_fun = tau2_fun,
+    tau2_const = tau2_const,
+    n_train = nrow(d)
+  )
+}
+
+project_career <- function(
+  fit,
+  sm,
+  ktc_in,
+  age_in,
+  history = NULL,
+  ages_out = seq(21, 36, by = 1)
+) {
+  mu_fun <- make_mu_fun(fit)
+  phi_fun <- make_phi_fun(fit)
+
+  g_mean <- map_dbl(
+    sm$models,
+    ~ predict(.x, newdata = tibble(ktc_in = ktc_in, argvals = age_in))
+  )
+  prior_var <- sm$tau2_fun(ktc_in, age_in)
+
+  if (is.null(history) || nrow(history) == 0) {
+    y_obs <- numeric(0)
+    ages_obs <- numeric(0)
+  } else {
+    y_obs <- history$tva_adj
+    ages_obs <- history$age
+  }
+
+  post <- blup_scores(
+    y_obs = y_obs,
+    ages_obs = ages_obs,
+    mu_fun = mu_fun,
+    phi_fun = phi_fun,
+    prior_mean = g_mean,
+    prior_var = prior_var,
+    sigma2 = fit$sigma2
+  )
+
+  mu_out <- mu_fun(ages_out)
+  Phi_out <- matrix(sapply(ages_out, phi_fun), ncol = fit$K, byrow = TRUE)
+  pred_va <- as.vector(mu_out + Phi_out %*% post$mean)
+  var_curve <- diag(Phi_out %*% post$cov %*% t(Phi_out))
+  var_predictive <- var_curve + fit$sigma2
+
+  tibble(
+    age = ages_out,
+    pred_va = pred_va,
+    se_curve = sqrt(pmax(var_curve, 0)),
+    se_predictive = sqrt(pmax(var_predictive, 0)),
+    lower80 = pred_va - 1.28 * se_predictive,
+    upper80 = pred_va + 1.28 * se_predictive
+  )
+}
