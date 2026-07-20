@@ -3,6 +3,7 @@
 
 suppressPackageStartupMessages({
   library("tidyverse")
+  theme_set(theme_minimal())
   library("tidymodels")
   library("parsnip")
   library("dbarts")
@@ -11,7 +12,7 @@ suppressPackageStartupMessages({
   library("tictoc")
   library("furrr")
 })
-theme_set(theme_minimal())
+
 
 # Prep Data ---------------------------------------------------------------
 compile_training_data <- function(
@@ -55,11 +56,7 @@ compile_training_data <- function(
   colnames(post_ktc) <- c("name", "ktc_value")
 
   # create data table
-<<<<<<< Updated upstream
-  pre_ktc %>%
-=======
   pre_ktc |>
->>>>>>> Stashed changes
     rename("historical_value" = "ktc_value") %>%
     left_join(
       season_value_added %>% filter(season == this_season),
@@ -75,12 +72,8 @@ compile_training_data <- function(
     left_join(player_info, by = join_by(name)) %>%
     select(-player_id, -years_exp) %>%
     mutate(
-<<<<<<< Updated upstream
-      age = as.numeric(pre_ktc_date - birth_date) / 365.25
-=======
       age = as.numeric(pre_ktc_date - birth_date) / 365.25,
       season = this_season
->>>>>>> Stashed changes
     )
 }
 
@@ -99,6 +92,8 @@ compile_data_set <- function(
     year(season_start),
     year(season_start) + 1
   )
+
+  seasons_ago <- year(today()) - this_season
 
   # number of days since the season ended (in years)
   days_past_season_start <- if_else(
@@ -122,8 +117,8 @@ compile_data_set <- function(
     nest(history = c(season, age, tva_adj))
 
   future_value_names |>
+    filter(years_exp >= seasons_ago) |>
     left_join(keep_trade_cut, by = join_by(name)) |>
-    rename(ktc_value = value) |>
     left_join(history_bp, by = join_by(name, position)) |>
     mutate(
       age = time_length(
@@ -142,7 +137,9 @@ select_ktc_list <- function(ktc_list, last_date_fvt) {
     str_remove(".csv") |>
     mdy()
 
-  dates_order <- order(dates[dates > last_date_fvt])
+  dates <- dates[dates > last_date_fvt]
+  keep_trade_cut <- ktc_list[dates > last_date_fvt]
+  dates_order <- order(dates)
 
   list(
     date = dates[dates_order],
@@ -475,9 +472,8 @@ project_career <- function(
     se_predictive = se_predictive,
     taper_weight = taper_weight
   ) |>
-    rowwise() |>
     mutate(
-      pred_va = max(0, pred_va)
+      pred_va = pmax(0, pred_va)
     )
 
   # --- Future value: discounted sum across years, with its own SE

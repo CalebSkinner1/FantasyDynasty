@@ -24,10 +24,10 @@ ktc_list <- list.files(
   map(~ read_csv(.x, show_col_types = FALSE))
 
 # these are the names of the dudes that I'll compute the future value of repetitively
-future_value_names <- map_dfr(ktc_list, name_correction) %>%
-  distinct(name) %>%
-  left_join(player_info, by = join_by(name)) %>%
-  select(-player_id) %>%
+future_value_names <- map_dfr(ktc_list, name_correction) |>
+  distinct(name) |>
+  left_join(player_info, by = join_by(name)) |>
+  select(-player_id) |>
   filter(
     !str_detect(name, c("Mid")),
     !str_detect(name, c("Early")),
@@ -40,7 +40,7 @@ future_value_names <- map_dfr(ktc_list, name_correction) %>%
   ) |>
   drop_na()
 
-# write_csv(future_value_names, here("Data/future_value_names.csv"))
+write_csv(future_value_names, here("Data/future_value_names.csv"))
 
 # organize data sets
 ktc_begin_end_dates <- list(
@@ -122,7 +122,6 @@ if (train_models) {
   save(fpca_models, file = here("Modeling/fpca_models.RData"))
 }
 
-
 # fpca_data |>
 #   ggplot(aes(argvals, y, group = subj)) +
 #   geom_line(alpha = 0.15) +
@@ -130,152 +129,72 @@ if (train_models) {
 #   facet_wrap(~position) +
 #   labs(x = "Age", y = "VA (tva_adj)", title = "Raw career points by position")
 
-# taper - c(5, 2), years ahead - 7
-#    name               position estimate    se
-#    <chr>              <chr>       <dbl> <dbl>
-#  1 Bijan Robinson     RB           968. 103.
-#  2 Jahmyr Gibbs       RB           954. 103.
-#  3 De'Von Achane      RB           777. 101.
-#  4 Drake Maye         QB           730. 140.
-#  5 Josh Allen         QB           705. 135.
-#  6 Caleb Williams     QB           693. 131.
-#  7 Jayden Daniels     QB           622. 128.
-#  8 Trey McBride       TE           617.  86.2
-#  9 Lamar Jackson      QB           584. 118.
-# 10 Bo Nix             QB           557. 114.
-# 11 Jonathan Taylor    RB           553. 103.
-# 12 Brock Purdy        QB           550. 113.
-# 13 James Cook         RB           541. 102.
-# 14 Jalen Hurts        QB           538. 112.
-# 15 Jaxon Smith-Njigba WR           535.  74.8
-# 16 Trevor Lawrence    QB           527. 116.
-# 17 Ja'Marr Chase      WR           492. 107.
-# 18 Puka Nacua         WR           482.  81.5
-# 19 Chase Brown        RB           473.  95.1
-# 20 Ashton Jeanty      RB           451. 129.
-
-# taper - c(7, 2), years ahead - 7
-# name               position estimate    se
-#    <chr>              <chr>       <dbl> <dbl>
-#  1 Bijan Robinson     RB           968. 103.
-#  2 Jahmyr Gibbs       RB           954. 103.
-#  3 De'Von Achane      RB           777. 101.
-#  4 Drake Maye         QB           730. 140.
-#  5 Josh Allen         QB           705. 135.
-#  6 Caleb Williams     QB           693. 131.
-#  7 Jayden Daniels     QB           622. 128.
-#  8 Trey McBride       TE           617.  86.2
-#  9 Lamar Jackson      QB           584. 118.
-# 10 Bo Nix             QB           557. 114.
-# 11 Jonathan Taylor    RB           553. 103.
-# 12 Brock Purdy        QB           550. 113.
-# 13 James Cook         RB           541. 102.
-# 14 Jalen Hurts        QB           538. 112.
-# 15 Jaxon Smith-Njigba WR           535.  74.8
-# 16 Trevor Lawrence    QB           527. 116.
-# 17 Ja'Marr Chase      WR           492. 107.
-# 18 Puka Nacua         WR           482.  81.5
-# 19 Chase Brown        RB           473.  95.1
-# 20 Ashton Jeanty      RB           451. 129.
-
-# taper - c(7, 2), years ahead - 10
-# name               position estimate    se
-#    <chr>              <chr>       <dbl> <dbl>
-#  1 Bijan Robinson     RB          1089.  131.
-#  2 Jahmyr Gibbs       RB          1081.  130.
-#  3 Drake Maye         QB           916.  173.
-#  4 Josh Allen         QB           914.  172.
-#  5 De'Von Achane      RB           860.  128.
-#  6 Caleb Williams     QB           841.  159.
-#  7 Lamar Jackson      QB           749.  145.
-#  8 Jayden Daniels     QB           733.  155.
-#  9 Trey McBride       TE           661.  137.
-# 10 Jalen Hurts        QB           653.  134.
-# 11 Bo Nix             QB           653.  136.
-# 12 Brock Purdy        QB           646.  135.
-# 13 Trevor Lawrence    QB           616.  139.
-# 14 Jaxon Smith-Njigba WR           586.  104.
-# 15 Joe Burrow         QB           558.  145.
-# 16 Jonathan Taylor    RB           556.  131.
-# 17 Ashton Jeanty      RB           556.  166.
-# 18 Jaxson Dart        QB           555.  159.
-# 19 James Cook         RB           550.  130.
-# 20 Justin Herbert     QB           543.  141.
-
-# taper - c(5, 2), years ahead - 10
-#    name               position estimate    se
-#    <chr>              <chr>       <dbl> <dbl>
-#  1 Bijan Robinson     RB          1089.  131.
-#  2 Jahmyr Gibbs       RB          1081.  130.
-#  3 Drake Maye         QB           916.  173.
-#  4 Josh Allen         QB           914.  172.
-#  5 De'Von Achane      RB           860.  128.
-#  6 Caleb Williams     QB           841.  159.
-#  7 Lamar Jackson      QB           749.  145.
-#  8 Jayden Daniels     QB           733.  155.
-#  9 Trey McBride       TE           661.  137.
-# 10 Jalen Hurts        QB           653.  134.
-# 11 Bo Nix             QB           653.  136.
-# 12 Brock Purdy        QB           646.  135.
-# 13 Trevor Lawrence    QB           616.  139.
-# 14 Jaxon Smith-Njigba WR           586.  104.
-# 15 Joe Burrow         QB           558.  145.
-# 16 Jonathan Taylor    RB           556.  131.
-# 17 Ashton Jeanty      RB           556.  166.
-# 18 Jaxson Dart        QB           555.  159.
-# 19 James Cook         RB           550.  130.
-# 20 Justin Herbert     QB           543.  141.
-
 # Future Value over Time --------------------------------------------------
 
 # load models
 load(file = here("Modeling/fpca_models.RData"))
 
-# compute future value over time
-last_date_fvt <- read_csv(
-  here("Data/last_date_fvt.csv"),
-  show_col_types = FALSE
-) %>%
-  pull(value)
-
 last_date_fvt <- ymd("20240101")
 
-keep_trade_cut <- select_ktc_list(ktc_list, last_date_fvt)$keep_trade_cut[[1]]
-current_date <- select_ktc_list(ktc_list, last_date_fvt)$date[[1]]
-
-# origin data set, set at beginning of last year
-players_df <- compile_data_set(
-  keep_trade_cut,
-  future_value_names,
-  season_value_added,
-  current_date, #today()
-  min(season_dates$season_start), # max(season_dates$season_start),
-  min(season_dates$season_end) # max(season_dates$season_end)
-)
+future_value_time <- tibble()
 
 message("begin mapping future value over time...")
 
-projection <- project_careers(
-  players_df,
-  run_by_positions,
-  n_years_ahead = 10,
-  discount_rate = 0.95,
-  taper_window = c(5, 2)
-)
+while (last_date_fvt < ymd("20260713")) {
+  # compute future value over time
+  last_date_fvt <- read_csv(
+    here("Data/last_date_fvt.csv"),
+    show_col_types = FALSE
+  ) %>%
+    pull(value)
 
-future_value_time <- projection$future_value |>
-  rename(
-    future_value = estimate
-  ) |>
-  mutate(date = current_date)
-select(name, future_value, date) |>
-  bind_rows(future_value_time)
+  message("running ", last_date_fvt)
 
-write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
-# make list of the dates already computed, so I don't have to compute them again
-max(future_value_time$date) |>
-  as_tibble() |>
-  write_csv(here("Data/last_date_fvt.csv"))
+  keep_trade_cut <- select_ktc_list(ktc_list, last_date_fvt)$keep_trade_cut[[1]]
+  current_date <- select_ktc_list(ktc_list, last_date_fvt)$date[[1]]
+
+  names(keep_trade_cut)[names(keep_trade_cut) == "value"] <- "ktc_value"
+
+  season_end <- min(season_dates$season_end[
+    current_date < season_dates$season_end
+  ])
+  season_start <- max(season_dates$season_start[
+    season_dates$season_start < season_end
+  ])
+
+  # origin data set, set at beginning of last year
+  players_df <- compile_data_set(
+    keep_trade_cut,
+    future_value_names,
+    season_value_added,
+    current_date, #today()
+    season_end,
+    season_start
+  )
+
+  projection <- project_careers(
+    players_df,
+    fpca_models,
+    n_years_ahead = 10,
+    discount_rate = 0.95,
+    taper_window = c(5, 2)
+  )
+
+  future_value_time <- projection$future_value |>
+    rename(
+      future_value = estimate
+    ) |>
+    mutate(date = current_date) |>
+    select(name, future_value, date) |>
+    bind_rows(future_value_time)
+
+  write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
+  # make list of the dates already computed, so I don't have to compute them again
+  max(future_value_time$date) |>
+    # ymd("20240101") |>
+    as_tibble() |>
+    write_csv(here("Data/last_date_fvt.csv"))
+}
 
 # ensure future value is the same as most recent future_value_over_time
 
@@ -283,7 +202,7 @@ player_total_value <- future_value_time |>
   filter(date == max(date)) |>
   full_join(
     season_value_added |>
-      select(name, season, total_value_added) |>
+      select(name, season, position, total_value_added) |>
       pivot_wider(
         names_from = season,
         values_from = total_value_added,
@@ -291,8 +210,8 @@ player_total_value <- future_value_time |>
       ),
     by = join_by(name)
   ) |>
-  select(name, contains("sva"), future_value) |>
-  left_join(player_info, by = join_by(name)) |>
+  select(name, position, contains("sva"), future_value) |>
+  left_join(player_info, by = join_by(name, position)) |>
   left_join(keep_trade_cut, by = join_by(name)) |>
   mutate(
     across(contains("sva"), ~ replace_na(., 0)),
@@ -322,7 +241,7 @@ write_csv(player_total_value, here("Data/player_total_value.csv"))
 player_simulations <- map(
   split(projection$quantiles, projection$quantiles$season),
   ~ .x |>
-    select(-season, -age, -position) |>
+    select(-season, -age) |>
     mutate(quantile_prob = 100 * quantile_prob) |>
     pivot_wider(
       names_from = quantile_prob,
