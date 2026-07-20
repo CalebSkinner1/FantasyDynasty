@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 
 message("begin computing Player Total Value...")
 demonstrate_fit <- FALSE # set to true to rerun the model fit images
-train_models <- FALSE # set to true to retrain models
+train_models <- TRUE # set to true to retrain models
 
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
