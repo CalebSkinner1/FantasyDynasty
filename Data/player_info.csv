@@ -32,6 +32,7 @@ Kendall Milton,11649,RB,2002-02-10,2
 Jerry Jeudy,6783,WR,1999-04-24,6
 Brent Celek,221,TE,1985-01-25,13
 Knowshon Moreno,387,RB,1987-07-16,6
+Tyren Montgomery,13600,WR,NA,0
 Player Invalid,8432,TE,NA,0
 Jacob Cowing,11616,WR,2001-02-04,2
 Miles Boykin,5965,WR,1996-10-12,6
@@ -50,7 +51,7 @@ Leonard Hankerson,914,WR,1989-01-30,9
 Jaleel McLaughlin,11439,RB,2000-09-13,3
 Johnny King,11282,WR,1999-09-29,1
 Tevin Jones,3730,WR,1992-12-26,6
-Adam Randall,13302,RB,NA,0
+Adam Randall,13302,RB,2004-07-14,0
 Chris Pantale,1609,TE,1990-03-22,9
 Ryan Yurachek,5718,TE,1996-08-27,4
 David Watford,3916,WR,1993-06-16,6
@@ -60,7 +61,7 @@ Dalyn Dawkins,5619,RB,1994-12-12,4
 Boston Scott,5122,RB,1995-04-27,6
 Sergio Bailey II,5396,WR,1991-09-07,0
 Devontez Walker,11629,WR,2001-06-19,2
-Behren Morton,13295,QB,NA,0
+Behren Morton,13295,QB,2002-01-17,0
 Brian Leonard,355,RB,1984-02-03,7
 David Nelson,506,WR,1986-11-07,5
 Mickey Shuler,737,TE,1986-10-09,10
@@ -91,9 +92,10 @@ Joshua Lingenfelter,12300,TE,NA,1
 E.J. Jenkins,11304,TE,1998-11-03,3
 Joe Flacco,19,QB,1985-01-16,18
 Elijah Wellman,5296,TE,1994-09-20,4
-Lincoln Pare,13352,RB,NA,0
+Lincoln Pare,13352,RB,2001-06-29,0
 Bryan Walters,1009,WR,1987-11-04,10
 Jacolby George,12967,WR,2003-01-25,1
+Brett Weaver,14017,TE,NA,0
 Kevin Dorsey,1524,WR,1990-02-23,2
 Will Johnson,1250,RB,1988-11-14,8
 Will Johnson,1250,TE,1988-11-14,8
@@ -163,6 +165,7 @@ Jacob Eason,6823,QB,1997-11-17,4
 Matt Weiser,3648,TE,1992-10-07,6
 Mathew Sexton,7619,WR,1997-10-17,3
 Jamie Newman,7555,QB,1997-12-01,1
+Donaven McCulley,13409,WR,2003-01-15,0
 Davis Mills,7585,QB,1998-10-21,5
 Caleb Chapman,12399,WR,NA,1
 Shane Wynn,2603,WR,1992-11-15,7
@@ -196,7 +199,7 @@ Player Invalid,11611,WR,NA,0
 Connor Shaw,1910,QB,1991-09-19,8
 Ray Rice,16,RB,1987-01-22,6
 Anthony Fasano,51,TE,1984-04-20,14
-Antonio Williams,13301,WR,NA,0
+Antonio Williams,13301,WR,2004-07-14,0
 Tyler Simmons,7274,WR,1997-12-30,2
 Dorren Miller,5359,WR,1994-08-03,4
 Ryan Taylor,934,TE,1987-11-16,5
@@ -218,6 +221,7 @@ Joe Milton,11557,QB,2000-03-06,2
 Ronald Jones,5052,RB,1997-08-03,5
 Chad Williams,4128,WR,1994-10-19,5
 Isaac Zico,6626,WR,1996-06-18,3
+Corey Rucker,13898,WR,2002-06-09,0
 O'Mega Blake,13304,WR,NA,0
 Justice Hill,5995,RB,1997-11-14,7
 Marquise Williams,3524,QB,1992-10-05,9
@@ -239,7 +243,9 @@ Milton Williams,2941,WR,1994-03-07,10
 Chad Henne,89,QB,1985-07-02,15
 James Cook,8138,RB,1999-09-25,4
 Darren Andrews,5665,WR,NA,4
+Jaden Nixon,13906,RB,NA,0
 Harold Spears,2770,TE,1992-03-09,10
+Stone Eby,13988,TE,NA,0
 Reid Sinnett,7159,QB,1997-02-05,3
 Hasise Dubois,7108,WR,NA,0
 Jaren Hall,9231,QB,1998-03-24,2
@@ -253,11 +259,13 @@ Isaiah Wright,7407,WR,1997-01-13,2
 Ben Johnson,5268,TE,1994-07-28,4
 Corey Brown,2185,WR,1991-12-16,6
 Jesper Horsted,6075,TE,1997-02-27,5
-Tanner Brown,11145,K,1999-12-28,1
+Will Ferrin,13838,K,NA,0
+Tanner Brown,11145,K,1999-12-28,3
 Khalid Abdullah,4697,RB,1995-05-14,5
 Marc Mariani,539,WR,1987-05-02,10
 Tyler Kahmann,12831,WR,2000-10-15,1
 Brevin Easton,12220,WR,2001-01-01,1
+Robert Henry,13418,RB,2001-12-31,0
 John David Moore,5550,RB,1995-05-30,4
 Player Invalid,11612,WR,NA,0
 Efton Chism,12542,WR,2001-10-26,1
@@ -271,6 +279,7 @@ Rachaad White,8136,RB,1999-01-12,4
 Cole Hedlund,6496,K,1995-03-15,3
 Malik Washington,11610,WR,2001-01-04,2
 James Washington,5024,WR,1996-04-02,6
+Kyron Drones,13599,QB,2003-07-24,0
 Hamze El-Zayat,12413,WR,1999-10-19,1
 Armon Binns,860,WR,1989-09-08,3
 Jerome Cunningham,2304,TE,1991-05-25,8
@@ -329,13 +338,14 @@ Malcom Floyd,316,WR,1981-09-08,16
 Sione Houma,3615,RB,1994-06-21,9
 Anthony Boone,2561,QB,1991-10-29,11
 Antwaan Randle El,226,WR,1979-08-17,9
-Jaden Smith,13246,WR,NA,1
+Jaden Smith,13246,WR,2001-12-13,1
 Cade Otton,8111,TE,1999-04-15,4
 Adrian Coxson,2929,WR,1991-08-14,10
 Ryan Williams,974,RB,1990-04-09,2
 Marquis Young,6742,RB,1995-02-11,3
 Derrick Deese,8245,TE,1998-08-19,2
 Davis Webb,4061,QB,1995-01-22,6
+Kenny Fletcher,13957,TE,NA,0
 Chris Moore,3269,WR,1993-06-16,10
 Stephen Sullivan,6970,TE,1996-11-28,5
 Alfred Blue,1944,RB,1991-04-27,8
@@ -343,6 +353,7 @@ Corey Taylor,8092,RB,1997-07-04,1
 Darnell Holland,6259,RB,1996-11-06,3
 Brenden Bates,12374,TE,1999-10-17,2
 Ernst Brun,2957,TE,1990-12-04,10
+CJ Williams,13554,WR,2003-10-23,0
 Jalin Conyers,12866,TE,2001-07-26,1
 Lucky Whitehead,2789,WR,1992-06-02,5
 T.J. Linta,6522,QB,NA,3
@@ -350,8 +361,9 @@ Willie Snead,1911,WR,1992-10-17,10
 Brandon Bolden,1034,RB,1990-01-26,12
 Nick Rose,3673,K,1994-05-05,6
 C.J. Germany,4798,WR,NA,5
-CJ Daniels,13270,WR,NA,0
+CJ Daniels,13270,WR,2002-01-04,0
 A.J. Derby,2503,TE,1991-09-20,7
+E.J. Williams,13805,WR,2001-11-14,0
 John Conner,520,RB,1987-06-08,10
 Connor Jessop,5808,QB,NA,4
 Giovanni Ricci,7216,TE,1996-10-16,6
@@ -362,9 +374,10 @@ Tre'Quan Smith,5026,WR,1996-01-07,6
 Kimani Vidal,11647,RB,2001-08-28,2
 Gary Jennings,6045,WR,1997-03-07,4
 Jamari Staples,4821,WR,1994-09-10,5
-Josh Cuevas,13273,TE,NA,0
+Josh Cuevas,13273,TE,2003-09-15,0
 Wes Welker,177,WR,1981-05-01,16
-Jack Endries,13282,TE,NA,0
+Jerand Bradley,13608,WR,2002-10-10,0
+Jack Endries,13282,TE,2004-03-26,0
 Fitzgerald Toussaint,2282,RB,1990-05-04,6
 Ray Agnew,1899,RB,1993-05-17,1
 Matt Jones,2400,RB,1993-03-07,5
@@ -405,11 +418,12 @@ Jacardia Wright,13047,RB,2000-09-26,1
 Gabe Marks,4508,WR,1994-08-06,5
 Landon Parker,12820,WR,1999-09-02,1
 David Durden,11505,WR,1998-12-26,1
-Noah Thomas,13318,WR,NA,0
+Noah Thomas,13318,WR,2004-01-13,0
 Justin Manton,2911,K,1992-06-28,10
 Jalen Hurd,5911,WR,1996-01-24,4
 Courtney Roby,195,WR,1983-01-10,8
-Brenen Thompson,13380,WR,NA,0
+Brenen Thompson,13380,WR,2003-07-25,0
+Gabriel Benyard,13939,WR,NA,0
 Maurice Harris,3650,WR,1992-11-11,6
 Matt LaCosse,2944,TE,1992-09-21,7
 Matt Lengel,3036,TE,1990-12-27,7
@@ -420,14 +434,15 @@ Brian Hoyer,345,QB,1985-10-13,15
 Vincent Jackson,128,WR,1983-01-14,15
 Clyde Edwards-Helaire,6820,RB,1999-04-11,6
 Brian Lewerke,7008,QB,1996-10-24,2
-Justin Joly,13400,TE,NA,0
+Julius Davis,14001,RB,NA,0
+Justin Joly,13400,TE,2004-07-09,0
 Malik Earl,5169,WR,1996-03-08,4
 Austin Reed,11931,QB,2000-02-22,1
 Jaelon Darden,7713,WR,1999-01-14,4
 Dakereon Joyner,12333,WR,2000-05-24,1
 Levonte Whitfield,4784,WR,NA,0
 Silas Redd,2100,RB,1992-03-01,3
-Younghoe Koo,4666,K,1994-08-03,8
+Younghoe Koo,4666,K,1994-08-03,9
 Troy Fumagalli,5092,TE,1995-02-17,6
 Brandin Cooks,2197,WR,1993-09-25,12
 Derek Carrier,1718,TE,1990-07-25,10
@@ -440,6 +455,7 @@ Deontay Burnett,5290,WR,1997-10-04,6
 Eddie Royal,297,WR,1986-05-21,12
 Jesse James,2463,TE,1994-06-04,8
 Justin Thomas,4723,WR,1991-09-15,0
+Eli Raridon,13421,TE,2004-02-12,0
 Riley Sharp,12250,TE,1997-11-07,1
 Andy Phillips,4555,K,1989-05-18,5
 Marken Michel,3568,WR,1993-07-06,7
@@ -448,6 +464,7 @@ Jared Scott,8878,TE,1999-05-10,2
 Shelton Gibson,4214,WR,1994-03-20,5
 David Johnson,2391,RB,1991-12-16,8
 Darrynton Evans,7064,RB,1998-07-09,5
+Miles Davis,14044,RB,1999-10-01,0
 Matt Cassel,389,QB,1982-05-17,17
 Xavier Jones,7088,RB,1997-08-24,2
 Avius Capers,3007,WR,1992-05-30,1
@@ -468,7 +485,8 @@ J.D. McKissic,3664,RB,1993-08-15,7
 Cole Murphy,6193,K,NA,3
 Alex Kessman,7933,K,1998-01-02,1
 C.J. Beathard,4127,QB,1993-11-16,9
-Miller Moss,13310,QB,NA,0
+Miles Kitselman,13431,TE,2002-09-25,0
+Miller Moss,13310,QB,2002-03-19,0
 J.J. Jones,12913,WR,NA,0
 Brandon LaFell,613,WR,1986-11-04,12
 Darrel Young,682,RB,1987-04-08,11
@@ -480,7 +498,7 @@ Jared Cook,367,TE,1987-04-07,13
 Marcus Major,13154,RB,2000-11-14,1
 I'Tavius Mathers,4630,RB,1993-11-19,5
 Ethan Wolf,5196,TE,1995-11-07,4
-Elijah Sarratt,13268,WR,NA,0
+Elijah Sarratt,13268,WR,2003-05-28,0
 Cameron Marshall,1650,RB,1991-10-14,1
 Isaac TeSlaa,12535,WR,2002-02-20,1
 Phillip Lindsay,5170,RB,1994-07-24,4
@@ -498,9 +516,11 @@ RJ Mobley,12276,WR,NA,1
 Ito Smith,5004,RB,1995-09-11,4
 Rushel Shell,4923,RB,1993-09-07,5
 Jabari Small,12356,RB,2001-01-31,2
+Caullin Lacy,13826,WR,2001-12-22,0
 Jalen Hurts,6904,QB,1998-08-07,6
 Brett Hundley,2450,QB,1993-06-15,8
 Josh Rounds,4797,RB,1993-10-11,5
+Omari Evans,13905,WR,2003-12-31,0
 Mike Brown,1321,WR,1989-02-09,3
 Duron Carter,2564,WR,1991-03-22,1
 Sergio Castillo,7515,K,1990-11-01,8
@@ -517,6 +537,7 @@ Case Cookus,7376,QB,1995-10-06,3
 Adonis Jennings,5129,WR,1995-12-31,4
 Diontae Spencer,5828,WR,1992-03-19,9
 Devontae Booker,3209,RB,1992-05-27,6
+Damien Alford,13440,WR,2001-04-06,0
 Tyler Snead,8409,WR,2000-02-01,1
 Seth Henigan,12898,QB,2003-03-10,1
 Hakeem Valles,3612,TE,1992-11-23,6
@@ -527,14 +548,14 @@ Rian Lindell,256,K,1977-01-20,14
 Isaiah Zuber,7458,WR,1997-04-15,3
 Ladd McConkey,11635,WR,2001-11-11,2
 Steve Maneri,716,TE,1988-03-20,5
-Demond Claiborne,13347,RB,NA,0
+Demond Claiborne,13347,RB,2003-10-09,0
 Player Invalid,11591,TE,NA,0
 Ricky White,12475,WR,2002-02-06,1
 Brian Robinson Jr.,8154,RB,1999-03-22,4
 Robert Burns,11060,RB,1998-09-25,2
 Tyler Mabry,7427,TE,1996-11-21,5
 Rob Gronkowski,515,TE,1989-05-14,12
-Dae'Quan Wright,13331,TE,NA,0
+Dae'Quan Wright,13331,TE,2003-09-21,0
 Casey Washington,11806,WR,2001-03-06,2
 Felton Davis,5941,WR,1997-02-25,3
 Devine Ozigbo,6068,RB,1996-10-02,4
@@ -549,6 +570,7 @@ Moral Stephens,6586,TE,NA,3
 Johnny Stanton,5569,RB,1994-09-07,4
 Martez Carter,5138,RB,1993-03-08,4
 Corey Washington,2252,WR,1991-12-29,8
+Brandon Hayes,14049,WR,NA,0
 Deion Hankins,13080,RB,2000-09-13,1
 Alshon Jeffery,1149,WR,1990-02-14,10
 Micah Wright,6663,WR,NA,3
@@ -560,6 +582,7 @@ Cole Wick,3715,TE,1993-11-30,6
 J'Mar Smith,7156,QB,1996-09-24,2
 Jeff Wilson Jr.,5284,RB,1995-11-16,8
 Jermaine Terry,13129,TE,NA,1
+DeaMonte Trayanum,13438,RB,2002-01-02,0
 Hunter Luepke,11510,RB,2000-02-28,3
 Keon Hatcher,4445,WR,1994-09-11,5
 Davion Davis,6380,WR,1996-10-23,5
@@ -577,6 +600,7 @@ Erik Krommenhoek,8575,TE,NA,1
 Elijhah Badger,12810,WR,2001-08-15,1
 Mohamed Sanu,1071,WR,1989-08-22,10
 Geor'Quarius Spivey,12435,TE,1999-10-06,1
+Xavier Loyd,13916,WR,2003-03-11,0
 DeAngelo Yancey,4200,WR,1994-11-18,5
 Jordan Love,6804,QB,1998-11-02,6
 Tyler Boyd,3225,WR,1994-11-15,9
@@ -584,6 +608,8 @@ Montario Hunter,3922,WR,1991-11-23,0
 Jordan Petaia,12549,TE,2000-03-14,1
 Wes Saxton,2596,TE,1993-08-13,5
 Jake Powell,6260,TE,1996-01-16,3
+Keelan Marion,13973,WR,2000-06-22,0
+Chandler Morris,13592,QB,2000-12-26,0
 Jeremiah Haydel,7874,WR,1999-03-25,1
 James Franklin,2119,QB,1991-07-23,12
 Justin Marshall,11191,WR,1999-07-23,1
@@ -599,7 +625,7 @@ Chase Litton,5263,QB,1995-10-05,4
 JJ Jones,5267,WR,1992-12-06,2
 John Metchie III,8147,WR,2000-07-18,4
 Zack Kuntz,9483,TE,1999-06-06,3
-John Michael Gyllenborg,13342,TE,NA,0
+John Michael Gyllenborg,13342,TE,2002-08-07,0
 Ka'Raun White,5283,WR,1993-07-04,4
 Cade Johnson,7956,WR,1998-04-10,3
 Redd Douglas,13136,WR,NA,0
@@ -607,14 +633,17 @@ Erick All Jr.,11592,TE,2000-09-13,2
 Nick Westbrook-Ikhine,7496,WR,1997-03-21,6
 Ryan Mallett,810,QB,1988-06-05,9
 Griffin Hebert,11224,TE,1999-04-02,1
+Sincere Brown,13604,WR,NA,0
 Kalif Raymond,3634,WR,1994-08-08,10
 Sam Pinckney,12018,WR,1999-10-25,1
 KhaDarel Hodge,5773,WR,1995-01-03,8
-Lucky Jackson,11520,WR,1997-07-17,2
+Lucky Jackson,11520,WR,1997-07-17,3
 Des Lawrence,2940,WR,1994-11-30,5
+Dominic Zvada,13833,K,2003-10-25,0
 Cooper Rush,4574,QB,1993-11-21,9
 Jim Dray,626,TE,1986-12-31,10
 Shane Wimann,5663,RB,1994-09-09,4
+Heinrich Haarberg,14047,TE,2003-03-15,0
 Brandon Silvers,6205,QB,1994-05-09,3
 Hendon Hooker,9998,QB,1998-01-13,3
 John FitzPatrick,8500,TE,2000-03-09,4
@@ -642,6 +671,7 @@ Christion Jones,2682,WR,1992-12-20,3
 Montay Crockett,4377,WR,1993-12-11,5
 Brenden Knox,7858,RB,1998-10-10,1
 Richard Rodgers,2146,TE,1992-01-22,9
+Max Bredeson,13516,TE,2002-10-04,0
 Michael Pratt,11561,QB,2001-09-30,1
 Dawson Knox,5906,TE,1996-11-14,7
 Simi Fehoko,7812,WR,1997-11-05,5
@@ -663,6 +693,8 @@ Player Invalid,8113,RB,NA,0
 Taylor Heinicke,2711,QB,1993-03-15,10
 Collin Johnson,6857,WR,1997-09-23,5
 Vince Young,157,QB,1983-05-18,7
+Athan Kaliakmanis,13557,QB,2003-08-20,0
+Jack Velling,13846,TE,NA,0
 Chase Allen,8182,TE,1997-07-09,1
 Emil Igwenagu,1316,RB,1989-03-27,2
 Tarik Cohen,4157,RB,1995-07-26,7
@@ -716,6 +748,7 @@ Micky Crum,6737,TE,1995-10-13,3
 Anthony Dixon,727,RB,1987-09-24,10
 Isaiah Winstead,11232,WR,1999-08-09,1
 Isaac Fruechte,2871,WR,1991-03-07,7
+Le'Meke Brockington,13975,WR,2002-01-15,0
 Peewee Jarrett,12239,QB,NA,1
 Kermit Whitfield,4785,WR,1993-10-08,5
 Colton Dowell,11046,WR,1999-04-19,3
@@ -749,6 +782,7 @@ Player Invalid,8257,QB,NA,0
 Brandon Brown-Dukes,3816,RB,1992-04-29,6
 Jimmy Holiday,13173,WR,2001-12-16,1
 Ben DiNucci,7143,QB,1996-11-24,6
+Kole Wilson,13749,WR,2003-12-16,0
 Jake Bobo,10867,WR,1998-08-04,3
 Isaiah Likely,8131,TE,2000-04-18,4
 Jahvid Best,592,RB,1989-01-30,3
@@ -772,15 +806,19 @@ Da'Rick Rogers,1673,WR,1991-06-18,2
 Marcus Riley,12235,WR,1999-05-09,1
 Brandon Barnes,4593,TE,1994-05-31,5
 Peter Pujals,5403,QB,1995-01-23,4
+Brady Boyd,13658,WR,2002-06-06,0
 Grant Calcaterra,8177,TE,1998-12-04,4
 Justin Perillo,2144,TE,1991-01-05,6
 Tavarres King,1456,WR,1990-07-14,9
+Alex Bullock,13657,WR,NA,0
 Jordan Veasy,5293,WR,1995-06-23,4
 Calvin Austin III,8125,WR,1999-03-24,4
 Austin Trammell,7746,WR,1998-07-04,5
 Storm Johnson,1986,RB,1992-07-10,8
 Dyami Brown,7587,WR,1999-11-01,5
+Jaren Kanak,13422,TE,2004-02-10,0
 Evan McPherson,7839,K,1999-07-21,5
+Jacob Clark,13802,QB,2000-11-01,0
 John Jackson,12410,WR,1999-08-23,1
 Jake Murphy,2038,TE,1989-09-21,1
 Jermaine Jackson,11897,WR,2000-06-02,1
@@ -796,13 +834,14 @@ Farrod Green,7483,TE,1997-06-10,2
 Dezmin Lewis,2533,WR,1992-12-05,5
 Andre Davis,2601,WR,1993-09-01,1
 Justin Herbert,6797,QB,1998-03-10,6
-Denzel Mims,6849,WR,1997-10-10,4
+Denzel Mims,6849,WR,1997-10-10,6
 Alex Hale,12438,K,1998-07-03,1
 Jason Vander Laan,3774,TE,1992-09-22,6
 Jahmal Banks,13041,WR,2001-10-02,1
 Phillip Supernaw,1787,TE,1990-01-30,8
 Joshua Stangby,2912,WR,1990-09-24,1
 Kelvin Harmon,5884,WR,1996-12-15,6
+Chris Freeman,13764,K,NA,0
 Malik Turner,5781,WR,1996-01-30,8
 Damien Caffrey,11262,TE,NA,1
 Tee Higgins,6801,WR,1999-01-18,6
@@ -829,6 +868,7 @@ Marcus Yarns,12546,RB,2001-10-30,1
 Joseph Parker,6661,WR,1996-07-24,3
 Kenny Hilliard,2534,RB,1991-10-03,7
 Jamari Thrash,11633,WR,2000-12-19,2
+Myles Montgomery,13964,RB,NA,0
 Jontre Kirklin,8628,WR,1998-10-09,2
 Sam Rogers,4250,RB,1995-04-12,5
 Nakia Griffin-Stewart,7359,TE,1996-11-12,2
@@ -840,6 +880,7 @@ Alex Erickson,3433,WR,1992-11-06,9
 Joseph Randle,1487,RB,1991-12-29,7
 Luke Floriea,13189,WR,2001-10-23,1
 Grayson Gunter,8638,TE,1997-11-13,1
+Cameron Ross,13744,WR,2001-08-16,0
 Montrell Johnson,12868,RB,2002-10-13,1
 Spencer Nigh,7212,RB,1998-01-18,2
 D'Onta Foreman,4111,RB,1996-04-24,8
@@ -894,11 +935,14 @@ Brashard Smith,12455,RB,2003-04-11,1
 Lamar Jackson,4881,QB,1997-01-07,8
 Jake Moody,10937,K,1999-11-23,3
 Camden Lewis,12112,K,NA,1
+Devonte Ross,13632,WR,2002-09-09,0
+Joey Aguilar,13428,QB,2001-06-16,0
 Deneric Prince,10870,RB,2000-04-11,3
 Player Invalid,8244,RB,NA,0
 Osirus Mitchell,7860,WR,1998-09-15,1
-Eli Stowers,13349,TE,NA,0
+Eli Stowers,13349,TE,2003-04-15,0
 Jalen McMillan,11618,WR,2001-12-07,2
+RJ Maryland,13430,TE,2004-07-09,0
 Tucker McCann,7446,K,1997-11-10,2
 Robbie Gould,49,K,1982-12-06,18
 Tom Brady,167,QB,1977-08-03,23
@@ -927,8 +971,10 @@ Charleston Rambo,8198,WR,1999-08-10,2
 Ted Bolser,2090,TE,1990-10-22,1
 Tyrod Taylor,827,QB,1989-08-03,15
 Chase McLaughlin,6650,K,1996-04-09,7
+Marcus Burke,13667,WR,NA,0
 Matt Colburn,6352,RB,1997-07-27,6
 Adam Humphries,2822,WR,1993-06-24,8
+Ben Patterson,13647,WR,NA,0
 Dezmon Patmon,6985,WR,1998-08-06,3
 Emmanuel Butler,6107,WR,1996-08-27,3
 David Porter,2787,WR,1992-12-21,10
@@ -936,6 +982,7 @@ Baker Mayfield,4892,QB,1995-04-14,8
 James Conner,4137,RB,1995-05-05,9
 John Matocha,12277,QB,NA,1
 Devonte Boyd,5608,WR,1994-10-05,4
+Khalil Dinkins,13432,TE,NA,0
 Dorian Thompson-Robinson,10862,QB,1999-11-14,2
 Soma Vainuku,3640,RB,1992-05-28,6
 Jeremy Ruckert,8145,TE,2000-08-11,4
@@ -947,6 +994,7 @@ Tyler Warren,12518,TE,2002-05-24,1
 Jeremiah Hall,8203,TE,NA,1
 Andre Szmyt,11261,K,1998-09-26,4
 Travis Harvey,2837,WR,1990-05-18,1
+Mark Gronowski,13816,QB,2001-10-05,0
 Dohnte Meyers,13264,WR,2000-07-06,3
 Matthew Dayes,4232,RB,1994-09-03,5
 Nick Sciba,8893,K,1999-10-02,2
@@ -964,7 +1012,7 @@ Randall Cobb,928,WR,1990-08-22,13
 Rishard Matthews,1046,WR,1989-10-12,10
 Nyheim Hines,5347,RB,1996-11-12,8
 K.D. Cannon,4456,WR,1995-11-05,5
-Kenyon Sadiq,13330,TE,NA,0
+Kenyon Sadiq,13330,TE,2005-03-04,0
 Kelly Akharaiyi,12755,WR,2000-02-05,1
 Jared Rice,7317,TE,1996-10-19,2
 Sean Tucker,9506,RB,2001-10-25,3
@@ -1013,12 +1061,13 @@ Taysir Mack,8613,WR,1998-09-17,1
 J.J. Nelson,2462,WR,1992-04-24,7
 Jeff Maehl,853,WR,1989-01-17,3
 Jude McAtamney,12385,K,2000-05-09,1
+Dean Patterson,14020,WR,NA,0
 Joe Hansley,3866,WR,1994-02-07,0
 Jeremy Cox,6246,RB,1996-08-16,3
 Wilton Speight,6237,QB,1994-12-06,3
 Duke Williams,3846,WR,1993-05-13,6
 Johnathan Lloyd,6392,WR,1995-12-04,3
-Carson Beck,13272,QB,NA,0
+Carson Beck,13272,QB,2002-11-19,0
 Jeremy Kerley,817,WR,1988-11-08,11
 Ethan Fernea,8831,WR,1998-03-02,2
 Dylan Parham,8751,TE,1998-05-31,2
@@ -1032,6 +1081,7 @@ Player Invalid,11578,RB,NA,0
 Ontaria Wilson,12453,WR,1999-08-12,1
 Gavin Bartholomew,12700,TE,2003-04-30,1
 C.J. Saunders,8068,WR,1996-09-15,2
+Trent Battle,13673,RB,NA,0
 Terry Godwin,5977,WR,1996-10-23,3
 Tyler Higbee,3271,TE,1993-01-01,10
 Aron Cruickshank,11267,WR,2000-09-07,1
@@ -1063,6 +1113,7 @@ Ryan Hewitt,1891,TE,1991-01-24,8
 Shane Watts,13255,RB,NA,1
 Jacob Dolegala,6317,QB,1996-10-07,3
 Nico Collins,7569,WR,1999-03-19,5
+Anthony Smith,13582,WR,2002-03-01,0
 Austin Hill,2584,WR,1991-07-17,1
 Craig Reynolds,6659,RB,1996-06-15,7
 Denarius Moore,887,WR,1988-12-09,9
@@ -1087,6 +1138,7 @@ Quincy Skinner,12884,WR,2003-02-28,1
 Greg Bell,8226,RB,1998-06-16,2
 Justin Berger,3951,WR,1991-11-22,0
 Logan Woodside,5128,QB,1995-01-27,8
+Gregory Desrosiers,13603,RB,NA,0
 Matt Landers,10869,WR,1999-06-16,2
 Luke McCaffrey,11650,WR,2001-04-02,2
 Trey Wolff,11457,K,2000-02-22,1
@@ -1097,12 +1149,13 @@ John Ursua,6168,WR,1994-01-17,3
 Raymond Calais,6988,RB,1998-04-02,2
 Jake Elliott,4195,K,1995-01-21,9
 Vernon Johnson,2635,WR,1992-04-17,10
-Caleb Douglas,13296,WR,NA,0
+Caleb Douglas,13296,WR,2003-09-09,0
 Trevor Wood,6263,TE,1996-01-25,3
 Rico Dowdle,7021,RB,1998-06-14,6
 Braxton Westfield,11301,WR,NA,1
 Jarvis Turner,3892,WR,1993-11-02,0
 Mason Tipton,11895,WR,2000-09-27,2
+Dontae McMillan,13852,RB,2001-10-04,0
 Robert Meachem,230,WR,1984-09-28,8
 Ahmad Wagner,7228,WR,1996-12-21,2
 Vyncint Smith,5260,WR,1996-06-09,5
@@ -1143,7 +1196,7 @@ Braelon Allen,11576,RB,2004-01-20,2
 Christian Powell,3556,RB,1994-03-03,9
 Tre Turner,8169,WR,NA,1
 Drew Anderson,6371,QB,1995-10-18,3
-Jordan Hudson,13325,WR,NA,0
+Jordan Hudson,13325,WR,2003-11-22,0
 Elijah Moore,7596,WR,2000-03-27,5
 Zaire Mitchell-Paden,8799,TE,1999-08-20,4
 Garrett Wilson,8146,WR,2000-07-22,4
@@ -1157,7 +1210,7 @@ Nic Jacobs,2203,TE,1991-10-31,6
 Keaton Mitchell,9511,RB,2002-01-17,3
 Bobby Rainey,1059,RB,1987-10-16,8
 Kyle Rudolph,943,TE,1989-11-09,12
-Chris Bell,13311,WR,NA,0
+Chris Bell,13311,WR,2004-06-07,0
 Chris Blair,7521,WR,1997-10-06,5
 Penny Hart,5902,WR,1996-07-05,4
 Matt Cole,7352,WR,1996-11-07,2
@@ -1165,7 +1218,7 @@ Tahj Brooks,12543,RB,2002-05-13,1
 Ron'quavion Tarver,6240,WR,NA,0
 Laron Byrd,1217,WR,1989-08-18,10
 Kristian Wilkerson,7438,WR,1997-01-10,6
-Nate Boerkircher,13299,TE,NA,0
+Nate Boerkircher,13299,TE,2001-09-04,0
 Joique Bell,736,RB,1986-08-04,10
 DeAndre Smelter,2436,WR,1991-12-03,7
 Devon Williams,8186,WR,NA,1
@@ -1184,9 +1237,11 @@ Elijah Cooks,11139,WR,1998-10-13,3
 Keenen Brown,6389,TE,1995-12-22,3
 J.J. Koski,7339,WR,1996-12-27,3
 Daniel Bellinger,8225,TE,2000-09-22,4
+Elijah Tau-Tolliver,13909,RB,2003-05-16,0
 Bryce Pierre,12959,TE,2001-01-25,1
 Lil'Jordan Humphrey,5938,WR,1998-04-19,7
 Travell Harris,8252,WR,NA,1
+Marcus Sanders,13619,WR,2004-07-14,0
 Jalen Tolliver,5383,WR,1995-12-30,4
 Jay Feely,692,K,1976-05-26,13
 Dalton Crossan,4322,RB,1994-02-25,5
@@ -1225,6 +1280,7 @@ Blake Jarwin,4571,TE,1994-07-16,5
 Isaiah Neyor,13074,WR,2001-06-07,1
 Alex Armah,4226,RB,1994-05-17,7
 Wayne Ruby,12198,WR,2000-06-18,1
+Haynes King,13415,QB,2001-01-09,0
 Easton Stick,6185,QB,1995-09-15,7
 David White,12224,WR,2000-07-18,1
 Raphael Leonard,6361,WR,1997-05-26,3
@@ -1246,7 +1302,7 @@ Josh Smith,5762,WR,1994-03-24,4
 Rob Blanchflower,1915,TE,1990-06-08,1
 Jimmy Horn,12523,WR,2002-09-12,1
 William Fuller,3157,WR,1994-04-16,6
-Michael Trigg,13401,TE,NA,0
+Michael Trigg,13401,TE,2002-06-27,0
 Julius Chestnut,8254,RB,2000-10-26,4
 Donnie Ernsberger,5288,TE,1996-10-13,4
 Blake Annen,1790,TE,1991-05-28,8
@@ -1301,6 +1357,8 @@ Jonathan Garibay,8812,K,NA,1
 Kurt Benkert,5142,QB,1995-07-17,4
 Kenjon Barner,1546,RB,1989-04-28,9
 Owen Wright,11384,RB,1999-02-28,3
+Brandon Frazier,13972,TE,NA,0
+Eli Heidenreich,13423,RB,2003-06-28,0
 Aaron Lacombe,5772,WR,1995-04-06,4
 Michael Roberts,4164,TE,1994-05-07,5
 Anthony Johnson,5929,WR,1995-01-29,3
@@ -1312,6 +1370,7 @@ Darrius Sims,4835,RB,1994-10-26,5
 Frank Darby,7530,WR,1997-09-08,3
 Collin Schlee,13119,QB,2001-05-30,0
 Lynn Bowden,6909,WR,1997-10-14,4
+Seth McGowan,13424,RB,2001-10-23,0
 Domenik Hixon,65,WR,1984-10-08,8
 Marcus Johnson,3445,WR,1994-08-05,7
 Josh Doctson,3178,WR,1992-12-03,6
@@ -1330,7 +1389,7 @@ Dayton Wade,11964,WR,2000-09-08,2
 J.P. Holtz,3695,TE,1993-08-28,7
 Dontre Wilson,4941,WR,NA,0
 Darece Roberson,7623,WR,1998-07-29,1
-Irvin Charles,8861,WR,1997-04-13,4
+Irv Charles,8861,WR,1997-04-13,4
 Phil Lutz,13258,WR,NA,1
 Floyd Allen,6697,WR,1996-07-16,3
 Paxton Lynch,3170,QB,1994-02-12,6
@@ -1344,6 +1403,7 @@ Jeremy Kelley,1432,WR,1988-06-09,1
 Aaron Murray,2019,QB,1990-11-10,6
 Treveyon Pratt,12355,WR,2000-05-26,1
 Marquez Clark,2846,WR,1991-09-26,10
+Mekhi Mews,13835,WR,NA,0
 Josh Rosen,4863,QB,1997-02-10,5
 Nay'Quan Wright,13250,RB,NA,1
 Keilahn Harris,11190,WR,2001-01-08,1
@@ -1352,7 +1412,7 @@ Jordan Jones,7264,RB,1997-01-20,2
 Dorin Dickerson,542,TE,1988-03-31,4
 Eli Pancol,12909,WR,2000-07-07,1
 Luke Falk,5108,QB,1994-12-28,4
-Cole Payton,13335,QB,NA,0
+Cole Payton,13335,QB,2002-10-26,0
 Mik'Quan Deane,6490,TE,NA,3
 Carlos Henderson,4108,WR,1994-12-19,5
 Jamison Crowder,2410,WR,1993-06-17,10
@@ -1392,8 +1452,9 @@ Tim Boyle,5257,QB,1994-10-03,7
 DeAndre Carter,2750,WR,1993-04-10,11
 Puka Nacua,9493,WR,2001-05-29,3
 Caden Davis,13149,K,2001-02-27,1
-Dan Villari,13321,TE,NA,0
+Dan Villari,13321,TE,2002-06-29,0
 Devin Carter,12019,WR,2002-03-18,1
+Drew Stevens,13968,K,2003-12-09,0
 Andrei Iosivas,10226,WR,1999-10-15,3
 Robert Davis,4285,WR,1995-04-02,5
 Kalil Pimpleton,8248,WR,1998-12-09,1
@@ -1435,6 +1496,7 @@ Dez Fitzpatrick,7729,WR,1997-12-17,4
 Player Invalid,12465,RB,NA,0
 Quadree Henderson,5279,WR,1996-09-12,4
 Tommy Hudson,7439,TE,1997-02-22,4
+De'Zhaun Stribling,13417,WR,2002-12-18,0
 Riley Cooper,582,WR,1987-09-09,10
 Otis Anderson,8077,RB,1998-11-12,1
 Ricky Collins,2935,WR,1992-03-05,10
@@ -1454,7 +1516,7 @@ Will Shipley,11577,RB,2002-08-29,2
 Chimere Dike,12540,WR,2001-12-14,1
 Jarrett Boykin,1173,WR,1989-11-04,4
 Kiero Small,2280,RB,1989-05-01,1
-Marlin Klein,13307,TE,NA,0
+Marlin Klein,13307,TE,2002-09-17,0
 Jacob Huesman,3978,QB,1993-02-27,5
 A.J. Brown,5859,WR,1997-06-30,7
 Dan Orlovsky,374,QB,1983-08-18,15
@@ -1481,6 +1543,7 @@ Thomas Greaney,11351,TE,1998-11-16,1
 Tim DeMorat,11163,QB,1999-10-18,1
 Kevin Smith,2295,WR,1991-12-21,6
 Dustin Vaughan,2075,QB,1991-01-27,8
+Kyre Duplessis,14056,WR,NA,0
 Matt Breida,4455,RB,1995-02-28,7
 Dontrelle Inman,2291,WR,1989-01-31,11
 Josh Scobee,275,K,1982-06-23,16
@@ -1492,7 +1555,7 @@ Tim Wilson,5714,WR,1994-02-16,4
 Jaxon Janke,12173,WR,1999-11-10,1
 Keith Kirkwood,5134,WR,1994-12-26,8
 Cayleb Jones,3447,WR,1993-03-21,6
-Cade York,8258,K,2001-01-27,3
+Cade York,8258,K,2001-01-27,4
 Amari Cooper,2309,WR,1994-06-17,10
 Jake Funk,7771,RB,1998-01-11,3
 Keith Marshall,3397,RB,1994-02-16,6
@@ -1521,7 +1584,7 @@ Zach Horton,13110,TE,2002-12-02,1
 Seyi Ajirotutu,570,WR,1987-06-12,10
 Je'Quan Burton,12144,WR,2000-03-08,1
 Parker Hesse,6662,TE,1995-05-26,5
-Ian Wheeler,12036,RB,2001-09-15,1
+Ian Wheeler,12036,RB,2001-09-15,2
 Jaelon Acklin,5140,WR,1995-08-10,4
 Sean McGrath,1323,TE,1987-12-03,8
 Marshall Morgan,3579,K,1993-11-28,9
@@ -1542,7 +1605,7 @@ Daniel Lasco,3392,RB,1992-10-09,6
 Leon Washington,697,RB,1982-08-29,9
 Dalen Cambre,12888,WR,2001-04-10,1
 Clay Harbor,584,TE,1987-07-02,10
-Chris Brazzell,13353,WR,NA,0
+Chris Brazzell,13353,WR,2003-09-22,0
 Jaylin Lane,12641,WR,2002-05-01,1
 Danny Anthrop,3454,WR,1993-05-29,9
 Braydon Johnson,11496,WR,1998-12-02,1
@@ -1551,12 +1614,13 @@ Karlos Williams,2458,RB,1993-05-04,5
 Justin Blackmon,1114,WR,1990-01-09,10
 Jared Abbrederis,2132,WR,1990-12-07,6
 Tre Tucker,10213,WR,2001-03-08,3
+Ja'Mori Maclin,13696,WR,2001-09-08,0
 Darrell Henderson,5916,RB,1997-08-19,4
 Stanley Morgan,6069,WR,1996-09-07,6
 Eric Wallace,3908,TE,1988-12-13,6
 Spencer Sanders,12165,QB,1999-12-15,1
 Trey McBride,8130,TE,1999-11-22,4
-Jadarian Price,13286,RB,NA,0
+Jadarian Price,13286,RB,2003-10-09,0
 Marcel Reece,126,RB,1985-06-23,12
 Camerun Peoples,10211,RB,1999-09-14,1
 Peyton Manning,294,QB,1976-03-24,22
@@ -1565,7 +1629,7 @@ Quintin Morris,7536,TE,1999-01-21,5
 Alex Wesley,6163,WR,1995-10-27,3
 Adam Choice,6491,RB,1995-11-30,3
 Jonathan Grimes,1275,RB,1989-12-21,8
-Davon Booth,13339,RB,NA,0
+Davon Booth,13339,RB,2002-01-23,0
 Alec Pierce,8142,WR,2000-05-02,4
 Sam Bradford,621,QB,1987-11-08,11
 Ryan Jones,11298,TE,1999-08-20,1
@@ -1576,7 +1640,7 @@ Tre McBride,2544,WR,1992-12-01,5
 Kai Locksley,7616,WR,1996-11-17,1
 Marcus Marshall,6548,RB,1997-02-23,3
 Player Invalid,11634,WR,NA,0
-Aaron Anderson,13309,WR,NA,0
+Aaron Anderson,13309,WR,2002-12-02,0
 David Morgan,3344,TE,1993-05-19,6
 Kendall Hinton,7210,WR,1997-02-19,3
 Tony Creecy,2875,RB,1992-05-22,10
@@ -1602,17 +1666,20 @@ Deon Yelder,5277,TE,1995-03-06,4
 Darius Davis,2925,WR,NA,11
 Josh Gable,6754,K,1990-09-12,0
 Mitchell Trubisky,3976,QB,1994-08-20,9
+Roman Hemby,13416,RB,2002-08-16,0
 Kevin Foelsch,12215,TE,2001-04-13,1
 Brennan Eagles,7584,WR,NA,1
-Trebor Pena,13356,WR,NA,0
+Trebor Pena,13356,WR,2002-02-21,0
 Jordan Leslie,3063,WR,1991-10-31,7
 Trevor Lawrence,7523,QB,1999-10-06,5
 Matt Corral,8164,QB,1999-01-31,2
 Jaxson Dart,12508,QB,2003-05-13,1
 Andy Tanner,173,WR,1988-05-16,2
+Chris Hilton,13674,WR,2002-10-11,0
 Jaheim Bell,11605,TE,2001-06-14,2
 Rashad Ross,1724,WR,1990-02-02,7
 Martellus Bennett,40,TE,1987-03-10,12
+Chase Curtis,13839,TE,NA,0
 Torrey Smith,826,WR,1989-01-26,11
 Daryl Richardson,1265,RB,1990-04-12,8
 M Harris,1771,WR,1989-03-01,1
@@ -1625,6 +1692,7 @@ David Grinnage,3472,TE,1994-02-24,6
 Evan Engram,4066,TE,1994-09-02,9
 LaMichael James,1225,RB,1989-10-22,8
 Josh Vann,11329,WR,2000-03-10,1
+Harrison Wallace,13670,WR,2003-04-23,0
 Jacory Croskey-Merritt,12533,RB,2001-04-12,1
 Braxton Deaver,3856,TE,1992-05-08,0
 Jamire Jordan,6524,WR,NA,3
@@ -1673,11 +1741,11 @@ TD Ayo-Durojaiye,12039,RB,NA,1
 Chase Daniel,490,QB,1986-10-07,14
 Rashid Shaheed,8676,WR,1998-08-31,4
 Thaddeus Lewis,1022,QB,1987-11-19,10
-Malachi Fields,13285,WR,NA,0
+Malachi Fields,13285,WR,2003-08-26,0
 Olamide Zaccheaus,6271,WR,1997-07-23,7
 Francis Owusu,4879,WR,1994-12-27,3
 Garrett Dickerson,5756,TE,1995-12-30,4
-Jeff Caldwell,13392,WR,NA,0
+Jeff Caldwell,13392,WR,2003-03-02,0
 Casey Bauman,11848,QB,2000-05-18,1
 Michael Vick,461,QB,1980-06-26,19
 Ramel Keyton,11885,WR,2000-09-14,1
@@ -1706,6 +1774,7 @@ Jacob Warren,12118,TE,2000-04-13,1
 Germone Hopper,4827,WR,1993-10-22,5
 Mitchell Evans,12473,TE,2003-03-18,1
 Zander Horvath,8428,RB,1998-12-10,2
+Terion Stewart,13780,RB,2001-11-29,0
 Keshawn Martin,1102,WR,1990-03-15,8
 Silas Bolden,12880,WR,2001-11-09,1
 Pharoah McKever,5280,TE,1994-02-04,4
@@ -1715,7 +1784,7 @@ Taylor McNamara,4563,TE,1994-08-12,5
 Buddy Howell,5271,RB,1996-03-27,4
 Rashaad Penny,4985,RB,1996-02-02,6
 Phazahn Odom,4725,TE,1994-06-08,5
-CJ Donaldson,13277,RB,NA,0
+CJ Donaldson,13277,RB,2004-07-09,0
 Brandon Burks,3810,RB,1993-11-01,6
 Mecole Hardman,5917,WR,1998-03-12,7
 Lee Ward,2945,RB,1991-11-07,10
@@ -1735,6 +1804,7 @@ Connor Neighbors,2923,RB,1991-12-13,10
 Zach Line,1693,RB,1990-04-26,9
 Davon Grayson,5176,WR,1995-09-05,4
 Brad Sorensen,1481,QB,1988-03-13,7
+Kyron Hudson,14031,WR,2002-05-16,0
 Lacoltan Bester,1943,WR,NA,12
 Fred Trevillion,6701,WR,1994-10-13,3
 Brandon Reilly,4541,WR,1993-09-24,5
@@ -1758,6 +1828,7 @@ Casey Pierce,2637,TE,1991-08-21,1
 Justin Sinz,2886,TE,1991-11-03,10
 Darius Prince,5799,WR,1990-04-23,10
 Landon Lenoir,8705,WR,1998-08-11,1
+Kaelon Black,13414,RB,2001-10-17,0
 Duplicate Player,5755,TE,1996-02-23,2
 Jaxon Shipley,2654,WR,1992-07-17,1
 Adam Thielen,1689,WR,1990-08-22,13
@@ -1782,6 +1853,7 @@ Kerryon Johnson,5068,RB,1997-06-30,4
 T.J. Jones,2121,WR,1992-07-19,8
 George Campbell,7387,WR,1996-10-27,2
 Isaiah Wooden,11941,WR,2000-02-03,2
+Louis Hansen,14055,TE,NA,0
 Austin Davis,1200,QB,1989-06-02,10
 Ollie Gordon,12495,RB,2004-01-15,1
 Isaiah Crowell,1901,RB,1993-01-08,8
@@ -1878,7 +1950,7 @@ Bryn Renner,2007,QB,1990-01-22,6
 Trey Ragas,7993,RB,1996-11-07,1
 Thomas Rawls,2585,RB,1993-08-03,7
 D'Vonte Price,8184,RB,1999-06-02,1
-Carnell Tate,13279,WR,NA,0
+Carnell Tate,13279,WR,2005-01-19,0
 Roberto Aguayo,3201,K,1994-05-17,6
 Eli Jenkins,4665,QB,1994-08-07,5
 Mike Gesicki,4993,TE,1995-10-03,8
@@ -1910,7 +1982,8 @@ Equanimeous St. Brown,5323,WR,1996-09-30,7
 Nick Kallerup,13151,TE,2001-03-27,1
 Daniel Thomas,806,RB,1987-10-29,4
 Da'Mari Scott,5166,WR,1995-08-08,4
-Jeremiyah Love,13287,RB,NA,0
+Jeremiyah Love,13287,RB,2005-05-31,0
+Jamal Haynes,13946,RB,2002-10-05,0
 Cheyenne O'Grady,6982,TE,1996-09-20,1
 Colt McCoy,533,QB,1986-09-05,13
 Cade McDonald,13212,WR,2001-05-07,1
@@ -1919,6 +1992,7 @@ Keeon Johnson,4641,WR,1994-12-31,5
 Stepfan Taylor,1579,RB,1991-06-09,7
 Tyler Eifert,1388,TE,1990-09-08,9
 Julian Edelman,344,WR,1986-05-22,13
+Diego Pavia,13427,QB,2002-02-16,0
 Brandon Stokley,740,WR,1976-06-23,15
 Dante Miller,11654,RB,1999-05-14,2
 Chad Hansen,4175,WR,1995-01-18,5
@@ -1926,9 +2000,11 @@ Jacques Patrick,6108,RB,1997-01-07,4
 Hajj-Malik Williams,13017,QB,1999-11-25,0
 Roderick Daniels,13256,WR,NA,1
 Adam Trautman,6869,TE,1997-02-05,6
+Kyle Dixon,13830,WR,2000-09-14,0
 Bobo Wilson,4480,WR,1995-01-25,5
 Blake Renaud,2712,RB,1992-10-06,1
 Marquez Williams,4247,RB,1994-07-16,5
+Joshua Pitsenberger,13923,RB,NA,0
 Jeremy Maclin,411,WR,1988-05-11,11
 Wes Hills,6115,RB,1995-06-05,3
 Deonte Harty,6234,WR,1997-12-04,6
@@ -1949,8 +2025,9 @@ Will Howard,12511,QB,2001-09-24,1
 Shane Buechele,8002,QB,1998-01-08,5
 Chase Cota,11554,WR,1999-11-09,1
 Amari Rodgers,7540,WR,1999-09-23,2
+Jackson Acker,13937,RB,2002-11-15,0
 David Bell,8118,WR,2000-12-14,3
-DJ Rogers,13355,TE,NA,0
+DJ Rogers,13355,TE,2001-10-10,0
 Ben Obomanu,243,WR,1983-10-30,7
 Player Invalid,8426,RB,NA,0
 Jevoni Robinson,4864,TE,1992-11-16,5
@@ -1965,7 +2042,7 @@ Harry Douglas,247,WR,1984-09-16,12
 Josh Bist,8769,TE,NA,1
 Tyler Hoosman,11123,RB,1999-05-07,1
 Chris Boyd,2058,WR,1991-12-16,1
-Bhayshul Tuten,12490,RB,2002-02-14,1
+Bhayshul Tuten,12490,RB,2003-02-14,1
 Chris Boswell,1945,K,1991-03-16,12
 John Hoyland,13211,K,NA,0
 Michael Hill,1624,RB,1989-05-14,2
@@ -1975,6 +2052,7 @@ Jaydon Blue,12457,RB,2004-01-08,1
 Myron Mitchell,7578,WR,1998-06-17,1
 Tyler Vaughns,7548,WR,1997-06-01,1
 Colin Lockett,1894,WR,1991-04-05,1
+Jalen Walthall,13859,WR,2002-10-14,0
 Lenny Krieg,12548,K,2002-08-05,4
 Calvin Johnson,240,WR,1985-09-29,13
 Kellen Winslow,449,TE,1983-07-21,9
@@ -2007,7 +2085,9 @@ Drake London,8112,WR,2001-07-24,4
 Malik Nabers,11632,WR,2003-07-28,2
 Mack Hollins,4177,WR,1993-09-16,9
 Hal Presley,12757,WR,2002-01-22,1
+Octavian Smith,13850,WR,2003-05-12,0
 Jeremy Butler,1865,WR,1991-04-22,6
+Malik McClain,13825,WR,NA,0
 Vincent Testaverde,6723,QB,1996-07-20,3
 Brock Lampe,12983,RB,2003-03-31,1
 Quincy Enunwa,1854,WR,1992-05-31,8
@@ -2020,13 +2100,14 @@ Bryant Koback,8246,RB,1998-04-06,2
 Matthew Tucker,1336,RB,1991-05-24,2
 Maddux Trujillo,12824,K,2003-04-12,1
 Julian Hill,11371,TE,2000-07-09,3
-Tay Martin,8250,WR,1997-12-14,3
+Tay Martin,8250,WR,1997-12-14,4
 Trenton Irwin,6598,WR,1995-12-10,7
 Corey Crooms,12090,WR,2001-04-17,1
+Will Pauling,13662,WR,2003-03-04,0
 Rodney Smith,7101,RB,1996-02-28,2
 Thomas Fidone,12715,TE,2002-09-20,1
 Billy Brown,4650,TE,1993-03-20,5
-Anthony Hankerson,13328,RB,NA,0
+Anthony Hankerson,13328,RB,2004-02-03,0
 Stetson Bennett,10857,QB,1997-10-28,3
 Kasey Closs,2733,WR,1992-04-07,10
 Noah Rauschenberg,12312,K,NA,1
@@ -2047,6 +2128,7 @@ Nick Bowers,7308,TE,1996-05-26,4
 Jaylen Samuels,5107,RB,1996-07-20,4
 Keith Wenning,1883,QB,1991-02-14,6
 Joshua Dobbs,4179,QB,1995-01-26,9
+DeShawn Hanika,13888,TE,NA,0
 Holton Ahlers,11216,QB,1999-11-10,1
 Brian Bridgewater,5287,TE,NA,0
 Brian Quick,1208,WR,1989-06-05,10
@@ -2063,11 +2145,13 @@ Caleb Wilson,6142,TE,1996-07-15,3
 Michael Hoomanawanui,622,TE,1988-07-04,10
 Mark Redman,13013,TE,2002-01-20,1
 J'Mon Moore,5006,WR,1995-05-23,4
+Jimmy Kibble,13967,WR,NA,0
 Bruce Miller,982,RB,1987-08-06,11
 Blake Whiteheart,11201,TE,2000-03-22,3
 Ajou Ajou,12528,WR,2002-01-10,1
 Joseph Scates,12222,WR,2000-02-19,1
 Joe Webb,606,QB,1986-11-14,12
+Cash Jones,13595,RB,2002-04-05,0
 Graham Harrell,6769,QB,1985-05-22,10
 Alex Collins,3327,RB,1994-08-26,6
 Zavier Scott,11299,RB,1999-07-17,3
@@ -2080,6 +2164,7 @@ Sebastian Janikowski,118,K,1978-03-02,22
 Jacoby Ford,567,WR,1987-07-27,5
 Taniela Tupou,3819,RB,1992-12-13,6
 McLeod Bethel-Thompson,975,QB,1988-07-03,1
+Al-Jay Henderson,13779,RB,NA,0
 Collin Hill,7983,QB,1997-10-09,1
 Michael Crabtree,455,WR,1987-09-14,13
 Jake Herslow,8690,WR,NA,1
@@ -2107,12 +2192,15 @@ Hunter Bryant,6846,TE,1998-08-20,2
 Jack Bech,12483,WR,2002-12-18,1
 Juwann Winfree,6223,WR,1996-09-04,6
 Trey Watts,2236,RB,1991-02-13,6
+Cortez Braham,13849,WR,2000-03-06,0
 Oscar Cardenas,12800,TE,2001-07-25,1
 Jaden Shirden,12013,RB,2002-05-02,1
 Ryan Finley,5885,QB,1994-12-26,3
 Stacy Coley,4254,WR,1994-05-13,5
-Emmanuel Henderson,13313,WR,NA,0
+Emmanuel Henderson,13313,WR,2003-03-21,0
 Brevin Jordan,7568,TE,2000-07-16,5
+Hank Beatty,13776,WR,NA,0
+Anderson Castle,14041,RB,NA,0
 James Develin,1303,RB,1988-07-23,11
 John Harris,2578,WR,NA,10
 Stedman Bailey,1568,WR,1990-11-11,7
@@ -2121,13 +2209,17 @@ Jalen Sample,11158,WR,1999-03-19,1
 Jerell Adams,3340,TE,1992-12-31,6
 Mike Meyer,2819,K,1992-06-02,7
 John Diarse,5425,WR,1994-12-10,4
+Chase Roberts,13410,WR,2001-01-21,0
 Tyler McCloskey,4463,RB,1994-08-11,5
 Trey Knox,11601,TE,2001-08-14,1
+Terrill Davis,14040,WR,2003-08-11,0
 Jalen White,12953,RB,2002-06-05,1
 Javian Hawkins,7563,RB,1999-11-03,1
+Seydou Traore,13429,TE,2002-08-12,0
 Marquis Bundy,3889,WR,1994-08-05,6
 Connor Davis,7503,TE,1994-10-20,2
 Abram Smith,8190,RB,1998-09-14,1
+Jacob De Jesus,13904,WR,NA,0
 Reggie Bonnafon,5162,RB,1996-01-04,5
 Antonio Brown,536,WR,1988-07-10,12
 RJ Archer,2609,QB,1987-08-05,1
@@ -2143,6 +2235,7 @@ Bilal Powell,818,RB,1988-10-27,11
 Johnathon Johnson,7414,WR,1996-09-30,2
 Feleipe Franks,7531,TE,1997-12-22,5
 Duece Watts,11204,WR,1999-12-23,1
+Sawyer Robertson,13426,QB,NA,0
 Jordan Terrell,11975,RB,2000-07-21,1
 DeSean Jackson,147,WR,1986-12-01,14
 Scotty Washington,7237,WR,1997-07-26,6
@@ -2237,13 +2330,13 @@ LT Smith,3025,WR,NA,NA
 Trey Burton,1793,TE,1991-10-29,8
 Jamal Pettigrew,8741,TE,1998-04-22,1
 Sony Michel,4962,RB,1995-02-17,5
-Josh Cameron,13394,WR,NA,0
+Josh Cameron,13394,WR,2003-03-18,0
 Jordan Scarlett,6167,RB,1996-02-09,3
 Jared Wiley,11595,TE,2000-11-02,2
 Trevor Etienne,12531,RB,2004-07-09,1
 Robert Wheelwright,4790,WR,NA,5
 Trenton Cannon,5123,RB,1994-07-23,5
-Nathan Peterman,4183,QB,1994-05-04,8
+Nathan Peterman,4183,QB,1994-05-04,9
 Blake Mack,5264,TE,1996-04-24,4
 Antone Smith,609,RB,1985-09-17,11
 Connor Cook,3171,QB,1993-01-29,4
@@ -2267,12 +2360,14 @@ Jerricho Cotchery,155,WR,1982-06-16,16
 Deon Cain,5101,WR,1996-08-09,7
 Michael Clark,4376,WR,1995-10-26,5
 Rory Starkey,12431,WR,NA,1
+Ty Pezza,13705,TE,2002-09-18,0
 DJ Thomas-Jones,12973,TE,2002-07-06,1
 Demetrius Harris,1619,TE,1991-07-29,9
 Kadron Boone,1792,WR,1991-09-13,1
+Trey Smack,13545,K,2003-06-12,0
 Qualan Jones,13117,RB,NA,0
 Mitch Leidner,4839,QB,1994-01-17,5
-Jha'Quan Jackson,11808,WR,2000-05-15,1
+Jha'Quan Jackson,11808,WR,2000-05-15,2
 Reggie Dunn,1406,WR,1989-01-05,1
 Jonathan Stewart,218,RB,1987-03-21,14
 Justice Liggins,4831,WR,1994-12-14,5
@@ -2287,6 +2382,7 @@ Anthony Gordon,6898,QB,1996-08-28,2
 Joaquin Davis,12777,WR,2002-08-18,1
 Ben Beise,8864,TE,NA,1
 Byron Leftwich,5817,QB,1980-01-14,0
+Mante Morrow,14039,WR,NA,0
 Valdez Showers,3660,WR,1993-06-28,6
 Chris Herndon,5009,TE,1996-02-23,4
 Amir Carlisle,3606,WR,1992-09-24,9
@@ -2294,7 +2390,8 @@ Clayton Thorson,6147,QB,1995-12-25,3
 Jalen Camp,7789,WR,1998-07-10,3
 Kyle Carter,3481,TE,1992-12-17,6
 Tyreik McAllister,8749,RB,1998-04-07,3
-Ty Simpson,13275,QB,NA,0
+Rodney Hammond,14008,RB,2002-09-02,0
+Ty Simpson,13275,QB,2002-12-21,0
 Jonathan Ward,7087,RB,1997-09-30,6
 Lan Larison,12969,RB,2001-10-11,1
 Brittain Brown,8423,RB,1997-10-10,4
@@ -2306,14 +2403,16 @@ Stevo Klotz,12815,TE,NA,1
 Scott Orndoff,4309,TE,1993-12-16,5
 Charlie Smyth,11653,K,2001-06-26,2
 Brock Purdy,8183,QB,1999-12-27,4
+Jonathan Brady,13920,WR,2003-10-08,0
 Aidan Robbins,12080,RB,2000-12-22,1
+Rashad Rochelle,14037,WR,2003-05-19,0
 Nathaniel Peat,12007,RB,2000-08-23,1
 Jake Luton,7084,QB,1996-04-11,5
 Jaray Jenkins,11133,WR,2000-01-04,1
 Kain Colter,2153,WR,1990-10-03,1
 Nick Vogel,7201,K,1995-12-23,2
 Brian Johnson,8055,K,1999-03-05,1
-Zachariah Branch,13320,WR,NA,0
+Zachariah Branch,13320,WR,2004-03-29,0
 Devon Wylie,1133,WR,1988-09-02,2
 Russell Wilson,1234,QB,1988-11-29,14
 Roger Lewis,3519,WR,1993-11-27,6
@@ -2325,10 +2424,12 @@ La'Damian Webb,12306,RB,NA,1
 Austin Aune,11491,QB,1993-09-06,1
 Dominic Lovett,12732,WR,2002-11-08,1
 Kaylon Horton,12296,WR,NA,1
+Ken Seals,13781,QB,NA,0
 Brock Wright,7891,TE,1998-11-27,5
 Dillon Stoner,7996,WR,1998-02-06,2
-Fernando Mendoza,13269,QB,NA,0
+Fernando Mendoza,13269,QB,2003-10-01,0
 Matt Barkley,1338,QB,1990-09-08,11
+Bryce Lance,13420,WR,2002-08-20,0
 Jarrod West,2979,WR,1992-05-14,1
 Freddie Martino,2171,WR,1991-09-07,8
 Chris Pierce,8634,TE,1998-11-02,2
@@ -2365,7 +2466,7 @@ Stanley Berryhill,8419,WR,1998-06-09,1
 Chandler Catanzaro,2242,K,1991-02-26,8
 Scottie Phillips,7005,RB,1997-10-06,2
 Jordan Thompson,2129,TE,1989-07-12,1
-Kaytron Allen,13405,RB,NA,0
+Kaytron Allen,13405,RB,2003-01-08,0
 Trayveon Williams,6144,RB,1997-10-18,7
 DeAndre Reaves,3542,WR,1992-04-30,9
 Mike Bercovici,3495,QB,1993-02-09,6
@@ -2376,15 +2477,17 @@ Damarea Crockett,6334,RB,1997-12-22,4
 Kisean Johnson,13166,WR,NA,1
 Jalen Wayne,10230,WR,1999-05-13,1
 Eno Benjamin,6951,RB,1999-04-13,4
+Rohan Jones,13810,TE,NA,0
 P.J. Walker,4335,QB,1995-02-26,7
 Malcolm Lewis,4392,WR,1993-10-27,5
 Alfonzo Graham,11472,RB,2000-03-20,1
 Julian Howsare,2865,RB,1992-09-11,7
 Thaddeus Moss,6919,TE,1998-05-14,2
 Kenneth Walker III,8151,RB,2000-10-20,4
+Isaiah Jacobs,13773,RB,NA,0
 Sutton Smith,6188,RB,1996-03-22,3
 Dalton Kincaid,10236,TE,1999-10-18,3
-Odell Beckham Jr.,2078,WR,1992-11-05,10
+Odell Beckham Jr.,2078,WR,1992-11-05,12
 Gunnar Watson,12003,QB,2000-01-11,1
 John Jiles,12383,WR,2000-07-08,2
 Jeremy Moussa,12352,QB,NA,1
@@ -2417,9 +2520,11 @@ Trishton Jackson,7009,WR,1998-03-09,5
 Josiah Price,4409,TE,1993-07-19,5
 Joe Sommers,3686,TE,1993-03-03,0
 Papi White,6364,WR,1996-07-19,3
+Cyrus Allen,13413,WR,2003-02-11,0
 Mose Frazier,3622,WR,1993-08-30,6
 Travis Fulgham,6059,WR,1995-09-13,4
 Coleman Owen,12829,WR,2001-03-23,1
+Noah Short,13677,WR,NA,0
 Christian Ponder,941,QB,1988-02-25,9
 Zach Mettenberger,1935,QB,1991-07-16,6
 Michael Young,8828,WR,1999-02-11,2
@@ -2436,6 +2541,7 @@ J.t. Luper,5291,WR,NA,0
 Luke Musgrave,9481,TE,2000-09-02,3
 Camren McDonald,11213,TE,1999-05-30,1
 Greg Olsen,58,TE,1985-03-11,14
+Jaydn Ott,13419,RB,2002-12-16,0
 Taj Williams,5224,WR,NA,4
 Noel Thomas,4600,WR,1994-09-18,5
 Justin Jackson,5131,RB,1996-04-22,5
@@ -2457,25 +2563,27 @@ Greg Joseph,5272,K,1994-08-04,7
 Brian Tyms,1699,WR,1989-02-21,4
 John Mitchell,8685,TE,1998-04-03,1
 Pat Devlin,802,QB,1988-04-12,9
-Jordyn Tyson,13281,WR,NA,0
+Jordyn Tyson,13281,WR,2004-08-12,0
 Thomas Hennigan,8437,WR,1998-08-18,1
 Devlin Hodges,6595,QB,1996-04-12,3
 ZaQuandre White,8173,RB,1998-12-21,1
 DeAndre Torrey,8243,RB,1998-12-23,1
 MarShawn Lloyd,11581,RB,2001-01-05,2
-Cade Klubnik,13303,QB,NA,0
+Cade Klubnik,13303,QB,2003-10-10,0
 Player Invalid,8237,RB,NA,0
 Arthur Lynch,1827,TE,1990-06-17,1
 Tim Tebow,559,TE,1987-08-14,12
 A.J. Hines,7074,RB,NA,0
 Jaeden Graham,5754,TE,1995-10-10,4
 Jack Coan,8201,QB,1998-12-09,1
+Cameron Dorner,13962,WR,NA,0
 Jordan Akins,5032,TE,1992-04-19,8
 Zay Jones,4080,WR,1995-03-30,9
 Samaje Perine,4147,RB,1995-09-16,9
 Redford Jones,5837,K,1994-07-25,3
 Lavance Taylor,3032,RB,NA,NA
 John Crockett,2562,RB,1992-02-16,5
+Malick Meiga,14058,WR,2001-03-25,0
 Mark Walton,4997,RB,1997-03-29,4
 Mekale McKay,3418,WR,1993-08-04,6
 Bart Houston,4728,QB,1992-12-16,5
@@ -2492,6 +2600,7 @@ Garrett Walston,8621,TE,1998-01-20,1
 Austin Proehl,5126,WR,1996-06-17,4
 Ketron Jackson,13193,WR,NA,1
 Keith Smith,2073,RB,1992-04-08,10
+Camden Brown,13726,WR,NA,0
 Julian Allen,5566,RB,1994-05-31,4
 J.J. Taylor,6973,RB,1998-01-04,5
 Elijah Marks,5548,WR,1995-12-29,4
@@ -2505,7 +2614,7 @@ Jaylin Noel,12536,WR,2002-09-04,1
 Dion Sims,1357,TE,1991-02-18,9
 Beau Corrales,12314,WR,NA,1
 Eric Gray,10223,RB,1999-11-04,3
-Kenny Yeboah,7597,TE,1998-10-30,4
+Kenny Yeboah,7597,TE,1998-10-30,5
 Trevone Boykin,3213,QB,1993-08-22,6
 Pat Bryant,12492,WR,2002-12-10,1
 Josh Hammond,7287,WR,1998-07-24,3
@@ -2531,13 +2640,14 @@ Sean Mannion,2394,QB,1992-04-25,9
 Makai Polk,8209,WR,2001-08-04,3
 Donte Foster,2158,WR,1990-11-10,1
 Andrew Vollert,5156,TE,1995-03-15,4
-Omar Cooper,13276,WR,NA,0
+Omar Cooper,13276,WR,2003-12-14,0
 Elijah Young,12818,RB,2001-09-14,1
 Josh Johnson,8051,RB,1997-12-26,1
 Santana Moss,69,WR,1979-06-01,14
 Nate Wieting,7245,TE,1997-02-20,2
 Malik Heath,11210,WR,2000-03-31,3
 Lenard Tillery,4636,RB,1993-12-09,5
+Nick DeGennaro,13963,WR,NA,0
 Sal Cannella,8089,TE,1996-12-02,3
 Rashawn Scott,3457,WR,1992-01-29,6
 Peyton Barber,3594,RB,1994-06-27,6
@@ -2554,6 +2664,7 @@ Gabe Davis,6943,WR,1999-04-01,6
 Jeremiah Briscoe,5356,QB,1993-08-15,0
 Wil Lutz,3678,K,1994-07-07,10
 Allen Hurns,1984,WR,1991-11-12,8
+Jaden Bradley,13760,WR,NA,0
 Jaaron Hayek,12170,WR,2001-06-06,1
 Seth Green,8539,TE,1998-02-14,4
 Cortrelle Simpson,6605,WR,1996-08-30,3
@@ -2571,11 +2682,12 @@ Boobie Dixon,3027,RB,NA,NA
 Bo Nix,11563,QB,2000-02-25,2
 Stefon Diggs,2449,WR,1993-11-29,11
 Hunter Thedford,7522,TE,1997-04-15,3
-Kenneth Gainwell,7567,RB,1999-03-14,5
+Kenny Gainwell,7567,RB,1999-03-14,5
 DeAndre Thompkins,6540,WR,1995-10-01,3
 Allen Reisner,942,TE,1988-09-29,3
 Travis Etienne,7543,RB,1999-01-26,5
 Shawn Bowman,12217,TE,2000-05-16,1
+Kansei Matsuzawa,13804,K,1999-01-08,0
 Racey McMath,7793,WR,1999-06-14,3
 Curtis Hodges,8192,TE,1999-07-03,2
 Andre Ellington,1575,RB,1989-02-03,7
@@ -2617,6 +2729,7 @@ Justin Hunter,1418,WR,1991-05-20,9
 Nate Iese,4803,TE,1994-09-25,5
 J.J. Arcega-Whiteside,5863,TE,1996-12-31,4
 Robert Burns,11260,RB,NA,1
+Coleman Bennett,13844,RB,NA,0
 Jacquizz Rodgers,949,RB,1990-02-06,11
 Austin Mack,6873,WR,1997-08-31,4
 Jalen Parmele,479,RB,1985-12-30,4
@@ -2635,12 +2748,14 @@ C.J. Board,4344,WR,1993-12-12,6
 Jarveon Howard,12150,RB,1999-12-13,1
 Ronnie Rivers,8195,RB,1999-01-31,4
 Nate Stanley,6892,QB,1997-08-26,2
+Michael Briscoe,13890,WR,NA,0
 Trent Taylor,4218,WR,1994-04-30,9
 Darwin Thompson,6178,RB,1997-02-12,4
 Donald Brown,377,RB,1987-04-11,11
 Messiah Swinson,12154,TE,2000-04-20,2
 Levine Toilolo,1642,TE,1991-07-30,9
 Marlon Brown,1675,WR,1991-04-22,7
+Matthew Caldwell,13597,QB,2003-05-23,0
 Tanner Conner,8849,TE,1998-03-20,4
 Desmond Ridder,8159,QB,1999-08-31,4
 Josh Freeman,448,QB,1988-01-13,11
@@ -2656,8 +2771,10 @@ Player Invalid,12525,WR,NA,0
 Kapri Bibbs,2001,RB,1993-01-10,8
 Shaun Beyer,8018,TE,1996-11-11,1
 Aaron Burbridge,3368,WR,1993-12-23,6
+E.J. Horton,13931,WR,NA,0
 Tyler Varga,2566,RB,1993-09-24,5
 Jack Heneghan,5392,QB,1996-02-13,4
+Barion Brown,13533,WR,2003-12-12,0
 Taylor Pontius,2915,K,NA,NA
 Alex Smith,661,TE,1982-05-22,15
 Joel Dreessen,52,TE,1982-07-26,8
@@ -2669,7 +2786,7 @@ Bronson Rechsteiner,7190,RB,1997-10-24,2
 James Wright,1898,WR,1991-12-31,8
 Reggie Davis,4681,WR,1995-11-22,5
 Jeff Janis,2140,WR,1991-06-24,6
-Emmett Johnson,13337,RB,NA,0
+Emmett Johnson,13337,RB,2003-10-10,0
 Simmie Cobbs,5164,WR,1995-08-25,4
 Gage Larvadain,13101,WR,2002-01-03,1
 Shane Smith,4646,RB,1993-08-21,5
@@ -2687,6 +2804,8 @@ George Atkinson,2026,RB,1992-11-29,8
 Dimitri Flowers,5353,RB,1996-01-20,4
 Cameron Artis-Payne,2477,RB,1990-06-23,7
 Andrew Parchment,8572,WR,NA,1
+Kaidon Salter,13681,QB,NA,0
+Omari Kelly,13941,WR,NA,0
 Ryquell Armstead,6007,RB,1996-10-30,3
 Paul Turner,3783,WR,1993-05-10,6
 Colin Jeter,4327,TE,1995-05-23,5
@@ -2708,6 +2827,7 @@ Tyler Murphy,2773,WR,1992-01-12,5
 Ryan Santoso,5692,K,1995-08-26,4
 Carlos Washington,11186,RB,1998-12-26,3
 Jonathon Brooks,11583,RB,2003-07-21,2
+Gabriel Plascencia,13710,K,NA,0
 Devin Phelps,7396,WR,1996-10-15,2
 Kyle Allen,5127,QB,1996-03-08,8
 Kris Leach,11447,TE,NA,1
@@ -2724,7 +2844,7 @@ Franky Okafor,3923,WR,1993-07-28,0
 Kevin Shaa,8697,WR,1997-11-10,1
 Kejon Owens,13291,RB,NA,0
 Tony Johnson,2862,K,1991-09-09,0
-Dane Key,13336,WR,NA,0
+Dane Key,13336,WR,2003-07-01,0
 Caden Prieskorn,12933,TE,1999-09-21,1
 David Moore,4274,WR,1995-01-15,9
 Ja'seem Reed,13179,WR,2003-03-21,1
@@ -2737,7 +2857,9 @@ Nate Washington,370,WR,1983-08-28,15
 Paul Lang,3897,TE,1992-05-24,0
 Chris Coleman,11366,WR,1999-04-03,1
 Cobi Hamilton,1390,WR,1990-11-13,9
+Cody Hardy,13834,TE,NA,0
 Nate Becker,6535,TE,1996-03-24,3
+Jalon Daniels,13425,QB,2002-10-29,0
 Tyler Renew,4305,RB,1994-10-20,5
 Alex Chisum,3935,WR,NA,0
 Ed Williams,2876,WR,1991-03-14,1
@@ -2755,7 +2877,7 @@ Donte Sylencieux,8052,WR,NA,1
 Shemar Bridges,8731,WR,1997-12-26,2
 Mark Thompson,5463,RB,1994-12-09,4
 Eli Stove,7935,WR,NA,1
-Reggie Virgil,13297,WR,NA,0
+Reggie Virgil,13297,WR,2004-05-14,0
 Isaiah Searight,6618,TE,1997-01-18,3
 Royce Freeman,5046,RB,1996-02-24,8
 Caleb Bluiett,4621,TE,1993-10-06,5
@@ -2774,6 +2896,7 @@ Rico Gafford,5197,WR,1996-05-23,4
 Jacoby Jones,13120,WR,2001-07-18,1
 Jase McClellan,11590,RB,2002-06-25,1
 Cole Burgess,12210,WR,2000-02-11,3
+Dallen Bentley,13577,TE,2000-12-31,0
 Lance Mason,13357,TE,NA,0
 Ben McCord,3887,TE,1992-06-30,0
 Brandon Zylstra,4878,WR,1993-03-25,5
@@ -2792,6 +2915,7 @@ Tre' McKitty,7554,TE,1999-01-12,4
 Samson Evans,12308,RB,NA,1
 Ishmael Hyman,6209,WR,1995-08-23,3
 Trace McSorley,5974,QB,1995-08-23,5
+Johnny Pascuzzi,14029,TE,NA,0
 Antonio Williams,7203,RB,1997-10-22,2
 Larry Rose,5618,RB,1995-09-09,4
 Aaron Jones,4199,RB,1994-12-02,9
@@ -2809,7 +2933,7 @@ Tobais Palmer,1665,WR,1990-02-20,1
 AJ Henning,12865,WR,2001-09-09,1
 Jeff Adams,1769,RB,1989-09-06,8
 Jalen Coker,11646,WR,2001-10-30,2
-Eric Rivers,13316,WR,NA,0
+Eric Rivers,13316,WR,2002-09-17,0
 Chris Briggs,4004,TE,1992-11-09,5
 Aaron Ripkowski,2507,RB,1992-12-20,5
 Charles Sims,2223,RB,1990-09-19,6
@@ -2830,7 +2954,7 @@ David Sills,6154,WR,1996-05-29,7
 DeeJay Dallas,6931,RB,1998-09-16,6
 Michael Dyer,2597,RB,1990-10-13,10
 Akeem Hunt,2731,RB,1993-02-22,5
-Hakeem Butler,5886,TE,1996-05-16,5
+Hakeem Butler,5886,TE,1996-05-16,7
 Jordan Whittington,11623,WR,2000-10-01,2
 Andy Isabella,5915,WR,1996-11-18,6
 Jamal Custis,6097,WR,1995-11-06,1
@@ -2853,15 +2977,17 @@ Ian Book,7589,QB,1998-03-30,4
 Tyron Billy-Johnson,6063,WR,1996-01-08,5
 Joe Mixon,4018,RB,1996-07-24,9
 Mitch Van Vooren,13227,WR,NA,1
+Zavion Thomas,13411,WR,2004-02-14,0
 DeVante Parker,2319,WR,1993-01-20,9
 AJ Barner,11603,TE,2002-05-03,2
+Carson Towt,13407,TE,2001-06-01,0
 Gerald Christian,2555,TE,1991-08-26,7
 James Summers,4533,RB,1994-06-12,5
 Shakeir Ryan,4721,WR,1995-08-11,5
 Michael Jacobson,8094,TE,1997-04-04,4
 Cameron Meredith,2699,WR,1992-09-21,7
 Duplicate Player,3639,WR,1994-05-09,3
-J'Mari Taylor,13348,RB,NA,0
+J'Mari Taylor,13348,RB,2002-03-15,0
 Mason Schreck,4229,TE,1993-11-04,6
 Leon Johnson,11863,WR,2001-06-12,1
 Jason Bean,12190,QB,1999-06-09,1
@@ -2905,7 +3031,7 @@ Isaiah McKenzie,4197,WR,1995-04-09,8
 Damien Harris,5890,RB,1997-02-11,5
 Solomon Patton,2221,WR,1990-10-17,2
 Player Invalid,9755,RB,NA,1
-Tarik Black,8005,WR,1998-02-10,4
+Tarik Black,8005,WR,1998-02-10,5
 Roy Helu,915,RB,1988-12-07,9
 Kyren Williams,8150,RB,2000-08-26,4
 Malcolm Epps,12187,TE,2000-01-13,1
@@ -2981,6 +3107,7 @@ Nick Truesdell,3921,TE,1990-03-14,6
 Kellen Mond,7581,QB,1999-06-22,3
 Frank Stephens,5814,WR,1995-10-23,0
 Jarrett Stidham,6136,QB,1996-08-08,7
+Mason Shipley,13644,K,NA,0
 Cameron Posey,4749,WR,1993-10-27,5
 Michael Colubiale,6590,TE,1995-02-09,3
 Jalen McCleskey,7173,WR,1997-08-06,2
@@ -2990,6 +3117,7 @@ Kyle McCord,12494,QB,2002-09-19,1
 Keith Mumphery,2478,WR,1992-06-05,5
 Chris Naggar,8042,K,1997-12-09,1
 Patrick Murray,2219,K,1991-06-22,8
+Sahmir Hagans,13929,WR,NA,0
 Jalin Marshall,3492,WR,1995-07-21,6
 Marcell Ateman,4942,WR,1994-09-16,5
 Xavier Legette,11626,WR,2001-01-29,2
@@ -3006,6 +3134,7 @@ Zach Heins,11864,TE,2000-04-21,1
 Vince Mayle,2428,TE,1991-06-12,5
 Vince Mayle,2428,WR,1991-06-12,5
 Frank Gore Jr.,11573,RB,2002-03-13,2
+Tanner Koziol,13408,TE,2004-01-28,0
 Jake Briningstool,12817,TE,2002-12-09,1
 Robert Martin,5700,RB,1995-09-04,4
 Ben Ellefson,7288,TE,1996-09-01,3
@@ -3025,10 +3154,13 @@ Jake Rudock,3347,QB,1993-01-21,6
 Malcolm Mitchell,3273,WR,1993-07-20,6
 Chase Brown,9224,RB,2000-03-21,3
 Ryan Green,5352,RB,1994-04-19,0
+Levi Wentz,13889,WR,NA,0
 Xavier Restrepo,12520,WR,2002-04-12,1
 Ricardo Lockette,992,WR,1986-05-21,9
+Shaleak Knotts,13624,WR,NA,0
 Bo Melton,8204,WR,1999-05-18,4
 Thayer Thomas,11073,WR,1998-05-20,2
+Colbie Young,13477,WR,2002-07-24,0
 Elijah Arroyo,12521,TE,2003-04-05,1
 Shawn Bane,6357,WR,1995-06-09,3
 Ryan Izzo,5094,TE,1995-12-21,4
@@ -3042,8 +3174,9 @@ Tre Harbison,8027,RB,1998-07-01,1
 Jayden Higgins,12484,WR,2002-12-15,1
 Jaivon Heiligh,8234,WR,1999-09-02,1
 Tylan Wallace,7595,WR,1999-05-13,5
+Michael Wortham,13645,WR,NA,0
 Donald Parham Jr.,6074,TE,1997-08-16,7
-Garrett Nussmeier,13404,QB,NA,0
+Garrett Nussmeier,13404,QB,2002-02-07,0
 Antwan Goodley,2593,WR,1991-09-06,7
 Ian Bunting,6308,TE,1996-02-10,4
 Cornelius Johnson,11815,WR,2000-11-29,2
@@ -3054,6 +3187,7 @@ Ryan Grant,2093,WR,1990-12-19,8
 Duplicate Player,5282,WR,NA,0
 Taylor Russolino,7518,K,1989-05-23,2
 Colson Yankoff,11942,TE,2000-03-01,2
+Kentrel Bullock,13436,RB,2002-03-31,0
 Austin Hooper,3202,TE,1994-10-29,10
 Moritz Bohringer,3336,TE,1993-10-16,6
 Justin Jefferson,6794,WR,1999-06-16,6
@@ -3076,7 +3210,7 @@ James Butler,3019,WR,NA,0
 Mark Weisman,2943,RB,1991-10-28,10
 Matt Bushman,7992,TE,1995-11-03,3
 Seneca Wallace,662,QB,1980-08-06,10
-Michael Woods,8202,WR,2000-03-19,3
+Michael Woods,8202,WR,2000-03-19,4
 Marvin Jones,1067,WR,1990-03-12,11
 Jamaal Charles,323,RB,1986-12-27,14
 Chris Conley,2381,WR,1992-10-25,10
@@ -3108,14 +3242,16 @@ Dominik Eberle,7314,K,1996-07-04,2
 Will Tukuafu,782,RB,1984-01-03,10
 Quentin Johnston,9754,WR,2001-09-06,3
 Josh Crockett,5760,WR,1995-03-13,4
+Jordan Nubin,14018,RB,NA,0
 Bo Scarbrough,5112,RB,1996-09-29,4
 Mike Davis,2431,RB,1993-02-19,7
 Edwin Baker,1324,RB,1991-06-01,1
-Nicholas Singleton,13288,RB,NA,0
+Nicholas Singleton,13288,RB,2004-01-06,0
 Trent Steelman,2752,WR,1989-11-14,12
 Justin Stockton,5800,RB,1995-07-06,4
 Zach Conque,4607,QB,1994-04-22,5
 Xavier Wade,12363,WR,NA,1
+Sean Brown,13867,WR,NA,0
 Michael Ezeike,11126,TE,2000-09-17,1
 Shonn Greene,348,RB,1985-08-21,6
 D.J. Montgomery,6453,WR,1996-11-17,7
@@ -3132,6 +3268,8 @@ Jordan Johnson,4537,RB,1994-05-21,5
 Rashad Lawrence,2095,WR,1992-06-10,6
 Chad Beebe,5570,WR,1994-06-01,4
 Winston Wright,13238,WR,NA,2
+Luke Drzewiecki,13731,K,NA,0
+Riley Nowakowski,13433,TE,2002-06-30,0
 Drake Dabney,13210,TE,2002-05-14,1
 Matt Moore,233,QB,1984-08-09,15
 Ahmad Bradshaw,78,RB,1986-03-19,13
@@ -3159,7 +3297,7 @@ Malik Knowles,11080,WR,2000-08-17,2
 Tony Poljan,7972,TE,1997-04-25,1
 Jamal Agnew,4198,WR,1995-04-03,8
 Speedy Noil,4938,WR,1995-10-14,5
-Germie Bernard,13274,WR,NA,0
+Germie Bernard,13274,WR,2003-12-02,0
 Malik Henry,6552,WR,1997-04-16,3
 Clint Ratkovich,8934,RB,1997-09-16,2
 Collin Mooney,1304,RB,1986-04-03,2
@@ -3184,10 +3322,10 @@ Doug McNeil,2615,WR,1988-07-22,2
 Chris Lacy,5661,WR,1996-01-28,5
 Hale Hentges,6439,TE,1996-08-19,3
 Jerome Smith,2177,RB,1991-04-06,1
-Erik Ezukanma,8114,WR,2000-01-25,3
+Erik Ezukanma,8114,WR,2000-01-25,4
 Geronimo Allison,3503,WR,1994-01-18,6
 Chris Olave,8144,WR,2000-06-27,4
-Mike Washington,13305,RB,NA,0
+Mike Washington,13305,RB,2003-07-03,0
 Brenden Rice,11621,WR,2002-03-18,2
 Chris Myarick,6529,TE,1995-10-06,7
 Josh Allen,4984,QB,1996-05-21,8
@@ -3197,6 +3335,7 @@ Maurice Ffrench,7234,WR,1998-01-01,2
 James White,1848,RB,1992-02-03,8
 Jackson Meeks,12938,WR,2003-03-24,1
 Austin Watkins,7579,WR,1998-02-16,3
+Tommy Thomas,14005,WR,NA,0
 Tyler Harrell,12029,WR,2000-08-01,1
 Jacob Maxwell,2124,TE,1991-01-04,1
 Khalil McClain,7580,WR,1999-03-19,1
@@ -3223,7 +3362,7 @@ Pokey Wilson,11130,WR,1999-08-12,2
 Landry Jones,1411,QB,1989-04-04,9
 Jon Brown,3805,K,1992-12-07,6
 Jordan Ellis,6318,RB,1996-03-22,3
-Dean Connors,13315,RB,NA,0
+Dean Connors,13315,RB,2003-08-29,0
 Lamar Miller,1048,RB,1991-04-25,10
 Will Dissly,5010,TE,1996-07-08,8
 Ty Johnson,6039,RB,1997-09-17,7
@@ -3237,6 +3376,7 @@ Zay Flowers,9997,WR,2000-09-11,3
 Ervin Philips,5407,RB,1995-01-18,4
 Keelan Doss,6032,WR,1996-03-21,5
 Aaron Smith,7512,RB,NA,5
+Squirrel White,13943,WR,NA,0
 Jimmay Mundine,2722,TE,1991-11-12,1
 Greg Dulcich,8172,TE,2000-03-26,4
 Sam Cotton,4730,TE,1994-01-27,5
@@ -3249,13 +3389,16 @@ Jadon Janke,12398,WR,1999-11-10,1
 Chris Polk,1033,RB,1989-12-16,8
 Zach Evans,9222,RB,2001-05-30,2
 Sage Surratt,7576,TE,1998-04-13,3
+Brock Rechsteiner,14034,WR,NA,0
 Harold Fannin,12506,TE,2004-07-20,1
 Jonathan Adams,7613,WR,1999-01-21,1
 Josh Johnson,8222,WR,1999-08-10,2
+Paul Geelen,13990,K,NA,0
 Jameill Showers,2784,QB,1991-09-06,5
 Breshad Perriman,2331,WR,1993-09-10,8
 Geordon Porter,12093,WR,NA,1
 E.J. Perry,8193,QB,1998-01-01,2
+Quentin Moore,13870,TE,NA,0
 Ryan Miller,11421,WR,2000-02-20,3
 Chris Streveler,6778,QB,1995-01-06,3
 Josiah Deguara,7050,TE,1997-02-14,6
@@ -3267,21 +3410,22 @@ Kehinde Oginni,8706,TE,1999-03-03,2
 De'Lance Turner,5464,RB,1995-08-23,4
 Jonnu Smith,4144,TE,1995-08-22,9
 Jack Plummer,12009,QB,1999-10-21,1
-Denzel Boston,13346,WR,NA,0
+Denzel Boston,13346,WR,2003-12-06,0
 Wan'Dale Robinson,8126,WR,2001-01-05,4
 Keilan Robinson,11773,RB,2000-02-16,2
 Max Wittek,3551,QB,1993-07-01,9
 Lucas Krull,8249,TE,1998-07-11,4
+Hayden Large,13712,TE,2002-03-27,0
 Brandon Bogotay,1397,K,1989-05-08,1
 Luke Lundy,2914,RB,1988-08-23,10
-Jonah Coleman,13345,RB,NA,0
+Jonah Coleman,13345,RB,2003-08-20,0
 Xavier Smith,11168,WR,1997-09-21,3
 Van Jefferson,6853,WR,1996-07-26,6
 Andrew Mevis,8775,K,1998-10-12,1
 Jeff Smith,6557,WR,1997-04-21,5
 Henry Hynoski,910,RB,1988-12-30,5
 Christian Hackenberg,3168,QB,1995-02-14,6
-Ja'Kobi Lane,13293,WR,NA,0
+Ja'Kobi Lane,13293,WR,2004-05-05,0
 Wayne Taulapapa,11537,RB,1998-03-22,1
 Jimmie Hunt,2771,WR,1990-09-04,10
 Tajh Boyd,1850,QB,1990-09-25,1
@@ -3369,7 +3513,7 @@ Markese Stepp,12341,RB,2000-02-11,1
 Jake Roh,5246,TE,1994-09-24,4
 Maurice Jones-Drew,293,RB,1985-03-23,9
 Miles Austin,122,WR,1984-06-30,14
-DT Sheffield,13326,WR,NA,0
+DT Sheffield,13326,WR,2001-02-25,0
 Jimmy Williams,5254,WR,1995-02-24,4
 Thomas Howard,245,K,1983-07-14,8
 Kolby Listenbee,3348,WR,1994-01-25,6
@@ -3382,11 +3526,11 @@ Alstevis Squirewell,3811,RB,1992-09-17,9
 Derrick Dillon,7100,WR,1995-10-28,2
 Kareem Hunt,4098,RB,1995-08-06,9
 Greg Little,835,WR,1989-05-30,9
-Skyler Bell,13402,WR,NA,0
+Skyler Bell,13402,WR,2002-07-05,0
 Charlie Kolar,8127,TE,1999-02-10,4
 Zach Hocker,2094,K,1991-08-23,6
 Glenn Gronkowski,3509,RB,1993-03-25,6
-Lawrence Keys,12001,WR,1999-12-09,1
+Lawrence Keys,12001,WR,1999-12-09,2
 Joshua Simon,12883,TE,2000-11-27,1
 James Turner,12156,K,2000-11-22,1
 John Lunsford,3574,K,1993-11-14,9
@@ -3398,6 +3542,7 @@ Josh Lambo,2671,K,1990-11-19,7
 Jared Smart,8418,WR,NA,1
 Kerrith Whyte,6175,RB,1996-10-31,3
 Austin Traylor,3878,TE,1993-09-03,6
+E.J. Warner,13989,QB,NA,0
 Tyler Kroft,2390,TE,1992-10-15,9
 T.J. Yeldon,2341,RB,1993-10-02,7
 Devin Fuller,3393,WR,1994-01-29,6
@@ -3419,6 +3564,7 @@ Kevin Austin,8200,WR,2000-03-30,4
 Taiwan Jones,886,RB,1988-07-26,12
 Rashad Jennings,380,RB,1985-03-26,11
 Najee Harris,7528,RB,1998-03-09,5
+Dominic Richardson,13725,RB,2001-04-12,0
 Scott Tolzien,896,QB,1987-09-04,9
 Lance McCutcheon,8745,WR,1999-02-28,4
 Tyler Loop,12711,K,2001-08-04,1
@@ -3451,11 +3597,12 @@ Malik Davis,8800,RB,1998-11-26,4
 Bruce Gradkowski,393,QB,1983-01-27,11
 Nick Ralston,7941,RB,1996-11-10,1
 Easop Winston,7337,WR,1996-12-17,5
+Trayvon Rudolph,14038,WR,2001-09-06,0
 Anthony Firkser,4435,TE,1995-02-19,9
 Dallas Clark,5,TE,1979-06-12,11
 Taiwan Deal,6106,RB,NA,0
 Andy Janovich,3332,RB,1993-05-23,6
-Max Klare,13278,TE,NA,0
+Max Klare,13278,TE,2003-07-08,0
 Luke Grimm,12803,WR,2001-08-08,1
 Rakeem Boyd,7532,RB,NA,1
 Sam Hartman,11558,QB,1999-07-29,2
@@ -3479,6 +3626,7 @@ Jacob Sirmon,12278,QB,NA,1
 Sam Howell,8162,QB,2000-09-16,4
 Caleb Williams,11560,QB,2001-11-18,2
 Walter Powell,2247,WR,1991-11-23,6
+Will Kacmarek,13434,TE,2003-02-12,0
 Ty Fryfogle,8196,WR,1999-01-28,2
 Keshawn Hill,2927,RB,1993-03-17,10
 Griff Whalen,1247,WR,1990-03-01,8
@@ -3496,7 +3644,7 @@ Shaun Draughn,913,RB,1987-12-07,9
 Dan Vitale,3353,RB,1993-10-26,6
 Jake Kumerow,2821,WR,1992-02-17,8
 Rob Housler,971,TE,1988-03-17,9
-Jalen Reagor,6798,WR,1999-01-02,5
+Jalen Reagor,6798,WR,1999-01-02,6
 Kent Taylor,4861,TE,1993-11-29,4
 Justin Hall,8441,WR,1999-01-29,3
 Spencer Schnell,6593,WR,1994-12-07,3
@@ -3504,6 +3652,7 @@ C.J. Worton,6359,WR,1996-01-30,3
 Kirk Merritt,7351,WR,1997-01-05,3
 Vick Ballard,1106,RB,1990-07-16,8
 Paul Butler,5588,TE,1993-04-26,5
+Max Tomczak,13698,WR,NA,0
 Josh Reese,2905,WR,1991-01-03,10
 Ramon Jefferson,12402,RB,2000-01-10,1
 Jace Davis,1867,WR,1991-08-22,1
@@ -3535,14 +3684,14 @@ Jonathan Krause,1906,WR,1992-01-18,6
 Jacob Breeland,7015,TE,1996-09-20,2
 Nikko Remigio,11320,WR,1999-11-04,3
 Travis Rudolph,4644,WR,1995-09-15,5
-Bauer Sharp,13308,TE,NA,0
+Bauer Sharp,13308,TE,2003-05-03,0
 Ayir Asante,12097,WR,2001-02-27,1
 Tip Reiman,11716,TE,2001-09-17,2
 Chris Thompson,4719,WR,1994-05-09,5
 Brian Parker,2653,TE,1992-05-30,7
 Derrick Gore,6753,RB,1994-12-13,5
 Stephen Morris,1990,QB,1992-08-27,6
-Oscar Delp,13319,TE,NA,0
+Oscar Delp,13319,TE,2003-08-04,0
 Reggie Begelton,6763,WR,1993-08-31,2
 Trey Potts,12166,RB,NA,1
 Eric Dungey,6443,QB,1996-06-12,3
@@ -3550,6 +3699,7 @@ Graham Gano,503,K,1987-04-09,17
 DeShon Williams,8102,TE,NA,1
 Cedrick Wilson,5113,WR,1995-11-20,8
 Ryan Flournoy,11783,WR,1999-10-27,2
+Treyvhon Saunders,13862,WR,NA,0
 Joel Honigford,11197,TE,1998-04-27,1
 Trey Williams,2633,RB,1992-12-11,5
 Anthony Turner,8813,WR,NA,1
@@ -3575,6 +3725,7 @@ Leonte Carroo,3253,WR,1994-01-24,6
 Sone Ntoh,13022,RB,NA,0
 Kyle Sloter,4588,QB,1994-02-07,5
 Aaron Bailey,4683,QB,NA,1
+Ethan Sanchez,13842,K,2002-04-14,0
 Luke Schoonmaker,10871,TE,1998-09-28,3
 Siaosi Mariner,7309,WR,1997-01-25,2
 Jaylen Smith,6155,WR,1997-08-01,3
@@ -3608,6 +3759,7 @@ Isaiah Coulter,7085,WR,1998-09-18,3
 Tayon Fleet-Davis,8707,RB,NA,1
 T.J. Logan,4186,RB,1994-09-03,5
 Erik Swoope,1975,TE,1992-05-08,8
+Kadarius Calloway,14021,RB,NA,0
 Mason Rudolph,4972,QB,1995-07-17,8
 Kobe Lewis,12026,RB,2000-06-14,1
 Player Invalid,8124,TE,NA,0
@@ -3626,6 +3778,7 @@ Matthew Slater,312,WR,1985-09-09,16
 Artavis Pierce,7227,RB,1996-05-17,2
 Israel Abanikanda,9227,RB,2002-10-05,3
 Marcus Cooper,11222,RB,NA,1
+Kevorian Barnes,13831,RB,NA,0
 Dontae Strickland,6592,RB,1997-03-22,3
 Lincoln Sefcik,12237,TE,1999-07-14,1
 Charles Johnson,1530,WR,1989-02-27,7
@@ -3652,6 +3805,7 @@ Da'Quan Felton,12892,WR,2001-01-13,1
 Chris Harper,1595,WR,1989-09-10,1
 Myles Price,13075,WR,2001-12-16,1
 Rasheed Bailey,2753,WR,1993-07-29,7
+Trent Howland,13996,RB,NA,0
 Jakob Johnson,6202,RB,1994-12-15,7
 Justin Hardy,2412,WR,1991-12-18,7
 Eric Frohnapfel,2932,TE,1992-10-19,10
@@ -3660,6 +3814,7 @@ KJ Hamler,6805,WR,1999-07-08,5
 Nate Adkins,11433,TE,1999-07-09,3
 Josh Pederson,7733,TE,1997-09-22,3
 Akeem Judd,4707,RB,1992-12-11,5
+Jordon Vaughn,13930,RB,NA,0
 Tank Dell,9502,WR,1999-10-29,3
 Stephen Gostkowski,110,K,1984-01-28,16
 Tre'Shaun Harrison,11456,WR,2000-06-26,1
@@ -3703,7 +3858,7 @@ Brennan Presley,13011,WR,2002-02-02,1
 Antonio Callaway,5310,WR,1997-01-09,5
 Brelan Chancellor,2044,WR,1992-08-06,12
 Ed Dickson,701,TE,1987-07-25,12
-Malik Benson,13329,WR,NA,0
+Malik Benson,13329,WR,2002-10-17,0
 Adam Zaruba,4768,TE,1991-03-03,5
 Zamir White,8139,RB,1999-09-18,4
 Jawhar Jordan,11588,RB,1999-08-18,2
@@ -3716,14 +3871,17 @@ JaVonta Payton,8632,WR,1998-10-07,1
 Avery Williams,7809,RB,1998-07-15,4
 Mike Wallace,365,WR,1986-08-01,13
 Devon Bell,3890,K,1993-07-04,9
+Evan Svoboda,13630,TE,2003-03-31,0
+EJ Smith,13778,RB,2002-05-15,0
 Jalen Milroe,12510,QB,2002-12-13,1
 Dennis Dixon,665,QB,1985-01-11,5
+Eni Falayi,13772,TE,NA,0
 Brandon Peters,8579,QB,1997-10-15,1
 Darren Waller,2505,TE,1992-09-13,11
 Blake Bell,2422,TE,1991-08-07,9
 Chris Collier,11963,RB,2000-03-24,2
 Kendall Gaskins,1671,RB,1990-11-04,7
-Desmond Reid,13327,RB,NA,0
+Desmond Reid,13327,RB,2004-07-29,0
 DeAndre Hopkins,1426,WR,1992-06-06,13
 Player Invalid,11587,RB,NA,0
 Tommylee Lewis,3614,WR,1992-10-24,6
@@ -3745,18 +3903,20 @@ Lance Lenoir,4750,WR,1995-02-09,6
 Isaiah Bowser,11431,RB,1999-07-14,1
 Kyle Lewis,5236,WR,1995-04-22,4
 Zach Davidson,7943,TE,1998-07-15,5
-Taylen Green,13306,QB,NA,0
+Taylen Green,13306,QB,2002-10-18,0
 Tyrone Broden,13034,WR,2001-02-26,1
 Kyle Lauletta,4996,QB,1995-03-17,4
 Tyson Bagent,11256,QB,2000-06-08,3
 Dylan Thompson,2586,QB,1991-10-25,5
 Brett Maher,4958,K,1989-11-21,11
+J. Michael Sturdivant,13770,WR,2002-09-06,0
 Preston Williams,6148,WR,1997-03-27,4
 E.J. Manuel,1349,QB,1990-03-19,7
 Jalin Moore,5961,RB,1995-11-28,3
 Marcus Leak,3584,WR,1992-11-19,6
 Marquez Valdes-Scantling,5086,WR,1994-10-10,8
 Blake Watson,11568,RB,1999-10-14,2
+Malik Rutherford,13702,WR,NA,0
 Rivaldo Fairweather,12851,TE,2002-07-19,1
 Kellen Moore,1158,QB,1988-07-05,8
 Jeshaun Jones,11911,WR,1999-12-22,2
@@ -3775,23 +3935,26 @@ Gary Barnidge,176,TE,1985-09-22,12
 Clay Burton,2947,TE,1992-10-22,10
 Dwayne Washington,3391,RB,1994-04-24,8
 Alex Tanney,1262,QB,1987-11-11,10
-Ted Hurst,13317,WR,NA,0
+Ted Hurst,13317,WR,2004-07-02,0
 Ryan McDaniel,8891,WR,NA,1
 Noah Togiai,7404,TE,1997-07-06,4
 Neal Johnson,12135,TE,2001-08-03,1
+Joe Royer,13435,TE,2002-02-25,0
 Arthur Williams,3031,WR,NA,NA
 Wayne Gallman,4150,RB,1994-10-01,6
 Mekhi Sargent,8085,RB,1997-10-08,2
 Logan Stokes,2996,TE,1992-12-04,10
 Sam Pitz,13158,TE,NA,0
 Brandon Smith,7865,WR,1998-12-10,5
-B.T. Potter,11092,K,2000-02-21,1
+B.T. Potter,11092,K,2000-02-21,3
 Cedric O'Neal,3780,RB,1994-01-29,6
 Aaron Peck,4384,TE,1994-10-09,5
 Tyler Ervin,3280,RB,1993-10-07,6
 Marquez Callaway,6989,WR,1998-03-27,5
+Carsen Ryan,13580,TE,2003-08-21,0
 Joe Banyard,1236,RB,1988-11-12,8
 Jadon Haselwood,9498,WR,2001-04-15,1
+Ethan Conner,13661,TE,NA,0
 Jake Bentley,7073,QB,NA,0
 Neil Pau'u,8436,WR,1995-09-11,1
 Josh Jacobs,5850,RB,1998-02-11,7
@@ -3809,6 +3972,7 @@ Artayvious Lynn,7864,TE,1996-03-13,1
 Adrian Martinez,11065,QB,2000-01-07,3
 Parris Campbell,5880,WR,1997-07-16,7
 Corey Knox,2933,RB,1989-10-13,1
+Jake Retzlaff,13685,QB,2003-03-28,0
 Johnny Mundt,4314,TE,1994-11-23,9
 Mac Jones,7527,QB,1998-09-05,5
 Cullen Gillaspia,6293,RB,1995-05-12,4
@@ -3816,19 +3980,22 @@ David Johnson,362,RB,1987-08-26,11
 David Johnson,362,TE,1987-08-26,11
 Khalid Hill,5560,RB,1995-06-04,4
 Braylon Heard,2768,RB,1991-10-11,10
+Matt Lauter,13806,TE,NA,0
 Ben Malena,2065,RB,1992-05-29,1
 David Wallis,12421,WR,2001-08-08,1
 Jesse Matthews,11452,WR,1999-08-12,2
-Joe Fagnano,13350,QB,NA,0
+Joe Fagnano,13350,QB,2001-03-31,0
 Deuce Vaughn,9505,RB,2001-11-02,3
 Blaine Gabbert,862,QB,1989-10-15,13
+Romello Brinson,13818,WR,2002-01-23,0
 Rodney Smith,2892,RB,1992-01-10,7
 Elliott Fry,6208,K,1994-12-12,4
 Devonta Freeman,2168,RB,1992-03-15,8
 Geoff Swaim,2545,TE,1993-09-16,10
 Tim Cook,4623,RB,1994-04-19,5
+Kaden Wetjen,13491,WR,2002-03-09,0
 Josh Love,7157,QB,1996-09-12,2
-Drew Allar,13289,QB,NA,0
+Drew Allar,13289,QB,2004-03-08,0
 Irv Smith Jr.,6126,TE,1998-08-09,6
 Bryce Treggs,3797,WR,1994-04-30,6
 Tony Washington,1978,WR,1990-10-18,6
@@ -3840,11 +4007,11 @@ Zach Pascal,4319,WR,1994-12-18,8
 Tom Kennedy,6588,WR,1996-07-29,7
 Matt Ammendola,7617,K,1996-12-11,2
 Chandler Cox,6298,RB,1996-07-29,3
-Kevin Coleman,13338,WR,NA,0
+Kevin Coleman,13338,WR,2003-09-10,0
 Gunnar Oakes,13251,TE,1999-05-11,2
 Jarveon Williams,4372,RB,1995-01-03,5
 Elijah Hood,4265,RB,1995-04-22,5
-Sam Roush,13322,TE,NA,0
+Sam Roush,13322,TE,2003-09-06,0
 Kenny Britt,366,WR,1988-09-19,11
 Jordan Taylor,2685,WR,1992-02-18,7
 John Carlson,143,TE,1984-05-12,7
@@ -3861,7 +4028,7 @@ Spencer Shrader,12185,K,1999-05-19,2
 Christian Scotland-Williamson,5468,TE,1993-07-05,7
 Rakim Jarrett,9495,WR,2001-01-24,2
 Michael Bennett,2969,WR,1991-12-19,1
-Luke Altmyer,13314,QB,NA,0
+Luke Altmyer,13314,QB,2002-10-22,0
 Malik Cunningham,10860,WR,1998-10-06,3
 Lex Hilliard,340,RB,1984-07-30,5
 Josh Bellamy,1312,WR,1989-05-18,10
@@ -3884,21 +4051,28 @@ Jaylen Wright,11643,RB,2003-04-01,2
 Kellen Clemens,198,QB,1983-06-06,14
 Trevon Wesco,6181,TE,1995-09-12,5
 Corey Davis,4036,WR,1995-01-11,6
+Tanner Arkin,13827,TE,2003-07-07,0
 Jackson Hawes,12658,TE,2000-12-06,1
 Rex Grossman,679,QB,1980-08-23,11
 John Wolford,5806,QB,1995-10-16,8
 Demetris Robertson,8439,WR,1997-04-13,1
 John Samuel Shenker,11467,TE,1998-09-02,2
 Tyler Davis,7131,TE,1997-04-02,5
+Jack Strand,13602,QB,2004-06-23,0
 William Thompson,12324,QB,NA,1
 Will Sheppard,12788,WR,2002-02-11,1
+Kobe Prentice,13708,WR,2004-03-10,0
+Josh Pitsenburger,13768,RB,NA,0
 Troy Mangen,5245,TE,1994-07-25,4
 Shaun Hill,686,QB,1980-01-09,18
 Brandon Polk,7340,WR,1996-12-10,2
-Jalen Cropper,11506,WR,2001-05-03,3
+Luke Wysong,13617,WR,2003-05-29,0
+Jalen Moreno-Cropper,11506,WR,2001-05-03,3
 Dalvin Cook,4029,RB,1995-08-10,8
 Ahmani Marshall,12797,RB,2002-03-21,1
+Laith Marjan,13813,K,NA,0
 Javon McKinley,7890,WR,1998-04-10,1
+TJ Harden,13750,RB,2004-04-23,0
 Justin Watson,5374,WR,1996-04-04,8
 Tre Mason,2231,RB,1993-08-06,6
 Antwane Grant,3690,WR,1992-08-14,0
@@ -3911,20 +4085,24 @@ Kendall Wright,1097,WR,1989-11-12,10
 Troy Williams,5281,QB,NA,0
 Saalim Hakim,1322,WR,1990-02-01,8
 David Njoku,4033,TE,1996-07-10,9
+Dillon Bell,13621,WR,2003-11-06,0
 Marlon Mack,4152,RB,1996-03-07,7
 Bryson Green,12799,WR,2002-12-30,1
 Kurt Warner,7,QB,1971-06-22,0
-Matthew Hibner,13324,TE,NA,0
+Matt Hibner,13324,TE,2002-03-09,0
 Darion Griswold,3497,TE,1992-12-23,6
 Dontez Ford,4595,WR,1994-02-03,5
 Cecil Shorts,866,WR,1987-12-22,9
 Fred Ross,4360,WR,1995-05-19,5
 Artavis Scott,4670,WR,1994-10-12,5
 Tre Madden,3564,RB,1993-08-16,6
-KC Concepcion,13298,WR,NA,0
+KC Concepcion,13298,WR,2004-09-23,0
 Willis McGahee,300,RB,1981-10-21,11
 Daniel Fells,277,TE,1983-09-23,14
+Sam Scott,13873,RB,NA,0
+Daniel Sobkowicz,13861,WR,2002-09-16,0
 Derek Anderson,691,QB,1983-06-15,17
+Ademola Faleye,13777,TE,2002-03-09,0
 Ty Scott,9491,WR,1999-03-27,1
 Allenzae Staggers,5802,WR,NA,8
 Dominique Dafney,7502,TE,1997-06-03,5
@@ -3933,7 +4111,9 @@ Cole Stoudt,2582,QB,1992-10-23,11
 Corey Grant,2729,RB,1991-12-19,7
 CJ Marable,7549,RB,1997-02-02,2
 Kyler Murray,5849,QB,1997-08-07,7
+Raylen Sharpe,13783,WR,NA,0
 Tanner Hudson,5409,TE,1994-11-12,8
+Wesley Grimes,13663,WR,2004-03-09,0
 Aeneas Dennis,12361,QB,NA,1
 Cory Harkey,1296,TE,1990-06-17,8
 Beaux Collins,12889,WR,2002-12-16,1
@@ -3959,12 +4139,15 @@ Zac Stacy,1573,RB,1991-04-09,7
 Juwan Johnson,7002,TE,1996-09-13,6
 Tez Johnson,12485,WR,2002-05-18,1
 Tucker Fisk,8885,TE,1999-01-19,4
+Kolbe Katsis,13981,WR,2001-12-28,0
 Damion Willis,6549,WR,1997-06-20,3
 Marvin Hall,3895,WR,1993-04-10,6
 Derek Watt,3354,RB,1992-11-07,7
 Jermaine Burton,11640,WR,2001-06-28,1
+Lewis Bond,13541,WR,2003-05-29,0
 Heath Miller,310,TE,1982-10-22,15
 Cody Chrest,11284,WR,NA,1
+Patrick Gurd,13913,TE,NA,0
 Phil Mafah,12738,RB,2002-10-24,1
 Nsimba Webster,6387,WR,1996-01-27,6
 Zac Brooks,3402,RB,1993-02-01,9
@@ -3990,11 +4173,13 @@ Jeremy Hill,1892,RB,1992-10-20,8
 Binjimen Victor,6939,WR,1997-01-15,3
 Mikey Daniel,7172,RB,1996-11-03,2
 Nick Harwell,2788,WR,1991-01-21,1
+Jameson Geers,13879,TE,2002-12-05,0
 Robert Herron,2217,WR,1992-06-02,2
 Player Invalid,8422,RB,NA,0
 Reggie Bush,179,RB,1985-03-02,14
 Rashod Owens,12760,WR,2001-12-07,1
 James Quick,4320,WR,1994-10-06,5
+Noah Whittington,13437,RB,2001-12-13,0
 Antonio Gates,322,TE,1980-06-18,19
 Cody Fajardo,2576,QB,1992-03-29,10
 Ray Hamilton,2870,TE,1992-10-28,10
@@ -4017,7 +4202,8 @@ Khalil Tate,7401,WR,1998-10-23,2
 Durron Neal,3630,WR,1993-11-03,9
 Terrell Watson,2598,RB,1993-08-22,7
 Payton Thorne,12762,QB,2001-06-26,1
-Deion Burks,13333,WR,NA,0
+Deion Burks,13333,WR,2003-01-08,0
+Damon Bankston,13949,RB,2003-04-25,0
 Kenneth Harper,2730,RB,1993-01-30,10
 Trent Edwards,739,QB,1983-10-30,6
 Mason Stokke,7868,RB,NA,1
@@ -4070,6 +4256,7 @@ Devin Culp,11820,TE,2000-02-02,2
 Chris Swain,3443,RB,1992-11-17,6
 Denard Robinson,1449,RB,1990-09-22,7
 Player Invalid,8216,QB,NA,0
+Joseph Manjack,13743,WR,2002-11-15,0
 Javonte Williams,7588,RB,2000-04-25,5
 Andrew Opoku,3948,WR,1990-11-11,0
 Cyrus Gray,1130,RB,1989-11-18,4
@@ -4107,7 +4294,7 @@ Brock Osweiler,1126,QB,1990-11-22,10
 Malik Flowers,11192,WR,1999-06-23,1
 Colby Parkinson,6865,TE,1999-01-08,6
 Blake Sims,3957,QB,1992-01-03,5
-Makai Lemon,13294,WR,NA,0
+Makai Lemon,13294,WR,2004-06-02,0
 Kevin Kassis,8876,WR,1997-09-19,2
 James Jones,253,WR,1984-03-31,13
 Mike Kafka,586,QB,1987-07-25,4
@@ -4129,6 +4316,7 @@ Wendell Smallwood,3309,RB,1994-01-20,6
 Kenyan Drake,3242,RB,1994-01-26,8
 De'Montre Tuggle,8721,RB,1999-03-29,1
 Zach Olstad,5697,RB,1993-12-06,4
+Kendrick Law,13412,WR,2003-06-13,0
 Jordan Westerkamp,4787,WR,1994-06-23,5
 Kevin Kolb,278,QB,1984-08-24,7
 Reggie Corbin,6978,RB,NA,0
