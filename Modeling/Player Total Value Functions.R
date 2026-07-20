@@ -55,7 +55,11 @@ compile_training_data <- function(
   colnames(post_ktc) <- c("name", "ktc_value")
 
   # create data table
+<<<<<<< Updated upstream
   pre_ktc %>%
+=======
+  pre_ktc |>
+>>>>>>> Stashed changes
     rename("historical_value" = "ktc_value") %>%
     left_join(
       season_value_added %>% filter(season == this_season),
@@ -71,7 +75,12 @@ compile_training_data <- function(
     left_join(player_info, by = join_by(name)) %>%
     select(-player_id, -years_exp) %>%
     mutate(
+<<<<<<< Updated upstream
       age = as.numeric(pre_ktc_date - birth_date) / 365.25
+=======
+      age = as.numeric(pre_ktc_date - birth_date) / 365.25,
+      season = this_season
+>>>>>>> Stashed changes
     )
 }
 
