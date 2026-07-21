@@ -517,7 +517,7 @@ keep_trade_cut %>%
 season_dates <- tibble(
   season_start = c(ymd("2024-09-05"), ymd("2025-09-04"), ymd("2026-09-10")),
   season_end = c(ymd("2024-12-30"), ymd("2025-12-29"), ymd("2027-01-04"))
-) %>%
+) |>
   write_csv(here("Data/season_dates.csv"))
 
 # remove objects and functions to declutter environment
