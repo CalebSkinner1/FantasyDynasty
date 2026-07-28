@@ -196,6 +196,16 @@ while (last_date_fvt < ymd("20260713")) {
     write_csv(here("Data/last_date_fvt.csv"))
 }
 
+future_value_time <- read_csv(
+  here("Shiny/Saved Files/future_value_time.csv"),
+  show_col_type = FALSE
+)
+
+future_value_time |>
+  filter(name == "Lamar Jackson") |>
+  ggplot() +
+  geom_line(aes(x = date, y = future_value))
+
 # ensure future value is the same as most recent future_value_over_time
 
 player_total_value <- future_value_time |>
