@@ -13,6 +13,9 @@ train_models <- TRUE # set to true to retrain models
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE) # shortcut
+weekly_value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) |>
+  select(season, week, name, position, value_added) |>
+  filter(!(position %in% c("K", "DST")))
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut
 season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
 
@@ -56,42 +59,26 @@ ktc_begin_end_dates <- list(
 
 # training ---------------------------------------------------------------
 if (train_models) {
-  hktc_data <- map_dfr(
-    ktc_begin_end_dates,
-    ~ compile_training_data(
-      ktc_list,
-      player_info,
-      pre_ktc_date = .x$pre_ktc_date,
-      post_ktc_date = .x$post_ktc_date
-    )
+  weekly_data <- map_dfr(
+    seq_along(ktc_begin_end_dates),
+    function(year) {
+      compile_training_data(
+        ktc_list,
+        player_info,
+        weekly_value_added,
+        pre_ktc_date = ktc_begin_end_dates[[year]]$pre_ktc_date,
+        post_ktc_date = ktc_begin_end_dates[[year]]$post_ktc_date,
+        season_dates = slice(season_dates, year)
+      )
+    }
   )
 
   all_seasons <- sort(unique(c(season_value_added$season, hktc_data$season)))
 
-  real_obs <- bind_rows(
-    season_value_added |>
-      filter(!(position %in% c("K", "DST"))) |>
-      transmute(name, season, position, total_value_added),
-    hktc_data |>
-      filter(!(position %in% c("K", "DST"))) |>
-      transmute(name, season, position, total_value_added = tva_adj)
-  ) |>
-    distinct(name, season, position, .keep_all = TRUE) |>
-    left_join(player_info, by = join_by(name, position))
-
-  # Catch player_info join failures (name mismatches)
-  name_mismatches <- real_obs |>
-    filter(is.na(birth_date)) |>
-    distinct(name, position)
-  if (nrow(name_mismatches) > 0) {
-    warning(sprintf(
-      "%d player(s) failed to match player_info (NA birth_date) -- see `name_mismatches`. These will be dropped.",
-      nrow(name_mismatches)
-    ))
-    print(name_mismatches)
-  }
-
-  fpca_data <- real_obs |>
+  fpca_data <- season_value_added |>
+    filter(!(position %in% c("K", "DST"))) |>
+    select(name, season, position, total_value_added) |>
+    left_join(player_info, by = join_by(position, name)) |>
     filter(!is.na(birth_date)) |>
     group_by(name, position) |>
     complete(season = seq(min(season), max(all_seasons))) |>
@@ -113,10 +100,9 @@ if (train_models) {
     ) |>
     arrange(position, subj, argvals)
 
-  fpca_models <- compute_future_value(
+  fpca_models <- train_models(
     fpca_data,
-    hktc_data,
-    positions
+    weekly_data
   )
 
   save(fpca_models, file = here("Modeling/fpca_models.RData"))
@@ -145,7 +131,7 @@ while (last_date_fvt < ymd("20260713")) {
   last_date_fvt <- read_csv(
     here("Data/last_date_fvt.csv"),
     show_col_types = FALSE
-  ) %>%
+  ) |>
     pull(value)
 
   message("running ", last_date_fvt)
@@ -164,12 +150,13 @@ while (last_date_fvt < ymd("20260713")) {
 
   # origin data set, set at beginning of last year
   players_df <- compile_data_set(
-    keep_trade_cut,
-    future_value_names,
-    season_value_added,
-    current_date, #today()
-    season_end,
-    season_start
+    keep_trade_cut = keep_trade_cut,
+    future_value_names = future_value_names,
+    sva_tibble = season_value_added,
+    va_tibble = weekly_value_added,
+    date = current_date, #today()
+    season_end = season_end,
+    season_start = season_start
   )
 
   projection <- project_careers(
@@ -177,7 +164,7 @@ while (last_date_fvt < ymd("20260713")) {
     fpca_models,
     n_years_ahead = 10,
     discount_rate = 0.95,
-    taper_window = c(5, 2)
+    taper_window = c(2, 2)
   )
 
   future_value_time <- projection$future_value |>

@@ -511,14 +511,16 @@ date <- str_c(
   year(today()) %>% str_sub(start = 3, end = 4)
 )
 
-keep_trade_cut %>%
-  write_csv(here(paste0("Data/ktc values/ktc_value", date, ".csv")))
+write_csv(
+  keep_trade_cut,
+  here(paste0("Data/ktc values/ktc_value", date, ".csv"))
+)
 
 season_dates <- tibble(
   season_start = c(ymd("2024-09-05"), ymd("2025-09-04"), ymd("2026-09-10")),
   season_end = c(ymd("2024-12-30"), ymd("2025-12-29"), ymd("2027-01-04"))
-) |>
-  write_csv(here("Data/season_dates.csv"))
+)
+write_csv(season_dates, here("Data/season_dates.csv"))
 
 # remove objects and functions to declutter environment
 rm(
