@@ -92,13 +92,13 @@ if (train_models) {
     ) |>
     ungroup() |>
     transmute(
-      subj = name,
       argvals = age,
       y = total_value_added,
+      name,
       position,
       season
     ) |>
-    arrange(position, subj, argvals)
+    arrange(position, name, argvals)
 
   fpca_models <- train_models(
     fpca_data,
@@ -109,7 +109,7 @@ if (train_models) {
 }
 
 # fpca_data |>
-#   ggplot(aes(argvals, y, group = subj)) +
+#   ggplot(aes(argvals, y, group = name)) +
 #   geom_line(alpha = 0.15) +
 #   geom_point(alpha = 0.3, size = 0.8) +
 #   facet_wrap(~position) +
@@ -159,12 +159,14 @@ while (last_date_fvt < ymd("20260713")) {
     season_start = season_start
   )
 
+  # work on weekly scores (two stage?)
+
   projection <- project_careers(
     players_df,
     fpca_models,
     n_years_ahead = 10,
     discount_rate = 0.95,
-    taper_window = c(2, 2)
+    taper_window = c(5, 2)
   )
 
   future_value_time <- projection$future_value |>

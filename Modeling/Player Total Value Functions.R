@@ -185,7 +185,7 @@ select_ktc_list <- function(ktc_list, last_date_fvt) {
 
 fit_fpca_position <- function(pos_data, pve = 0.90, knots = 6, K_cap = 4) {
   d <- pos_data |>
-    transmute(argvals, subj = factor(subj), y) |>
+    transmute(argvals, name = factor(name), y) |>
     filter(!is.na(argvals), !is.na(y))
 
   n_dropped <- nrow(pos_data) - nrow(d)
@@ -204,7 +204,7 @@ fit_fpca_position <- function(pos_data, pve = 0.90, knots = 6, K_cap = 4) {
   pos_age_grid <- seq(min(d$argvals), max(d$argvals), length.out = 100)
 
   fit <- face.sparse(
-    as.data.frame(d),
+    d |> rename(subj = name) |> as.data.frame(),
     argvals.new = pos_age_grid,
     knots = knots,
     pve = pve
@@ -263,7 +263,7 @@ extract_raw_scores <- function(pos_data, fit) {
   sigma2 <- fit$sigma2
 
   pos_data |>
-    group_by(subj) |>
+    group_by(name) |>
     group_modify(
       ~ {
         res <- blup_scores(
@@ -288,10 +288,20 @@ fit_weekly_score_models <- function(
   fpca_fit,
   decay = 0.85
 ) {
+  season_panel <- weekly_data |>
+    distinct(name, season, ktc_value, age) |>
+    left_join(raw_scores, by = "name")
+
+  entering_models <- map(seq_len(fpca_fit$K), function(k) {
+    xi_col <- paste0("xi", k)
+    d_k <- season_panel |> filter(!is.na(.data[[xi_col]]))
+    lm(as.formula(paste0(xi_col, " ~ ktc_value + age")), data = d_k)
+  })
+  names(entering_models) <- paste0("xi", seq_len(fpca_fit$K))
+
   panel <- weekly_data |>
-    rename(subj = name) |>
-    arrange(subj, season, week) |>
-    group_by(subj) |>
+    arrange(name, season, week) |>
+    group_by(name) |>
     mutate(
       is_active = as.numeric(value_added != 0),
       ewma_active = accumulate(
@@ -307,7 +317,7 @@ fit_weekly_score_models <- function(
       magnitude_given_active = ewma_value / pmax(ewma_active, 0.05)
     ) |>
     ungroup() |>
-    left_join(raw_scores, by = "subj")
+    left_join(raw_scores, by = "name")
 
   hurdle_model <- glm(
     is_active ~ week + ktc_value + age,
@@ -320,29 +330,38 @@ fit_weekly_score_models <- function(
       pred_active_rate = predict(hurdle_model, type = "response")
     )
 
-  rhs <- "ktc_value + age + week + pred_active_rate + ewma_active * magnitude_given_active"
+  adj_rhs <- "week + pred_active_rate + ewma_active * magnitude_given_active"
 
-  score_models <- map(seq_len(fpca_fit$K), function(k) {
+  adjustment_models <- map(seq_len(fpca_fit$K), function(k) {
     xi_col <- paste0("xi", k)
     d_k <- panel |> filter(!is.na(.data[[xi_col]]))
-    lm(as.formula(paste0(xi_col, " ~ ", rhs)), data = d_k)
+    lm(as.formula(paste0(xi_col, " ~ ", adj_rhs)), data = d_k)
   })
-  names(score_models) <- paste0("xi", seq_len(fpca_fit$K))
-
-  tau2_const <- map_dbl(seq_len(fpca_fit$K), function(k) {
-    pmin(sigma(score_models[[k]])^2, fpca_fit$eigenvalues[k])
-  })
+  names(adjustment_models) <- paste0("xi", seq_len(fpca_fit$K))
 
   var_models <- map(seq_len(fpca_fit$K), function(k) {
     xi_col <- paste0("xi", k)
-    resid2 <- residuals(score_models[[k]])^2
+    d_k <- panel |> filter(!is.na(.data[[xi_col]]))
+    entering_pred <- predict(entering_models[[k]], newdata = d_k)
+    adjustment_pred <- predict(adjustment_models[[k]], newdata = d_k)
+    resid2 <- (d_k[[xi_col]] - entering_pred - adjustment_pred)^2
     floor_val <- fpca_fit$eigenvalues[k] * 1e-4
-    d_var <- panel |>
-      filter(!is.na(.data[[xi_col]])) |>
-      mutate(log_resid2 = log(pmax(resid2, floor_val)))
-    lm(as.formula(paste0("log_resid2 ~ ", rhs)), data = d_var)
+    d_var <- d_k |> mutate(log_resid2 = log(pmax(resid2, floor_val)))
+    lm(
+      as.formula(paste0("log_resid2 ~ ktc_value + age +", adj_rhs)),
+      data = d_var
+    )
   })
   names(var_models) <- paste0("xi", seq_len(fpca_fit$K))
+
+  tau2_const <- map_dbl(seq_len(fpca_fit$K), function(k) {
+    xi_col <- paste0("xi", k)
+    d_k <- panel |> filter(!is.na(.data[[xi_col]]))
+    entering_pred <- predict(entering_models[[k]], newdata = d_k)
+    adjustment_pred <- predict(adjustment_models[[k]], newdata = d_k)
+    resid <- d_k[[xi_col]] - entering_pred - adjustment_pred
+    pmin(var(resid), fpca_fit$eigenvalues[k])
+  })
 
   predict_inseason <- function(
     ktc_in,
@@ -356,7 +375,15 @@ fit_weekly_score_models <- function(
       newdata = tibble(week = week, ktc_value = ktc_in, age = age),
       type = "response"
     )
-    newdata <- tibble(
+
+    entering_newdata <- tibble(ktc_value = ktc_in, age = age)
+    adj_newdata <- tibble(
+      week = week,
+      pred_active_rate = pred_active_rate,
+      ewma_active = ewma_active,
+      magnitude_given_active = magnitude_given_active
+    )
+    var_newdata <- tibble(
       ktc_value = ktc_in,
       age = age,
       week = week,
@@ -366,11 +393,12 @@ fit_weekly_score_models <- function(
     )
 
     g_mean <- map_dbl(seq_len(fpca_fit$K), function(k) {
-      predict(score_models[[k]], newdata = newdata)
+      predict(entering_models[[k]], newdata = entering_newdata) +
+        predict(adjustment_models[[k]], newdata = adj_newdata)
     })
     prior_var <- map_dbl(seq_len(fpca_fit$K), function(k) {
       pmin(
-        exp(predict(var_models[[k]], newdata = newdata)),
+        exp(predict(var_models[[k]], newdata = var_newdata)),
         fpca_fit$eigenvalues[k]
       )
     })
@@ -379,7 +407,8 @@ fit_weekly_score_models <- function(
   }
 
   list(
-    models = score_models,
+    entering_models = entering_models,
+    adjustment_models = adjustment_models,
     var_models = var_models,
     hurdle_model = hurdle_model,
     predict_inseason = predict_inseason,
