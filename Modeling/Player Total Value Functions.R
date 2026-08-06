@@ -35,7 +35,7 @@ compile_training_data <- function(
       !str_detect(name, "Early"),
       !str_detect(name, "Mid"),
       !str_detect(name, "Late")
-    ) %>%
+    ) |>
     name_correction()
 
   post_ktc <- ktc_list[[str_c(
@@ -49,28 +49,28 @@ compile_training_data <- function(
       !str_detect(name, "Early"),
       !str_detect(name, "Mid"),
       !str_detect(name, "Late")
-    ) %>%
+    ) |>
     name_correction()
 
   colnames(pre_ktc) <- c("name", "ktc_value")
   colnames(post_ktc) <- c("name", "ktc_value")
 
   # create data table
-  pre_ktc %>%
-    rename("historical_value" = "ktc_value") %>%
+  pre_ktc |>
+    rename("historical_value" = "ktc_value") |>
     left_join(
-      season_value_added %>% filter(season == this_season),
+      season_value_added |> filter(season == this_season),
       by = join_by(name)
-    ) %>%
-    select(-total_points) %>%
+    ) |>
+    select(-total_points) |>
     mutate(
       total_value_added = replace_na(total_value_added, 0)
-    ) %>%
-    rename(tva_adj = total_value_added) %>%
-    left_join(post_ktc, by = join_by(name)) %>%
-    select(-position) %>%
-    left_join(player_info, by = join_by(name)) %>%
-    select(-player_id, -years_exp) %>%
+    ) |>
+    rename(tva_adj = total_value_added) |>
+    left_join(post_ktc, by = join_by(name)) |>
+    select(-position) |>
+    left_join(player_info, by = join_by(name)) |>
+    select(-player_id, -years_exp) |>
     mutate(
       age = as.numeric(pre_ktc_date - birth_date) / 365.25
     )
@@ -85,7 +85,7 @@ compile_data_set <- function(
 ) {
   day_multiplier <- years(1) / days(season_end - season_start)
 
-  season <- if_else(
+  last_season <- if_else(
     date < season_end,
     year(season_start) - 1,
     year(season_start)
@@ -98,21 +98,21 @@ compile_data_set <- function(
     0
   )
 
-  future_value_names %>%
-    left_join(keep_trade_cut, by = join_by(name)) %>%
+  future_value_names |>
+    left_join(keep_trade_cut, by = join_by(name)) |>
     mutate(
       # this is supposed to represent the values at the end of last season (hence the minus 1)
       age = time_length(interval(birth_date, season_start), unit = "years") - 1,
       age = age + days_past_season_start * day_multiplier,
-      season = season,
+      season = last_season,
       ktc_value = replace_na(ktc_value, 0)
-    ) %>%
+    ) |>
     select(name, position, birth_date, age, ktc_value, season, years_exp)
 }
 
 interaction_terms_tva <- function(data) {
-  data %>%
-    select(historical_value, age) %>%
+  data |>
+    select(historical_value, age) |>
     mutate(
       x1_2 = historical_value^2,
       x2_2 = age^2,
@@ -122,7 +122,7 @@ interaction_terms_tva <- function(data) {
 
 # identify the appropriate values to scale
 compute_tva_scales <- function(data) {
-  summaries <- data %>% interaction_terms_tva()
+  summaries <- data |> interaction_terms_tva()
 
   means <- colMeans(summaries)
 
@@ -133,14 +133,14 @@ compute_tva_scales <- function(data) {
 
 # prep data with transformations and interactions
 prep_data_tva <- function(data, scales, split_prop = .8) {
-  df <- data %>% interaction_terms_tva()
+  df <- data |> interaction_terms_tva()
 
   means <- scales$means[colnames(df)]
   sds <- scales$sds[colnames(df)]
 
   scaled_data <- pmap_dfr(list(df, means, sds), function(df, means, sds) {
     (df - means) / sds
-  }) %>%
+  }) |>
     mutate(position = data$position, Y = data$tva_adj)
 
   data_split <- initial_split(scaled_data, prop = split_prop)
@@ -153,8 +153,8 @@ prep_data_tva <- function(data, scales, split_prop = .8) {
 }
 
 interaction_terms_ktc <- function(data) {
-  data %>%
-    select(historical_value, age, tva_adj) %>%
+  data |>
+    select(historical_value, age, tva_adj) |>
     mutate(
       x1_2 = historical_value^2,
       x2_2 = age^2,
@@ -165,7 +165,7 @@ interaction_terms_ktc <- function(data) {
 
 # identify the appropriate values to scale
 compute_ktc_scales <- function(data) {
-  summaries <- data %>% interaction_terms_ktc()
+  summaries <- data |> interaction_terms_ktc()
 
   means <- colMeans(summaries)
 
@@ -176,7 +176,7 @@ compute_ktc_scales <- function(data) {
 
 # prep data with transformations and interactions
 prep_data_ktc <- function(data, scales, split_prop = .8) {
-  df <- data %>% interaction_terms_ktc()
+  df <- data |> interaction_terms_ktc()
 
   min_ktc <- min(data$ktc_value, na.rm = TRUE)
 
@@ -191,7 +191,7 @@ prep_data_ktc <- function(data, scales, split_prop = .8) {
 
   scaled_data <- pmap_dfr(list(df, means, sds), function(df, means, sds) {
     (df - means) / sds
-  }) %>%
+  }) |>
     mutate(
       position = data$position,
       Y = ktc
@@ -221,28 +221,28 @@ fit_bart <- function(train_data, tune_grid = 20) {
     trees = tune(),
     prior_terminal_node_coef = tune(),
     prior_terminal_node_expo = tune()
-  ) %>%
-    set_engine("dbarts") %>%
+  ) |>
+    set_engine("dbarts") |>
     # control = dbarts::bartControl(
     #   n.samples = 200,   # posterior samples (after burn-in)
     #   n.burn = 100       # optional burn-in samples
     set_mode("regression")
 
   # parameters object
-  parameters_object <- workflow() %>%
-    add_model(bart_spec) %>%
-    add_recipe(rec) %>%
-    extract_parameter_set_dials() %>%
+  parameters_object <- workflow() |>
+    add_model(bart_spec) |>
+    add_recipe(rec) |>
+    extract_parameter_set_dials() |>
     update(
       prior_terminal_node_coef = prior_terminal_node_coef(range = c(.4, .9)),
       prior_terminal_node_expo = prior_terminal_node_expo(range = c(1, 3))
-    ) %>%
+    ) |>
     finalize(train_data)
 
   # tune model parameters
-  tune_object <- workflow() %>%
-    add_model(bart_spec) %>%
-    add_recipe(rec) %>%
+  tune_object <- workflow() |>
+    add_model(bart_spec) |>
+    add_recipe(rec) |>
     tune_grid(
       df_folds,
       grid = tune_grid,
@@ -251,13 +251,13 @@ fit_bart <- function(train_data, tune_grid = 20) {
     )
 
   # select best parameters
-  best_param <- select_best(tune_object, metric = "rmse") %>%
+  best_param <- select_best(tune_object, metric = "rmse") |>
     select(-.config)
 
   # Create a bart workflow
-  workflow_object <- workflow() %>%
-    add_model(bart_spec) %>%
-    add_recipe(rec) %>%
+  workflow_object <- workflow() |>
+    add_model(bart_spec) |>
+    add_recipe(rec) |>
     finalize_workflow(best_param)
 
   # Fit the model
@@ -277,8 +277,8 @@ model_residuals <- function(fit, data) {
 
   posterior_mean <- colMeans(samples)
 
-  new_data <- data %>%
-    mutate(abs_residuals = abs(Y - posterior_mean)) %>%
+  new_data <- data |>
+    mutate(abs_residuals = abs(Y - posterior_mean)) |>
     select(-Y)
 
   library("mgcv")
@@ -308,13 +308,13 @@ model_residuals <- function(fit, data) {
 }
 
 model_accuracy <- function(fit, test_data) {
-  augment(fit, test_data) %>%
+  augment(fit, test_data) |>
     rmse(Y, .pred)
 }
 
 graph_residuals <- function(fit, test_data) {
-  augment(fit, test_data) %>%
-    mutate(resid = Y - .pred) %>%
+  augment(fit, test_data) |>
+    mutate(resid = Y - .pred) |>
     ggplot() +
     geom_density(aes(resid))
 }
@@ -323,30 +323,29 @@ compute_coverage <- function(fit, test_data, confidence = .95) {
   samples <- generate_samples(fit, test_data)
 
   # compute coverage
-  quantiles <- samples %>%
+  quantiles <- samples |>
     apply(2, quantile, probs = c((1 - confidence) / 2, (1 + confidence) / 2))
-  between(test_data$Y, quantiles[1, ], quantiles[2, ]) %>% mean()
+  between(test_data$Y, quantiles[1, ], quantiles[2, ]) |> mean()
 }
 
 # Simulate Future Value ---------------------------------------------------------------
 
 # this function updates the data so its ready for the next year
 update_data_year <- function(data) {
-  min_ktc <- min(data$ktc_value, na.rm = TRUE)
-
+  # min_ktc <- min(data$ktc_value, na.rm = TRUE)
   # hv <- if_else(is.na(data$ktc_value),
   #                             runif(1, min = 0, max = min_ktc),
   #                             data$ktc_value)
   hv <- replace_na(data$ktc_value, 0)
 
-  data %>%
+  data |>
     mutate(
       age = age + 1,
       season = season + 1,
       historical_value = hv,
       tva_adj = 0,
       ktc_value = 0
-    ) %>%
+    ) |>
     select(
       name,
       historical_value,
@@ -364,14 +363,14 @@ compute_quantiles <- function(samples, resid_fit, data) {
   # rebuild design matrix
   Xp <- mgcv::predict.gam(
     resid_fit$model,
-    newdata = data %>% select(-Y),
+    newdata = data |> select(-Y),
     type = "lpmatrix"
   )
 
   eta <- Xp %*% resid_fit$coef #linear predictor
-  sigma_hat <- resid_fit$model$family$linkinv(eta) %>% as.vector() #apply inverse link function
+  sigma_hat <- resid_fit$model$family$linkinv(eta) |> as.vector() #apply inverse link function
 
-  # sigma_hat <- predict(resid_fit, newdata = data %>% select(-Y), type = "response")
+  # sigma_hat <- predict(resid_fit, newdata = data |> select(-Y), type = "response")
 
   # compute quantiles
   posterior_mean <- colMeans(samples)
@@ -407,7 +406,7 @@ bound_tva <- function(quantiles, data) {
           .default = pmax(quantiles[.x, ], -20)
         ) # and don't let quantile get below -20
 
-        data[[1]] %>% mutate(tva_adj = tv)
+        data[[1]] |> mutate(tva_adj = tv)
       }
     )
   } else {
@@ -420,7 +419,7 @@ bound_tva <- function(quantiles, data) {
           .default = pmax(quantiles[.x, ], -20)
         ) # and don't let quantile get below -20
 
-        data[[.x]] %>% mutate(tva_adj = tv)
+        data[[.x]] |> mutate(tva_adj = tv)
       }
     )
   }
@@ -442,7 +441,7 @@ bound_ktc <- function(samples_list, tva_data_list) {
       # this is ok because value is relative anyway
       # conditional min-max scaling
 
-      tva_data_list[[.x]] %>% mutate(ktc_value = ktcv)
+      tva_data_list[[.x]] |> mutate(ktc_value = ktcv)
     }
   )
 }
@@ -473,8 +472,8 @@ next_year <- function(
       generate_samples(tva_fit, .x) %>%
         compute_quantiles(tva_resid_fit, .x)
     }
-  ) %>%
-    integrate_quantiles() %>% #combine quantiles from possible data sets into one
+  ) |>
+    integrate_quantiles() |> #combine quantiles from possible data sets into one
     bound_tva(updated_data) # add with updated data
 
   # prep ktc modeling
@@ -492,8 +491,8 @@ next_year <- function(
       generate_samples(ktc_fit, .x) %>%
         compute_quantiles(ktc_resid_fit, .x)
     }
-  ) %>%
-    integrate_quantiles() %>% #bind lists together and computes aggregate quantiles
+  ) |>
+    integrate_quantiles() |> #bind lists together and computes aggregate quantiles
     bound_ktc(tva_data_list)
 
   compile <- imap_dfc(
@@ -505,8 +504,8 @@ next_year <- function(
 
       df
     }
-  ) %>%
-    mutate(name = updated_data[[1]]$name) %>%
+  ) |>
+    mutate(name = updated_data[[1]]$name) |>
     relocate(name)
 
   seasons_list <- c(
@@ -531,8 +530,8 @@ next_years <- function(
 
   for (i in 1:n_years) {
     updating_list <- next_year(
-      updating_list$data,
-      updating_list$seasons_list,
+      data_list = updating_list$data,
+      seasons_list = updating_list$seasons_list,
       tva_scales,
       ktc_scales,
       tva_fit,
@@ -545,20 +544,20 @@ next_years <- function(
   updating_list$seasons_list
 }
 
-compute_future_value <- function(seasons_list, years = 8, weight = .95) {
+compute_future_value <- function(seasons_list, years = 8, discount_rate = .95) {
   future_value <- imap(
     1:years,
     ~ {
-      pmax(seasons_list[[.x]]$proj_tva_50, 0) * weight^(.x - 1)
+      pmax(seasons_list[[.x]]$proj_tva_50, 0) * discount_rate^(.x - 1)
     }
-  ) %>%
-    as.data.frame() %>%
+  ) |>
+    as.data.frame() |>
     rowSums()
 
   tibble(
     name = seasons_list[[1]]$name,
     future_value = future_value
-  ) %>%
+  ) |>
     arrange(desc(future_value))
 }
 
@@ -576,18 +575,18 @@ future_value_over_time <- function(
   ktc_resid_fit,
   season_dates
 ) {
-  season_end <- season_dates$season_end[date < season_dates$season_end] %>%
+  season_end <- season_dates$season_end[date < season_dates$season_end] |>
     min() # identify season end for counting weeks
   season_start <- season_dates$season_start[
     season_end > season_dates$season_start
-  ] %>%
-    min() # identify season start for counting weeks
+  ] |>
+    max() # identify season start for counting weeks
 
   # this is my arbitrary cutoff to include rookies
   diff <- time_length(
     interval(date, ymd(str_c(year(today()), "-03-01"))),
     unit = "year"
-  ) %>%
+  ) |>
     floor()
 
   # compile data - age and season look to be too small, but will be added in next_year
@@ -597,11 +596,11 @@ future_value_over_time <- function(
     date,
     season_start,
     season_end
-  ) %>%
+  ) |>
     filter(years_exp > diff) # remove players that shouldn't appear yet
 
   # compute fraction of remaining season
-  # weeks_in <- time_length(interval(season_start, date), unit = "week") %>% floor()
+  # weeks_in <- time_length(interval(season_start, date), unit = "week") |> floor()
 
   sims <- next_years(
     df,
@@ -614,58 +613,11 @@ future_value_over_time <- function(
     ktc_resid_fit
   )
 
-  future_value_names %>%
+  future_value_names |>
     left_join(
-      compute_future_value(sims, years = 8, weight = .95),
+      compute_future_value(sims, years = 8, discount_rate = .95),
       by = join_by(name)
-    ) %>%
-    select(name, future_value) %>%
+    ) |>
+    select(name, future_value) |>
     mutate(date = date)
-}
-
-map_future_value_time <- function(
-  future_value_names,
-  ktc_list,
-  tva_scales,
-  ktc_scales,
-  tva_fit,
-  ktc_fit,
-  tva_resid_fit,
-  ktc_resid_fit,
-  season_dates
-) {
-  map2_dfr(
-    ktc_list,
-    names(ktc_list),
-    ~ {
-      date <- .y %>% str_remove("ktc_value") %>% str_remove(".csv") %>% mdy()
-
-      colnames(.x) <- c("name", "ktc_value")
-
-      future_value_over_time(
-        future_value_names,
-        .x,
-        date,
-        tva_scales,
-        ktc_scales,
-        tva_fit,
-        ktc_fit,
-        tva_resid_fit,
-        ktc_resid_fit,
-        season_dates
-      )
-    }
-    # .progress = TRUE,
-    # .options = furrr_options(seed = TRUE)
-  ) %>%
-    arrange(desc(date))
-}
-
-select_ktc_list <- function(ktc_list, last_date_fvt) {
-  dates <- names(ktc_list) %>%
-    str_remove("ktc_value") %>%
-    str_remove(".csv") %>%
-    mdy()
-
-  ktc_list[dates > last_date_fvt]
 }
