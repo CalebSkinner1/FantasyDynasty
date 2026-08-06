@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 
 message("begin computing Player Total Value...")
 demonstrate_fit <- FALSE # set to true to rerun the model fit images
-train_models <- TRUE # set to true to retrain models
+train_model <- TRUE # set to true to retrain models
 
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
@@ -58,7 +58,7 @@ ktc_begin_end_dates <- list(
 ) # push back as far as possible
 
 # training ---------------------------------------------------------------
-if (train_models) {
+if (train_model) {
   weekly_data <- map_dfr(
     seq_along(ktc_begin_end_dates),
     function(year) {
@@ -73,7 +73,7 @@ if (train_models) {
     }
   )
 
-  all_seasons <- sort(unique(c(season_value_added$season, hktc_data$season)))
+  all_seasons <- sort(unique(c(season_value_added$season, weekly_data$season)))
 
   fpca_data <- season_value_added |>
     filter(!(position %in% c("K", "DST"))) |>
@@ -100,9 +100,68 @@ if (train_models) {
     ) |>
     arrange(position, name, argvals)
 
+  ktc_tibble <- ktc_list |>
+    bind_rows(.id = "date") |>
+    mutate(
+      date = str_remove(date, "ktc_value") |>
+        str_remove(".csv") |>
+        lubridate::mdy(),
+      ktc_value = coalesce(ktc_value, value)
+    ) |>
+    select(-value) |>
+    name_correction()
+
+  closest_dates <- map_dfr(
+    as.Date(season_dates$season_start),
+    function(start_date) {
+      tibble(date = sort(unique(ktc_tibble$date))) |>
+        filter(date < start_date) |>
+        slice_tail(n = 1) |>
+        mutate(season_start = start_date)
+    }
+  )
+
+  ktc_fpca_data <- ktc_tibble |>
+    inner_join(closest_dates, by = "date") |>
+    mutate(season = year(season_start)) |>
+    filter(
+      !str_detect(name, "Early ") &
+        !str_detect(name, "Mid ") &
+        !str_detect(name, "Late ")
+    ) |>
+    select(-date) |>
+    full_join(
+      fpca_data |> select(-y, -position, -argvals),
+      by = join_by(name, season)
+    ) |>
+    left_join(
+      select(player_info, -player_id),
+      by = join_by(name),
+      relationship = "many-to-many"
+    ) |>
+    filter(!(name == "Antonio Williams" & position == "RB")) |>
+    group_by(name) |>
+    complete(season = 2024:2026) |>
+    group_by(season) |>
+    fill(season_start, .direction = "downup") |>
+    group_by(name) |>
+    arrange(season, .by_group = TRUE) |>
+    fill(position, .direction = "downup") |>
+    fill(years_exp, .direction = "downup") |>
+    fill(birth_date, .direction = "downup") |>
+    ungroup() |>
+    mutate(
+      argvals = as.numeric(season_start - birth_date) / 365.25,
+      ktc_value = replace_na(ktc_value, 0)
+    ) |>
+    ungroup() |>
+    filter(years_exp >= max(season) - season) |>
+    select(season, name, position, argvals, ktc_value)
+
   fpca_models <- train_models(
     fpca_data,
-    weekly_data
+    weekly_data,
+    ktc_fpca_data
   )
 
   save(fpca_models, file = here("Modeling/fpca_models.RData"))
@@ -136,6 +195,17 @@ while (last_date_fvt < ymd("20260713")) {
 
   message("running ", last_date_fvt)
 
+  ktc_tibble <- ktc_list |>
+    bind_rows(.id = "date") |>
+    mutate(
+      date = str_remove(date, "ktc_value") |>
+        str_remove(".csv") |>
+        lubridate::mdy(),
+      ktc_value = coalesce(ktc_value, value)
+    ) |>
+    select(-value) |>
+    name_correction()
+
   keep_trade_cut <- select_ktc_list(ktc_list, last_date_fvt)$keep_trade_cut[[1]]
   current_date <- select_ktc_list(ktc_list, last_date_fvt)$date[[1]]
 
@@ -153,20 +223,18 @@ while (last_date_fvt < ymd("20260713")) {
     keep_trade_cut = keep_trade_cut,
     future_value_names = future_value_names,
     sva_tibble = season_value_added,
-    va_tibble = weekly_value_added,
+    ktc_fpca_data = ktc_fpca_data,
     date = current_date, #today()
     season_end = season_end,
     season_start = season_start
   )
 
-  # work on weekly scores (two stage?)
-
   projection <- project_careers(
     players_df,
     fpca_models,
-    n_years_ahead = 10,
+    n_years_ahead = 7,
     discount_rate = 0.95,
-    taper_window = c(5, 2)
+    taper_window = c(0, 0)
   )
 
   future_value_time <- projection$future_value |>

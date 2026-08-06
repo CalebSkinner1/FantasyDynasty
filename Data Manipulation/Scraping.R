@@ -12,7 +12,7 @@ options(nflreadr.verbose = FALSE)
 source(here("Data Manipulation/Scrape Support.R"))
 
 # change to true if want to update player_info
-run_player_info <- FALSE
+run_player_info <- TRUE
 
 # load box score data from NFL 2025
 # https://www.nflfastr.com
@@ -25,17 +25,17 @@ box_score_def25 <- nflfastR::calculate_stats(
   summary_level = "week",
   stat_type = "team",
   season_type = "REG"
-) %>%
+) |>
   select(-contains("_list"))
 
 player_headshot <- box_score_off25 %>%
   select(player_display_name, headshot_url) %>%
   rename(name = player_display_name)
 
-player_headshot %>% write_csv(here("Shiny/Saved Files/player_headshot.csv"))
+player_headshot |> write_csv(here("Shiny/Saved Files/player_headshot.csv"))
 
-box_score_off25 %>% write_csv(here("Data/box_score_off25.csv"))
-box_score_def25 %>% write_csv(here("Data/box_score_def25.csv"))
+box_score_off25 |> write_csv(here("Data/box_score_off25.csv"))
+box_score_def25 |> write_csv(here("Data/box_score_def25.csv"))
 
 # Sleeper API ----------------------------------------------------
 # https://docs.sleeper.com
@@ -275,7 +275,7 @@ if (run_player_info) {
     )
 
   # load player info
-  player_info <- player_information %>%
+  player_info <- player_information |>
     select(name, player_id, position, birth_date, years_exp) %>%
     filter(position %in% c("TE", "RB", "WR", "QB", "K")) %>%
     # remove duplicate names
@@ -298,8 +298,18 @@ if (run_player_info) {
       )
     ) %>%
     distinct() %>%
-    bind_rows(defenses) %>%
+    bind_rows(defenses) |>
     name_correction()
+
+  player_info <- player_info |>
+    mutate(
+      birth_date = case_when(
+        name == "Jam Miller" & is.na(birth_date) ~ "2004-04-29",
+        name == "Le'Veon Moss" & is.na(birth_date) ~ "2002-11-15",
+        .default = birth_date
+      ),
+      birth_date = ymd(birth_date)
+    )
 
   write_csv(player_info, here("Data/player_info.csv"))
 }

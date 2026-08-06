@@ -67,10 +67,11 @@ compile_data_set <- function(
   future_value_names,
   keep_trade_cut,
   sva_tibble,
-  va_tibble,
+  ktc_fpca_data,
   date,
   season_start,
-  season_end
+  season_end,
+  decay = 0.85
 ) {
   day_multiplier <- years(1) / days(season_end - season_start)
 
@@ -89,40 +90,7 @@ compile_data_set <- function(
     0
   )
 
-  # va_tibble progress
-  va_add <- va_tibble |>
-    mutate(
-      date = season_start + weeks(week - 1) + years(season - this_season)
-    ) |>
-    filter(date < current_date) |>
-    arrange(name, season, week) |>
-    group_by(name) |>
-    mutate(
-      is_active = as.numeric(value_added != 0),
-      ewma_active = accumulate(
-        is_active,
-        ~ decay * .x + (1 - decay) * .y,
-        .init = 0
-      )[-1],
-      ewma_value = accumulate(
-        value_added,
-        ~ decay * .x + (1 - decay) * .y,
-        .init = 0
-      )[-1],
-      magnitude_given_active = ewma_value / pmax(ewma_active, 0.05)
-    ) |>
-    filter(season == this_season) |>
-    slice_max(week, with_ties = FALSE) |>
-    select(
-      season,
-      week,
-      name,
-      position,
-      ewma_active,
-      magnitude_given_active
-    )
-
-  history_bp <- sva_tibble |>
+  history_df <- sva_tibble |>
     filter(season < this_season) |>
     left_join(future_value_names, by = join_by(name, position)) |>
     mutate(
@@ -132,14 +100,17 @@ compile_data_set <- function(
         this_season,
       tva_adj = total_value_added
     ) |>
-    select(season, name, position, age, tva_adj) |>
-    nest(history = c(season, age, tva_adj))
+    left_join(
+      select(ktc_fpca_data, -argvals),
+      by = join_by(season, name, position)
+    ) |>
+    transmute(name, position, age, tva_adj, ktc = ktc_value) |>
+    nest(history = c(age, tva_adj, ktc))
 
   future_value_names |>
     filter(years_exp >= seasons_ago) |>
-    left_join(va_add, by = join_by(name, position)) |>
     left_join(keep_trade_cut, by = join_by(name)) |>
-    left_join(history_bp, by = join_by(name, position)) |>
+    left_join(history_df, by = join_by(name, position)) |>
     mutate(
       age = time_length(
         lubridate::interval(birth_date, season_start),
@@ -147,20 +118,14 @@ compile_data_set <- function(
       ),
       age = age + days_past_season_start * day_multiplier,
       ktc = replace_na(ktc_value, 0),
-      week = replace_na(week, 0),
-      season = replace_na(season, this_season),
-      ewma_active = replace_na(ewma_active, 0),
-      magnitude_given_active = replace_na(magnitude_given_active, 0),
+      season = this_season
     ) |>
     select(
       season,
-      week,
       name,
       position,
       ktc,
       age,
-      ewma_active,
-      magnitude_given_active,
       history
     )
 }
@@ -217,6 +182,15 @@ fit_fpca_position <- function(pos_data, pve = 0.90, knots = 6, K_cap = 4) {
   fit
 }
 
+fit_fpca_position_ktc <- function(pos_data, pve = 0.90, knots = 6, K_cap = 4) {
+  fit_fpca_position(
+    pos_data |> transmute(argvals, name, y = ktc_value),
+    pve = pve,
+    knots = knots,
+    K_cap = K_cap
+  )
+}
+
 make_mu_fun <- function(fit) {
   function(a) approx(fit$age_grid, fit$mu.new, xout = a, rule = 2)$y
 }
@@ -249,12 +223,44 @@ blup_scores <- function(
   mu_i <- mu_fun(ages_obs)
   resid <- y_obs - mu_i
 
-  Sigma_inv <- Tinv + (1 / sigma2) * crossprod(Phi_i)
+  sigma2_vec <- if (length(sigma2) == 1) rep(sigma2, length(y_obs)) else sigma2
+  W <- diag(1 / sigma2_vec, length(y_obs))
+
+  Sigma_inv <- Tinv + t(Phi_i) %*% W %*% Phi_i
   Sigma <- solve(Sigma_inv)
-  post_mean <- Sigma %*%
-    (Tinv %*% prior_mean + (1 / sigma2) * t(Phi_i) %*% resid)
+  post_mean <- Sigma %*% (Tinv %*% prior_mean + t(Phi_i) %*% W %*% resid)
 
   list(mean = as.vector(post_mean), cov = Sigma)
+}
+
+build_observations <- function(
+  history,
+  sigma2_full,
+  age_in,
+  games_played = 0,
+  tva_partial = 0,
+  games_in_season = 17
+) {
+  ages <- if (is.null(history) || nrow(history) == 0) {
+    numeric(0)
+  } else {
+    history$age
+  }
+  y <- if (is.null(history) || nrow(history) == 0) {
+    numeric(0)
+  } else {
+    history$tva_adj
+  }
+  s2 <- rep(sigma2_full, length(y))
+
+  if (games_played > 0) {
+    f <- min(games_played / games_in_season, 1)
+    ages <- c(ages, age_in)
+    y <- c(y, tva_partial / f)
+    s2 <- c(s2, sigma2_full / f)
+  }
+
+  list(ages = ages, y = y, sigma2 = s2)
 }
 
 extract_raw_scores <- function(pos_data, fit) {
@@ -276,129 +282,97 @@ extract_raw_scores <- function(pos_data, fit) {
           sigma2 = sigma2
         )
         as_tibble(matrix(res$mean, nrow = 1)) |>
-          set_names(paste0("xi", seq_len(fit$K)))
+          set_names(paste0("xi", seq_len(fit$K))) |>
+          mutate(n_obs = nrow(.x))
       }
     ) |>
     ungroup()
 }
 
-fit_weekly_score_models <- function(
+fit_entering_score_models <- function(
   weekly_data,
   raw_scores,
+  ktc_history_by_player,
   fpca_fit,
-  decay = 0.85
+  fpca_fit_ktc
 ) {
-  season_panel <- weekly_data |>
-    distinct(name, season, ktc_value, age) |>
-    left_join(raw_scores, by = "name")
+  mu_fun_ktc <- make_mu_fun(fpca_fit_ktc)
+  phi_fun_ktc <- make_phi_fun(fpca_fit_ktc)
+  ktc_score_cols <- paste0("ktc_xi", seq_len(fpca_fit_ktc$K))
+
+  ktc_score_asof <- function(name_i, as_of_age) {
+    h <- ktc_history_by_player |> filter(name == name_i, argvals <= as_of_age)
+    if (nrow(h) == 0) {
+      return(setNames(rep(0, fpca_fit_ktc$K), ktc_score_cols))
+    }
+    res <- blup_scores(
+      y_obs = h$ktc,
+      ages_obs = h$argvals,
+      mu_fun = mu_fun_ktc,
+      phi_fun = phi_fun_ktc,
+      prior_mean = rep(0, fpca_fit_ktc$K),
+      prior_var = fpca_fit_ktc$eigenvalues,
+      sigma2 = fpca_fit_ktc$sigma2
+    )
+    setNames(res$mean, ktc_score_cols)
+  }
+
+  ktc_xi_by_player_season <- weekly_data |>
+    distinct(name, season, age) |>
+    rowwise() |>
+    mutate(ktc_xi = list(ktc_score_asof(name, age))) |>
+    ungroup() |>
+    unnest_wider(ktc_xi)
+
+  season_panel <- ktc_xi_by_player_season |> left_join(raw_scores, by = "name")
+  entering_rhs <- paste(c(ktc_score_cols, "age"), collapse = " + ")
 
   entering_models <- map(seq_len(fpca_fit$K), function(k) {
     xi_col <- paste0("xi", k)
     d_k <- season_panel |> filter(!is.na(.data[[xi_col]]))
-    lm(as.formula(paste0(xi_col, " ~ ktc_value + age")), data = d_k)
+    lm(
+      as.formula(paste0(xi_col, " ~ ", entering_rhs)),
+      data = d_k,
+      weights = n_obs
+    )
   })
   names(entering_models) <- paste0("xi", seq_len(fpca_fit$K))
 
-  panel <- weekly_data |>
-    arrange(name, season, week) |>
-    group_by(name) |>
-    mutate(
-      is_active = as.numeric(value_added != 0),
-      ewma_active = accumulate(
-        is_active,
-        ~ decay * .x + (1 - decay) * .y,
-        .init = 0
-      )[-1],
-      ewma_value = accumulate(
-        value_added,
-        ~ decay * .x + (1 - decay) * .y,
-        .init = 0
-      )[-1],
-      magnitude_given_active = ewma_value / pmax(ewma_active, 0.05)
-    ) |>
-    ungroup() |>
-    left_join(raw_scores, by = "name")
-
-  hurdle_model <- glm(
-    is_active ~ week + ktc_value + age,
-    data = panel,
-    family = binomial()
-  )
-
-  panel <- panel |>
-    mutate(
-      pred_active_rate = predict(hurdle_model, type = "response")
-    )
-
-  adj_rhs <- "week + pred_active_rate + ewma_active * magnitude_given_active"
-
-  adjustment_models <- map(seq_len(fpca_fit$K), function(k) {
-    xi_col <- paste0("xi", k)
-    d_k <- panel |> filter(!is.na(.data[[xi_col]]))
-    lm(as.formula(paste0(xi_col, " ~ ", adj_rhs)), data = d_k)
-  })
-  names(adjustment_models) <- paste0("xi", seq_len(fpca_fit$K))
-
   var_models <- map(seq_len(fpca_fit$K), function(k) {
     xi_col <- paste0("xi", k)
-    d_k <- panel |> filter(!is.na(.data[[xi_col]]))
+    d_k <- season_panel |> filter(!is.na(.data[[xi_col]]))
     entering_pred <- predict(entering_models[[k]], newdata = d_k)
-    adjustment_pred <- predict(adjustment_models[[k]], newdata = d_k)
-    resid2 <- (d_k[[xi_col]] - entering_pred - adjustment_pred)^2
+    resid2 <- (d_k[[xi_col]] - entering_pred)^2
     floor_val <- fpca_fit$eigenvalues[k] * 1e-4
     d_var <- d_k |> mutate(log_resid2 = log(pmax(resid2, floor_val)))
-    lm(
-      as.formula(paste0("log_resid2 ~ ktc_value + age +", adj_rhs)),
-      data = d_var
-    )
+    lm(as.formula(paste0("log_resid2 ~ ", entering_rhs)), data = d_var)
   })
   names(var_models) <- paste0("xi", seq_len(fpca_fit$K))
 
-  tau2_const <- map_dbl(seq_len(fpca_fit$K), function(k) {
-    xi_col <- paste0("xi", k)
-    d_k <- panel |> filter(!is.na(.data[[xi_col]]))
-    entering_pred <- predict(entering_models[[k]], newdata = d_k)
-    adjustment_pred <- predict(adjustment_models[[k]], newdata = d_k)
-    resid <- d_k[[xi_col]] - entering_pred - adjustment_pred
-    pmin(var(resid), fpca_fit$eigenvalues[k])
-  })
+  predict_prior <- function(ktc_in, ktc_history = NULL, age) {
+    ktc_xi <- if (is.null(ktc_history) || nrow(ktc_history) == 0) {
+      setNames(rep(0, fpca_fit_ktc$K), ktc_score_cols)
+    } else {
+      res <- blup_scores(
+        y_obs = ktc_history$ktc,
+        ages_obs = ktc_history$age,
+        mu_fun = mu_fun_ktc,
+        phi_fun = phi_fun_ktc,
+        prior_mean = rep(0, fpca_fit_ktc$K),
+        prior_var = fpca_fit_ktc$eigenvalues,
+        sigma2 = fpca_fit_ktc$sigma2
+      )
+      setNames(res$mean, ktc_score_cols)
+    }
 
-  predict_inseason <- function(
-    ktc_in,
-    age,
-    week = 0,
-    ewma_active = 0,
-    magnitude_given_active = 0
-  ) {
-    pred_active_rate <- predict(
-      hurdle_model,
-      newdata = tibble(week = week, ktc_value = ktc_in, age = age),
-      type = "response"
-    )
-
-    entering_newdata <- tibble(ktc_value = ktc_in, age = age)
-    adj_newdata <- tibble(
-      week = week,
-      pred_active_rate = pred_active_rate,
-      ewma_active = ewma_active,
-      magnitude_given_active = magnitude_given_active
-    )
-    var_newdata <- tibble(
-      ktc_value = ktc_in,
-      age = age,
-      week = week,
-      pred_active_rate = pred_active_rate,
-      ewma_active = ewma_active,
-      magnitude_given_active = magnitude_given_active
-    )
+    newdata <- as_tibble(as.list(ktc_xi)) |> mutate(age = age)
 
     g_mean <- map_dbl(seq_len(fpca_fit$K), function(k) {
-      predict(entering_models[[k]], newdata = entering_newdata) +
-        predict(adjustment_models[[k]], newdata = adj_newdata)
+      predict(entering_models[[k]], newdata = newdata)
     })
     prior_var <- map_dbl(seq_len(fpca_fit$K), function(k) {
       pmin(
-        exp(predict(var_models[[k]], newdata = var_newdata)),
+        exp(predict(var_models[[k]], newdata = newdata)),
         fpca_fit$eigenvalues[k]
       )
     })
@@ -408,12 +382,8 @@ fit_weekly_score_models <- function(
 
   list(
     entering_models = entering_models,
-    adjustment_models = adjustment_models,
     var_models = var_models,
-    hurdle_model = hurdle_model,
-    predict_inseason = predict_inseason,
-    tau2_const = tau2_const,
-    n_train = nrow(panel)
+    predict_prior = predict_prior
   )
 }
 
@@ -430,12 +400,16 @@ age_taper_weight <- function(age, position, taper_window = c(5, 2)) {
   1 - (3 * t^2 - 2 * t^3)
 }
 
-train_models <- function(fpca_data, weekly_data) {
+train_models <- function(fpca_data, weekly_data, ktc_fpca_data) {
   positions <- sort(unique(fpca_data$position))
 
   fpca_by_position <- positions |>
     set_names() |>
     map(~ fit_fpca_position(filter(fpca_data, position == .x)))
+
+  fpca_by_position_ktc <- positions |>
+    set_names() |>
+    map(~ fit_fpca_position_ktc(filter(ktc_fpca_data, position == .x)))
 
   raw_scores_by_position <- positions |>
     set_names() |>
@@ -449,66 +423,67 @@ train_models <- function(fpca_data, weekly_data) {
   score_models_by_position <- positions |>
     set_names() |>
     map(function(pos) {
-      fit_weekly_score_models(
+      fit_entering_score_models(
         weekly_data = filter(weekly_data, position == pos),
         raw_scores = raw_scores_by_position[[pos]],
-        fpca_fit = fpca_by_position[[pos]]
+        ktc_history_by_player = filter(ktc_fpca_data, position == pos) |>
+          transmute(name, argvals, ktc = ktc_value),
+        fpca_fit = fpca_by_position[[pos]],
+        fpca_fit_ktc = fpca_by_position_ktc[[pos]]
       )
     })
 
-  list("fpca" = fpca_by_position, "score_models" = score_models_by_position)
+  list(
+    "fpca" = fpca_by_position,
+    "fpca_ktc" = fpca_by_position_ktc,
+    "score_models" = score_models_by_position
+  )
 }
 
 .project_posterior <- function(
   fit,
   sm,
   ktc_in,
+  ktc_history,
   age_in,
   history,
   ages_out,
-  week = 0,
-  ewma_active = 0,
-  magnitude_given_active = 0
+  games_played = 0,
+  tva_partial = 0,
+  games_in_season = 17
 ) {
   mu_fun <- make_mu_fun(fit)
   phi_fun <- make_phi_fun(fit)
 
-  inseason <- sm$predict_inseason(
+  prior <- sm$predict_prior(
     ktc_in = ktc_in,
-    age = age_in,
-    week = week,
-    ewma_active = ewma_active,
-    magnitude_given_active = magnitude_given_active
+    ktc_history = ktc_history,
+    age = age_in
   )
-  g_mean <- inseason$mean
-  prior_var <- inseason$var
 
-  if (is.null(history) || nrow(history) == 0) {
-    y_obs <- numeric(0)
-    ages_obs <- numeric(0)
-  } else {
-    y_obs <- history$tva_adj
-    ages_obs <- history$age
-  }
+  obs <- build_observations(
+    history,
+    fit$sigma2,
+    age_in,
+    games_played,
+    tva_partial,
+    games_in_season
+  )
 
   post <- blup_scores(
-    y_obs = y_obs,
-    ages_obs = ages_obs,
+    y_obs = obs$y,
+    ages_obs = obs$ages,
     mu_fun = mu_fun,
     phi_fun = phi_fun,
-    prior_mean = g_mean,
-    prior_var = prior_var,
-    sigma2 = fit$sigma2
+    prior_mean = prior$mean,
+    prior_var = prior$var,
+    sigma2 = obs$sigma2
   )
 
   mu_out <- mu_fun(ages_out)
   Phi_out <- matrix(sapply(ages_out, phi_fun), ncol = fit$K, byrow = TRUE)
 
-  list(
-    mu_out = mu_out,
-    Phi_out = Phi_out,
-    post = post
-  )
+  list(mu_out = mu_out, Phi_out = Phi_out, post = post)
 }
 
 project_career <- function(
@@ -516,12 +491,13 @@ project_career <- function(
   sm,
   ktc_in,
   age_in,
+  ktc_history = NULL,
   history = NULL,
   pos,
   last_season,
-  week = 0,
-  ewma_active = 0,
-  magnitude_given_active = 0,
+  games_played = 0,
+  tva_partial = 0,
+  games_in_season = 17,
   n_years_ahead = 10,
   discount_rate = 0.95,
   quantile_probs = ppoints(20),
@@ -535,12 +511,13 @@ project_career <- function(
     fit,
     sm,
     ktc_in,
+    ktc_history,
     age_in,
     history,
     ages_out,
-    week,
-    ewma_active,
-    magnitude_given_active
+    games_played,
+    tva_partial,
+    games_in_season
   )
 
   taper_weight <- age_taper_weight(ages_out, pos, taper_window)
@@ -548,7 +525,7 @@ project_career <- function(
   pred_va_raw <- as.vector(p$mu_out + p$Phi_out %*% p$post$mean)
   var_curve_raw <- diag(p$Phi_out %*% p$post$cov %*% t(p$Phi_out))
 
-  pred_va <- taper_weight * pred_va_raw
+  pred_va <- pmax(0, taper_weight * pred_va_raw)
   var_curve <- taper_weight^2 * var_curve_raw
   var_predictive <- taper_weight^2 * (var_curve_raw + fit$sigma2)
   se_curve <- sqrt(pmax(var_curve, 0))
@@ -561,10 +538,7 @@ project_career <- function(
     se_curve = se_curve,
     se_predictive = se_predictive,
     taper_weight = taper_weight
-  ) |>
-    mutate(
-      pred_va = pmax(0, pred_va)
-    )
+  )
 
   w <- discount_rate^seq_len(n_years_ahead)
   v <- colSums(p$Phi_out * w)
@@ -598,6 +572,7 @@ project_careers <- function(
   players_df,
   models,
   id_col = "name",
+  games_in_season = 17,
   n_years_ahead = 10,
   discount_rate = 0.95,
   quantile_probs = ppoints(20),
@@ -616,8 +591,9 @@ project_careers <- function(
     players_df[[id_col]] <- seq_len(nrow(players_df))
   }
   has_history_col <- "history" %in% names(players_df)
+  has_ktc_history_col <- "ktc_history" %in% names(players_df)
 
-  for (col in c("week", "ewma_active", "magnitude_given_active")) {
+  for (col in c("games_played", "tva_partial")) {
     if (!(col %in% names(players_df))) players_df[[col]] <- 0
   }
 
@@ -634,18 +610,20 @@ project_careers <- function(
     fit <- models$fpca[[pos]]
     sm <- models$score_models[[pos]]
     hist_i <- if (has_history_col) row$history[[1]] else NULL
+    ktc_hist_i <- if (has_ktc_history_col) row$ktc_history[[1]] else NULL
 
     out <- project_career(
       fit = fit,
       sm = sm,
       ktc_in = row$ktc,
       age_in = row$age,
+      ktc_history = ktc_hist_i,
       history = hist_i,
       pos = pos,
       last_season = last_season,
-      week = row$week,
-      ewma_active = row$ewma_active,
-      magnitude_given_active = row$magnitude_given_active,
+      games_played = row$games_played,
+      tva_partial = row$tva_partial,
+      games_in_season = games_in_season,
       n_years_ahead = n_years_ahead,
       discount_rate = discount_rate,
       quantile_probs = quantile_probs,

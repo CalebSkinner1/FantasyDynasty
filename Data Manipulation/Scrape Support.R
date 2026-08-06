@@ -10,15 +10,23 @@ suppressPackageStartupMessages({
 })
 
 # Misc --------------------------------------------------------------------
-`%!in%` = Negate(`%in%`)
+`%!in%` <- Negate(`%in%`)
 
 # syncs up name styles
 name_correction <- function(df) {
-  df %>%
+  df |>
     mutate(
       name = case_when(
         name == "Nyheim Miller-Hines" ~ "Nyheim Hines",
+        name == "Kenneth Gainwell" ~ "Kenny Gainwell",
+        name == "Ezekiel Elliot" ~ "Ezekiel Elliott",
+        name == "Juju Smith-Schuster" ~ "JuJu Smith-Schuster",
+        name == "Quentin Johnson" ~ "Quentin Johnston",
+        name == "Matthew Hibner" ~ "Matt Hibner",
+        name == "Chris Brazzell" ~ "Chris Brazzell II",
         name == "Andrew Ogletree" ~ "Drew Ogletree",
+        name == "Omar Cooper" ~ "Omar Cooper Jr.",
+        name == "Mike Washington" ~ "Mike Washington Jr.",
         name == "Brian Robinson" ~ "Brian Robinson Jr.",
         name == "Marvin Harrison" ~ "Marvin Harrison Jr.",
         name == "Michael Pittman" ~ "Michael Pittman Jr.",
