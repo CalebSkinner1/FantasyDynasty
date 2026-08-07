@@ -225,6 +225,7 @@ while (last_date_fvt < max(ktc_tibble$date)) {
     slice_min(order_by = date, with_ties = TRUE)
 
   current_date <- keep_trade_cut$date[1]
+  message("starting ", current_date)
 
   # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
   future_value_time <- future_value_over_time(
@@ -244,6 +245,12 @@ while (last_date_fvt < max(ktc_tibble$date)) {
   last_date_fvt <- max(future_value_time$date) |>
     as_tibble()
 }
+
+# coarse protection against double Antonio Williams
+future_value_time <- future_value_time |>
+  group_by(name, date) |>
+  summarize(future_value = max(future_value, na.rm = TRUE), .groups = "drop") |>
+  arrange(desc(date), desc(future_value))
 
 # make list of the dates already computed, so I don't have to compute them again
 write_csv(last_date_fvt, here("Data/last_date_fvt.csv"))
@@ -265,8 +272,12 @@ player_total_value <- future_value_time |>
     by = join_by(name)
   ) |>
   select(name, contains("sva"), future_value) |>
-  left_join(player_info, by = join_by(name)) |>
-  left_join(keep_trade_cut, by = join_by(name)) |>
+  left_join(
+    # coarse protection against double Antonio Williams
+    filter(player_info, !(name == "Antonio Williams" & position == "RB")),
+    by = join_by(name)
+  ) |>
+  left_join(select(keep_trade_cut, -date), by = join_by(name)) |>
   mutate(
     across(contains("sva"), ~ replace_na(., 0)),
     ktc_value = case_when(
