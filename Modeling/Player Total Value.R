@@ -202,20 +202,17 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 # Future Value over Time --------------------------------------------------
 # goal is to only run one at a time, while keeping the previous models
 
-# future_value_time <- read_csv(
-#   here("Shiny/Saved Files/future_value_time.csv"),
-#   show_col_types = FALSE
-# ) |>
-#   filter(date != today())
+future_value_time <- read_csv(
+  here("Shiny/Saved Files/future_value_time.csv"),
+  show_col_types = FALSE
+) |>
+  filter(date != today())
 
-# last_date_fvt <- read_csv(
-#   here("Data/last_date_fvt.csv"),
-#   show_col_types = FALSE
-# ) |>
-#   pull(value)
-
-future_value_time <- tibble()
-last_date_fvt <- ymd("20240101")
+last_date_fvt <- read_csv(
+  here("Data/last_date_fvt.csv"),
+  show_col_types = FALSE
+) |>
+  pull(value)
 
 message("begin mapping future value over time...")
 
