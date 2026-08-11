@@ -2988,7 +2988,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 8,Blake Corum,RB,7,1.1,0,bench,2,2024,4.3
 8,Luke McCaffrey,WR,7,0,0,bench,2,2024,7.1
 8,JuJu Smith-Schuster,WR,7,0,0,bench,9,2024,11.1
-8,Ray-Ray McCloud,WR,7,2.9,0,bench,7,2024,7.3
+8,Ray-Ray McCloud,WR,7,2.9,0,bench,8,2024,7.3
 8,T.J. Hockenson,TE,7,0,0,bench,7,2024,0
 8,Alexander Mattison,RB,7,15.3,0,bench,7,2024,13.3
 8,Clyde Edwards-Helaire,RB,7,0,0,bench,6,2024,0
@@ -3135,7 +3135,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 8,Blake Corum,RB,8,2.8,0,bench,2,2024,2.8
 8,Luke McCaffrey,WR,8,1.8,0,bench,2,2024,6.8
 8,Christian Kirk,WR,8,7.9,0,bench,8,2024,8.4
-8,Ray-Ray McCloud,WR,8,5.6000000000000005,0,bench,7,2024,6.8
+8,Ray-Ray McCloud,WR,8,5.6000000000000005,0,bench,8,2024,6.8
 8,T.J. Hockenson,TE,8,0,0,bench,7,2024,0
 8,Alexander Mattison,RB,8,9.4,0,bench,7,2024,12.5
 8,Joshua Palmer,WR,8,9.2,0,bench,5,2024,7.8
@@ -3284,7 +3284,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 8,Luke McCaffrey,WR,9,0,0,bench,2,2024,6.8
 8,Amari Cooper,WR,9,0,0,bench,10,2024,0
 8,Christian Kirk,WR,9,0,0,bench,8,2024,0
-8,Ray-Ray McCloud,WR,9,11.5,0,bench,7,2024,5.3
+8,Ray-Ray McCloud,WR,9,11.5,0,bench,8,2024,5.3
 8,T.J. Hockenson,TE,9,5.7,0,bench,7,2024,10
 8,Joshua Palmer,WR,9,14.3,0,bench,5,2024,9.7
 8,Tyler Allgeier,RB,9,7.8,0,bench,4,2024,6.6
@@ -3432,7 +3432,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 8,Amari Cooper,WR,10,0,0,bench,10,2024,0
 8,Sterling Shepard,WR,10,2,0,bench,10,2024,8.3
 8,Christian Kirk,WR,10,0,0,bench,8,2024,0
-8,Ray-Ray McCloud,WR,10,6.6,0,bench,7,2024,5.1
+8,Ray-Ray McCloud,WR,10,6.6,0,bench,8,2024,5.1
 8,Alexander Mattison,RB,10,0,0,bench,7,2024,0
 8,Joshua Palmer,WR,10,4.6,0,bench,5,2024,8.4
 8,Tyler Allgeier,RB,10,5.9,0,bench,4,2024,6.3
@@ -3977,7 +3977,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 5,Stefon Diggs,WR,14,0,0,bench,11,2024,0
 5,Harrison Butker,K,14,0,0,bench,9,2024,0
 5,Courtland Sutton,WR,14,0,0,bench,8,2024,0
-5,Ray-Ray McCloud,WR,14,18.1,0,bench,7,2024,7.2
+5,Ray-Ray McCloud,WR,14,18.1,0,bench,8,2024,7.2
 5,Diontae Johnson,WR,14,0,0,bench,6,2024,0
 5,Trevor Lawrence,QB,14,0,0,bench,5,2024,0
 5,Mac Jones,QB,14,7.1000000000000005,0,bench,5,2024,12.7
@@ -4124,7 +4124,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 5,Stefon Diggs,WR,15,0,0,bench,11,2024,0
 5,David Njoku,TE,15,0,0,bench,9,2024,0
 5,Harrison Butker,K,15,2,0,bench,9,2024,28
-5,Ray-Ray McCloud,WR,15,2.4000000000000004,0,bench,7,2024,7.6
+5,Ray-Ray McCloud,WR,15,2.4000000000000004,0,bench,8,2024,7.6
 5,Diontae Johnson,WR,15,0,0,bench,6,2024,0
 5,Trevor Lawrence,QB,15,0,0,bench,5,2024,0
 5,Mac Jones,QB,15,20.659999999999997,0,bench,5,2024,12
@@ -4271,7 +4271,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 5,Marvin Harrison Jr.,WR,16,7.9,0,bench,2,2024,12.3
 5,Stefon Diggs,WR,16,0,0,bench,11,2024,0
 5,Harrison Butker,K,16,10,0,bench,9,2024,20
-5,Ray-Ray McCloud,WR,16,5.7,0,bench,7,2024,7.4
+5,Ray-Ray McCloud,WR,16,5.7,0,bench,8,2024,7.4
 5,Diontae Johnson,WR,16,0,0,bench,6,2024,0
 5,Trevor Lawrence,QB,16,0,0,bench,5,2024,0
 5,Mac Jones,QB,16,13.88,0,bench,5,2024,13.2
@@ -4383,7 +4383,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 2,CeeDee Lamb,WR,17,0,0,bench,6,2024,0
 2,A.J. Dillon,RB,17,0,0,bench,6,2024,0
 2,Antonio Gibson,RB,17,6.300000000000001,0,bench,6,2024,9.9
-2,Kenny Gainwell,RB,17,0,0,bench,5,2024,0
+2,Kenny Gainwell,RB,17,1.9,0,bench,5,2024,0
 2,Detroit Lions,DST,17,7,0,bench,NA,2024,20
 2,New York Giants,DST,17,14,0,bench,NA,2024,14
 3,Chris Rodriguez Jr.,RB,17,9.8,0,bench,3,2024,1.6
@@ -4418,7 +4418,7 @@ roster_id,name,position,week,sleeper_points,value_added,type,years_exp,season,pr
 5,Stefon Diggs,WR,17,0,0,bench,11,2024,0
 5,David Njoku,TE,17,0,0,bench,9,2024,0
 5,Harrison Butker,K,17,4,0,bench,9,2024,23
-5,Ray-Ray McCloud,WR,17,3.7,0,bench,7,2024,7.1
+5,Ray-Ray McCloud,WR,17,3.7,0,bench,8,2024,7.1
 5,Diontae Johnson,WR,17,0,0,bench,6,2024,0
 5,Trevor Lawrence,QB,17,0,0,bench,5,2024,0
 5,Mac Jones,QB,17,17.16,0,bench,5,2024,13.8
