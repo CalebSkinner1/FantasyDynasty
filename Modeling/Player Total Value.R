@@ -23,10 +23,12 @@ ktc_list <- list.files(
   map(~ read_csv(.x, show_col_types = FALSE))
 
 # these are the names of the dudes that I'll compute the future value of repetitively
+# FIX: was select(-player_id) here, discarding it immediately after this
+# join brought it in -- kept now so it can flow through the entire
+# simulation engine.
 future_value_names <- map_dfr(ktc_list, name_correction) |>
   distinct(name) |>
   left_join(player_info, by = join_by(name)) |>
-  select(-player_id) |>
   filter(
     !str_detect(name, c("Mid")),
     !str_detect(name, c("Early")),
@@ -35,7 +37,7 @@ future_value_names <- map_dfr(ktc_list, name_correction) |>
   bind_rows(
     player_info |>
       filter(name == "Marshawn Lynch") |>
-      select(name, position, birth_date, years_exp)
+      select(name, player_id, position, birth_date, years_exp)
   ) |>
   filter(name %!in% c("Brendan Sorsby", "Trinidad Chambliss"))
 
@@ -63,11 +65,6 @@ hktc_data <- map_dfr(
   )
 )
 
-# hktc_data_list <- hktc_data |>
-#   group_by(position) |>
-#   reframe(position = list(tibble(name, historical_value, total_value_added, tva_adj, ktc_value, position, age))) |>
-#   deframe()
-
 # Model Total Value Added for next season-------------------------------------------------------------------------
 
 # I use a BART (Bayesian Additive Regression Tree) Model
@@ -81,7 +78,6 @@ tva_data <- hktc_data |> prep_data_tva(tva_scales)
 if (train_models) {
   # run model ~ 2.5 minutes
   tic()
-  # tva_fit <- fit_bart(tva_data$full_data)
   tva_fit <- fit_bart(tva_data$train_data)
   toc()
 
@@ -110,7 +106,6 @@ ktc_data <- hktc_data |> prep_data_ktc(ktc_scales)
 if (train_models) {
   # run model ~2.5 minutes
   tic()
-  # ktc_fit <- fit_bart(ktc_data$train_data)
   ktc_fit <- fit_bart(ktc_data$full_data)
   toc()
 
@@ -243,10 +238,18 @@ while (last_date_fvt < max(ktc_tibble$date)) {
     as_tibble()
 }
 
-# coarse protection against double Antonio Williams
+# FIX: was grouping by name+date and taking max() as a coarse patch for
+# the name-collision problem (Antonio Williams WR vs RB) -- now that
+# player_id flows through the whole simulation, group by real identity
+# directly instead of collapsing two different real people into
+# whichever has the arbitrarily larger future_value.
 future_value_time <- future_value_time |>
-  group_by(name, date) |>
-  summarize(future_value = max(future_value, na.rm = TRUE), .groups = "drop") |>
+  group_by(player_id, date) |>
+  summarize(
+    name = first(name),
+    future_value = max(future_value, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
   arrange(desc(date), desc(future_value))
 
 # make list of the dates already computed, so I don't have to compute them again
@@ -257,24 +260,28 @@ write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 # ensure future value is the same as most recent future_value_over_time
 
 player_total_value <- future_value_time |>
-  filter(date == max(date)) |>
   full_join(
     season_value_added |>
-      select(name, season, total_value_added) |>
+      select(player_id, season, total_value_added) |>
       pivot_wider(
         names_from = season,
         values_from = total_value_added,
         names_prefix = "sva_"
       ),
-    by = join_by(name)
+    by = join_by(player_id)
   ) |>
-  select(name, contains("sva"), future_value) |>
+  select(name, player_id, contains("sva"), future_value) |>
+  # FIX: was left_join(filter(player_info, !(name == "Antonio Williams" &
+  # position == "RB")), by = join_by(name)) -- a coarse patch that would
+  # now permanently exclude the real Antonio Williams RB. player_id
+  # resolves both him and the WR correctly with no exclusion needed.
+  # player_info's own `name` dropped to avoid colliding with the one
+  # already carried through from future_value_names.
+  left_join(player_info |> select(-name), by = join_by(player_id)) |>
   left_join(
-    # coarse protection against double Antonio Williams
-    filter(player_info, !(name == "Antonio Williams" & position == "RB")),
-    by = join_by(name)
+    keep_trade_cut |> select(player_id, ktc_value),
+    by = join_by(player_id)
   ) |>
-  left_join(select(keep_trade_cut, -date), by = join_by(name)) |>
   mutate(
     across(contains("sva"), ~ replace_na(., 0)),
     ktc_value = case_when(

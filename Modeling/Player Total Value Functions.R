@@ -52,25 +52,35 @@ compile_training_data <- function(
     ) |>
     name_correction()
 
-  colnames(pre_ktc) <- c("name", "ktc_value")
-  colnames(post_ktc) <- c("name", "ktc_value")
+  # FIX (unrelated to player_id): colnames() forced exactly 2 columns,
+  # which errors the moment these files have more than name+value (e.g.
+  # position, player_id, from several turns of scraping fixes). Explicit
+  # select() instead -- robust to extra columns. player_id kept here so
+  # every join below can use it; post_ktc doesn't need its own name (see
+  # below), so it's dropped there to avoid a later collision.
+  pre_ktc <- pre_ktc |>
+    select(player_id, name, ktc_value = any_of(c("ktc_value", "value")))
+  post_ktc <- post_ktc |>
+    select(player_id, ktc_value = any_of(c("ktc_value", "value")))
 
-  # create data table
+  # ktc_list confirmed to carry player_id -- every join below is now
+  # player_id-based. player_info also has its own `name`, which would
+  # collide with pre_ktc's (already-carried) name if not excluded.
   pre_ktc |>
     rename("historical_value" = "ktc_value") |>
     left_join(
-      season_value_added |> filter(season == this_season),
-      by = join_by(name)
+      season_value_added |> filter(season == this_season) |> select(-name),
+      by = join_by(player_id)
     ) |>
     select(-total_points) |>
     mutate(
       total_value_added = replace_na(total_value_added, 0)
     ) |>
     rename(tva_adj = total_value_added) |>
-    left_join(post_ktc, by = join_by(name)) |>
+    left_join(post_ktc, by = join_by(player_id)) |>
     select(-position) |>
-    left_join(player_info, by = join_by(name)) |>
-    select(-player_id, -years_exp) |>
+    left_join(player_info |> select(-name), by = join_by(player_id)) |>
+    select(-years_exp) |>
     mutate(
       age = as.numeric(pre_ktc_date - birth_date) / 365.25
     )
@@ -98,8 +108,15 @@ compile_data_set <- function(
     0
   )
 
+  # keep_trade_cut confirmed to carry player_id -- select only what's
+  # actually needed from it (player_id, ktc_value) so nothing it might
+  # also contain (name, position, date, ...) collides with
+  # future_value_names' own copies.
   future_value_names |>
-    left_join(keep_trade_cut, by = join_by(name)) |>
+    left_join(
+      keep_trade_cut |> select(player_id, ktc_value),
+      by = join_by(player_id)
+    ) |>
     mutate(
       # this is supposed to represent the values at the end of last season (hence the minus 1)
       age = time_length(interval(birth_date, season_start), unit = "years") - 1,
@@ -107,7 +124,16 @@ compile_data_set <- function(
       season = last_season,
       ktc_value = replace_na(ktc_value, 0)
     ) |>
-    select(name, position, birth_date, age, ktc_value, season, years_exp)
+    select(
+      name,
+      player_id,
+      position,
+      birth_date,
+      age,
+      ktc_value,
+      season,
+      years_exp
+    )
 }
 
 interaction_terms_tva <- function(data) {
@@ -223,9 +249,6 @@ fit_bart <- function(train_data, tune_grid = 20) {
     prior_terminal_node_expo = tune()
   ) |>
     set_engine("dbarts") |>
-    # control = dbarts::bartControl(
-    #   n.samples = 200,   # posterior samples (after burn-in)
-    #   n.burn = 100       # optional burn-in samples
     set_mode("regression")
 
   # parameters object
@@ -332,10 +355,6 @@ compute_coverage <- function(fit, test_data, confidence = .95) {
 
 # this function updates the data so its ready for the next year
 update_data_year <- function(data) {
-  # min_ktc <- min(data$ktc_value, na.rm = TRUE)
-  # hv <- if_else(is.na(data$ktc_value),
-  #                             runif(1, min = 0, max = min_ktc),
-  #                             data$ktc_value)
   hv <- replace_na(data$ktc_value, 0)
 
   data |>
@@ -348,6 +367,7 @@ update_data_year <- function(data) {
     ) |>
     select(
       name,
+      player_id, # carried through the yearly update now, was dropped before
       historical_value,
       season,
       position,
@@ -370,8 +390,6 @@ compute_quantiles <- function(samples, resid_fit, data) {
   eta <- Xp %*% resid_fit$coef #linear predictor
   sigma_hat <- resid_fit$model$family$linkinv(eta) |> as.vector() #apply inverse link function
 
-  # sigma_hat <- predict(resid_fit, newdata = data |> select(-Y), type = "response")
-
   # compute quantiles
   posterior_mean <- colMeans(samples)
 
@@ -380,12 +398,12 @@ compute_quantiles <- function(samples, resid_fit, data) {
     ~ {
       (posterior_mean + qnorm(p = .x) * sigma_hat)
     }
-  ) %>%
+  ) |>
     do.call(rbind, .)
 }
 
 integrate_quantiles <- function(quantile_list) {
-  matrix <- quantile_list %>%
+  matrix <- quantile_list |>
     do.call(rbind, .)
 
   matrix[is.na(matrix)] <- 0
@@ -437,9 +455,6 @@ bound_ktc <- function(samples_list, tva_data_list) {
         samples_list[.x, ] > 9999 ~ 9999, # cap ktc at 9999
         .default = samples_list[.x, ]
       )
-      # values are not on normal 9999 to 1 scale. I need to scale them to return
-      # this is ok because value is relative anyway
-      # conditional min-max scaling
 
       tva_data_list[[.x]] |> mutate(ktc_value = ktcv)
     }
@@ -469,7 +484,7 @@ next_year <- function(
   tva_data_list <- map(
     tva_prep,
     ~ {
-      generate_samples(tva_fit, .x) %>%
+      generate_samples(tva_fit, .x) |>
         compute_quantiles(tva_resid_fit, .x)
     }
   ) |>
@@ -488,7 +503,7 @@ next_year <- function(
   ktc_data_list <- map(
     ktc_prep,
     ~ {
-      generate_samples(ktc_fit, .x) %>%
+      generate_samples(ktc_fit, .x) |>
         compute_quantiles(ktc_resid_fit, .x)
     }
   ) |>
@@ -505,8 +520,11 @@ next_year <- function(
       df
     }
   ) |>
-    mutate(name = updated_data[[1]]$name) |>
-    relocate(name)
+    mutate(
+      name = updated_data[[1]]$name,
+      player_id = updated_data[[1]]$player_id # carried through, was absent before
+    ) |>
+    relocate(name, player_id)
 
   seasons_list <- c(
     seasons_list,
@@ -556,6 +574,7 @@ compute_future_value <- function(seasons_list, years = 8, discount_rate = .95) {
 
   tibble(
     name = seasons_list[[1]]$name,
+    player_id = seasons_list[[1]]$player_id, # carried through, was absent before
     future_value = future_value
   ) |>
     arrange(desc(future_value))
@@ -599,9 +618,6 @@ future_value_over_time <- function(
   ) |>
     filter(years_exp > diff) # remove players that shouldn't appear yet
 
-  # compute fraction of remaining season
-  # weeks_in <- time_length(interval(season_start, date), unit = "week") |> floor()
-
   sims <- next_years(
     df,
     n_years = 8,
@@ -613,11 +629,13 @@ future_value_over_time <- function(
     ktc_resid_fit
   )
 
+  # player_id-based -- both sides carry it now.
   future_value_names |>
     left_join(
-      compute_future_value(sims, years = 8, discount_rate = .95),
-      by = join_by(name)
+      compute_future_value(sims, years = 8, discount_rate = .95) |>
+        select(-name),
+      by = join_by(player_id)
     ) |>
-    select(name, future_value) |>
+    select(name, player_id, future_value) |>
     mutate(date = date)
 }
