@@ -36,9 +36,10 @@ box_score_off <- map_dfr(
 )
 
 # compute fantasy score for non kickers and defenses
-off_sleeper_points <- box_score_off %>%
+off_sleeper_points <- box_score_off |>
   transmute(
     name = player_display_name,
+    position = position,
     season = season,
     week = week,
     fg_points = case_when(
@@ -78,7 +79,7 @@ off_sleeper_points <- box_score_off %>%
   select(-fg_points, -pat_points)
 
 # defense
-opp_points_scored <- box_score_def %>%
+opp_points_scored <- box_score_def |>
   mutate(
     pa = 6 *
       (passing_tds + rushing_tds + fumble_recovery_tds + special_teams_tds) +
@@ -93,10 +94,11 @@ opp_points_scored <- box_score_def %>%
   select(season, week, defense, pa, blocks, fumbles)
 
 # note: does not include special teams forced and recovered fumbles... oh well
-def_sleeper_points <- box_score_def %>%
+def_sleeper_points <- box_score_def |>
   left_join(opp_points_scored, by = join_by(season, week, team == defense)) %>%
   transmute(
     name = team,
+    position = "DST",
     season = season,
     week = week,
     pa_points = case_when(
@@ -121,7 +123,7 @@ def_sleeper_points <- box_score_def %>%
   mutate(name = recode(name, "LA" = "LAR"))
 
 sleeper_points <- bind_rows(def_sleeper_points, off_sleeper_points) %>%
-  name_correction() %>%
+  name_correction() |>
   filter(week != 18)
 
 write_csv(sleeper_points, here("Data/sleeper_points.csv"))
@@ -132,9 +134,9 @@ write_csv(sleeper_points, here("Data/sleeper_points.csv"))
 projections_list <- map(
   projections,
   ~ {
-    .x %>%
-      group_by(week) %>%
-      reframe(week = list(tibble(name, projection, week))) %>%
+    .x |>
+      group_by(week) |>
+      reframe(week = list(tibble(name, projection, week))) |>
       deframe()
   }
 )
@@ -458,16 +460,25 @@ value_added <- imap_dfr(
         )
     }
   }
-)
+) |>
+  left_join(
+    select(player_info, name, position, player_id) |>
+      filter(
+        !(name == "Antonio Williams" & position == "RB")
+      ),
+    by = join_by(name, position)
+  ) |>
+  relocate(player_id, .before = "position")
 
-season_value_added <- value_added %>%
-  group_by(season, position, name) %>%
+season_value_added <- value_added |>
+  group_by(season, player_id, name, position) |>
   summarize(
     total_value_added = sum(value_added),
     total_points = sum(sleeper_points),
-    .groups = "keep"
-  ) %>%
-  arrange(desc(total_value_added))
+    .groups = "drop"
+  ) |>
+  arrange(desc(total_value_added)) |>
+  relocate(season, name, player_id, position)
 
 write_csv(value_added, here("Data/va.csv"))
 write_csv(season_value_added, here("Data/sva.csv"))
