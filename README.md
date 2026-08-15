@@ -9,7 +9,6 @@ valuing draft picks, projecting team outcomes, and powering a Shiny dashboard fo
 
 ## Table of Contents
 - [Overview](#overview)
-- [Repository Structure](#repository-structure)
 - [Methodology](#methodology)
   - [Scraping](#scraping)
   - [Player Value Added](#player-value-added)
@@ -97,7 +96,7 @@ Model and simulate total future value for each player.
 - Discount future seasons at 5% annually
 
 ### Outputs
-- Posterior samples of future value (with uncertainty quanification)
+- Posterior samples of future value (with uncertainty quantification)
 - Future Value is median of simulated output over 8-year horizon
 
 ### Files
@@ -105,9 +104,6 @@ Model and simulate total future value for each player.
 
 ## Draft Pick Value
 Estimate the expected value of a rookie draft pick at each position.
-
-### Files
-- `Player Total Value.R`
 
 ### Data Inputs
 - Rookies' realized total value  
@@ -160,7 +156,7 @@ Project team standings in future seasons to support pick valuation and strategy.
 
 # Roadmap
 
-### In Progress
+## In Progress
 - Add recent games in Team Rankings
 - Schedule table - perhaps in matchups?
 
