@@ -238,11 +238,6 @@ while (last_date_fvt < max(ktc_tibble$date)) {
     as_tibble()
 }
 
-# FIX: was grouping by name+date and taking max() as a coarse patch for
-# the name-collision problem (Antonio Williams WR vs RB) -- now that
-# player_id flows through the whole simulation, group by real identity
-# directly instead of collapsing two different real people into
-# whichever has the arbitrarily larger future_value.
 future_value_time <- future_value_time |>
   group_by(player_id, date) |>
   summarize(
@@ -271,12 +266,6 @@ player_total_value <- future_value_time |>
     by = join_by(player_id)
   ) |>
   select(name, player_id, contains("sva"), future_value) |>
-  # FIX: was left_join(filter(player_info, !(name == "Antonio Williams" &
-  # position == "RB")), by = join_by(name)) -- a coarse patch that would
-  # now permanently exclude the real Antonio Williams RB. player_id
-  # resolves both him and the WR correctly with no exclusion needed.
-  # player_info's own `name` dropped to avoid colliding with the one
-  # already carried through from future_value_names.
   left_join(player_info |> select(-name), by = join_by(player_id)) |>
   left_join(
     keep_trade_cut |> select(player_id, ktc_value),

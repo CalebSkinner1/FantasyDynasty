@@ -10,7 +10,7 @@ matchups_table <- read_csv(
   here("Data/matchups_table.csv"),
   show_col_types = FALSE
 )
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 value_added <- read_csv(
   here("Shiny/Saved Files/value_added.csv"),
@@ -18,39 +18,39 @@ value_added <- read_csv(
 )
 
 # most championships
-championships_df <- matchups_table %>%
-  filter(round == "Championship", points > opp_points) %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  rename(team = display_name) %>%
-  group_by(team) %>%
+championships_df <- matchups_table |>
+  filter(round == "Championship", points > opp_points) |>
+  left_join(users, by = join_by(roster_id)) |>
+  rename(team = display_name) |>
+  group_by(team) |>
   summarize(championships = n(), most_recent = max(season)) |>
   arrange(desc(championships), desc(most_recent))
 
 # most finals appearances
-finals_df <- matchups_table %>%
-  filter(round == "Championship") %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  rename(team = display_name) %>%
-  group_by(team) %>%
+finals_df <- matchups_table |>
+  filter(round == "Championship") |>
+  left_join(users, by = join_by(roster_id)) |>
+  rename(team = display_name) |>
+  group_by(team) |>
   summarize(finals_appearances = n(), most_recent = max(season)) |>
   arrange(desc(finals_appearances), desc(most_recent))
 
 # most playoff berths
-playoffs_df <- matchups_table %>%
-  filter(round %in% c("1st round", "2nd round")) %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  rename(team = display_name) %>%
-  distinct(season, team, .keep = "all") %>%
-  group_by(team) %>%
+playoffs_df <- matchups_table |>
+  filter(round %in% c("1st round", "2nd round")) |>
+  left_join(users, by = join_by(roster_id)) |>
+  rename(team = display_name) |>
+  distinct(season, team, .keep = "all") |>
+  group_by(team) |>
   summarize(playoff_berths = n(), most_recent = max(season)) |>
   arrange(desc(playoff_berths), desc(most_recent))
 
 # most wins
-wins_df <- matchups_table %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  rename(team = display_name) %>%
-  left_join(users, by = join_by(opponent_id == roster_id)) %>%
-  rename(opponent = display_name) %>%
+wins_df <- matchups_table |>
+  left_join(users, by = join_by(roster_id)) |>
+  rename(team = display_name) |>
+  left_join(users, by = join_by(opponent_id == roster_id)) |>
+  rename(opponent = display_name) |>
   mutate(
     result = if_else(points > opp_points, "win", "loss"),
     type = if_else(
@@ -58,7 +58,7 @@ wins_df <- matchups_table %>%
       round,
       "winner's bracket"
     )
-  ) %>%
+  ) |>
   filter(points != 0)
 
 # compute_most_wins(wins_df, "All", 2024)

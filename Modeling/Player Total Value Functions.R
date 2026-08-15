@@ -52,20 +52,11 @@ compile_training_data <- function(
     ) |>
     name_correction()
 
-  # FIX (unrelated to player_id): colnames() forced exactly 2 columns,
-  # which errors the moment these files have more than name+value (e.g.
-  # position, player_id, from several turns of scraping fixes). Explicit
-  # select() instead -- robust to extra columns. player_id kept here so
-  # every join below can use it; post_ktc doesn't need its own name (see
-  # below), so it's dropped there to avoid a later collision.
   pre_ktc <- pre_ktc |>
     select(player_id, name, ktc_value = any_of(c("ktc_value", "value")))
   post_ktc <- post_ktc |>
     select(player_id, ktc_value = any_of(c("ktc_value", "value")))
 
-  # ktc_list confirmed to carry player_id -- every join below is now
-  # player_id-based. player_info also has its own `name`, which would
-  # collide with pre_ktc's (already-carried) name if not excluded.
   pre_ktc |>
     rename("historical_value" = "ktc_value") |>
     left_join(
@@ -108,10 +99,6 @@ compile_data_set <- function(
     0
   )
 
-  # keep_trade_cut confirmed to carry player_id -- select only what's
-  # actually needed from it (player_id, ktc_value) so nothing it might
-  # also contain (name, position, date, ...) collides with
-  # future_value_names' own copies.
   future_value_names |>
     left_join(
       keep_trade_cut |> select(player_id, ktc_value),

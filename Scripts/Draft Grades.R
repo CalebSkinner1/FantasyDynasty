@@ -13,13 +13,13 @@ message("begin computing Draft Grades...")
 # load data
 load(here("Data/draft_picks.RData"))
 
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 player_total_value <- read_csv(
   here("Data/player_total_value.csv"),
   show_col_types = FALSE
-) %>%
+) |>
   select(
     name,
     player_id,
@@ -27,13 +27,13 @@ player_total_value <- read_csv(
     position,
     contains("sva"),
     future_value
-  ) %>%
-  rowwise() %>%
+  ) |>
+  rowwise() |>
   mutate(
     realized_value = sum(c_across(contains("sva"))),
     total_value = realized_value + .95 * future_value
-  ) %>% # devalue future
-  ungroup() %>%
+  ) |> # devalue future
+  ungroup() |>
   select(-contains("sva"))
 player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 
@@ -43,30 +43,30 @@ player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 rookie_draft_pick_values <- read_csv(
   here("Data/rookie_draft_values.csv"),
   show_col_types = FALSE
-) %>%
-  filter(metric == "total value") %>%
+) |>
+  filter(metric == "total value") |>
   select(pick_no, proj_tva_50)
 
-rookie_draft_values <- rookie_draft_pick_values %>%
+rookie_draft_values <- rookie_draft_pick_values |>
   mutate(
     draft_slot = pick_no %% 12,
     draft_slot = if_else(draft_slot == 0, 12, draft_slot)
-  ) %>%
-  group_by(draft_slot) %>%
+  ) |>
+  group_by(draft_slot) |>
   summarize(total_value = sum(proj_tva_50))
 
 # this tibble holds the expected value gained from rookie draft order
 rookie_draft_order_value <- read_csv(
   here("Data/draft_order.csv"),
   show_col_types = FALSE
-) %>%
-  filter(season == 2024, type == "rookie") %>%
+) |>
+  filter(season == 2024, type == "rookie") |>
   # now compute expected value gained from draft order only
-  left_join(rookie_draft_values, by = join_by(draft_order == draft_slot)) %>%
+  left_join(rookie_draft_values, by = join_by(draft_order == draft_slot)) |>
   mutate(
     name = "rookie draft slot",
     position = as.character(draft_order)
-  ) %>%
+  ) |>
   select(roster_id, name, position, total_value)
 
 # realized value from each draft pick
@@ -74,18 +74,18 @@ draft_values <- map(
   draft_picks,
   ~ {
     if (nrow(.x) > 0) {
-      draft_values <- .x %>%
-        select(player_id, roster_id, draft_slot) %>%
-        left_join(player_info, by = join_by(player_id)) %>%
-        select(player_id, roster_id, draft_slot, name, position) %>%
+      draft_values <- .x |>
+        select(player_id, roster_id, draft_slot) |>
+        left_join(player_info, by = join_by(player_id)) |>
+        select(player_id, roster_id, draft_slot, name, position) |>
         left_join(
-          player_total_value,
-          by = join_by(player_id, name, position)
-        ) %>%
+          player_total_value |> select(-name, -position),
+          by = join_by(player_id)
+        ) |>
         mutate(
           pick_no = row_number(),
           across(contains("_value"), ~ replace_na(., 0))
-        ) %>%
+        ) |>
         select(
           roster_id,
           pick_no,
@@ -97,12 +97,12 @@ draft_values <- map(
         )
 
       if (nrow(draft_values) > 50) {
-        kicker_selected <- draft_values %>%
-          filter(position == "K") %>%
-          group_by(roster_id) %>%
+        kicker_selected <- draft_values |>
+          filter(position == "K") |>
+          group_by(roster_id) |>
           summarize(pick_no = min(pick_no))
 
-        draft_values <- draft_values %>%
+        draft_values <- draft_values |>
           # draft day trade
           mutate(
             roster_id = case_when(
@@ -114,7 +114,7 @@ draft_values <- map(
             )
           )
 
-        draft_values <- rookie_draft_order_value %>%
+        draft_values <- rookie_draft_order_value |>
           left_join(kicker_selected, by = join_by(roster_id)) %>%
           bind_rows(draft_values, .)
       }
@@ -126,35 +126,34 @@ draft_values <- map(
 )
 
 # Expected Value per pick slot -------------------------------------------------
-initial_draft_data <- draft_values[[2]] %>%
+initial_draft_data <- draft_values[[2]] |>
   mutate(
     total_value = case_when(
       name == "rookie draft slot" ~ total_value -
         min(rookie_draft_values$total_value),
       .default = total_value
     )
-  ) %>%
-  group_by(pick_no) %>%
+  ) |>
+  group_by(pick_no) |>
   summarize(total_value = sum(total_value))
 
-# initial_draft_data %>%
+# initial_draft_data |>
 #   ggplot() +
 #   geom_point(aes(x = pick_no, y = total_value))
 
-X_id <- initial_draft_data %>%
-  select(pick_no) %>%
+X_id <- initial_draft_data |>
+  select(pick_no) |>
   mutate(
     # pn_1 = pick_no^(.25),
     pn_2 = pick_no^(.5),
     # pn_3 = pick_no^(.75),
     across(everything(), ~ scale(.x))
-  ) %>%
-  mutate(intercept = 1) %>%
+  ) |>
+  mutate(intercept = 1) |>
   as.matrix()
 
 Y_id <- initial_draft_data$total_value
 
-#note that X_tv[c(1:36)] can actually stay the same
 samples_id <- reg_gibbs_sampler(
   Y = Y_id,
   X = X_id,
@@ -173,17 +172,17 @@ quantiles_id <- apply(
 
 # plot fit, looks pretty good
 # tibble(.pred = quantiles_id$`10`,
-#        pick_no = seq_along(Y_id)) %>%
-#   right_join(initial_draft_data, by = join_by(pick_no)) %>%
+#        pick_no = seq_along(Y_id)) |>
+#   right_join(initial_draft_data, by = join_by(pick_no)) |>
 #   ggplot(aes(x = pick_no)) +
 #   geom_point(aes(y = total_value)) +
 #   geom_line(aes(y = .pred))
 
 # plot residuals against pick_no, certainly heteroscedasticity
 # tibble(.pred = quantiles_id$`10`,
-#        pick_no = seq_along(Y_id)) %>%
-#   right_join(initial_draft_data, by = join_by(pick_no)) %>%
-#   mutate(.resid = total_value  - .pred) %>%
+#        pick_no = seq_along(Y_id)) |>
+#   right_join(initial_draft_data, by = join_by(pick_no)) |>
+#   mutate(.resid = total_value  - .pred) |>
 #   ggplot(aes(x = pick_no)) +
 #   geom_point(aes(y = .resid)) +
 #   geom_hline(yintercept = 0)
@@ -191,34 +190,34 @@ quantiles_id <- apply(
 initial_draft_expectations <- tibble(
   .pred = quantiles_id[20, ],
   pick_no = seq_along(Y_id)
-) %>%
+) |>
   rename(exp_total_value = .pred)
 
 # Draft Rankings ----------------------------------------------------------
 
 # best picks - lol we vastly undervalued rookie picks
-init_vs_expectation <- draft_values[[2]] %>%
-  group_by(pick_no) %>%
+init_vs_expectation <- draft_values[[2]] |>
+  group_by(pick_no) |>
   summarize(
     total_value = sum(total_value)
-  ) %>%
+  ) |>
   left_join(
-    draft_values[[2]] %>%
-      group_by(pick_no) %>%
-      mutate(max_value = rank(desc(total_value))) %>%
-      filter(max_value == 1) %>%
+    draft_values[[2]] |>
+      group_by(pick_no) |>
+      mutate(max_value = rank(desc(total_value))) |>
+      filter(max_value == 1) |>
       select(-max_value, -total_value),
     by = join_by(pick_no)
-  ) %>%
+  ) |>
   mutate(
     total_value = case_when(
       name == "rookie draft slot" ~ total_value -
         min(rookie_draft_values$total_value),
       .default = total_value
     )
-  ) %>%
-  left_join(initial_draft_expectations, by = join_by(pick_no)) %>%
-  mutate(value_over_expected = total_value - exp_total_value) %>%
+  ) |>
+  left_join(initial_draft_expectations, by = join_by(pick_no)) |>
+  mutate(value_over_expected = total_value - exp_total_value) |>
   select(
     roster_id,
     pick_no,
@@ -231,23 +230,23 @@ init_vs_expectation <- draft_values[[2]] %>%
   )
 
 # initial draft rankings
-initial_draft_value <- draft_values[[2]] %>%
-  group_by(roster_id) %>%
+initial_draft_value <- draft_values[[2]] |>
+  group_by(roster_id) |>
   summarize(
     total_draft_value = sum(total_value),
     total_realized_value = sum(realized_value, na.rm = TRUE),
     total_future_value = sum(future_value, na.rm = TRUE)
-  ) %>%
-  left_join(users, by = join_by(roster_id)) %>%
+  ) |>
+  left_join(users, by = join_by(roster_id)) |>
   arrange(desc(total_draft_value))
 
 # rookie draft individual picks vs expectation
-rookie_vs_expecations <- draft_values[-2] %>%
+rookie_vs_expecations <- draft_values[-2] |>
   map(
     ~ {
       if (nrow(.x) > 0) {
-        .x %>%
-          left_join(rookie_draft_pick_values, by = join_by(pick_no)) %>%
+        .x |>
+          left_join(rookie_draft_pick_values, by = join_by(pick_no)) |>
           mutate(value_over_expected = total_value - proj_tva_50)
       } else {
         tibble()
@@ -256,19 +255,19 @@ rookie_vs_expecations <- draft_values[-2] %>%
   )
 
 # rookie draft rankings
-rookie_draft_value <- rookie_vs_expecations %>%
+rookie_draft_value <- rookie_vs_expecations |>
   map(
     ~ {
       if (nrow(.x) > 0) {
-        .x %>%
-          group_by(roster_id) %>%
+        .x |>
+          group_by(roster_id) |>
           summarize(
             value_over_expected = sum(value_over_expected),
             total_draft_value = sum(total_value),
             total_realized_value = sum(realized_value),
             total_future_value = sum(future_value)
-          ) %>%
-          left_join(users, by = join_by(roster_id)) %>%
+          ) |>
+          left_join(users, by = join_by(roster_id)) |>
           arrange(desc(value_over_expected))
       } else {
         tibble()
@@ -278,8 +277,8 @@ rookie_draft_value <- rookie_vs_expecations %>%
 
 # dfs to save -------------------------------------------------------------
 # best picks
-picks_df <- init_vs_expectation %>%
-  bind_rows(., rookie_vs_expecations, .id = "draft_id") %>%
+picks_df <- init_vs_expectation |>
+  bind_rows(rookie_vs_expecations, .id = "draft_id") |>
   mutate(
     draft = case_when(
       draft_id == "1" ~ "initial draft",

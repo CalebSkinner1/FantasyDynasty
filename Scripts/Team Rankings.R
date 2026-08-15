@@ -13,7 +13,7 @@ grab_team_assets_df <- read_csv(
   here("Shiny/Saved Files/grab_team_assets_df.csv"),
   show_col_types = FALSE
 )
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) %>%
+users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 # ELO Rankings ------------------------------------------------------------
@@ -26,47 +26,47 @@ movm <- function(point_diff, elo_winner, elo_loser, K = 10) {
 
 compute_week <- function(matchups, elo_table, K) {
   # takes matchup table and current elo rankings and gives new elo rankings
-  df <- matchups %>%
-    left_join(elo_table, by = join_by(roster_id)) %>%
+  df <- matchups |>
+    left_join(elo_table, by = join_by(roster_id)) |>
     left_join(
-      elo_table %>% rename(opp_elo = elo),
+      elo_table |> rename(opp_elo = elo),
       by = join_by(opponent_id == roster_id)
-    ) %>%
+    ) |>
     mutate(
       point_diff = points - opp_points,
       elo_winner = if_else(points > opp_points, elo, opp_elo),
       elo_loser = if_else(points > opp_points, opp_elo, elo),
       elo = elo + movm(point_diff, elo_winner, elo_loser, K) * sign(point_diff)
-    ) %>%
-    select(roster_id, elo) %>%
-    group_by(roster_id) %>%
+    ) |>
+    select(roster_id, elo) |>
+    group_by(roster_id) |>
     summarize(elo = mean(elo))
 
-  anti_join(elo_table, df, by = join_by(roster_id)) %>%
-    select(roster_id, elo) %>%
+  anti_join(elo_table, df, by = join_by(roster_id)) |>
+    select(roster_id, elo) |>
     bind_rows(df)
 }
 
 # initialize
-elo_init <- users %>% mutate(elo = 1500)
+elo_init <- users |> mutate(elo = 1500)
 
 # weeks
-matchup_list <- matchups_table %>%
-  filter(points != 0) %>%
-  select(season, week, roster_id, points) %>%
+matchup_list <- matchups_table |>
+  filter(points != 0) |>
+  select(season, week, roster_id, points) |>
   left_join(
-    matchups_table %>%
-      filter(points != 0) %>%
+    matchups_table |>
+      filter(points != 0) |>
       select(season, week, opponent_id, opp_points),
     by = join_by(season, week),
     relationship = "many-to-many"
-  ) %>%
-  filter(roster_id != opponent_id) %>%
+  ) |>
+  filter(roster_id != opponent_id) |>
   group_split(season, week)
 
 # function computes elo over time
 compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75) {
-  master_table <- elo_init %>% rename(start = elo)
+  master_table <- elo_init |> rename(start = elo)
 
   prev_elo <- elo_init
 
@@ -75,7 +75,7 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75) {
     new_elo <- compute_week(matchup_list[[i]], prev_elo, K)
 
     names <- colnames(master_table)
-    master_table <- master_table %>% left_join(new_elo, by = join_by(roster_id))
+    master_table <- master_table |> left_join(new_elo, by = join_by(roster_id))
     colnames(master_table) <- c(
       names,
       paste0(matchup_list[[i]]$season[1], "_week", matchup_list[[i]]$week[1])
@@ -83,10 +83,10 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75) {
 
     if (matchup_list[[i]]$week[1] == 17) {
       #reset elo after end of season
-      new_elo <- new_elo %>% mutate(elo = elo * lambda + (1 - lambda) * 1500)
+      new_elo <- new_elo |> mutate(elo = elo * lambda + (1 - lambda) * 1500)
 
       names <- colnames(master_table)
-      master_table <- master_table %>%
+      master_table <- master_table |>
         left_join(new_elo, by = join_by(roster_id))
       colnames(master_table) <- c(
         names,
@@ -97,36 +97,36 @@ compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75) {
     prev_elo <- new_elo
   }
 
-  master_table %>% select(-roster_id)
+  master_table |> select(-roster_id)
 }
 
-weekly_elo <- compute_elo(matchup_list, elo_init) %>%
-  rename("2024_week0" = start) %>%
+weekly_elo <- compute_elo(matchup_list, elo_init) |>
+  rename("2024_week0" = start) |>
   pivot_longer(
     cols = contains("week"),
     names_to = "date",
     values_to = "elo"
-  ) %>%
-  rename(team = display_name) %>%
+  ) |>
+  rename(team = display_name) |>
   mutate(
     season = str_sub(date, start = 1, end = 4),
     week = str_remove(date, str_c(season, "_week")),
     date_hide = as.numeric(season) + (as.numeric(week) - 1) / 18,
     date = str_c(str_sub(season, 3, 4), "w", week)
-  ) %>%
+  ) |>
   select(-season, -week)
 
 # example
 # graph_elo(weekly_elo)
 
-max_elo <- rename(weekly_elo, "max_elo_date" = date) %>%
+max_elo <- rename(weekly_elo, "max_elo_date" = date) |>
   select(-date_hide) |>
   group_by(team) |>
   mutate(max_elo = max(elo)) |>
   filter(max_elo == elo) |>
   slice(1)
 
-min_elo <- rename(weekly_elo, "min_elo_date" = date) %>%
+min_elo <- rename(weekly_elo, "min_elo_date" = date) |>
   select(-date_hide) |>
   group_by(team) |>
   mutate(min_elo = min(elo)) |>
@@ -134,15 +134,15 @@ min_elo <- rename(weekly_elo, "min_elo_date" = date) %>%
   slice(1)
 
 # peak rankings
-total_success <- weekly_elo %>%
-  group_by(team) %>%
+total_success <- weekly_elo |>
+  group_by(team) |>
   summarize(
     max_elo = max(elo),
     min_elo = min(elo),
     composite_rating = round(mean(elo - 1500), digits = 2)
-  ) %>%
-  left_join(max_elo, by = join_by(team, max_elo == elo)) %>%
-  left_join(min_elo, by = join_by(team, min_elo == elo)) %>%
+  ) |>
+  left_join(max_elo, by = join_by(team, max_elo == elo)) |>
+  left_join(min_elo, by = join_by(team, min_elo == elo)) |>
   mutate(
     "peak" = str_c(
       round(max_elo, 2),
@@ -158,19 +158,19 @@ total_success <- weekly_elo %>%
       " week ",
       str_sub(min_elo_date, start = 4)
     )
-  ) %>%
-  select(team, composite_rating, peak, low) %>%
+  ) |>
+  select(team, composite_rating, peak, low) |>
   arrange(desc(composite_rating))
 
 
 # Future Value Assets -----------------------------------------------------
 
-all_assets_summary_df <- grab_team_assets_df %>%
-  group_by(roster_id) %>%
-  summarize(total_future_value = sum(future_value)) %>%
-  left_join(users, by = join_by(roster_id)) %>%
-  arrange(desc(total_future_value)) %>%
-  rename(team = display_name) %>%
+all_assets_summary_df <- grab_team_assets_df |>
+  group_by(roster_id) |>
+  summarize(total_future_value = sum(future_value)) |>
+  left_join(users, by = join_by(roster_id)) |>
+  arrange(desc(total_future_value)) |>
+  rename(team = display_name) |>
   select(team, total_future_value)
 
 
