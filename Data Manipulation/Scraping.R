@@ -504,15 +504,20 @@ while (ktc_rows != 500) {
       "https://keeptradecut.com/dynasty-rankings?page=",
       .x,
       "&filters=QB|WR|RB|TE|RDP&format=2"
-    ) %>%
+    ) |>
       player_value()
-  ) %>%
-    mutate(ktc_value = as.numeric(value)) %>%
-    select(name, ktc_value) %>%
+  ) |>
+    select(name, position, ktc_value) |>
     name_correction()
 
-  ktc_rows <- keep_trade_cut %>% distinct(name) %>% nrow()
+  ktc_rows <- keep_trade_cut |> distinct(name) |> nrow()
 }
+
+keep_trade_cut <- keep_trade_cut |>
+  left_join(
+    select(player_info, name, position, player_id),
+    by = join_by(name, position)
+  )
 
 # periodically save
 date <- str_c(

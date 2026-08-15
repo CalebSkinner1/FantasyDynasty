@@ -252,31 +252,39 @@ combine_week <- function(week, season) {
 
 # scrape future value from ktc
 player_value <- function(ktc_page_html) {
-  players <- read_html(ktc_page_html) %>%
-    html_element("body") %>%
-    html_element("main") %>%
-    html_elements("div") %>%
-    html_elements(".onePlayer") %>%
-    html_element(".single-ranking-wrapper") %>%
+  players <- read_html(ktc_page_html) |>
+    html_element("body") |>
+    html_element("main") |>
+    html_elements("div") |>
+    html_elements(".onePlayer") |>
+    html_element(".single-ranking-wrapper") |>
     html_element(".single-ranking")
 
   # grabs player name
-  name <- players %>%
-    html_element(".player-name") %>%
-    html_node("p") %>%
-    html_node("a") %>%
+  name <- players |>
+    html_element(".player-name") |>
+    html_node("p") |>
+    html_node("a") |>
     html_text2()
 
   # grabs player value
-  value <- players %>%
-    html_element(".value") %>%
-    html_node("p") %>%
+  value <- players |>
+    html_element(".value") |>
+    html_node("p") |>
     html_text2()
+
+  position_team_raw <- players |>
+    html_element(".position-team") |>
+    html_text2()
+
+  position <- str_extract(position_team_raw, "^[A-Z]+")
+  age <- str_extract(position_team_raw, "\\d+\\.\\d+") |> as.numeric()
 
   # return in tibble
   tibble(
     name = name,
-    value = as.numeric(value)
-  ) %>%
-    return()
+    ktc_value = as.numeric(value),
+    position = position,
+    age = age
+  )
 }
