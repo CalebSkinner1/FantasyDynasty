@@ -20,12 +20,15 @@ ktc_list <- list.files(
   full.names = T
 ) %>%
   set_names(basename(.)) |>
-  map(~ read_csv(.x, show_col_types = FALSE))
+  map(
+    ~ read_csv(
+      .x,
+      show_col_types = FALSE,
+      col_types = cols(player_id = col_character())
+    )
+  )
 
 # these are the names of the dudes that I'll compute the future value of repetitively
-# FIX: was select(-player_id) here, discarding it immediately after this
-# join brought it in -- kept now so it can flow through the entire
-# simulation engine.
 future_value_names <- map_dfr(ktc_list, name_correction) |>
   distinct(name) |>
   left_join(player_info, by = join_by(name)) |>
@@ -147,10 +150,9 @@ ktc_tibble <- ktc_list |>
   mutate(
     date = str_remove(date, "ktc_value") |>
       str_remove(".csv") |>
-      lubridate::mdy(),
-    ktc_value = coalesce(ktc_value, value)
+      lubridate::mdy()
   ) |>
-  select(-value) |>
+  filter(!is.na(player_id)) |>
   name_correction()
 
 # compute future value over time
@@ -234,8 +236,7 @@ while (last_date_fvt < max(ktc_tibble$date)) {
   ) |>
     bind_rows(future_value_time)
 
-  last_date_fvt <- max(future_value_time$date) |>
-    as_tibble()
+  last_date_fvt <- max(future_value_time$date)
 }
 
 future_value_time <- future_value_time |>
@@ -248,7 +249,7 @@ future_value_time <- future_value_time |>
   arrange(desc(date), desc(future_value))
 
 # make list of the dates already computed, so I don't have to compute them again
-write_csv(last_date_fvt, here("Data/last_date_fvt.csv"))
+write_csv(tibble(value = last_date_fvt), here("Data/last_date_fvt.csv"))
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 
@@ -257,13 +258,13 @@ write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 player_total_value <- future_value_time |>
   full_join(
     season_value_added |>
-      select(player_id, season, total_value_added) |>
+      select(player_id, name, season, total_value_added) |>
       pivot_wider(
         names_from = season,
         values_from = total_value_added,
         names_prefix = "sva_"
       ),
-    by = join_by(player_id)
+    by = join_by(player_id, name)
   ) |>
   select(name, player_id, contains("sva"), future_value) |>
   left_join(player_info |> select(-name), by = join_by(player_id)) |>

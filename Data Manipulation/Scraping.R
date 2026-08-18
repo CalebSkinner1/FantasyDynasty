@@ -12,7 +12,7 @@ options(nflreadr.verbose = FALSE)
 source(here("Data Manipulation/Scrape Support.R"))
 
 # change to true if want to update player_info
-run_player_info <- TRUE
+run_player_info <- FALSE
 
 # load box score data from NFL 2025
 # https://www.nflfastr.com
@@ -285,7 +285,7 @@ if (run_player_info) {
       player_id != 232,
       player_id != 7437,
       player_id != 638
-    ) %>%
+    ) |>
     mutate(
       position = case_when(
         name == "Taysom Hill" ~ "TE",
@@ -296,8 +296,8 @@ if (run_player_info) {
         name == "Isaiah Bond" ~ "2004-03-15",
         .default = birth_date
       )
-    ) %>%
-    distinct() %>%
+    ) |>
+    distinct() |>
     bind_rows(defenses) |>
     name_correction()
 

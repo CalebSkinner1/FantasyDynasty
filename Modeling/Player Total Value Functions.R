@@ -53,9 +53,11 @@ compile_training_data <- function(
     name_correction()
 
   pre_ktc <- pre_ktc |>
-    select(player_id, name, ktc_value = any_of(c("ktc_value", "value")))
+    select(player_id, name, ktc_value = any_of(c("ktc_value", "value"))) |>
+    filter(!is.na(player_id))
   post_ktc <- post_ktc |>
-    select(player_id, ktc_value = any_of(c("ktc_value", "value")))
+    select(player_id, ktc_value = any_of(c("ktc_value", "value"))) |>
+    filter(!is.na(player_id))
 
   pre_ktc |>
     rename("historical_value" = "ktc_value") |>
@@ -385,12 +387,12 @@ compute_quantiles <- function(samples, resid_fit, data) {
     ~ {
       (posterior_mean + qnorm(p = .x) * sigma_hat)
     }
-  ) |>
+  ) %>%
     do.call(rbind, .)
 }
 
 integrate_quantiles <- function(quantile_list) {
-  matrix <- quantile_list |>
+  matrix <- quantile_list %>%
     do.call(rbind, .)
 
   matrix[is.na(matrix)] <- 0

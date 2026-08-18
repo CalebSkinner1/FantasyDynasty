@@ -9,7 +9,8 @@ message("begin computing Trade Machine...")
 
 plot_future_value_df <- read_csv(
   here("Shiny/Saved Files/plot_future_value_df.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 
 next_year_production <- plot_future_value_df |>
