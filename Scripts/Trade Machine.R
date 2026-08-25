@@ -19,7 +19,8 @@ next_year_production <- plot_future_value_df |>
 
 grab_team_assets_df <- read_csv(
   here("Shiny/Saved Files/grab_team_assets_df.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 
 users <- read_csv(
