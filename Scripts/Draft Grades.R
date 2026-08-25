@@ -72,9 +72,9 @@ rookie_draft_order_value <- read_csv(
 # realized value from each draft pick
 draft_values <- map(
   draft_picks,
-  ~ {
-    if (nrow(.x) > 0) {
-      draft_values <- .x |>
+  function(dp) {
+    if (nrow(dp) > 0) {
+      draft_values <- dp |>
         select(player_id, roster_id, draft_slot) |>
         left_join(player_info, by = join_by(player_id)) |>
         select(player_id, roster_id, draft_slot, name, position) |>
