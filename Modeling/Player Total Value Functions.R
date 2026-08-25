@@ -97,7 +97,7 @@ compile_data_set <- function(
   # number of days since the season ended (in years)
   days_past_season_start <- if_else(
     date > season_start,
-    time_length(interval(season_start, date), unit = "years"),
+    time_length(lubridate::interval(season_start, date), unit = "years"),
     0
   )
 
@@ -108,7 +108,11 @@ compile_data_set <- function(
     ) |>
     mutate(
       # this is supposed to represent the values at the end of last season (hence the minus 1)
-      age = time_length(interval(birth_date, season_start), unit = "years") - 1,
+      age = time_length(
+        lubridate::interval(birth_date, season_start),
+        unit = "years"
+      ) -
+        1,
       age = age + days_past_season_start * day_multiplier,
       season = last_season,
       ktc_value = replace_na(ktc_value, 0)
@@ -591,11 +595,9 @@ future_value_over_time <- function(
     max() # identify season start for counting weeks
 
   # this is my arbitrary cutoff to include rookies
-  diff <- time_length(
-    interval(date, ymd(str_c(year(today()), "-03-01"))),
-    unit = "year"
-  ) |>
-    floor()
+  league_year <- function(d) year(d) - (month(d) < 3)
+
+  cutoff_years <- league_year(today()) - league_year(as_date(date))
 
   # compile data - age and season look to be too small, but will be added in next_year
   df <- compile_data_set(
@@ -605,7 +607,7 @@ future_value_over_time <- function(
     season_start,
     season_end
   ) |>
-    filter(years_exp > diff) # remove players that shouldn't appear yet
+    filter((years_exp - cutoff_years) >= 0) # remove players that shouldn't appear yet
 
   sims <- next_years(
     df,

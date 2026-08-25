@@ -11,8 +11,12 @@ train_models <- FALSE # set to true to retrain BART models
 
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
-season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE) # shortcut
-player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE) # shortcut
+season_value_added <- read_csv(
+  here("Data/sva.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
@@ -201,15 +205,12 @@ save(player_simulations, file = here("Modeling/player_simulations.RData"))
 
 future_value_time <- read_csv(
   here("Shiny/Saved Files/future_value_time.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 ) |>
   filter(date != today())
 
-last_date_fvt <- read_csv(
-  here("Data/last_date_fvt.csv"),
-  show_col_types = FALSE
-) |>
-  pull(value)
+last_date_fvt <- max(future_value_time$date)
 
 message("begin mapping future value over time...")
 
@@ -223,16 +224,16 @@ while (last_date_fvt < max(ktc_tibble$date)) {
 
   # can't figure out how to parallelize this. Takes ~ 4 minutes for one run
   future_value_time <- future_value_over_time(
-    future_value_names,
-    keep_trade_cut,
+    future_value_names = future_value_names,
+    keep_trade_cut = keep_trade_cut,
     date = current_date,
-    tva_scales,
-    ktc_scales,
-    tva_fit,
-    ktc_fit,
-    tva_resid_fit,
-    ktc_resid_fit,
-    season_dates
+    tva_scales = tva_scales,
+    ktc_scales = ktc_scales,
+    tva_fit = tva_fit,
+    ktc_fit = ktc_fit,
+    tva_resid_fit = tva_resid_fit,
+    ktc_resid_fit = ktc_resid_fit,
+    season_dates = season_dates
   ) |>
     bind_rows(future_value_time)
 
@@ -240,22 +241,13 @@ while (last_date_fvt < max(ktc_tibble$date)) {
 }
 
 future_value_time <- future_value_time |>
-  group_by(player_id, date) |>
-  summarize(
-    name = first(name),
-    future_value = max(future_value, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
   arrange(desc(date), desc(future_value))
-
-# make list of the dates already computed, so I don't have to compute them again
-write_csv(tibble(value = last_date_fvt), here("Data/last_date_fvt.csv"))
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))
 
-# ensure future value is the same as most recent future_value_over_time
-
+# compute current player_total_value tibble
 player_total_value <- future_value_time |>
+  filter(date == last_date_fvt) |>
   full_join(
     season_value_added |>
       select(player_id, name, season, total_value_added) |>
