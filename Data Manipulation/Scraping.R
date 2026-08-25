@@ -312,6 +312,8 @@ if (run_player_info) {
     )
 
   write_csv(player_info, here("Data/player_info.csv"))
+} else {
+  player_info <- read_csv("Data/player_info.csv", show_col_types = FALSE)
 }
 rm(draft_urls)
 
@@ -356,7 +358,7 @@ future_draft_picks <- assigned_picks %>%
   left_join(
     draft_order %>% select(-type),
     by = join_by(season, pick_slot == roster_id)
-  ) %>%
+  ) |>
   arrange(season, round, roster_id)
 
 write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
