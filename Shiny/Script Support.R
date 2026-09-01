@@ -20,6 +20,20 @@ shiny_edit_tables <- function(df) {
     rename_with(~ str_to_title(.x), everything())
 }
 
+dt <- function(df, page = 5, dom = "tip") {
+  datatable(
+    df,
+    rownames = FALSE,
+    class = "compact stripe hover",
+    options = list(
+      pageLength = page,
+      ordering = TRUE,
+      scrollX = TRUE,
+      dom = dom
+    )
+  )
+}
+
 #position_levels
 position_levels <- c("QB", "RB", "WR", "TE", "K", "DST")
 
