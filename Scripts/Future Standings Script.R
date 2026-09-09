@@ -77,3 +77,33 @@ write_csv(champion_odds, here("Shiny/Saved Files/champion_odds.csv"))
 write_csv(playoff_odds, here("Shiny/Saved Files/playoff_odds.csv"))
 write_csv(bye_odds, here("Shiny/Saved Files/bye_odds.csv"))
 write_csv(n1_pick_odds, here("Shiny/Saved Files/n1_pick_odds.csv"))
+
+# final_standings_odds |>
+#   filter(season == 2026, type == "rank") |>
+#   mutate(
+#     lottery = case_when(
+#       result == 1 ~ 1,
+#       result == 2 ~ 2,
+#       result == 3 ~ 3,
+#       result == 4 ~ 4,
+#       result == 5 ~ 5,
+#       result == 6 ~ 6,
+#       result == 7 ~ 7,
+#       result == 8 ~ 7,
+#       result == 9 ~ 10,
+#       result == 10 ~ 17,
+#       result == 11 ~ 17,
+#       result == 12 ~ 22,
+#       .default = NA
+#     ) *
+#       0.01 *
+#       perc
+#   ) |>
+#   group_by(display_name) |>
+#   summarize(
+#     lottery_odds = sum(lottery)
+#   ) |>
+#   arrange(desc(lottery_odds)) |>
+#   mutate(
+#     lottery_odds = lottery_odds/sum(lottery_odds)
+#   )
