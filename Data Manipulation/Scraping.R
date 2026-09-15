@@ -14,28 +14,28 @@ source(here("Data Manipulation/Scrape Support.R"))
 # change to true if want to update player_info
 run_player_info <- FALSE
 
-# load box score data from NFL 2025
+# load box score data from NFL 2026
 # https://www.nflfastr.com
 
-box_score_off25 <- nflfastR::load_player_stats(seasons = 2025) %>%
+box_score_off26 <- nflfastR::load_player_stats(seasons = 2026) %>%
   select(-contains("_list"))
 
-box_score_def25 <- nflfastR::calculate_stats(
-  seasons = 2025,
+box_score_def26 <- nflfastR::calculate_stats(
+  seasons = 2026,
   summary_level = "week",
   stat_type = "team",
   season_type = "REG"
 ) |>
   select(-contains("_list"))
 
-player_headshot <- box_score_off25 %>%
-  select(player_display_name, headshot_url) %>%
+player_headshot <- box_score_off26 |>
+  select(player_display_name, headshot_url) |>
   rename(name = player_display_name)
 
 player_headshot |> write_csv(here("Shiny/Saved Files/player_headshot.csv"))
 
-box_score_off25 |> write_csv(here("Data/box_score_off25.csv"))
-box_score_def25 |> write_csv(here("Data/box_score_def25.csv"))
+box_score_off26 |> write_csv(here("Data/box_score_off26.csv"))
+box_score_def26 |> write_csv(here("Data/box_score_def26.csv"))
 
 # Sleeper API ----------------------------------------------------
 # https://docs.sleeper.com
@@ -264,7 +264,7 @@ if (run_player_info) {
     as_tibble()
 
   # all 32 defenses
-  defenses <- box_score_def25 %>%
+  defenses <- box_score_def26 |>
     rename(name = team) %>%
     select(name) %>%
     distinct() %>%
@@ -365,16 +365,19 @@ write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 
 # Scrape Projections ----------------------------------------------------
 # need weekly player ranking for above replacement metric
-# https://www.fftoday.com/rankings/playerwkproj.php?Season=2025&GameWeek=1&PosID=10&LeagueID=208518
+# https://www.fftoday.com/rankings/playerwkproj.php?Season=2026&GameWeek=1&PosID=10&LeagueID=208518
 
-projections26 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
+# projections26 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
 
 # when projections start, run this one
-# projections26 <- map(c(1:max(box_score_off26$week)), ~combine_week(.x, 2026)) %>%
-#   rbindlist() %>%
-#   as_tibble() %>%
-#   name_correction()
-# write_csv(projections26, here("Data/projections26.csv"))
+projections26 <- map(
+  c(1:max(box_score_off26$week)),
+  ~ combine_week(.x, 2026)
+) |>
+  rbindlist() |>
+  as_tibble() |>
+  name_correction()
+write_csv(projections26, here("Data/projections26.csv"))
 
 projections24 <- read_csv(
   here("Data/projections24.csv"),
@@ -543,6 +546,7 @@ write_csv(season_dates, here("Data/season_dates.csv"))
 rm(
   league_id_24,
   league_id_25,
+  league_id_26,
   combine_week,
   grab_projection,
   grab_rankings,

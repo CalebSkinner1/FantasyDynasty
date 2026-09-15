@@ -20,7 +20,7 @@ player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
 # Sleeper Score -----------------------------------------------------------
 # load
 box_score_def <- map_dfr(
-  list(24, 25),
+  list(24, 25, 26),
   ~ {
     file_name <- str_c("Data/box_score_def", .x, ".csv")
     read_csv(here(file_name), show_col_types = FALSE, col_names = TRUE)
@@ -28,7 +28,7 @@ box_score_def <- map_dfr(
 )
 
 box_score_off <- map_dfr(
-  list(24, 25),
+  list(24, 25, 26),
   ~ {
     file_name <- str_c("Data/box_score_off", .x, ".csv")
     read_csv(here(file_name), show_col_types = FALSE, col_names = TRUE)
@@ -474,6 +474,7 @@ value_added <- imap_dfr(
     }
   }
 ) |>
+  select(-years_exp) |>
   relocate(player_id, .before = "position")
 
 season_value_added <- value_added |>

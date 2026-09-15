@@ -2,7 +2,7 @@
 
 # This R script details an orderly procedure for updating the data
 
-# Player Value Added (this file runs scraping.R automatically) ~45 seconds
+# Player Value Added (this file runs scraping.R) ~45 seconds
 source(here::here("Modeling", "Player Value Added.R"))
 
 # with relative frequency, will need to rerun player_simulations to account for new ktc value

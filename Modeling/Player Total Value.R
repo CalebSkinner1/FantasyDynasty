@@ -39,7 +39,8 @@ future_value_names <- map_dfr(ktc_list, name_correction) |>
   filter(
     !str_detect(name, c("Mid")),
     !str_detect(name, c("Early")),
-    !str_detect(name, c("Late"))
+    !str_detect(name, c("Late")),
+    !str_detect(name, c("Pick")),
   ) |>
   bind_rows(
     player_info |>
@@ -236,6 +237,8 @@ while (last_date_fvt < max(ktc_tibble$date)) {
     season_dates = season_dates
   ) |>
     bind_rows(future_value_time)
+
+  message("finished ", current_date)
 
   last_date_fvt <- max(future_value_time$date)
 }
