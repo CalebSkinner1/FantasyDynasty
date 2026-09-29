@@ -111,7 +111,7 @@ name_correction <- function(df) {
 parse_api <- function(url) {
   response <- GET(url)
   content <- content(response, "text")
-  parsed <- fromJSON(content) %>%
+  parsed <- fromJSON(content) |>
     as_tibble()
 
   return(parsed)
@@ -128,29 +128,43 @@ parse_api_list <- function(url) {
 
 # Scrape Projections ------------------------------------------------------
 
+fetch_html <- function(url, pause = 1.5, tries = 4) {
+  Sys.sleep(pause)
+  resp <- httr::RETRY(
+    "GET",
+    url,
+    httr::user_agent("Mozilla/5.0 (personal fantasy league script)"),
+    times = tries,
+    pause_base = 2,
+    terminate_on = 404,
+    quiet = TRUE
+  )
+  httr::stop_for_status(resp, task = paste("fetch", url))
+  read_html(httr::content(resp, "text", encoding = "UTF-8"))
+}
+
 # player projections (qb (10), rb (20), wr (30), te (40))
 grab_projection <- function(fftoday_page_html, wk) {
-  table <- read_html(fftoday_page_html) %>%
-    html_element("body") %>%
-    html_element("center") %>%
-    html_elements("table") %>%
-    pluck(2) %>%
-    html_element(".bodycontent") %>%
-    html_elements("table") %>%
-    pluck(6) %>%
-    html_elements("table") %>%
+  table <- fetch_html(fftoday_page_html) |>
+    html_element("body") |>
+    html_element("center") |>
+    html_elements("table") |>
+    pluck(2) |>
+    html_element(".bodycontent") |>
+    html_elements("table") |>
+    pluck(6) |>
+    html_elements("table") |>
     html_table()
 
-  table[[1]][, -1][-c(1:2), ] %>%
-    as_tibble() %>%
-    select(X2, last_col()) %>%
-    rename(name = "X2") %>%
-    rename_with(~ paste0("projection"), .cols = last_col()) %>%
+  table[[1]][, -1][-c(1:2), ] |>
+    as_tibble() |>
+    select(X2, last_col()) |>
+    rename(name = "X2") |>
+    rename_with(~ paste0("projection"), .cols = last_col()) |>
     mutate(
       projection = as.numeric(projection),
       week = wk
-    ) %>%
-    return()
+    )
 }
 
 # grab_projection("https://www.fftoday.com/rankings/playerwkproj.php?Season=2024&GameWeek=1&PosID=20&LeagueID=208518", 1)
@@ -158,45 +172,44 @@ grab_projection <- function(fftoday_page_html, wk) {
 
 # position rankings (k, dst)
 grab_rankings <- function(fftoday_page_html, wk) {
-  all <- read_html(fftoday_page_html) %>%
-    html_element("body") %>%
-    html_element("center") %>%
-    html_elements("table") %>%
-    pluck(2) %>%
-    html_element(".bodycontent") %>%
-    html_elements("table") %>%
+  all <- fetch_html(fftoday_page_html) |>
+    html_element("body") |>
+    html_element("center") |>
+    html_elements("table") |>
+    pluck(2) |>
+    html_element(".bodycontent") |>
+    html_elements("table") |>
     pluck(4)
 
-  kickers <- all %>%
-    html_elements("table") %>%
-    pluck(2) %>%
-    html_table() %>%
-    select(X2, X3) %>%
-    slice(-c(1, 2)) %>%
-    filter(!str_detect(X2, "Tier")) %>%
-    rename(projection = "X2", name = "X3") %>%
-    relocate(name) %>%
+  kickers <- all |>
+    html_elements("table") |>
+    pluck(2) |>
+    html_table() |>
+    select(X2, X3) |>
+    slice(-c(1, 2)) |>
+    filter(!str_detect(X2, "Tier")) |>
+    rename(projection = "X2", name = "X3") |>
+    relocate(name) |>
     mutate(
       week = wk,
       projection = 33 - as.numeric(projection)
     )
 
-  defenses <- all %>%
-    html_elements("table") %>%
-    pluck(4) %>%
-    html_table() %>%
-    select(X2, X3) %>%
-    slice(-c(1, 2)) %>%
-    filter(!str_detect(X2, "Tier")) %>%
-    rename(projection = "X2", name = "X3") %>%
-    relocate(name) %>%
+  defenses <- all |>
+    html_elements("table") |>
+    pluck(4) |>
+    html_table() |>
+    select(X2, X3) |>
+    slice(-c(1, 2)) |>
+    filter(!str_detect(X2, "Tier")) |>
+    rename(projection = "X2", name = "X3") |>
+    relocate(name) |>
     mutate(
       week = wk,
       projection = 33 - as.numeric(projection)
     )
 
-  list(kickers, defenses) %>%
-    return()
+  list(kickers, defenses)
 }
 
 # grab_rankings("https://www.fftoday.com/rankings/playerwkrank.php?GameWeek=1&PosID=80&LeagueID=208518", 1)
@@ -208,10 +221,10 @@ combine_week <- function(week, season) {
   kick_def_rankings <- str_c(
     "https://www.fftoday.com/rankings/playerwkrank.php?Season=",
     season,
-    "&GGameWeek=",
+    "&GameWeek=",
     week,
     "&PosID=80&LeagueID=208518"
-  ) %>%
+  ) |>
     grab_rankings(week)
 
   rb_wr <- map(
@@ -224,9 +237,9 @@ combine_week <- function(week, season) {
       "&PosID=",
       .x,
       "&LeagueID=208518&order_by=FFPts&sort_order=DESC&cur_page=1"
-    ) %>%
+    ) |>
       grab_projection(week)
-  ) %>%
+  ) |>
     append(kick_def_rankings)
 
   map(
@@ -239,20 +252,19 @@ combine_week <- function(week, season) {
       "&PosID=",
       .x,
       "&LeagueID=208518"
-    ) %>%
+    ) |>
       grab_projection(week)
-  ) %>%
-    append(rb_wr) %>%
-    rbindlist() %>%
-    as_tibble() %>%
-    return()
+  ) |>
+    append(rb_wr) |>
+    rbindlist() |>
+    as_tibble()
 }
 
 # Scrape Future Value -----------------------------------------------------
 
 # scrape future value from ktc
 player_value <- function(ktc_page_html) {
-  players <- read_html(ktc_page_html) |>
+  players <- fetch_html(ktc_page_html) |>
     html_element("body") |>
     html_element("main") |>
     html_elements("div") |>
