@@ -1,434 +1,386 @@
 # Future Standings Support
 # this holds functions utilized in Future Standings.R
+#
+# Points model: a team's score in a week is the league's replacement-level lineup plus the
+# team's season value added spread over the weeks of the season, plus weekly noise,
+#   points ~ Normal(R_season + team_va / season_weeks, sigma)
+# team_va: sum of the team's top 12 sampled projected value added (players and draft picks)
+# R_season: summed replacement level of the starting lineup (Data/replacement_levels.csv)
+# sigma: week-to-week standard deviation of a team's score within a season
 
 suppressPackageStartupMessages({
-  library("tictoc")
   library("tidyverse")
-  theme_set(theme_minimal())
   library("furrr")
-  library("tidymodels")
 })
 
-# team rva ranking --------------------------------------------------------
-assign_draft_pick_value <- function(dp_df, years_in_advance = "total value") {
-  dp_df <- dp_df |> filter(!is.na(draft_order))
+# league format ------------------------------------------------------------
 
-  if (nrow(dp_df) == 0) {
-    tibble()
-  } else {
-    dp_df |>
-      mutate(pick_no = (round - 1) * 12 + draft_order) |>
-      select(roster_id, pick_no) |>
-      left_join(
-        rookie_draft_values |> filter(metric == years_in_advance),
-        by = join_by(pick_no)
-      ) |>
-      select(-pick_no, -metric)
+read_league_cache <- function(season, cache_dir = here("Data/cache/sleeper")) {
+  path <- file.path(cache_dir, str_c("league_", season, ".rds"))
+  if (!file.exists(path)) {
+    return(NULL)
   }
+  readRDS(path)$data
 }
 
-sample_quantiles <- function(data) {
-  data |>
-    select(-roster_id) |>
-    apply(1, function(row) sample(row, 1)) |>
-    as_tibble() |>
-    mutate(roster_id = data$roster_id) |>
-    group_by(roster_id) |>
-    mutate(rank = rank(-value)) |>
-    filter(rank < 13) |> #only keep top 12 valuable players (this caps it, realistic because teams can only start 8 players each week)
+# number of teams, playoff weeks, and lineup from the cached Sleeper league settings
+league_format <- function(league) {
+  setting <- function(name, default) {
+    value <- league$settings[[name]]
+    if (is.null(value) || is.na(value)) default else as.numeric(value)
+  }
+
+  fmt <- list(
+    num_teams = setting("num_teams", 12),
+    playoff_week_start = setting("playoff_week_start", 15),
+    playoff_teams = setting("playoff_teams", 6),
+    roster_positions = league$roster_positions
+  )
+
+  if (fmt$playoff_teams != 6) {
+    stop(
+      "simulate_season() plays a 6-team bracket (top 2 seeds on bye), but the league has ",
+      fmt$playoff_teams, " playoff teams"
+    )
+  }
+  if (setting("playoff_round_type", 0) != 0) {
+    stop("playoff rounds longer than one week are not handled")
+  }
+
+  # last fantasy week: regular season + one week per playoff round
+  fmt$last_week <- fmt$playoff_week_start - 1 + ceiling(log2(fmt$playoff_teams))
+  fmt
+}
+
+# points model -------------------------------------------------------------
+
+fit_points_model <- function(matchups_table, replacement_levels, fmt) {
+  # starting lineup, named as in replacement_levels.csv
+  slot_names <- c(DEF = "DST", FLEX = "flex", SUPER_FLEX = "super_flex")
+  lineup <- tibble(slot = fmt$roster_positions) |>
+    filter(!slot %in% c("BN", "IR", "TAXI")) |>
+    mutate(slot = coalesce(slot_names[slot], slot)) |>
+    count(slot)
+
+  missing_slots <- setdiff(lineup$slot, replacement_levels$slot)
+  if (length(missing_slots) > 0) {
+    warning(
+      "no replacement level for lineup slot(s): ",
+      str_flatten_comma(missing_slots)
+    )
+  }
+
+  # R_season: mean over regular-season weeks of the lineup's summed replacement level
+  base <- replacement_levels |>
+    filter(week < fmt$playoff_week_start) |>
+    inner_join(lineup, by = join_by(slot)) |>
+    summarize(lineup_replacement = sum(weighted_mean * n), .by = c(season, week)) |>
+    summarize(base = mean(lineup_replacement), .by = season) |>
+    arrange(season)
+
+  # sigma: pooled within team-season standard deviation of regular-season scores
+  sigma <- matchups_table |>
+    filter(week < fmt$playoff_week_start, points != 0) |>
+    mutate(dev = points - mean(points), .by = c(season, roster_id)) |>
     summarize(
-      va = sum(value)
+      sigma = sqrt(sum(dev^2) / (n() - n_distinct(season, roster_id)))
     ) |>
+    pull(sigma)
+
+  list(
+    base = set_names(base$base, base$season),
+    sigma = sigma,
+    weeks = fmt$last_week
+  )
+}
+
+# R_season for each simulated season (latest known season when not yet played)
+season_base <- function(model, seasons) {
+  known <- as.numeric(names(model$base))
+  map_dbl(seasons, \(s) model$base[[as.character(max(known[known <= s], min(known)))]])
+}
+
+# check against seasons already played: team mean score vs realized top-12 value added per week
+# (intercept should be near R_season and slope near 1)
+report_points_model <- function(model, matchups_table, va, fmt, n_top = 12) {
+  team_va <- va |>
     filter(!is.na(roster_id)) |>
+    summarize(va = sum(value_added), .by = c(season, roster_id, player_id)) |>
+    slice_max(va, n = n_top, with_ties = FALSE, by = c(season, roster_id)) |>
+    summarize(team_va = sum(va), .by = c(season, roster_id))
+
+  weeks <- va |>
+    distinct(season, week) |>
+    count(season, name = "weeks")
+
+  check <- matchups_table |>
+    filter(week < fmt$playoff_week_start, points != 0) |>
+    summarize(points = mean(points), .by = c(season, roster_id)) |>
+    inner_join(team_va, by = join_by(season, roster_id)) |>
+    inner_join(weeks, by = join_by(season)) |>
+    filter(weeks >= fmt$last_week) # completed seasons only
+
+  message(
+    "points model: weekly points ~ Normal(R + team VA / ", model$weeks,
+    ", ", round(model$sigma, 1), "), R = ",
+    str_flatten_comma(str_c(round(model$base, 1), " (", names(model$base), ")"))
+  )
+
+  if (nrow(check) > 2) {
+    check_fit <- lm(points ~ I(team_va / weeks), data = check) |> coef()
+    message(
+      "  completed seasons: team mean points = ", round(check_fit[[1]], 1),
+      " + ", round(check_fit[[2]], 2), " x (top-", n_top, " VA per week)"
+    )
+  }
+  invisible(check)
+}
+
+# schedules ----------------------------------------------------------------
+
+# one row per game (a vs b); played = final score known
+season_schedule <- function(matchups_table, yr, fmt, completed_weeks) {
+  games <- matchups_table |>
+    filter(season == yr, roster_id < opponent_id) |>
     transmute(
-      roster_id = roster_id,
-      rank = rank(desc(va)),
-      draft_order = rank(va),
-      va = va
-    )
-}
-
-prep_draft_picks <- function(prev_year, year, years_ahead = "first year") {
-  draft_picks_year <- future_draft_picks |>
-    filter(season == year)
-
-  # if draft order is not set, find it from previous year standings
-  if (is.na(draft_picks_year$draft_order[1])) {
-    draft_picks_year <- draft_picks_year |>
-      select(-draft_order) |>
-      left_join(
-        prev_year |> select(roster_id, draft_order),
-        by = join_by(pick_slot == roster_id)
-      )
-  }
-  draft_picks_order <- draft_picks_year |>
-    select(roster_id, draft_order, round) |>
-    assign_draft_pick_value(years_ahead)
-}
-
-# functions for season on season --------------------------------------------
-construct_table <- function(matchups_table, season_dates, date) {
-  # find season_end and season_start
-  season_end <- season_dates$season_end[season_dates$season_end > date] |>
-    min()
-  season_start <- season_dates$season_start[
-    season_dates$season_start < season_end
-  ] |>
-    max()
-
-  if (year(season_start) > max(matchups_table$season)) {
-    last_years_table <- matchups_table |>
-      filter(season == year(season_start) - 1)
-
-    current_table <- last_years_table |>
-      slice(c(19:98)) |>
-      bind_rows(slice(last_years_table, c(19:36))) |>
-      mutate(
-        season = last_years_table$season[1] + 1,
-        week = c(
-          rep(1:14, each = 6),
-          rep(15, each = 4),
-          rep(16, each = 6),
-          rep(17, each = 4)
-        ),
-        points = 0,
-        opp_points = 0
-      )
-  } else {
-    current_table <- matchups_table |>
-      filter(season == year(season_start)) |>
-      mutate(
-        game_date = season_start + weeks(week - 1) + days(4),
-        points = if_else(game_date > date, 0, points),
-        opp_points = if_else(game_date > date, 0, opp_points)
-      ) |>
-      rowwise() |>
-      mutate(
-        matchup = if_else(
-          roster_id > opponent_id,
-          str_c(roster_id, "_", opponent_id),
-          str_c(opponent_id, "_", roster_id)
-        )
-      ) |>
-      ungroup() |>
-      distinct(season, week, matchup, .keep_all = TRUE) |>
-      select(season, week, round, roster_id, opponent_id, points, opp_points)
-  }
-
-  current_table <- tibble(
-    season = current_table$season[1],
-    round = c(
-      rep("1st round", each = 2),
-      rep("loser's bracket", each = 2),
-      rep("2nd round", each = 2),
-      "5th place",
-      rep("loser's bracket", each = 3),
-      "Championship",
-      "3rd place",
-      rep("loser's bracket", each = 2)
-    ),
-    week = c(rep(15, each = 4), rep(16, each = 6), rep(17, each = 4)),
-    points = 0,
-    opp_points = 0
-  ) |>
-    filter(week > max(current_table$week)) %>%
-    bind_rows(current_table, .)
-}
-
-win_probability <- function(table, fit_coef, points_method = TRUE) {
-  if (points_method) {
-    sigma_1 <- rnorm(nrow(table), 0, fit_coef[[3]])
-    sigma_2 <- rnorm(nrow(table), 0, fit_coef[[3]])
-
-    table |>
-      mutate(
-        # mean and add normal error
-        points = team_tva *
-          fit_coef[[1]] +
-          sqrt(team_tva) * fit_coef[[2]] +
-          sigma_1,
-        opp_points = opp_tva *
-          fit_coef[[1]] +
-          sqrt(opp_tva) * fit_coef[[2]] +
-          sigma_2,
-        winner = if_else(points > opp_points, roster_id, opponent_id),
-        loser = if_else(winner == roster_id, opponent_id, roster_id)
-      ) |>
-      select(
-        -contains(".pred"),
-        -contains("va"),
-        -contains("draft_order"),
-        -contains("rank")
-      )
-  } else {
-    table |>
-      mutate(
-        .pred_1 = exp(va_diff * fit_coef[[1]]) /
-          (1 + exp(va_diff * fit_coef[[1]])),
-        winner = if_else(odds > .pred_1, opponent_id, roster_id),
-        loser = if_else(winner == roster_id, opponent_id, roster_id)
-      ) |>
-      select(-contains(".pred"), -contains("points"), -contains("va"))
-  }
-}
-
-# need to build up empty current_table... this should fix issues.
-sim_playoffs <- function(standings, team_tva, fit_coef, current_table) {
-  if (current_table |> filter(week == 15) |> slice(1) |> pull(points) == 0) {
-    # first round
-    first_round <- tibble(
-      roster_id = standings[standings$rank %in% c(3, 4), ]$roster_id,
-      opponent_id = standings[standings$rank %in% c(6, 5), ]$roster_id
-    ) |>
-      prep_table_tva(team_tva) |>
-      win_probability(fit_coef)
-  } else {
-    # first round
-    first_round <- current_table |>
-      filter(
-        week == 15,
-        roster_id %in% standings[standings$rank %in% c(3, 4, 5, 6), ]$roster_id
-      ) |>
-      mutate(
-        winner = if_else(points > opp_points, roster_id, opponent_id),
-        loser = if_else(winner == roster_id, opponent_id, roster_id)
-      )
-  }
-  if (current_table |> filter(week == 16) |> slice(1) |> pull(points) == 0) {
-    # fifth place
-    fifth_place <- tibble(
-      roster_id = first_round$loser[1],
-      opponent_id = first_round$loser[2]
-    ) |>
-      prep_table_tva(team_tva) |>
-      win_probability(fit_coef)
-
-    # second round
-    second_round <- tibble(
-      roster_id = first_round$winner,
-      opponent_id = standings[standings$rank %in% c(2, 1), ]$roster_id
-    ) |>
-      prep_table_tva(team_tva) |>
-      win_probability(fit_coef)
-  } else {
-    # fifth place
-    fifth_place <- current_table |>
-      filter(week == 16, roster_id %in% first_round$loser) |>
-      mutate(
-        winner = if_else(points > opp_points, roster_id, opponent_id),
-        loser = if_else(winner == roster_id, opponent_id, roster_id)
-      )
-
-    # second round
-    second_round <- current_table |>
-      filter(
-        week == 16,
-        roster_id %in%
-          c(
-            first_round$winner,
-            standings[standings$rank %in% c(2, 1), ]$roster_id
-          )
-      ) |>
-      mutate(
-        winner = if_else(points > opp_points, roster_id, opponent_id),
-        loser = if_else(winner == roster_id, opponent_id, roster_id)
-      )
-  }
-
-  if (current_table |> filter(week == 17) |> slice(1) |> pull(points) == 0) {
-    # third place
-    third_place <- tibble(
-      roster_id = second_round$loser[1],
-      opponent_id = second_round$loser[2]
-    ) |>
-      prep_table_tva(team_tva) |>
-      win_probability(fit_coef)
-
-    # championship
-    championship <- tibble(
-      roster_id = second_round$winner[1],
-      opponent_id = second_round$winner[2]
-    ) |>
-      prep_table_tva(team_tva) |>
-      win_probability(fit_coef)
-  } else {
-    # third place
-    third_place <- current_table |>
-      filter(week == 17, roster_id %in% second_round$loser) |>
-      mutate(
-        winner = if_else(points > opp_points, roster_id, opponent_id),
-        loser = if_else(winner == roster_id, opponent_id, roster_id)
-      )
-
-    # championship
-    championship <- current_table |>
-      filter(week == 17, roster_id %in% second_round$winner) |>
-      mutate(
-        winner = if_else(points > opp_points, roster_id, opponent_id),
-        loser = if_else(winner == roster_id, opponent_id, roster_id)
-      )
-  }
-
-  # final standings for season
-  tibble(
-    rank = c(1:6),
-    roster_id = c(
-      championship$winner[1],
-      championship$loser[1],
-      third_place$winner[1],
-      third_place$loser[1],
-      fifth_place$winner[1],
-      fifth_place$loser[1]
-    )
-  ) |>
-    bind_rows(filter(standings, rank > 6) |> select(roster_id, rank)) |>
-    arrange(rank)
-}
-
-prep_table_tva <- function(current_table, team_tva) {
-  current_table |>
-    left_join(team_tva, by = join_by(roster_id)) |>
-    rename(team_tva = va) |>
-    left_join(team_tva, by = join_by(opponent_id == roster_id)) |>
-    rename(opp_tva = va) |>
-    mutate(va_diff = team_tva - opp_tva)
-}
-
-year_sim <- function(current_table, team_tva, fit_coef) {
-  completed_results <- current_table |>
-    filter(points != 0) |>
-    mutate(
-      winner = if_else(points > opp_points, roster_id, opponent_id),
-      loser = if_else(winner == roster_id, opponent_id, roster_id)
-    ) |>
-    select(
-      season,
       week,
-      roster_id,
-      opponent_id,
-      winner,
-      loser,
-      points,
-      opp_points
+      a = as.integer(roster_id),
+      b = as.integer(opponent_id),
+      a_points = points,
+      b_points = opp_points,
+      played = week %in% completed_weeks & (points != 0 | opp_points != 0)
     )
 
-  furthest_week <- max(c(0, completed_results$week))
+  schedule <- list(
+    regular = games |> filter(week < fmt$playoff_week_start) |> arrange(week),
+    playoffs = games |> filter(week >= fmt$playoff_week_start, played)
+  )
 
-  results <- current_table |>
-    prep_table_tva(team_tva) |>
-    filter(week <= 14, week > furthest_week) |>
-    win_probability(fit_coef) %>%
-    bind_rows(., completed_results)
-
-  tiebreaker <- bind_rows(
-    results |>
-      filter(week < 15) |>
-      group_by(roster_id) |>
-      summarize(total_points = sum(points)),
-    results |>
-      filter(week < 15) |>
-      group_by(opponent_id) |>
-      summarize(total_points = sum(opp_points)) |>
-      rename("roster_id" = opponent_id)
-  ) |>
-    group_by(roster_id) |>
-    summarize(total_points = sum(total_points)) |>
-    mutate(rank = rank(total_points))
-
-  end_season_standings <- results |>
-    filter(week < 15) |>
-    pivot_longer(
-      cols = c(roster_id, opponent_id),
-      names_to = "position",
-      values_to = "roster_id"
-    ) |>
-    mutate(win = if_else(roster_id == winner, 1, 0)) |>
-    group_by(roster_id) |>
-    summarize(wins = sum(win)) |>
-    left_join(tiebreaker, by = join_by(roster_id)) |>
-    mutate(wins = wins + rank * 0.01) |>
-    mutate(rank = rank(desc(wins))) #shouldn't need any ties (tiebreaker accounted for it)
-
-  end_season_standings |>
-    sim_playoffs(team_tva, fit_coef, current_table) |>
-    left_join(
-      end_season_standings |> rename("season_rank" = rank),
-      by = join_by(roster_id)
-    ) |>
-    mutate(bye = if_else(season_rank < 3, TRUE, FALSE)) |>
-    select(roster_id, rank, bye)
+  games_per_week <- count(schedule$regular, week)$n
+  if (any(games_per_week != fmt$num_teams / 2)) {
+    stop("season ", yr, " does not have ", fmt$num_teams / 2, " games every regular-season week")
+  }
+  schedule
 }
 
-multi_year_sim <- function(current_table, team_tva, fit_coef, years = 3) {
-  year_results <- list()
-  year_table <- list()
-  year_table[[1]] <- current_table
-
-  if (length(team_tva) != years) {
-    break("team_tva list is not the correct length")
-  }
-
-  for (i in 1:years) {
-    year_results[[i]] <- year_sim(year_table[[i]], team_tva[[i]], fit_coef)
-
-    year_table[[i + 1]] <- year_table[[i]] |>
-      slice(c(19:98)) |>
-      bind_rows(slice(year_table[[i]], c(19:36))) |>
-      mutate(
-        season = year_table[[i]]$season[1] + 1,
-        week = c(
-          rep(1:14, each = 6),
-          rep(15, each = 4),
-          rep(16, each = 6),
-          rep(17, each = 4)
-        ),
-        points = 0,
-        opp_points = 0
-      )
-  }
-  year_results
+# an unplayed season on the same regular-season schedule
+unplayed_schedule <- function(schedule) {
+  list(
+    regular = schedule$regular |> mutate(a_points = 0, b_points = 0, played = FALSE),
+    playoffs = schedule$playoffs[0, ]
+  )
 }
 
-compute_final_standings_odds <- function(
-  current_table,
-  team_tva_list,
-  fit_coef,
-  years = 3,
-  n_sims = 5000
-) {
-  sim_standings <- future_map(
-    team_tva_list[c(1:n_sims)],
-    ~ multi_year_sim(current_table, .x, fit_coef),
-    .progress = TRUE,
-    .options = furrr_options(seed = TRUE)
-  ) |>
-    transpose()
+# schedules for the simulated seasons: the current season as played so far, then future
+# seasons on the current (or most recent) regular-season schedule
+build_schedules <- function(matchups_table, va, seasons, fmt) {
+  if (seasons[1] %in% matchups_table$season) {
+    # weeks Player Value Added.R counted as complete (guards against a mid-week run)
+    completed_weeks <- va |>
+      filter(season == seasons[1]) |>
+      distinct(week) |>
+      pull(week)
+    first <- season_schedule(matchups_table, seasons[1], fmt, completed_weeks)
+  } else {
+    latest <- max(matchups_table$season)
+    first <- season_schedule(matchups_table, latest, fmt, NULL) |> unplayed_schedule()
+  }
 
-  # compute final_standings_odds
-  final_standings_odds <- map(
-    sim_standings,
-    ~ {
-      rank <- bind_rows(.x) |>
-        group_by(roster_id, rank) |>
-        summarize(perc = n() / n_sims, .groups = "keep") |>
-        ungroup() |>
-        rename("result" = rank) |>
-        mutate(type = "rank")
-      bye <- bind_rows(.x) |>
-        group_by(roster_id, bye) |>
-        summarize(perc = n() / n_sims, .groups = "keep") |>
-        ungroup() |>
-        rename("result" = bye) |>
-        mutate(type = "bye")
-      bind_rows(rank, bye)
+  c(list(first), rep(list(unplayed_schedule(first)), length(seasons) - 1))
+}
+
+# assets -------------------------------------------------------------------
+
+# quantile matrix and owner for every rostered player in one season's simulation
+player_assets <- function(season_simulation, current_roster) {
+  assets <- season_simulation |>
+    inner_join(current_roster, by = join_by(player_id))
+
+  values <- assets |>
+    select(starts_with("proj_tva_")) |>
+    as.matrix()
+  complete <- complete.cases(values)
+  if (any(!complete)) {
+    message(sum(!complete), " rostered player(s) without simulations are skipped")
+  }
+
+  list(values = values[complete, , drop = FALSE], owners = assets$roster_id[complete])
+}
+
+# quantile matrix per metric ("first year", ...), one row per pick_no
+rookie_matrices <- function(rookie_draft_values) {
+  rookie_draft_values |>
+    arrange(pick_no) |>
+    split(~metric) |>
+    map(\(d) d |> select(starts_with("proj_tva_")) |> as.matrix())
+}
+
+# quantile matrix and owner for the draft picks held for season yr
+# orders: list by draft season of draft order indexed by the original team (pick_slot)
+pick_assets <- function(picks, rookie, yr, orders, fmt) {
+  metrics <- c("first year", "second year", "third year")
+  picks <- picks[picks$season <= yr & yr - picks$season < length(metrics), ]
+
+  if (nrow(picks) == 0) {
+    return(list(values = NULL, owners = integer()))
+  }
+
+  draft_order <- picks$draft_order
+  unknown <- which(is.na(draft_order))
+  for (i in unknown) {
+    draft_order[i] <- orders[[as.character(picks$season[i])]][picks$pick_slot[i]]
+  }
+
+  pick_no <- (picks$round - 1) * fmt$num_teams + draft_order
+  metric <- metrics[yr - picks$season + 1]
+
+  values <- matrix(NA_real_, nrow(picks), ncol(rookie[[1]]))
+  for (m in unique(metric)) {
+    rows <- metric == m
+    values[rows, ] <- rookie[[m]][pick_no[rows], , drop = FALSE]
+  }
+
+  list(values = values, owners = picks$roster_id)
+}
+
+# one fresh quantile draw per asset, then each team's top n_top draws summed
+sample_team_va <- function(values, owners, num_teams, n_top = 12) {
+  draw <- values[cbind(
+    seq_len(nrow(values)),
+    sample.int(ncol(values), nrow(values), replace = TRUE)
+  )]
+
+  ord <- order(owners, -draw)
+  owners <- owners[ord]
+  draw <- draw[ord]
+  within_team <- seq_along(owners) - match(owners, owners) + 1
+  keep <- within_team <= n_top
+
+  team_va <- numeric(num_teams)
+  sums <- rowsum(draw[keep], owners[keep])
+  team_va[as.integer(rownames(sums))] <- sums
+  team_va
+}
+
+# season simulation --------------------------------------------------------
+
+# plays the unplayed games of one season; returns final rank and bye by roster_id
+simulate_season <- function(schedule, team_va, base, sigma, weeks, fmt) {
+  n <- fmt$num_teams
+  mu <- base + team_va / weeks
+
+  # regular season
+  reg <- schedule$regular
+  a_points <- reg$a_points
+  b_points <- reg$b_points
+  todo <- !reg$played
+  a_points[todo] <- rnorm(sum(todo), mu[reg$a[todo]], sigma)
+  b_points[todo] <- rnorm(sum(todo), mu[reg$b[todo]], sigma)
+
+  a_result <- (a_points > b_points) + 0.5 * (a_points == b_points)
+  teams <- factor(c(reg$a, reg$b), levels = seq_len(n))
+  wins <- tapply(c(a_result, 1 - a_result), teams, sum)
+  points_for <- tapply(c(a_points, b_points), teams, sum)
+
+  # seeds: wins, then points for (Sleeper's default tiebreaker)
+  seed <- order(-wins, -points_for)
+
+  # playoffs: realized result if the game has been played, otherwise simulated
+  playoffs <- schedule$playoffs
+  play <- function(t1, t2, wk) {
+    i <- which(
+      playoffs$week == wk &
+        ((playoffs$a == t1 & playoffs$b == t2) | (playoffs$a == t2 & playoffs$b == t1))
+    )
+    if (length(i) > 0) {
+      i <- i[1]
+      return(if (playoffs$a_points[i] >= playoffs$b_points[i]) playoffs$a[i] else playoffs$b[i])
     }
-  ) |>
-    bind_rows(.id = "season") |>
-    mutate(
-      season = current_table$season[1] +
-        as.numeric(str_remove(season, "year")) -
-        1
+    if (rnorm(1, mu[t1], sigma) > rnorm(1, mu[t2], sigma)) t1 else t2
+  }
+  other <- function(winner, t1, t2) if (winner == t1) t2 else t1
+
+  # Sleeper's 6-team bracket (no reseeding): 3 v 6 and 4 v 5, then 1 v the 4/5 winner and
+  # 2 v the 3/6 winner, then the championship
+  wk <- fmt$playoff_week_start + 0:2
+  w36 <- play(seed[3], seed[6], wk[1])
+  w45 <- play(seed[4], seed[5], wk[1])
+  w1 <- play(seed[1], w45, wk[2])
+  w2 <- play(seed[2], w36, wk[2])
+  champion <- play(w1, w2, wk[3])
+  runner_up <- other(champion, w1, w2)
+
+  # final order: champion, runner-up, then everyone else by regular-season record
+  # (the league places the 3rd place game, 5th place game, and losers bracket by record,
+  # so those games don't change the standings or the draft order)
+  final_order <- c(champion, runner_up, setdiff(seed, c(champion, runner_up)))
+
+  rank <- integer(n)
+  rank[final_order] <- seq_len(n)
+  bye <- logical(n)
+  bye[seed[1:2]] <- TRUE
+  list(rank = rank, bye = bye)
+}
+
+# draft order (indexed by the original team) from a season's final ranks
+draft_order_from_rank <- function(rank, fmt) fmt$num_teams + 1 - rank
+
+# one simulation of every season: team value added is sampled each season, and each season's
+# final standings set the draft order of the next draft
+simulate_future <- function(inputs) {
+  seasons <- inputs$seasons
+  orders <- inputs$orders
+  fmt <- inputs$fmt
+  model <- inputs$model
+
+  results <- vector("list", length(seasons))
+  for (i in seq_along(seasons)) {
+    picks <- pick_assets(inputs$picks, inputs$rookie, seasons[i], orders, fmt)
+    team_va <- sample_team_va(
+      rbind(inputs$players[[i]]$values, picks$values),
+      c(inputs$players[[i]]$owners, picks$owners),
+      fmt$num_teams,
+      inputs$n_top
     )
 
-  final_standings_odds
+    results[[i]] <- simulate_season(
+      inputs$schedules[[i]],
+      team_va,
+      inputs$base[i],
+      model$sigma,
+      model$weeks,
+      fmt
+    )
+    orders[[as.character(seasons[i] + 1)]] <- draft_order_from_rank(results[[i]]$rank, fmt)
+  }
+  results
+}
+
+# draft order of the first simulated draft when it is not set yet (offseason): the final
+# standings of the last completed season
+realized_draft_order <- function(matchups_table, yr, fmt) {
+  schedule <- season_schedule(matchups_table, yr, fmt, unique(matchups_table$week))
+  if (!all(schedule$regular$played) || nrow(schedule$playoffs) == 0) {
+    stop("season ", yr, " is not complete, so the next draft order is unknown")
+  }
+  # every game is realized, so the scoring inputs are irrelevant
+  result <- simulate_season(schedule, numeric(fmt$num_teams), 0, 1, 1, fmt)
+  draft_order_from_rank(result$rank, fmt)
+}
+
+# share of simulations with each final rank and with a bye, by season and roster
+summarize_standings <- function(sims, seasons, fmt) {
+  n_sims <- length(sims)
+  map(seq_along(seasons), \(i) {
+    rank <- map(sims, \(s) s[[i]]$rank) |> unlist()
+    bye <- map(sims, \(s) s[[i]]$bye) |> unlist()
+    roster_id <- rep(seq_len(fmt$num_teams), n_sims)
+
+    bind_rows(
+      tibble(roster_id, result = rank) |> count(roster_id, result) |> mutate(type = "rank"),
+      tibble(roster_id, result = as.numeric(bye)) |> count(roster_id, result) |> mutate(type = "bye")
+    ) |>
+      transmute(season = seasons[i], roster_id, result, perc = n / n_sims, type)
+  }) |>
+    bind_rows()
 }
