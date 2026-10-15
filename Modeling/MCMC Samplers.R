@@ -4,8 +4,6 @@
 suppressPackageStartupMessages({
   library("LaplacesDemon")
   library("invgamma")
-  options(rgl.useNULL = TRUE)
-  library("matlib")
   library("tidyverse")
   library("tictoc")
   library("mcmcr")
@@ -38,8 +36,7 @@ reg_gibbs_sampler <- function(
   # initialize
   p <- ncol(X) #variables
   n <- nrow(X) # observations
-  gram <- t(X) %*% X # gram matrix
-  hat_mat <- X %*% inv(gram) %*% t(X)
+  gram <- crossprod(X) # gram matrix
 
   samples <- ceiling((iter - burn_in) / thin)
 
@@ -53,7 +50,7 @@ reg_gibbs_sampler <- function(
     g <- n * p
   }
   if (missing(Sigma_0)) {
-    Sigma_0 <- g * sigma_prop * inv(gram)
+    Sigma_0 <- g * sigma_prop * solve(gram)
   }
   if (missing(beta_0)) {
     beta_0 <- ols %>% coef()
@@ -64,7 +61,7 @@ reg_gibbs_sampler <- function(
   }
 
   # conversion
-  invSigma_0 <- inv(Sigma_0)
+  invSigma_0 <- solve(Sigma_0)
 
   # allocate space
   beta <- matrix(0, nrow = samples, ncol = p) # coef
@@ -74,8 +71,8 @@ reg_gibbs_sampler <- function(
   # sample from full conditionals
   for (i in 1:iter) {
     # draw beta
-    invQ <- inv(invSigma_0 + (sigma_prop)^(-1) * gram)
-    l <- invSigma_0 %*% beta_0 + (sigma_prop^(-1)) * t(X) %*% Y
+    invQ <- solve(invSigma_0 + (sigma_prop)^(-1) * gram)
+    l <- invSigma_0 %*% beta_0 + (sigma_prop^(-1)) * crossprod(X, Y)
     beta_prop <- MASS::mvrnorm(1, invQ %*% l, invQ)
 
     # draw sigma^2
@@ -120,13 +117,16 @@ reg_gibbs_sampler <- function(
 #
 # Y <- X %*% b + rnorm(n, mean = 0, sd = sqrt(exp(log_var)))
 
-hetr_log_lik <- function(gamma, X, resid) {
+# weights scale each observation's contribution to the likelihood (1 = one full
+# observation). E.g. 39 quantile rows of one player's projection get weight 1/39.
+hetr_log_lik <- function(gamma, X, resid, weights = 1) {
   sigma2 <- exp(X %*% gamma)
-  -.5 * sum(log(sigma2) + resid^2 / sigma2)
+  -.5 * sum(weights * (log(sigma2) + resid^2 / sigma2))
 }
 
-hetr_log_accept <- function(gamma_new, gamma_old, X, resid) {
-  hetr_log_lik(gamma_new, X, resid) - hetr_log_lik(gamma_old, X, resid)
+hetr_log_accept <- function(gamma_new, gamma_old, X, resid, weights = 1) {
+  hetr_log_lik(gamma_new, X, resid, weights) -
+    hetr_log_lik(gamma_old, X, resid, weights)
 }
 
 # this sampler uses X to model log(sigma^2) linearly. Since the full conditional of the coef lambda are not available analytically
@@ -135,7 +135,7 @@ het_reg_mh_sampler <- function(
   Y,
   X,
   new_X,
-  iter = 6000,
+  iter = 10000,
   burn_in = 1000,
   thin = 2,
   g,
@@ -143,20 +143,21 @@ het_reg_mh_sampler <- function(
   proposal_sd,
   gamma_prop,
   adapt_sd = 50,
-  target_accept_rate = .45
+  target_accept_rate = .45,
+  weights = rep(1, nrow(X)),
+  keep_sigma = FALSE # per-observation sigma^2 draws (large); exp(X %*% gamma) otherwise
 ) {
   # initialize
   p <- ncol(X) #variables
-  n <- nrow(X) # observations
-  gram <- t(X) %*% X # gram matrix
-  hat_mat <- X %*% inv(gram) %*% t(X)
+  n <- sum(weights) # (effective) observations
+  gram <- crossprod(X * weights, X) # weighted gram matrix
 
   samples <- ceiling((iter - burn_in) / thin)
 
   # run ols
-  ols <- lm(Y ~ X - 1)
+  ols <- lm(Y ~ X - 1, weights = weights)
 
-  sigma_prop <- rep(summary(ols)$sigma^2, n)
+  sigma_prop <- rep(summary(ols)$sigma^2, nrow(X))
 
   # specify hyperparameters
   if (missing(g)) {
@@ -168,7 +169,7 @@ het_reg_mh_sampler <- function(
   }
 
   if (missing(gamma_prop)) {
-    gamma_prop <- inv(gram) %*% t(X) %*% log(sigma_prop)
+    gamma_prop <- solve(gram, crossprod(X * weights, log(sigma_prop)))
   }
 
   if (missing(proposal_sd)) {
@@ -179,12 +180,15 @@ het_reg_mh_sampler <- function(
     new_X <- X
   }
 
-  # conversion
-  invSigma_prop <- diag(1 / sigma_prop)
+  # observation precisions (weight / sigma_i^2), kept as a vector instead of an
+  # n x n diagonal matrix
+  precision <- weights / sigma_prop
+  prior_precision <- (1 / g) * gram
+  prior_term <- prior_precision %*% beta_0
 
   # allocate space
   beta <- matrix(0, nrow = samples, ncol = p) # beta coef
-  sigma <- matrix(0, nrow = samples, ncol = n) # sigma_i^2
+  sigma <- if (keep_sigma) matrix(0, nrow = samples, ncol = nrow(X)) # sigma_i^2
   gamma <- matrix(0, nrow = samples, ncol = p) # gamma coef
   acc_rate <- matrix(0, nrow = samples, ncol = p)
   new_y <- matrix(0, nrow = samples, ncol = nrow(new_X))
@@ -194,12 +198,13 @@ het_reg_mh_sampler <- function(
   # sample from full conditionals
   for (i in 1:iter) {
     # draw beta
-    invQ <- inv(t(X) %*% invSigma_prop %*% X + (1 / g) * gram)
-    l <- t(X) %*% invSigma_prop %*% Y + 1 / g * gram %*% beta_0
+    invQ <- solve(crossprod(X * precision, X) + prior_precision)
+    l <- crossprod(X, precision * Y) + prior_term
     beta_prop <- MASS::mvrnorm(1, invQ %*% l, invQ)
 
     # draw gamma
     # random walk gamma proposal
+    resid <- Y - X %*% beta_prop
     for (j in 1:p) {
       gamma_new <- gamma_prop
 
@@ -207,7 +212,7 @@ het_reg_mh_sampler <- function(
 
       accept_prob <- exp(min(
         0,
-        hetr_log_accept(gamma_new, gamma_prop, X, Y - X %*% beta_prop)
+        hetr_log_accept(gamma_new, gamma_prop, X, resid, weights)
       ))
       if (runif(1) < accept_prob) {
         gamma_prop <- gamma_new
@@ -232,17 +237,19 @@ het_reg_mh_sampler <- function(
 
     # compute sigma^2 (deterministically from gamma)
     sigma_prop <- exp(X %*% gamma_prop)
-    invSigma_prop <- diag(as.numeric(1 / sigma_prop))
+    precision <- as.numeric(weights / sigma_prop)
 
     if (i > burn_in & (i - burn_in - 1) %% thin == 0) {
       #keep
       id <- (i - burn_in - 1) / thin + 1
       beta[id, ] <- beta_prop
-      sigma[id, ] <- sigma_prop
+      if (keep_sigma) {
+        sigma[id, ] <- sigma_prop
+      }
       gamma[id, ] <- gamma_prop
       acc_rate[id, ] <- acc
 
-      # compute new Ys
+      # compute new Ys (one new player per row of new_X)
       new_sigma_prop <- exp(new_X %*% gamma_prop)
       new_y[id, ] <- new_X %*%
         beta_prop +
@@ -306,7 +313,7 @@ hlr_gibbs_sampler <- function(
   X_group <- map(1:J, ~ X[group == .x, ]) # X matrix by group
   Y_group <- map(1:J, ~ Y[group == .x]) # Y vector by group
   group_indices <- split(seq_along(group), group)
-  gram <- map(X_group, ~ t(.x) %*% .x) # gram matrix
+  gram <- map(X_group, ~ crossprod(.x)) # gram matrix
 
   samples <- ceiling((iter - burn_in) / thin)
 
@@ -323,7 +330,7 @@ hlr_gibbs_sampler <- function(
     mu_0 <- ols %>% coef() # initialize with lm
   }
   if (missing(Lambda_0)) {
-    Lambda_0 <- g * sigma_0 * inv(t(X) %*% X)
+    Lambda_0 <- g * sigma_0 * solve(crossprod(X))
   }
 
   if (missing(eta_0)) {
@@ -338,7 +345,7 @@ hlr_gibbs_sampler <- function(
   }
 
   # conversions
-  invLambda_0 <- inv(Lambda_0)
+  invLambda_0 <- solve(Lambda_0)
 
   # allocate space
   beta <- matrix(0, nrow = samples, ncol = p) # overall mean
@@ -358,10 +365,10 @@ hlr_gibbs_sampler <- function(
   for (i in 1:iter) {
     # draw beta_j and invsigma_j
     for (j in 1:J) {
-      invQ <- inv(invSigma_prop + invsigma_j_prop[j] * gram[[j]])
+      invQ <- solve(invSigma_prop + invsigma_j_prop[j] * gram[[j]])
       l <- invSigma_prop %*%
         beta_prop +
-        invsigma_j_prop[j] * (t(X_group[[j]]) %*% Y_group[[j]])
+        invsigma_j_prop[j] * crossprod(X_group[[j]], Y_group[[j]])
 
       # draw beta_j
       beta_j_prop[j, ] <- MASS::mvrnorm(1, invQ %*% l, invQ)
@@ -387,7 +394,7 @@ hlr_gibbs_sampler <- function(
     }
 
     # draw beta
-    invQ <- inv(invLambda_0 + J * invSigma_prop)
+    invQ <- solve(invLambda_0 + J * invSigma_prop)
     l <- invLambda_0 %*% mu_0 + invSigma_prop %*% colSums(beta_j_prop)
     beta_prop <- MASS::mvrnorm(1, invQ %*% l, invQ)
 
