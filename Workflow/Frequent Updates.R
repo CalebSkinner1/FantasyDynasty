@@ -9,16 +9,16 @@ source(here::here("Workflow", "Workflow Support.R"))
 
 # Data and models ---------------------------------------------------------
 
-# Scraping: box scores, Sleeper data, projections, KTC (~1 minute)
+# Scraping: box scores, Sleeper data, projections, KTC (~40 seconds)
 run_step("Data Manipulation/Scraping.R")
 
 # Player Value Added (reads the files Scraping.R writes) (~5 seconds)
 run_step("Modeling/Player Value Added.R")
 
-# Player Total Value: today's future values from the saved models (a few minutes)
+# Player Total Value: today's future values from the saved models (~20 seconds)
 run_step("Modeling/Player Total Value.R")
 
-# Future Standings: 50,000 simulations of the next three seasons (~1-2 minutes)
+# Future Standings: 50,000 simulations of the next three seasons (~15 seconds)
 run_step("Modeling/Future Standings.R")
 
 # App tables (written to Shiny/Saved Files) ----------------------------------
