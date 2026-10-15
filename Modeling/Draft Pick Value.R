@@ -19,8 +19,8 @@ suppressPackageStartupMessages({
   library("plotly")
 })
 
-demonstrate_fit <- FALSE # set to true to show the fit and residual plots
-mcmc_seed <- 2026 # seed for the samplers
+demonstrate_fit <- TRUE # set to true to show the fit and residual plots
+mcmc_seed <- 123 # seed for the samplers
 
 # load MCMC Samplers
 source(here("Modeling/MCMC Samplers.R"))
