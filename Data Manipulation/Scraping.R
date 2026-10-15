@@ -44,6 +44,37 @@ league_id_24 <- "1066207868321370112"
 league_id_25 <- "1180629816344895488"
 league_id_26 <- "1312620216915595264"
 all_league_ids <- c(league_id_24, league_id_25, league_id_26)
+league_seasons <- c(2024, 2025, 2026) # season of each league id above (add both together)
+current_season <- max(league_seasons)
+league_weeks <- 1:17 # weeks with fantasy matchups (regular season + playoffs)
+
+# Sleeper cache ----------------------------------------------------------
+# past seasons never change, so they are pulled once and stored in Data/cache/sleeper.
+# the current season is re-pulled every run and saved there as well, so that
+# Player Value Added.R can read it from disk (complete = FALSE until the season is over).
+sleeper_cache_dir <- here("Data/cache/sleeper")
+dir.create(sleeper_cache_dir, recursive = TRUE, showWarnings = FALSE)
+
+cached_season <- function(type, season, fetch) {
+  path <- file.path(sleeper_cache_dir, str_c(type, "_", season, ".rds"))
+  if (file.exists(path)) {
+    cache <- readRDS(path)
+    if (isTRUE(cache$complete)) {
+      return(cache$data)
+    }
+  }
+  data <- fetch()
+  saveRDS(
+    list(
+      data = data,
+      # only freeze a past season if something was actually returned
+      complete = season < current_season && NROW(data) > 0,
+      fetched = Sys.time()
+    ),
+    path
+  )
+  data
+}
 
 # someday maybe use this to grab information about the league or grab name/avatar
 # league_info <- parse_api_list(str_c("https://api.sleeper.app/v1/league/", league_id_25))
@@ -87,30 +118,71 @@ avatar <- parse_api(str_c(
 
 write_csv(avatar, here("Data/avatar.csv"))
 
-# matchups
+# matchups (raw weekly output, cached by season)
 matchups <- map(
   seq_along(all_league_ids),
   ~ {
     league_id <- all_league_ids[[.x]]
-    map(
-      1:17,
-      ~ str_c(
-        "https://api.sleeper.app/v1/league/",
-        league_id,
-        "/matchups/",
-        .x
-      ) |>
-        parse_api()
-    )
+    cached_season("matchups", league_seasons[[.x]], \() {
+      map(
+        league_weeks,
+        \(wk) {
+          str_c(
+            "https://api.sleeper.app/v1/league/",
+            league_id,
+            "/matchups/",
+            wk
+          ) |>
+            parse_api()
+        }
+      )
+    })
   }
 )
 
 matchups_temp <- map(matchups, ~ bind_rows(.x, .id = "week")) |>
   bind_rows(.id = "season") |>
   mutate(
-    season = as.numeric(season) + 2023,
+    season = league_seasons[as.numeric(season)],
     week = as.numeric(week)
   )
+
+# league scoring settings and lineup slots (cached by season)
+league_info <- map(
+  seq_along(all_league_ids),
+  ~ cached_season(
+    "league",
+    league_seasons[[.x]],
+    \() fetch_sleeper_league(all_league_ids[[.x]])
+  )
+)
+
+# exact league points for every NFL player (rostered or not), from Sleeper's weekly
+# stats and the league's scoring settings. Only weeks with fantasy points are pulled.
+walk(
+  seq_along(all_league_ids),
+  ~ {
+    season <- league_seasons[[.x]]
+    scoring <- league_info[[.x]]$scoring
+    weeks_played <- matchups[[.x]] |>
+      keep(\(m) NROW(m) > 0 && sum(m$points) != 0) |>
+      length() |>
+      seq_len()
+
+    cached_season("stats_points", season, \() {
+      map(weeks_played, \(wk) {
+        stats <- fetch_sleeper_stats(season, wk)
+        if (is.null(stats)) {
+          message("Sleeper stats unavailable for ", season, " week ", wk)
+          return(NULL)
+        }
+        score_sleeper_stats(stats, scoring) |>
+          mutate(season = season, week = wk)
+      }) |>
+        bind_rows()
+    })
+  }
+)
 
 # playoff bracket
 playoff_bracket <- map(
@@ -136,7 +208,7 @@ playoff_bracket <- map(
     )
 ) |>
   bind_rows(.id = "season") |>
-  mutate(season = as.numeric(season) + 2023)
+  mutate(season = league_seasons[as.numeric(season)])
 
 matchups_table <- matchups_temp |>
   mutate(
@@ -170,26 +242,30 @@ matchups_table <- matchups_temp |>
 
 write_csv(matchups_table, here("Data/matchups_table.csv"))
 
-# transactions (this includes trades)
+# transactions (this includes trades), cached by season
 transactions <- map(
-  all_league_ids,
+  seq_along(all_league_ids),
   ~ {
-    league_id <- .x
-    map(
-      1:17,
-      ~ str_c(
-        "https://api.sleeper.app/v1/league/",
-        league_id,
-        "/transactions/",
-        .x
+    league_id <- all_league_ids[[.x]]
+    cached_season("transactions", league_seasons[[.x]], \() {
+      map(
+        league_weeks,
+        \(wk) {
+          str_c(
+            "https://api.sleeper.app/v1/league/",
+            league_id,
+            "/transactions/",
+            wk
+          ) |>
+            parse_api()
+        }
       ) |>
-        parse_api()
-    ) |>
-      bind_rows(.id = "week")
+        bind_rows(.id = "week")
+    })
   }
 ) |>
   bind_rows(.id = "season") |>
-  mutate(season = as.numeric(season) + 2023)
+  mutate(season = league_seasons[as.numeric(season)])
 
 save(transactions, file = here("Data/transactions.RData"))
 
@@ -367,7 +443,7 @@ write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 # projections26 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
 
 # only scrape weeks not already saved (past projections don't change)
-proj_path <- here("Data/projections26.csv")
+proj_path <- here(str_c("Data/projections", current_season %% 100, ".csv"))
 existing <- if (file.exists(proj_path)) {
   read_csv(proj_path, show_col_types = FALSE)
 } else {
@@ -377,7 +453,7 @@ existing <- if (file.exists(proj_path)) {
 weeks_needed <- setdiff(1:max(box_score_off26$week), unique(existing$week))
 
 if (length(weeks_needed) > 0) {
-  new_proj <- map(weeks_needed, \(wk) combine_week(wk, 2026)) |>
+  new_proj <- map(weeks_needed, \(wk) combine_week(wk, current_season)) |>
     rbindlist() |>
     as_tibble() |>
     name_correction()
@@ -388,16 +464,8 @@ if (length(weeks_needed) > 0) {
   projections26 <- existing
 }
 
-projections24 <- read_csv(
-  here("Data/projections24.csv"),
-  show_col_types = FALSE
-)
-projections25 <- read_csv(
-  here("Data/projections25.csv"),
-  show_col_types = FALSE
-)
-
-projections <- list(projections24, projections25, projections26)
+# older seasons' projections (Data/projections24.csv, ...) are read directly by
+# Player Value Added.R
 
 # Scrape Future Value -----------------------------------------------------
 # https://keeptradecut.com/dynasty-rankings

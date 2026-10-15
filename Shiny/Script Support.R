@@ -224,10 +224,7 @@ grab_team_contributors_weekly <- function(
       type == "starter"
     ) |>
     select(name, position, projection, sleeper_points, value_added) |>
-    mutate(
-      position = factor(position, position_levels),
-      projection = if_else(position %in% c("K", "DST"), 8, projection)
-    ) |>
+    mutate(position = factor(position, position_levels)) |>
     arrange(position, desc(value_added)) |>
     adorn_totals()
 

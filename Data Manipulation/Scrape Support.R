@@ -101,6 +101,12 @@ name_correction <- function(df) {
         name == "Andres Borregales" ~ "Andy Borregales",
         name == "Tre' Harris" ~ "Tre Harris",
         name == "Zonovan Knight" ~ "Bam Knight", # bruh
+        name == "Oronde Gadsden II" ~ "Oronde Gadsden",
+        name == "D.J. Turner" ~ "DJ Turner",
+        name == "John Parker Romo" ~ "Parker Romo",
+        name == "Kevin Austin Jr." ~ "Kevin Austin",
+        name == "Mike Badgley" ~ "Michael Badgley",
+        name == "Mitchell Tinsley" ~ "Mitch Tinsley",
         .default = name
       )
     )
@@ -126,6 +132,96 @@ parse_api_list <- function(url) {
   return(parsed)
 }
 
+# league settings: scoring weights and starting lineup slots
+fetch_sleeper_league <- function(league_id) {
+  league <- parse_api_list(str_c("https://api.sleeper.app/v1/league/", league_id))
+
+  list(
+    scoring = tibble(
+      stat = names(league$scoring_settings),
+      weight = as.numeric(unlist(league$scoring_settings))
+    ),
+    roster_positions = unlist(league$roster_positions)
+  )
+}
+
+# weekly stats for every NFL player (unofficial Sleeper endpoint), returned long:
+# player_id, stat, value. Returns NULL if the endpoint is unavailable.
+fetch_sleeper_stats <- function(season, week) {
+  urls <- c(
+    str_c("https://api.sleeper.app/v1/stats/nfl/regular/", season, "/", week),
+    str_c(
+      "https://api.sleeper.com/stats/nfl/",
+      season,
+      "/",
+      week,
+      "?season_type=regular"
+    )
+  )
+
+  for (url in urls) {
+    parsed <- tryCatch(
+      {
+        resp <- httr::RETRY(
+          "GET",
+          url,
+          times = 3,
+          terminate_on = c(400, 403, 404),
+          quiet = TRUE
+        )
+        if (httr::status_code(resp) != 200) {
+          NULL
+        } else {
+          fromJSON(
+            httr::content(resp, "text", encoding = "UTF-8"),
+            simplifyVector = FALSE
+          )
+        }
+      },
+      error = function(e) NULL
+    )
+
+    if (length(parsed) == 0) {
+      next
+    }
+
+    # api.sleeper.app: object keyed by player_id
+    # api.sleeper.com: array of records with player_id and stats
+    if (!is.null(names(parsed))) {
+      ids <- names(parsed)
+      stat_lists <- parsed
+    } else {
+      ids <- map_chr(parsed, ~ as.character(.x$player_id %||% NA_character_))
+      stat_lists <- map(parsed, ~ .x$stats)
+    }
+
+    # keep scalar numeric stats only
+    stat_lists <- map(
+      stat_lists,
+      ~ keep(.x, \(v) is.numeric(v) && length(v) == 1)
+    )
+
+    out <- tibble(
+      player_id = rep(ids, lengths(stat_lists)),
+      stat = unlist(map(stat_lists, names), use.names = FALSE),
+      value = unlist(stat_lists, use.names = FALSE)
+    ) |>
+      filter(!is.na(player_id))
+
+    if (nrow(out) > 0) {
+      return(out)
+    }
+  }
+  NULL
+}
+
+# league points from long stats and the league's scoring weights
+score_sleeper_stats <- function(stats_long, scoring) {
+  stats_long |>
+    inner_join(scoring, by = join_by(stat)) |>
+    summarize(pts = round(sum(value * weight), 2), .by = player_id)
+}
+
 # Scrape Projections ------------------------------------------------------
 
 fetch_html <- function(url, pause = 1.5, tries = 4) {
@@ -144,7 +240,9 @@ fetch_html <- function(url, pause = 1.5, tries = 4) {
 }
 
 # player projections (qb (10), rb (20), wr (30), te (40))
-grab_projection <- function(fftoday_page_html, wk) {
+# pos is the position of the page (known from PosID), stored so projections can be
+# joined to player_info on name and position
+grab_projection <- function(fftoday_page_html, wk, pos) {
   table <- fetch_html(fftoday_page_html) |>
     html_element("body") |>
     html_element("center") |>
@@ -163,7 +261,8 @@ grab_projection <- function(fftoday_page_html, wk) {
     rename_with(~ paste0("projection"), .cols = last_col()) |>
     mutate(
       projection = as.numeric(projection),
-      week = wk
+      week = wk,
+      position = pos
     )
 }
 
@@ -192,7 +291,8 @@ grab_rankings <- function(fftoday_page_html, wk) {
     relocate(name) |>
     mutate(
       week = wk,
-      projection = 33 - as.numeric(projection)
+      projection = 33 - as.numeric(projection), # rank, not points (calibrated in Player Value Added.R)
+      position = "K"
     )
 
   defenses <- all |>
@@ -206,7 +306,8 @@ grab_rankings <- function(fftoday_page_html, wk) {
     relocate(name) |>
     mutate(
       week = wk,
-      projection = 33 - as.numeric(projection)
+      projection = 33 - as.numeric(projection), # rank, not points (calibrated in Player Value Added.R)
+      position = "DST"
     )
 
   list(kickers, defenses)
@@ -227,6 +328,8 @@ combine_week <- function(week, season) {
   ) |>
     grab_rankings(week)
 
+  page_positions <- c("10" = "QB", "20" = "RB", "30" = "WR", "40" = "TE")
+
   rb_wr <- map(
     c(20, 30),
     ~ str_c(
@@ -238,7 +341,7 @@ combine_week <- function(week, season) {
       .x,
       "&LeagueID=208518&order_by=FFPts&sort_order=DESC&cur_page=1"
     ) |>
-      grab_projection(week)
+      grab_projection(week, page_positions[[as.character(.x)]])
   ) |>
     append(kick_def_rankings)
 
@@ -253,11 +356,13 @@ combine_week <- function(week, season) {
       .x,
       "&LeagueID=208518"
     ) |>
-      grab_projection(week)
+      grab_projection(week, page_positions[[as.character(.x)]])
   ) |>
     append(rb_wr) |>
     rbindlist() |>
-    as_tibble()
+    as_tibble() |>
+    # the RB/WR pages are pulled twice (default + sorted by points)
+    distinct(name, position, week, .keep_all = TRUE)
 }
 
 # Scrape Future Value -----------------------------------------------------
