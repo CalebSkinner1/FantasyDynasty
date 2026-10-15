@@ -7,8 +7,8 @@ suppressPackageStartupMessages({
 
 message("begin computing Player Total Value...")
 demonstrate_fit <- FALSE # set to true to rerun the model fit images
-train_models <- FALSE # set to true to refit the BART models (and residual models)
-tune_models <- FALSE # with train_models, also re-tune hyperparameters (slow, offseason)
+train_models <- getOption("fantasy.train_models", FALSE) # set to true to refit the BART models (and residual models)
+tune_models <- getOption("fantasy.tune_models", FALSE) # with train_models, also re-tune hyperparameters (slow, offseason)
 model_seed <- 123 # seed for cross validation folds and the BART samplers
 
 set.seed(model_seed)
@@ -16,19 +16,19 @@ set.seed(model_seed)
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
 season_value_added <- read_csv(
-  here("Data/sva.csv"),
+  here("Shiny/Saved Files/season_value_added.csv"),
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 )
 player_info <- read_csv(
-  here("Data/player_info.csv"),
+  here("Data/raw/player_info.csv"),
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 )
-season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
-  path = here("Data/ktc values"),
+  path = here("Data/raw/ktc"),
   full.names = T
 ) %>%
   set_names(basename(.)) |>
@@ -49,18 +49,18 @@ ktc_player_ids <- ktc_list |>
   unlist()
 
 league_transactions <- local({
-  load(here("Data/transactions.RData"))
+  transactions <- readRDS(here("Data/derived/transactions.rds"))
   transactions
 })
 
 league_player_ids <- c(
   read_csv(
-    here("Data/va.csv"),
+    here("Data/derived/va.csv"),
     show_col_types = FALSE,
     col_types = cols(player_id = col_character())
   )$player_id,
   read_csv(
-    here("Data/current_roster.csv"),
+    here("Data/derived/current_roster.csv"),
     show_col_types = FALSE,
     col_types = cols(player_id = col_character())
   )$player_id,
@@ -76,7 +76,7 @@ future_value_names <- player_info |>
   distinct(player_id, .keep_all = TRUE) |>
   select(name, player_id, position, birth_date, years_exp)
 
-write_csv(future_value_names, here("Data/future_value_names.csv"))
+write_csv(future_value_names, here("Data/model_output/future_value_names.csv"))
 
 # organize data sets
 ktc_begin_end_dates <- list(
@@ -145,14 +145,14 @@ if (train_models) {
     model_fit <- fit_bart(model_data, params, model_seed)
     saveRDS(
       bundle(model_fit),
-      file = here("Modeling", str_c(model_name, "_fit.rds"))
+      file = here("Modeling", "models", str_c(model_name, "_fit.rds"))
     )
 
     oof_pred <- oof_predictions(model_data, params, model_seed)
     resid_fit <- model_residuals(model_data, oof_pred)
     saveRDS(
       resid_fit,
-      file = here("Modeling", str_c(model_name, "_resid_fit.rds"))
+      file = here("Modeling", "models", str_c(model_name, "_resid_fit.rds"))
     )
 
     report_fit(str_to_upper(model_name), model_data, oof_pred, resid_fit)
@@ -162,20 +162,19 @@ if (train_models) {
 
 # Load Models -------------------------------------------------------------
 
-tva_fit <- readRDS(here("Modeling/tva_fit.rds")) |> unbundle()
-tva_resid_fit <- readRDS(here("Modeling/tva_resid_fit.rds"))
+tva_fit <- readRDS(here("Modeling/models/tva_fit.rds")) |> unbundle()
+tva_resid_fit <- readRDS(here("Modeling/models/tva_resid_fit.rds"))
 
-ktc_fit <- readRDS(here("Modeling/ktc_fit.rds")) |> unbundle()
-ktc_resid_fit <- readRDS(here("Modeling/ktc_resid_fit.rds"))
+ktc_fit <- readRDS(here("Modeling/models/ktc_fit.rds")) |> unbundle()
+ktc_resid_fit <- readRDS(here("Modeling/models/ktc_resid_fit.rds"))
 
 # Run Player Intervals ----------------------------------------------------
 
 ktc_tibble <- ktc_list |>
   bind_rows(.id = "date") |>
   mutate(
-    date = str_remove(date, "ktc_value") |>
-      str_remove(".csv") |>
-      lubridate::mdy()
+    date = str_extract(date, "\\d{4}-\\d{2}-\\d{2}") |>
+      lubridate::ymd()
   ) |>
   filter(!is.na(player_id)) |>
   name_correction()
@@ -226,14 +225,14 @@ if (n_incomplete != 0) {
 # simulated seasons starting with the current season (the next season in the offseason)
 player_simulations <- today_value$sims_current %||% today_value$sims_next
 
-save(player_simulations, file = here("Modeling/player_simulations.RData"))
+saveRDS(player_simulations, here("Modeling/models/player_simulations.rds"))
 
 # Future Value over Time --------------------------------------------------
 # goal is to only run one at a time, while keeping the previous models.
 # Set recompute_future_value_time to TRUE to recompute every KTC date with the
 # current models (e.g. after retraining)
 
-recompute_future_value_time <- FALSE
+recompute_future_value_time <- getOption("fantasy.recompute_future_value_time", FALSE)
 
 future_value_time <- if (recompute_future_value_time) {
   tibble(
@@ -341,7 +340,7 @@ player_total_value <- future_value_time |>
     future_value
   )
 
-write_csv(player_total_value, here("Data/player_total_value.csv"))
+write_csv(player_total_value, here("Shiny/Saved Files/player_total_value.csv"))
 
 # Demonstrate Model Fit ----------------------------------------------------
 if (demonstrate_fit) {
@@ -504,6 +503,6 @@ if (demonstrate_fit) {
     coord_cartesian(ylim = c(0, 10000)) +
     theme(legend.title = element_blank())
 
-  write_csv(toy_tva_plot_data, here("Data/toy_tva_plot_data.csv"))
-  write_csv(toy_ktc_plot_data, here("Data/toy_ktc_plot_data.csv"))
+  write_csv(toy_tva_plot_data, here("Shiny/Saved Files/toy_tva_plot_data.csv"))
+  write_csv(toy_ktc_plot_data, here("Shiny/Saved Files/toy_ktc_plot_data.csv"))
 }

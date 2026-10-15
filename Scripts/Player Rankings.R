@@ -4,7 +4,7 @@ library("here")
 
 source(here("Shiny/Script Support.R"))
 
-player_total_value <- read_csv(here("Data/player_total_value.csv"))
+player_total_value <- read_csv(here("Shiny/Saved Files/player_total_value.csv"))
 future_value_time <- read_csv(here("Shiny/Saved Files/future_value_time.csv"))
 
 # current future value

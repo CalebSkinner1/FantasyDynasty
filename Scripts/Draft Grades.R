@@ -11,13 +11,13 @@ source(here("Modeling/Player Total Value Functions.R"))
 message("begin computing Draft Grades...")
 
 # load data
-load(here("Data/draft_picks.RData"))
+draft_picks <- readRDS(here("Data/derived/draft_picks.rds"))
 
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 player_total_value <- read_csv(
-  here("Data/player_total_value.csv"),
+  here("Shiny/Saved Files/player_total_value.csv"),
   show_col_types = FALSE
 ) |>
   select(
@@ -35,13 +35,13 @@ player_total_value <- read_csv(
   ) |> # devalue future
   ungroup() |>
   select(-contains("sva"))
-player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
+player_info <- read_csv(here("Data/raw/player_info.csv"), show_col_types = FALSE)
 
 # because drafting a kicker gave rookie draft order, I need to account for the rookie draft order
 # when grading the initial draft
 # rookie expected values per pick
 rookie_draft_pick_values <- read_csv(
-  here("Data/rookie_draft_values.csv"),
+  here("Data/model_output/rookie_draft_values.csv"),
   show_col_types = FALSE
 ) |>
   filter(metric == "total value") |>
@@ -57,7 +57,7 @@ rookie_draft_values <- rookie_draft_pick_values |>
 
 # this tibble holds the expected value gained from rookie draft order
 rookie_draft_order_value <- read_csv(
-  here("Data/draft_order.csv"),
+  here("Data/derived/draft_order.csv"),
   show_col_types = FALSE
 ) |>
   filter(season == 2024, type == "rookie") |>

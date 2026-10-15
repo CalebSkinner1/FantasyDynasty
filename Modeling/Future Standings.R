@@ -27,29 +27,29 @@ set.seed(seed)
 
 # Load Data ---------------------------------------------------------------
 
-load(here("Modeling/player_simulations.RData"))
+player_simulations <- readRDS(here("Modeling/models/player_simulations.rds"))
 
 current_roster <- read_csv(
-  here("Data/current_roster.csv"),
+  here("Data/derived/current_roster.csv"),
   col_types = cols(player_id = "c", roster_id = "i", .default = "c")
 ) |>
   select(player_id, roster_id)
 
 future_draft_picks <- read_csv(
-  here("Data/future_draft_picks.csv"),
+  here("Data/derived/future_draft_picks.csv"),
   show_col_types = FALSE
 )
 rookie_draft_values <- read_csv(
-  here("Data/rookie_draft_values.csv"),
+  here("Data/model_output/rookie_draft_values.csv"),
   show_col_types = FALSE
 )
-va <- read_csv(here("Data/va.csv"), show_col_types = FALSE)
+va <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE)
 matchups_table <- read_csv(
-  here("Data/matchups_table.csv"),
+  here("Data/derived/matchups_table.csv"),
   show_col_types = FALSE
 )
 replacement_levels <- read_csv(
-  here("Data/replacement_levels.csv"),
+  here("Data/derived/replacement_levels.csv"),
   show_col_types = FALSE
 )
 
@@ -58,7 +58,7 @@ seasons <- as.numeric(names(player_simulations))[seq_len(n_years)]
 
 # league settings of the first simulated season (or the latest cached one)
 league_seasons <- list.files(
-  here("Data/cache/sleeper"),
+  here("Data/raw/sleeper"),
   pattern = "^league_\\d{4}\\.rds$"
 ) |>
   str_extract("\\d{4}") |>
@@ -126,4 +126,4 @@ plan(sequential)
 
 final_standings_odds <- summarize_standings(sims, seasons, fmt)
 
-write_csv(final_standings_odds, here("Data/final_standings_odds.csv"))
+write_csv(final_standings_odds, here("Data/model_output/final_standings_odds.csv"))

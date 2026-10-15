@@ -15,11 +15,11 @@
 # with FLEX replacement.
 #
 # Inputs (written by Data Manipulation/Scraping.R, which must run first):
-#   Data/cache/sleeper/{matchups,league,stats_points}_<season>.rds
-#   Data/projections<yy>.csv, Data/player_info.csv
-#   Data/box_score_off<yy>.csv, Data/box_score_def<yy>.csv (fallback scoring only)
+#   Data/raw/sleeper/{matchups,league,stats_points}_<season>.rds
+#   Data/raw/projections/projections<yy>.csv, Data/raw/player_info.csv
+#   Data/raw/box_scores/box_score_off<yy>.csv, Data/raw/box_scores/box_score_def<yy>.csv (fallback scoring only)
 # Outputs:
-#   Data/va.csv, Data/sva.csv, Data/sleeper_points.csv, Data/replacement_levels.csv
+#   Data/derived/va.csv, Shiny/Saved Files/season_value_added.csv, Data/derived/sleeper_points.csv, Data/derived/replacement_levels.csv
 
 suppressPackageStartupMessages({
   library("here")
@@ -36,7 +36,7 @@ n_fa_avg <- 3 # free-agent replacement = mean points of the top-3 projected free
 week_weight <- 0.7 # weight on the weekly replacement level (the rest on the season mean)
 min_stats_match <- 0.95 # share of starters that Sleeper stats must reproduce to be used
 fantasy_positions <- c("QB", "RB", "WR", "TE", "K", "DST")
-cache_dir <- here("Data/cache/sleeper")
+cache_dir <- here("Data/raw/sleeper")
 
 # lineup slot types and the positions eligible for each
 slot_map <- tribble(
@@ -77,7 +77,7 @@ if (length(seasons) == 0) {
 current_season <- max(seasons)
 
 player_info <- read_csv(
-  here("Data/player_info.csv"),
+  here("Data/raw/player_info.csv"),
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 )
@@ -227,7 +227,7 @@ projections <- map(
   seasons,
   \(s) {
     read_csv(
-      here(str_c("Data/projections", s %% 100, ".csv")),
+      here(str_c("Data/raw/projections/projections", s %% 100, ".csv")),
       show_col_types = FALSE
     ) |>
       mutate(season = s)
@@ -328,7 +328,7 @@ stats_check <- rostered |>
 # nflverse box scores scored with the league's settings (fallback only)
 nflverse_points <- function(fallback_seasons) {
   read_box <- function(type, s) {
-    path <- here(str_c("Data/box_score_", type, s %% 100, ".csv"))
+    path <- here(str_c("Data/raw/box_scores/box_score_", type, s %% 100, ".csv"))
     if (!file.exists(path)) {
       return(NULL)
     }
@@ -683,10 +683,10 @@ if (nrow(odd_levels) > 0) {
 
 # Save ---------------------------------------------------------------------
 
-write_csv(sleeper_points, here("Data/sleeper_points.csv"))
-write_csv(replacement_levels, here("Data/replacement_levels.csv"))
-write_csv(value_added, here("Data/va.csv"))
-write_csv(season_value_added, here("Data/sva.csv"))
+write_csv(sleeper_points, here("Data/derived/sleeper_points.csv"))
+write_csv(replacement_levels, here("Data/derived/replacement_levels.csv"))
+write_csv(value_added, here("Data/derived/va.csv"))
+write_csv(season_value_added, here("Shiny/Saved Files/season_value_added.csv"))
 
 # remove objects and functions to declutter environment
 rm(list = intersect(

@@ -1,7 +1,7 @@
 # Scraping
 # Pulls every external input: NFL box scores (nflverse), Sleeper league data,
 # FFToday projections, and KeepTradeCut values.
-# Past Sleeper seasons are cached in Data/cache/sleeper and never re-pulled.
+# Past Sleeper seasons are cached in Data/raw/sleeper and never re-pulled.
 
 message("begin Scraping...")
 
@@ -33,10 +33,10 @@ n_future_draft_seasons <- 4 # tradeable future rookie drafts
 run_player_info <- FALSE
 
 # Sleeper cache ------------------------------------------------------------
-# past seasons never change, so they are pulled once and stored in Data/cache/sleeper.
+# past seasons never change, so they are pulled once and stored in Data/raw/sleeper.
 # the current season is re-pulled every run and saved there as well, so that
 # Player Value Added.R can read it from disk (complete = FALSE until the season is over).
-sleeper_cache_dir <- here("Data/cache/sleeper")
+sleeper_cache_dir <- here("Data/raw/sleeper")
 dir.create(sleeper_cache_dir, recursive = TRUE, showWarnings = FALSE)
 
 # default completeness check: something non-empty came back
@@ -155,13 +155,13 @@ box_score_def_current <- box_score_def_current |> select(-contains("_list"))
 if (nrow(box_score_off_current) > 0) {
   write_csv(
     box_score_off_current,
-    here(str_c("Data/box_score_off", current_season %% 100, ".csv"))
+    here(str_c("Data/raw/box_scores/box_score_off", current_season %% 100, ".csv"))
   )
 }
 if (nrow(box_score_def_current) > 0) {
   write_csv(
     box_score_def_current,
-    here(str_c("Data/box_score_def", current_season %% 100, ".csv"))
+    here(str_c("Data/raw/box_scores/box_score_def", current_season %% 100, ".csv"))
   )
 }
 
@@ -185,7 +185,7 @@ rosters <- parse_api(str_c(
   unnest(cols = c(players)) |>
   rename(player_id = players)
 
-write_csv(rosters, here("Data/current_roster.csv"))
+write_csv(rosters, here("Data/derived/current_roster.csv"))
 
 # users (one call), joined to rosters by user id
 league_users <- parse_api(str_c(
@@ -202,19 +202,19 @@ users <- rosters |>
     by = join_by(owner_id == user_id)
   )
 
-write_csv(users, here("Data/users.csv"))
+write_csv(users, here("Shiny/Saved Files/users.csv"))
 
 avatar <- league_users |>
   mutate(avatar_url = str_c("https://sleepercdn.com/avatars/", avatar)) |>
   left_join(users |> select(owner_id, roster_id), by = join_by(user_id == owner_id)) |>
   select(roster_id, display_name, avatar_url)
 
-write_csv(avatar, here("Data/avatar.csv"))
+write_csv(avatar, here("Shiny/Saved Files/avatar.csv"))
 
 # Player Information --------------------------------------------------------
 # refreshed when forced, or when a rostered player is missing from the saved file
 
-player_info_path <- here("Data/player_info.csv")
+player_info_path <- here("Data/raw/player_info.csv")
 
 player_info <- if (file.exists(player_info_path)) {
   read_csv(
@@ -492,7 +492,7 @@ matchups_table <- matchups_temp |>
   ) |>
   select(season, week, round, roster_id, points, opponent_id, opp_points)
 
-write_csv(matchups_table, here("Data/matchups_table.csv"))
+write_csv(matchups_table, here("Data/derived/matchups_table.csv"))
 
 # transactions (this includes trades), cached by season
 # (offseason transactions are stored by Sleeper under week 1)
@@ -520,7 +520,7 @@ transactions <- map(
   bind_rows(.id = "season") |>
   mutate(season = league_seasons[as.numeric(season)])
 
-save(transactions, file = here("Data/transactions.RData"))
+saveRDS(transactions, here("Data/derived/transactions.rds"))
 
 # Drafts --------------------------------------------------------------------
 # each draft is identified by its own season and number of rounds (not by its
@@ -571,7 +571,7 @@ drafts <- drafts[draft_meta$index]
 
 # Get picks in a draft
 draft_picks <- map(drafts, "picks")
-save(draft_picks, file = here("Data/draft_picks.RData"))
+saveRDS(draft_picks, here("Data/derived/draft_picks.rds"))
 
 # draft slot of each roster (slot_to_roster_id, or draft_order by user if not set)
 draft_order <- map2(drafts, draft_meta$type, \(d, type) {
@@ -596,7 +596,7 @@ draft_order <- map2(drafts, draft_meta$type, \(d, type) {
   bind_rows() |>
   arrange(season, desc(type == "rookie"), draft_order)
 
-write_csv(draft_order, here("Data/draft_order.csv"))
+write_csv(draft_order, here("Data/derived/draft_order.csv"))
 
 # Now, I want to compile each players total assets
 
@@ -670,7 +670,7 @@ future_draft_picks <- assigned_picks |>
   ) |>
   arrange(season, round, roster_id)
 
-write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
+write_csv(future_draft_picks, here("Data/derived/future_draft_picks.csv"))
 
 # Scrape Projections ----------------------------------------------------
 # need weekly player ranking for above replacement metric
@@ -678,7 +678,7 @@ write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 
 # only scrape fantasy weeks with box scores that are not already saved (past
 # projections don't change). Nothing is scraped before week 1.
-proj_path <- here(str_c("Data/projections", current_season %% 100, ".csv"))
+proj_path <- here(str_c("Data/raw/projections/projections", current_season %% 100, ".csv"))
 existing <- if (file.exists(proj_path)) {
   read_csv(proj_path, show_col_types = FALSE)
 } else {
@@ -720,7 +720,7 @@ if (nrow(new_proj) > 0) {
   write_csv(bind_rows(existing, new_proj), proj_path)
 }
 
-# older seasons' projections (Data/projections24.csv, ...) are read directly by
+# older seasons' projections (Data/raw/projections/projections24.csv, ...) are read directly by
 # Player Value Added.R
 
 # Scrape Future Value -----------------------------------------------------
@@ -874,11 +874,7 @@ for (attempt in seq_len(ktc_attempts)) {
 }
 
 # periodically save
-ktc_date <- str_c(
-  month(today()) |> str_pad(2, side = "left", pad = "0"),
-  day(today()) |> str_pad(2, side = "left", pad = "0"),
-  year(today()) |> str_sub(start = 3, end = 4)
-)
+ktc_date <- format(today(), "%Y-%m-%d")
 
 if (ktc_players >= 0.99 * ktc_expected) {
   keep_trade_cut <- keep_trade_cut |>
@@ -889,15 +885,15 @@ if (ktc_players >= 0.99 * ktc_expected) {
 
   write_csv(
     keep_trade_cut,
-    here(paste0("Data/ktc values/ktc_value", ktc_date, ".csv"))
+    here(paste0("Data/raw/ktc/ktc_", ktc_date, ".csv"))
   )
 } else {
   ktc_files <- list.files(
-    here("Data/ktc values"),
-    pattern = "^ktc_value\\d{6}\\.csv$",
+    here("Data/raw/ktc"),
+    pattern = "^ktc_\\d{4}-\\d{2}-\\d{2}\\.csv$",
     full.names = TRUE
   )
-  latest_ktc <- ktc_files[which.max(mdy(str_extract(basename(ktc_files), "\\d{6}")))]
+  latest_ktc <- ktc_files[which.max(ymd(str_extract(basename(ktc_files), "\\d{4}-\\d{2}-\\d{2}")))]
 
   warning(
     "KTC returned ", ktc_players, " of ", ktc_expected,
@@ -927,10 +923,10 @@ season_dates <- tryCatch(
     select(season_start, season_end),
   error = function(e) {
     warning("NFL schedule unavailable, keeping saved season dates: ", conditionMessage(e))
-    read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
+    read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
   }
 )
-write_csv(season_dates, here("Data/season_dates.csv"))
+write_csv(season_dates, here("Shiny/Saved Files/season_dates.csv"))
 
 # remove objects and functions to declutter environment
 rm(list = intersect(

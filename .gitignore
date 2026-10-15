@@ -1,7 +1,8 @@
 
 .DS_Store
-Data/simulations.RData
 Modeling/Deprecated Modeling
 /.Rproj.user
 *.Rproj
 .Rhistory
+Workflow/logs/
+Rplots.pdf

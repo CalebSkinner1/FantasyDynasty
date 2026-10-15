@@ -10,32 +10,32 @@ message("begin computing Trade Grades...")
 source(here("Shiny/Script Support.R"))
 source(here("Modeling/Future Standings Support.R"))
 
-load(here("Data/transactions.RData")) #transactions, including trades
+transactions <- readRDS(here("Data/derived/transactions.rds")) #transactions, including trades
 all_draft_pick_exp_values <- read_csv(
-  here("Data/all_draft_pick_exp_values.csv"),
+  here("Data/model_output/all_draft_pick_exp_values.csv"),
   show_col_types = FALSE
 ) #future draft pick values
 
-load(here("Data/draft_picks.RData")) # draft results
+draft_picks <- readRDS(here("Data/derived/draft_picks.rds")) # draft results
 
 player_total_value <- read_csv(
-  here("Data/player_total_value.csv"),
+  here("Shiny/Saved Files/player_total_value.csv"),
   show_col_types = FALSE
 )
-value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE)
-draft_order <- read_csv(here("Data/draft_order.csv"), show_col_types = FALSE)
+value_added <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE)
+draft_order <- read_csv(here("Data/derived/draft_order.csv"), show_col_types = FALSE)
 future_value_time <- read_csv(
   here("Shiny/Saved Files/future_value_time.csv"),
   show_col_types = FALSE
 )
 
 marginal_transaction_value <- read_csv(
-  here("Data/marginal_transaction_value.csv"),
+  here("Shiny/Saved Files/marginal_transaction_value.csv"),
   show_col_types = FALSE
 )
 
 rookie_draft_values <- read_csv(
-  here("Data/rookie_draft_values.csv"),
+  here("Data/model_output/rookie_draft_values.csv"),
   ,
   show_col_types = FALSE
 ) |>
@@ -44,11 +44,11 @@ rookie_draft_values <- read_csv(
 
 # references
 player_info <- read_csv(
-  here("Data/player_info.csv"),
+  here("Data/raw/player_info.csv"),
   show_col_types = FALSE
 ) |>
   select(-birth_date)
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 season_dates <- read_csv(
@@ -426,8 +426,8 @@ overall_trade_winners <- comparison |>
 # # draft pick value over time
 # load(here("Modeling/team_tva_ranking.RData"))
 # matchup_fit_coef <- read_csv(here("Modeling/matchup_fit_coef.csv"))
-# matchups_table <- read_csv(here("Data/matchups_table.csv"))
-# season_dates <- read_csv(here("Data/season_dates.csv"))
+# matchups_table <- read_csv(here("Data/derived/matchups_table.csv"))
+# season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"))
 #
 # season_end <- season_dates$season_end[season_dates$season_end > today()] |> min()
 # season_start <- season_dates$season_start[season_dates$season_start < season_end] |> max()

@@ -6,14 +6,14 @@ message("begin computing Team Rankings...")
 source(here("Shiny/Script Support.R"))
 
 matchups_table <- read_csv(
-  here("Data/matchups_table.csv"),
+  here("Data/derived/matchups_table.csv"),
   show_col_types = FALSE
 )
 grab_team_assets_df <- read_csv(
   here("Shiny/Saved Files/grab_team_assets_df.csv"),
   show_col_types = FALSE
 )
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 # ELO Rankings ------------------------------------------------------------

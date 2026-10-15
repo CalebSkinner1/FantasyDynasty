@@ -5,11 +5,11 @@ message("begin computing Future Standings Script...")
 
 source(here("Shiny/Script Support.R"))
 
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 final_standings_odds <- read_csv(
-  here("Data/final_standings_odds.csv"),
+  here("Data/model_output/final_standings_odds.csv"),
   show_col_types = FALSE
 ) |>
   left_join(users, by = join_by(roster_id)) |>

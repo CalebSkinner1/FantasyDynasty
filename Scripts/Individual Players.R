@@ -8,16 +8,16 @@ source(here("Shiny/Script Support.R"))
 
 message("begin computing Individual Players...")
 
-load(here("Modeling/player_simulations.RData"))
-season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE)
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
+player_simulations <- readRDS(here("Modeling/models/player_simulations.rds"))
+season_value_added <- read_csv(here("Shiny/Saved Files/season_value_added.csv"), show_col_types = FALSE)
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
-value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) |>
+value_added <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE) |>
   left_join(users, by = join_by(roster_id)) |>
   arrange(season, week, desc(type), display_name)
-player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
+player_info <- read_csv(here("Data/raw/player_info.csv"), show_col_types = FALSE)
 player_total_value <- read_csv(
-  here("Data/player_total_value.csv"),
+  here("Shiny/Saved Files/player_total_value.csv"),
   show_col_types = FALSE
 ) |>
   select(

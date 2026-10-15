@@ -7,20 +7,20 @@ message("begin computing Transaction Grades...")
 
 # load data
 source(here("Shiny/Script Support.R"))
-load(here("Data/transactions.RData")) #transactions, including trades
+transactions <- readRDS(here("Data/derived/transactions.rds")) #transactions, including trades
 player_total_value <- read_csv(
-  here("Data/player_total_value.csv"),
+  here("Shiny/Saved Files/player_total_value.csv"),
   show_col_types = FALSE
 )
-value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE)
+value_added <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE)
 
 player_info <- read_csv(
-  here("Data/player_info.csv"),
+  here("Data/raw/player_info.csv"),
   show_col_types = FALSE
 ) |>
   select(-birth_date)
 
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 total_transaction_value <- transactions |>
@@ -271,7 +271,7 @@ write_csv(
 
 write_csv(
   marginal_transaction_value,
-  here("Data/marginal_transaction_value.csv")
+  here("Shiny/Saved Files/marginal_transaction_value.csv")
 )
 
 save(

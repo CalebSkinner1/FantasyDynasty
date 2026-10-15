@@ -1,56 +1,58 @@
-# Workflow for updating data
+# Frequent Updates
+# Weekly refresh: scrape, update the models, rebuild the app's tables, and deploy.
+# Every Tuesday at 10:00 this runs unattended (Workflow/Scheduled/run_frequent_updates.sh),
+# and it can still be run by hand. Each step runs in its own R process (see run_step() in
+# Workflow Support.R) and the run stops at the first failure, so a broken step is never deployed.
+# Times below are rough; each step's time is printed in the log.
 
-# This R script details an orderly procedure for updating the data
+source(here::here("Workflow", "Workflow Support.R"))
 
-# Scraping: box scores, Sleeper data (cached in Data/cache/sleeper), projections, KTC ~1 minute
-source(here::here("Data Manipulation", "Scraping.R"))
+# Data and models ---------------------------------------------------------
 
-# Player Value Added (reads the files Scraping.R writes) ~5 seconds
-source(here::here("Modeling", "Player Value Added.R"))
+# Scraping: box scores, Sleeper data, projections, KTC (~1 minute)
+run_step("Data Manipulation/Scraping.R")
 
-# with relative frequency, will need to rerun player_simulations to account for new ktc value
-# fair warning: it will take ~5 minutes
-source(here::here("Modeling", "Player Total Value.R"))
+# Player Value Added (reads the files Scraping.R writes) (~5 seconds)
+run_step("Modeling/Player Value Added.R")
 
-# with relative frequency, will need to rerun Future Standings.R to update projections of the end of season results
-# fair warning: it will take ~8 minutes
-source(here::here("Modeling", "Future Standings.R"))
+# Player Total Value: today's future values from the saved models (a few minutes)
+run_step("Modeling/Player Total Value.R")
+
+# Future Standings: 50,000 simulations of the next three seasons (~1-2 minutes)
+run_step("Modeling/Future Standings.R")
+
+# App tables (written to Shiny/Saved Files) ----------------------------------
 
 # Individual Players
-source(here::here("Scripts", "Individual Players.R"))
+run_step("Scripts/Individual Players.R")
 
-# Fantasy Teams
-source(here::here("Scripts", "Fantasy Teams.R"))
+# Fantasy Teams (also runs Draft Grades, Trade Grades, and Transaction Grades, ~15 seconds)
+run_step("Scripts/Fantasy Teams.R")
 
 # Trade Machine
-source(here::here("Scripts", "Trade Machine.R"))
+run_step("Scripts/Trade Machine.R")
 
 # Matchups
-source(here::here("Scripts", "Matchups.R"))
+run_step("Scripts/Matchups.R")
 
 # Future Standings Script
-source(here::here("Scripts", "Future Standings Script.R"))
+run_step("Scripts/Future Standings Script.R")
 
 # Team Rankings
-source(here::here("Scripts", "Team Rankings.R"))
+run_step("Scripts/Team Rankings.R")
 
 # History
-source(here::here("Scripts", "History.R"))
+run_step("Scripts/History.R")
 
-# Relocate Files to be accessed by website
-source(here::here("Scripts", "Relocate Files.R"))
+# Deploy -------------------------------------------------------------------
 
-rstudioapi::restartSession() # clear memory
-
-if (interactive()) {
-  setwd(here::here("Shiny"))
-}
-
-# run app
+message("\n== deploying the app")
 rsconnect::deployApp(
+  appDir = here::here("Shiny"),
   appName = "fantasy-dashboard",
   account = "calebskinner",
   forceUpdate = TRUE,
   appPrimaryDoc = "app.R",
-  appFiles = NULL
+  appFiles = NULL,
+  launch.browser = FALSE
 )

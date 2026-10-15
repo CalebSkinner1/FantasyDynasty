@@ -5,7 +5,7 @@
 # team's season value added spread over the weeks of the season, plus weekly noise,
 #   points ~ Normal(R_season + team_va / season_weeks, sigma)
 # team_va: sum of the team's top 12 sampled projected value added (players and draft picks)
-# R_season: summed replacement level of the starting lineup (Data/replacement_levels.csv)
+# R_season: summed replacement level of the starting lineup (Data/derived/replacement_levels.csv)
 # sigma: week-to-week standard deviation of a team's score within a season
 
 suppressPackageStartupMessages({
@@ -15,7 +15,7 @@ suppressPackageStartupMessages({
 
 # league format ------------------------------------------------------------
 
-read_league_cache <- function(season, cache_dir = here("Data/cache/sleeper")) {
+read_league_cache <- function(season, cache_dir = here("Data/raw/sleeper")) {
   path <- file.path(cache_dir, str_c("league_", season, ".rds"))
   if (!file.exists(path)) {
     return(NULL)

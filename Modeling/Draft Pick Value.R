@@ -29,11 +29,11 @@ source(here("Modeling/Player Total Value Functions.R"))
 
 # Load Data ----------------------------------------------------------------
 
-load(here("Data/draft_picks.RData"))
-load(here("Modeling/player_simulations.RData"))
+draft_picks <- readRDS(here("Data/derived/draft_picks.rds"))
+player_simulations <- readRDS(here("Modeling/models/player_simulations.rds"))
 
 player_total_value <- read_csv(
-  here("Data/player_total_value.csv"),
+  here("Shiny/Saved Files/player_total_value.csv"),
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 ) |>
@@ -45,23 +45,23 @@ player_total_value <- read_csv(
   select(player_id, total_value)
 
 season_value_added <- read_csv(
-  here("Data/sva.csv"),
+  here("Shiny/Saved Files/season_value_added.csv"),
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 ) |>
   select(season, player_id, realized = total_value_added)
 
 player_info <- read_csv(
-  here("Data/player_info.csv"),
+  here("Data/raw/player_info.csv"),
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 ) |>
   distinct(player_id, .keep_all = TRUE)
 
-season_dates <- read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
 
 # draft metadata cached by Scraping.R: each draft's own season, rounds, and status
-cache_dir <- here("Data/cache/sleeper")
+cache_dir <- here("Data/raw/sleeper")
 read_cache <- function(file) readRDS(file.path(cache_dir, file))$data
 
 draft_meta <- list.files(cache_dir, pattern = "^drafts_\\d{4}\\.rds$") |>
@@ -234,7 +234,7 @@ rookie_draft_values <- imap(
   bind_rows() |>
   relocate(pick_no, metric)
 
-write_csv(rookie_draft_values, here("Data/rookie_draft_values.csv"))
+write_csv(rookie_draft_values, here("Data/model_output/rookie_draft_values.csv"))
 
 # total value fit, shown on the Modeling page
 quantiles_tv <- quantiles_list[["total value"]]
@@ -250,7 +250,7 @@ draft_fit_plot <- tibble(
   select(name, pick_no, median, lower, upper, `Total Value`) |>
   distinct()
 
-write_csv(draft_fit_plot, here("Data/draft_fit_plot.csv"))
+write_csv(draft_fit_plot, here("Shiny/Saved Files/draft_fit_plot.csv"))
 
 # Demonstrate Model Fit ----------------------------------------------------
 if (demonstrate_fit) {

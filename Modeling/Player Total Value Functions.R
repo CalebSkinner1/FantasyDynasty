@@ -28,13 +28,7 @@ compile_training_data <- function(
   this_season <- year(pre_ktc_date)
 
   # compute ktc before the start of the season
-  pre_ktc <- ktc_list[[str_c(
-    "ktc_value",
-    str_pad(month(pre_ktc_date), width = 2, side = "left", pad = 0),
-    str_pad(day(pre_ktc_date), width = 2, side = "left", pad = 0),
-    str_sub(year(pre_ktc_date), 3, 4),
-    ".csv"
-  )]] |>
+  pre_ktc <- ktc_list[[str_c("ktc_", format(pre_ktc_date), ".csv")]] |>
     filter(
       !str_detect(name, "Early"),
       !str_detect(name, "Mid"),
@@ -42,13 +36,7 @@ compile_training_data <- function(
     ) |>
     name_correction()
 
-  post_ktc <- ktc_list[[str_c(
-    "ktc_value",
-    str_pad(month(post_ktc_date), width = 2, side = "left", pad = 0),
-    str_pad(day(post_ktc_date), width = 2, side = "left", pad = 0),
-    str_sub(year(post_ktc_date), 3, 4),
-    ".csv"
-  )]] |>
+  post_ktc <- ktc_list[[str_c("ktc_", format(post_ktc_date), ".csv")]] |>
     filter(
       !str_detect(name, "Early"),
       !str_detect(name, "Mid"),
@@ -366,7 +354,7 @@ tune_bart <- function(data, seed, folds = 10, grid = 20) {
 
 # saved hyperparameters (written whenever the models are tuned)
 params_path <- function(model_name) {
-  here("Modeling", str_c(model_name, "_params.rds"))
+  here("Modeling", "models", str_c(model_name, "_params.rds"))
 }
 
 save_params <- function(params, model_name) {
@@ -380,7 +368,7 @@ load_params <- function(model_name) {
     return(readRDS(params_path(model_name)))
   }
 
-  spec_args <- readRDS(here("Modeling", str_c(model_name, "_fit.rds"))) |>
+  spec_args <- readRDS(here("Modeling", "models", str_c(model_name, "_fit.rds"))) |>
     bundle::unbundle() |>
     extract_spec_parsnip() |>
     pluck("args")

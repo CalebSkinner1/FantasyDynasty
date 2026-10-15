@@ -53,7 +53,7 @@ assets_df <- grab_team_assets_df |>
 write_csv(assets_df, here("Shiny/Saved Files/assets_df.csv"))
 
 # examples
-# marginal_transaction_value <- read_csv(here("Data/marginal_transaction_value.csv"), show_col_types = FALSE)
+# marginal_transaction_value <- read_csv(here("Shiny/Saved Files/marginal_transaction_value.csv"), show_col_types = FALSE)
 
 # team1_players <- assets_df |> filter(display_name == "caskinner") |>
 #   slice(19, 22) |> pull(name_code)

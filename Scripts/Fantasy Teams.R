@@ -18,35 +18,35 @@ source(here("Scripts/Transaction Grades.R")) # Transaction Grades, nine seconds
 message("begin computing Fantasy Team...")
 
 # load data
-season_value_added <- read_csv(here("Data/sva.csv"), show_col_types = FALSE)
+season_value_added <- read_csv(here("Shiny/Saved Files/season_value_added.csv"), show_col_types = FALSE)
 player_total_value <- read_csv(
-  here("Data/player_total_value.csv"),
+  here("Shiny/Saved Files/player_total_value.csv"),
   ,
   show_col_types = FALSE
 )
-player_info <- read_csv(here("Data/player_info.csv"), show_col_types = FALSE)
+player_info <- read_csv(here("Data/raw/player_info.csv"), show_col_types = FALSE)
 final_standings_odds <- read_csv(
-  here("Data/final_standings_odds.csv"),
+  here("Data/model_output/final_standings_odds.csv"),
   ,
   show_col_types = FALSE
 )
 rookie_draft_values <- read_csv(
-  here("Data/rookie_draft_values.csv"),
+  here("Data/model_output/rookie_draft_values.csv"),
   ,
   show_col_types = FALSE
 ) |>
   filter(metric == "total value") |>
   select(pick_no, proj_tva_50)
 
-users <- read_csv(here("Data/users.csv"), show_col_types = FALSE) |>
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
 future_draft_picks <- read_csv(
-  here("Data/future_draft_picks.csv"),
+  here("Data/derived/future_draft_picks.csv"),
   show_col_types = FALSE
 )
 
-load(here("Data/draft_picks.RData"))
+draft_picks <- readRDS(here("Data/derived/draft_picks.rds"))
 
 # picks that we known the draft order
 known_draft_picks <-
@@ -127,7 +127,7 @@ draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) |>
 
 # future assets
 current_roster <- read_csv(
-  here("Data/current_roster.csv"),
+  here("Data/derived/current_roster.csv"),
   show_col_types = FALSE
 ) |>
   left_join(player_info, by = join_by(player_id)) |>
@@ -144,7 +144,7 @@ total_assets <- current_roster |>
   bind_rows(draft_assets) |>
   mutate(future_value = replace_na(future_value, 0))
 
-value_added <- read_csv(here("Data/va.csv"), show_col_types = FALSE) |>
+value_added <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE) |>
   left_join(users, by = join_by(roster_id)) |>
   rename(team_name = display_name)
 
@@ -322,7 +322,7 @@ write_csv(value_avenues, here("Shiny/Saved Files/value_avenues.csv"))
 write_csv(acquisitions, here("Shiny/Saved Files/acquisitions.csv"))
 write_csv(player_avenues, here("Shiny/Saved Files/player_avenues.csv"))
 
-write_csv(all_draft_pick_exp_values, here("Data/all_draft_pick_exp_values.csv"))
+write_csv(all_draft_pick_exp_values, here("Data/model_output/all_draft_pick_exp_values.csv"))
 
 # Examples ----------------------------------------------------------------
 # grab_team_assets(4, shiny = TRUE)
