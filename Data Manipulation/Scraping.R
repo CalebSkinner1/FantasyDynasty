@@ -1,9 +1,11 @@
 # Scraping
+# Pulls every external input: NFL box scores (nflverse), Sleeper league data,
+# FFToday projections, and KeepTradeCut values.
+# Past Sleeper seasons are cached in Data/cache/sleeper and never re-pulled.
 
 message("begin Scraping...")
 
 suppressPackageStartupMessages({
-  library("nflfastR")
   library("here")
 })
 
@@ -11,55 +13,51 @@ options(nflreadr.verbose = FALSE)
 
 source(here("Data Manipulation/Scrape Support.R"))
 
-# change to true if want to update player_info
+# Settings ----------------------------------------------------------------
+
+# one Sleeper league id per season: add the new season's id here at rollover
+league_ids <- c(
+  "2024" = "1066207868321370112",
+  "2025" = "1180629816344895488",
+  "2026" = "1312620216915595264"
+)
+all_league_ids <- unname(league_ids)
+league_seasons <- as.numeric(names(league_ids))
+current_season <- max(league_seasons)
+current_league_id <- league_ids[[as.character(current_season)]]
+
+n_future_draft_seasons <- 4 # tradeable future rookie drafts
+
+# force a player_info refresh (it also refreshes on its own when a rostered
+# player is missing). Sleeper asks that /players/nfl be called at most once a day.
 run_player_info <- FALSE
 
-# load box score data from NFL 2026
-# https://www.nflfastr.com
-
-box_score_off26 <- nflfastR::load_player_stats(seasons = 2026) |>
-  select(-contains("_list"))
-
-box_score_def26 <- nflfastR::calculate_stats(
-  seasons = 2026,
-  summary_level = "week",
-  stat_type = "team",
-  season_type = "REG"
-) |>
-  select(-contains("_list"))
-
-player_headshot <- box_score_off26 |>
-  select(player_display_name, headshot_url) |>
-  rename(name = player_display_name)
-
-player_headshot |> write_csv(here("Shiny/Saved Files/player_headshot.csv"))
-
-box_score_off26 |> write_csv(here("Data/box_score_off26.csv"))
-box_score_def26 |> write_csv(here("Data/box_score_def26.csv"))
-
-# Sleeper API ----------------------------------------------------
-# https://docs.sleeper.com
-
-league_id_24 <- "1066207868321370112"
-league_id_25 <- "1180629816344895488"
-league_id_26 <- "1312620216915595264"
-all_league_ids <- c(league_id_24, league_id_25, league_id_26)
-league_seasons <- c(2024, 2025, 2026) # season of each league id above (add both together)
-current_season <- max(league_seasons)
-league_weeks <- 1:17 # weeks with fantasy matchups (regular season + playoffs)
-
-# Sleeper cache ----------------------------------------------------------
+# Sleeper cache ------------------------------------------------------------
 # past seasons never change, so they are pulled once and stored in Data/cache/sleeper.
 # the current season is re-pulled every run and saved there as well, so that
 # Player Value Added.R can read it from disk (complete = FALSE until the season is over).
 sleeper_cache_dir <- here("Data/cache/sleeper")
 dir.create(sleeper_cache_dir, recursive = TRUE, showWarnings = FALSE)
 
-cached_season <- function(type, season, fetch) {
+# default completeness check: something non-empty came back
+has_content <- function(data) {
+  if (is.data.frame(data)) {
+    return(nrow(data) > 0)
+  }
+  length(data) > 0 && any(map_lgl(data, \(d) NROW(d) > 0))
+}
+
+# every week of a weekly list returned data (used for matchups)
+all_weeks_present <- function(data) {
+  length(data) > 0 && all(map_lgl(data, \(d) NROW(d) > 0))
+}
+
+cached_season <- function(type, season, fetch, is_complete = has_content) {
   path <- file.path(sleeper_cache_dir, str_c(type, "_", season, ".rds"))
   if (file.exists(path)) {
     cache <- readRDS(path)
-    if (isTRUE(cache$complete)) {
+    # a frozen past season is reused only if it still passes the completeness check
+    if (isTRUE(cache$complete) && is_complete(cache$data)) {
       return(cache$data)
     }
   }
@@ -67,8 +65,7 @@ cached_season <- function(type, season, fetch) {
   saveRDS(
     list(
       data = data,
-      # only freeze a past season if something was actually returned
-      complete = season < current_season && NROW(data) > 0,
+      complete = season < current_season && is_complete(data),
       fetched = Sys.time()
     ),
     path
@@ -76,13 +73,112 @@ cached_season <- function(type, season, fetch) {
   data
 }
 
-# someday maybe use this to grab information about the league or grab name/avatar
-# league_info <- parse_api_list(str_c("https://api.sleeper.app/v1/league/", league_id_25))
+# League settings ---------------------------------------------------------
+# scoring, lineup slots, and settings for each season (past seasons cached)
+
+league_info <- map(
+  seq_along(all_league_ids),
+  ~ cached_season(
+    "league",
+    league_seasons[[.x]],
+    \() fetch_sleeper_league(all_league_ids[[.x]]),
+    is_complete = \(d) !is.null(d$settings) && !is.null(d$roster_positions)
+  )
+)
+
+walk2(league_info, league_seasons, \(info, s) {
+  if (!is.null(info$season) && !isTRUE(info$season == s)) {
+    warning("league id listed for ", s, " is Sleeper's ", info$season, " league")
+  }
+})
+
+current_settings <- league_info[[length(league_info)]]$settings
+setting <- function(name, default) {
+  value <- current_settings[[name]]
+  if (is.null(value) || is.na(value)) default else as.numeric(value)
+}
+
+playoff_week_start <- setting("playoff_week_start", 15)
+playoff_teams <- setting("playoff_teams", 6)
+draft_rounds <- setting("draft_rounds", 3)
+if (setting("playoff_round_type", 0) != 0) {
+  warning("playoff rounds longer than one week are not handled, check league_weeks")
+}
+# weeks with fantasy matchups: regular season + one week per playoff round
+league_weeks <- seq_len(playoff_week_start - 1 + ceiling(log2(playoff_teams)))
+
+# NFL box scores -----------------------------------------------------------
+# https://www.nflfastr.com
+
+box_score_off_current <- tryCatch(
+  nflreadr::load_player_stats(seasons = current_season) |>
+    select(-contains("_list")),
+  error = function(e) {
+    message("no ", current_season, " player stats yet: ", conditionMessage(e))
+    tibble()
+  }
+)
+
+# columns Player Value Added.R (fallback scoring) and player_info rely on
+team_stat_cols <- c(
+  "season", "week", "team", "opponent_team", "passing_tds", "rushing_tds",
+  "fumble_recovery_tds", "special_teams_tds", "passing_2pt_conversions",
+  "rushing_2pt_conversions", "fg_made", "pat_made", "sack_fumbles_lost",
+  "rushing_fumbles_lost", "receiving_fumbles_lost", "fg_blocked", "pat_blocked",
+  "def_tds", "def_sacks", "def_interceptions", "def_fumbles_forced", "def_safeties"
+)
+
+# precomputed team stats are much faster than aggregating play-by-play
+box_score_def_current <- tryCatch(
+  nflreadr::load_team_stats(seasons = current_season, summary_level = "week") |>
+    filter(season_type == "REG"),
+  error = function(e) NULL
+)
+
+if (is.null(box_score_def_current) || !all(team_stat_cols %in% names(box_score_def_current))) {
+  box_score_def_current <- tryCatch(
+    nflfastR::calculate_stats(
+      seasons = current_season,
+      summary_level = "week",
+      stat_type = "team",
+      season_type = "REG"
+    ),
+    error = function(e) {
+      message("no ", current_season, " team stats yet: ", conditionMessage(e))
+      tibble()
+    }
+  )
+}
+box_score_def_current <- box_score_def_current |> select(-contains("_list"))
+
+# keep last saved files if nothing has been played yet
+if (nrow(box_score_off_current) > 0) {
+  write_csv(
+    box_score_off_current,
+    here(str_c("Data/box_score_off", current_season %% 100, ".csv"))
+  )
+}
+if (nrow(box_score_def_current) > 0) {
+  write_csv(
+    box_score_def_current,
+    here(str_c("Data/box_score_def", current_season %% 100, ".csv"))
+  )
+}
+
+# NFL weeks with stats so far (empty before week 1)
+nfl_weeks_with_stats <- if (nrow(box_score_off_current) > 0) {
+  sort(unique(box_score_off_current$week))
+} else {
+  numeric()
+}
+
+# Sleeper API ----------------------------------------------------
+# https://docs.sleeper.com
 
 # rosters
 rosters <- parse_api(str_c(
   "https://api.sleeper.app/v1/league/",
-  all_league_ids[[length(all_league_ids)]],
+  current_league_id,
   "/rosters"
 )) |>
   select(roster_id, owner_id, players) |>
@@ -91,52 +187,198 @@ rosters <- parse_api(str_c(
 
 write_csv(rosters, here("Data/current_roster.csv"))
 
-# users
+# users (one call), joined to rosters by user id
+league_users <- parse_api(str_c(
+  "https://api.sleeper.app/v1/league/",
+  current_league_id,
+  "/users"
+))
+
 users <- rosters |>
   select(owner_id, roster_id) |>
   distinct() |>
   left_join(
-    parse_api(str_c(
-      "https://api.sleeper.app/v1/league/",
-      all_league_ids[[length(all_league_ids)]],
-      "/users"
-    )) |>
-      select(display_name, user_id),
+    league_users |> select(display_name, user_id),
     by = join_by(owner_id == user_id)
   )
 
 write_csv(users, here("Data/users.csv"))
 
-avatar <- parse_api(str_c(
-  "https://api.sleeper.app/v1/league/",
-  all_league_ids[[length(all_league_ids)]],
-  "/users"
-)) |>
+avatar <- league_users |>
   mutate(avatar_url = str_c("https://sleepercdn.com/avatars/", avatar)) |>
-  left_join(users, by = join_by(display_name)) |>
+  left_join(users |> select(owner_id, roster_id), by = join_by(user_id == owner_id)) |>
   select(roster_id, display_name, avatar_url)
 
 write_csv(avatar, here("Data/avatar.csv"))
+
+# Player Information --------------------------------------------------------
+# refreshed when forced, or when a rostered player is missing from the saved file
+
+player_info_path <- here("Data/player_info.csv")
+
+player_info <- if (file.exists(player_info_path)) {
+  read_csv(
+    player_info_path,
+    show_col_types = FALSE,
+    col_types = cols(player_id = col_character())
+  )
+} else {
+  NULL
+}
+
+missing_players <- setdiff(rosters$player_id, player_info$player_id)
+
+if (run_player_info || is.null(player_info) || length(missing_players) > 0) {
+  message(
+    "refreshing player_info",
+    if (length(missing_players) > 0) {
+      str_c(" (missing rostered ids: ", str_flatten_comma(missing_players), ")")
+    }
+  )
+
+  sleeper_players <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
+  fantasy_pos <- c("QB", "RB", "WR", "TE", "K")
+
+  # one row per player: primary position if it is a fantasy position, otherwise
+  # his first fantasy-eligible position (e.g. a FB listed as RB)
+  player_information <- tibble(
+    name = map_chr(sleeper_players, "full_name", .default = NA_character_),
+    player_id = map_chr(sleeper_players, "player_id", .default = NA_character_),
+    position = map_chr(sleeper_players, \(p) {
+      eligible <- intersect(c(p$position, unlist(p$fantasy_positions)), fantasy_pos)
+      if (length(eligible) > 0) eligible[[1]] else NA_character_
+    }),
+    birth_date = map_chr(sleeper_players, "birth_date", .default = NA_character_),
+    years_exp = map_dbl(sleeper_players, "years_exp", .default = NA_real_)
+  )
+
+  # all 32 defenses (from the box scores, or the saved file before week 1)
+  defenses <- if (nrow(box_score_def_current) > 0) {
+    box_score_def_current |>
+      distinct(name = team) |>
+      mutate(
+        name = recode(name, "LA" = "LAR"),
+        player_id = name,
+        position = "DST"
+      )
+  } else {
+    player_info |>
+      filter(position == "DST") |>
+      select(name, player_id, position)
+  }
+
+  player_info <- player_information |>
+    filter(position %in% fantasy_pos) |>
+    # remove duplicate names
+    filter(player_id %!in% c("4634", "748", "232", "7437", "638")) |>
+    mutate(
+      position = case_when(
+        name == "Taysom Hill" ~ "TE",
+        .default = position
+      ),
+      birth_date = case_when(
+        name == "Efton Chism" ~ "2001-10-26",
+        name == "Isaiah Bond" ~ "2004-03-15",
+        name == "Jam Miller" & is.na(birth_date) ~ "2004-04-29",
+        name == "Le'Veon Moss" & is.na(birth_date) ~ "2002-11-15",
+        .default = birth_date
+      )
+    ) |>
+    distinct(player_id, .keep_all = TRUE) |>
+    bind_rows(defenses) |>
+    name_correction() |>
+    mutate(birth_date = ymd(birth_date))
+
+  still_missing <- setdiff(rosters$player_id, player_info$player_id)
+  if (length(still_missing) > 0) {
+    warning(
+      "rostered players with no fantasy position in Sleeper's data: ",
+      str_flatten_comma(still_missing)
+    )
+  }
+
+  write_csv(player_info, player_info_path)
+  rm(sleeper_players, player_information, defenses, fantasy_pos, still_missing)
+}
+
+# Headshots -----------------------------------------------------------------
+# keyed on Sleeper id so every player in player_info gets one: nflverse headshots
+# (via nflreadr's id crosswalk), then this season's box scores by name, then
+# Sleeper's own image
+
+nflverse_headshots <- tryCatch(
+  {
+    ids <- nflreadr::load_ff_playerids() |>
+      transmute(gsis_id, player_id = as.character(sleeper_id)) |>
+      filter(!is.na(gsis_id), !is.na(player_id)) |>
+      distinct(gsis_id, .keep_all = TRUE)
+    players <- nflreadr::load_players()
+    headshot_col <- intersect(c("headshot", "headshot_url"), names(players))[[1]]
+
+    players |>
+      transmute(gsis_id, headshot_url = .data[[headshot_col]]) |>
+      filter(!is.na(headshot_url), headshot_url != "") |>
+      inner_join(ids, by = join_by(gsis_id)) |>
+      distinct(player_id, .keep_all = TRUE) |>
+      select(player_id, headshot_url)
+  },
+  error = function(e) {
+    message("nflverse headshots unavailable: ", conditionMessage(e))
+    tibble(player_id = character(), headshot_url = character())
+  }
+)
+
+box_score_headshots <- if (nrow(box_score_off_current) > 0) {
+  box_score_off_current |>
+    transmute(name = player_display_name, position, box_url = headshot_url) |>
+    filter(!is.na(box_url)) |>
+    name_correction() |>
+    distinct(name, position, .keep_all = TRUE)
+} else {
+  tibble(name = character(), position = character(), box_url = character())
+}
+
+player_headshot <- player_info |>
+  filter(position != "DST") |>
+  arrange(years_exp) |> # for repeated names, the more recent player
+  left_join(nflverse_headshots, by = join_by(player_id)) |>
+  left_join(box_score_headshots, by = join_by(name, position)) |>
+  mutate(
+    headshot_url = coalesce(
+      headshot_url,
+      box_url,
+      str_c("https://sleepercdn.com/content/nfl/players/", player_id, ".jpg")
+    )
+  ) |>
+  distinct(name, .keep_all = TRUE) |>
+  select(name, headshot_url)
+
+player_headshot |> write_csv(here("Shiny/Saved Files/player_headshot.csv"))
 
 # matchups (raw weekly output, cached by season)
 matchups <- map(
   seq_along(all_league_ids),
   ~ {
     league_id <- all_league_ids[[.x]]
-    cached_season("matchups", league_seasons[[.x]], \() {
-      map(
-        league_weeks,
-        \(wk) {
-          str_c(
-            "https://api.sleeper.app/v1/league/",
-            league_id,
-            "/matchups/",
-            wk
-          ) |>
-            parse_api()
-        }
-      )
-    })
+    cached_season(
+      "matchups",
+      league_seasons[[.x]],
+      \() {
+        map(
+          league_weeks,
+          \(wk) {
+            str_c(
+              "https://api.sleeper.app/v1/league/",
+              league_id,
+              "/matchups/",
+              wk
+            ) |>
+              parse_api()
+          }
+        )
+      },
+      is_complete = all_weeks_present
+    )
   }
 )
 
@@ -146,16 +388,6 @@ matchups_temp <- map(matchups, ~ bind_rows(.x, .id = "week")) |>
     season = league_seasons[as.numeric(season)],
     week = as.numeric(week)
   )
-
-# league scoring settings and lineup slots (cached by season)
-league_info <- map(
-  seq_along(all_league_ids),
-  ~ cached_season(
-    "league",
-    league_seasons[[.x]],
-    \() fetch_sleeper_league(all_league_ids[[.x]])
-  )
-)
 
 # exact league points for every NFL player (rostered or not), from Sleeper's weekly
 # stats and the league's scoring settings. Only weeks with fantasy points are pulled.
@@ -169,44 +401,62 @@ walk(
       length() |>
       seq_len()
 
-    cached_season("stats_points", season, \() {
-      map(weeks_played, \(wk) {
-        stats <- fetch_sleeper_stats(season, wk)
-        if (is.null(stats)) {
-          message("Sleeper stats unavailable for ", season, " week ", wk)
-          return(NULL)
-        }
-        score_sleeper_stats(stats, scoring) |>
-          mutate(season = season, week = wk)
-      }) |>
-        bind_rows()
-    })
+    cached_season(
+      "stats_points",
+      season,
+      \() {
+        map(weeks_played, \(wk) {
+          stats <- fetch_sleeper_stats(season, wk)
+          if (is.null(stats)) {
+            message("Sleeper stats unavailable for ", season, " week ", wk)
+            return(NULL)
+          }
+          score_sleeper_stats(stats, scoring) |>
+            mutate(season = season, week = wk)
+        }) |>
+          bind_rows()
+      },
+      # every played week must be present before a past season is frozen
+      is_complete = \(d) NROW(d) > 0 && all(weeks_played %in% d$week)
+    )
   }
 )
 
-# playoff bracket
+# playoff bracket (cached by season)
 playoff_bracket <- map(
-  all_league_ids,
-  ~ parse_api(str_c(
-    "https://api.sleeper.app/v1/league/",
-    .x,
-    "/winners_bracket"
-  )) |>
-    filter(!is.na(w)) |>
-    transmute(
-      roster_id = t1,
-      opponent_id = t2,
-      round = case_when(
-        r == 1 ~ "1st round",
-        r == 2 & is.na(p) ~ "2nd round",
-        p == 5 ~ "5th place",
-        p == 1 ~ "Championship",
-        p == 3 ~ "3rd place",
-        .default = NA
-      ),
-      week = r + 14
-    )
+  seq_along(all_league_ids),
+  ~ cached_season(
+    "winners_bracket",
+    league_seasons[[.x]],
+    \() {
+      parse_api(str_c(
+        "https://api.sleeper.app/v1/league/",
+        all_league_ids[[.x]],
+        "/winners_bracket"
+      ))
+    }
+  )
 ) |>
+  map(\(bracket) {
+    if (!"w" %in% names(bracket)) {
+      return(tibble()) # bracket not set yet
+    }
+    bracket |>
+      filter(!is.na(w)) |>
+      transmute(
+        roster_id = t1,
+        opponent_id = t2,
+        round = case_when(
+          r == 1 ~ "1st round",
+          r == 2 & is.na(p) ~ "2nd round",
+          p == 5 ~ "5th place",
+          p == 1 ~ "Championship",
+          p == 3 ~ "3rd place",
+          .default = NA
+        ),
+        week = r + playoff_week_start - 1
+      )
+  }) |>
   bind_rows(.id = "season") |>
   mutate(season = league_seasons[as.numeric(season)])
 
@@ -234,7 +484,9 @@ matchups_table <- matchups_temp |>
     round = case_when(
       !is.na(round.x) ~ round.x,
       !is.na(round.y) ~ round.y,
-      between(week, 15, 17) ~ "loser's bracket",
+      # playoff weeks not played yet (bracket unknown)
+      week >= playoff_week_start & points == 0 & opp_points == 0 ~ "playoffs (not played)",
+      week >= playoff_week_start ~ "loser's bracket",
       .default = "regular season"
     )
   ) |>
@@ -243,6 +495,7 @@ matchups_table <- matchups_temp |>
 write_csv(matchups_table, here("Data/matchups_table.csv"))
 
 # transactions (this includes trades), cached by season
+# (offseason transactions are stored by Sleeper under week 1)
 transactions <- map(
   seq_along(all_league_ids),
   ~ {
@@ -269,144 +522,127 @@ transactions <- map(
 
 save(transactions, file = here("Data/transactions.RData"))
 
-# Get all drafts urls for a league
-draft_urls <-
-  map(
-    all_league_ids,
-    ~ str_c("https://api.sleeper.app/v1/league/", .x, "/drafts") |>
-      parse_api() |>
-      transmute(
-        url = str_c("https://api.sleeper.app/v1/draft/", draft_id, "/picks")
-      ) |>
-      pull()
-  ) |>
-  unlist()
+# Drafts --------------------------------------------------------------------
+# each draft is identified by its own season and number of rounds (not by its
+# position in Sleeper's list). Past seasons' drafts are cached.
 
-# Get all draft trade urls for a league
-draft_trades_urls <- draft_urls |> str_replace("/picks", "/traded_picks")
+fetch_league_drafts <- function(league_id) {
+  parse_api_raw(str_c("https://api.sleeper.app/v1/league/", league_id, "/drafts")) |>
+    map(\(d) {
+      detail <- parse_api_raw(str_c("https://api.sleeper.app/v1/draft/", d$draft_id))
+      list(
+        draft_id = d$draft_id,
+        season = as.numeric(d$season),
+        status = d$status,
+        rounds = as.numeric(d$settings$rounds),
+        slot_to_roster_id = detail$slot_to_roster_id,
+        draft_order = detail$draft_order,
+        picks = parse_api(str_c(
+          "https://api.sleeper.app/v1/draft/",
+          d$draft_id,
+          "/picks"
+        ))
+      )
+    })
+}
+
+drafts <- map(
+  seq_along(all_league_ids),
+  ~ cached_season(
+    "drafts",
+    league_seasons[[.x]],
+    \() fetch_league_drafts(all_league_ids[[.x]]),
+    is_complete = \(d) length(d) > 0 && all(map_chr(d, "status") == "complete")
+  )
+) |>
+  list_flatten()
+
+draft_meta <- tibble(
+  index = seq_along(drafts),
+  season = map_dbl(drafts, "season"),
+  rounds = map_dbl(drafts, "rounds"),
+  status = map_chr(drafts, "status")
+) |>
+  mutate(type = if_else(rounds > draft_rounds, "veteran", "rookie")) |>
+  # order downstream scripts expect: by season, the rookie draft before the startup
+  arrange(season, rounds)
+
+drafts <- drafts[draft_meta$index]
 
 # Get picks in a draft
-draft_picks <- map(draft_urls, ~ parse_api(.x))
+draft_picks <- map(drafts, "picks")
 save(draft_picks, file = here("Data/draft_picks.RData"))
 
-# Get trades in a draft
-draft_trades <- map(draft_trades_urls, parse_api)
-
-draft_order <- draft_urls |>
-  str_remove("/picks") |>
-  map(\(url) {
-    list <- parse_api_list(url)
-    list$draft_order |>
-      enframe(name = "owner_id", value = "draft_order") |>
-      unnest(cols = draft_order) |>
-      left_join(users, by = join_by(owner_id)) |>
-      select(roster_id, draft_order)
-  }) |>
-  bind_rows(.id = "season_id") |>
-  mutate(
-    season_id = as.numeric(season_id),
-    season = case_when(
-      season_id < 3 ~ 2024,
-      .default = 2022 + season_id
-    ),
-    type = if_else(season_id == 2, "veteran", "rookie")
-  ) |>
-  select(-season_id)
+# draft slot of each roster (slot_to_roster_id, or draft_order by user if not set)
+draft_order <- map2(drafts, draft_meta$type, \(d, type) {
+  if (length(d$slot_to_roster_id) > 0) {
+    order <- tibble(
+      draft_order = as.numeric(names(d$slot_to_roster_id)),
+      roster_id = map_dbl(d$slot_to_roster_id, \(r) r %||% NA_real_)
+    )
+  } else if (length(d$draft_order) > 0) {
+    order <- tibble(
+      owner_id = names(d$draft_order),
+      draft_order = as.numeric(unlist(d$draft_order))
+    ) |>
+      left_join(users, by = join_by(owner_id))
+  } else {
+    return(tibble())
+  }
+  order |>
+    filter(!is.na(roster_id)) |>
+    transmute(roster_id, draft_order, season = d$season, type = type)
+}) |>
+  bind_rows() |>
+  arrange(season, desc(type == "rookie"), draft_order)
 
 write_csv(draft_order, here("Data/draft_order.csv"))
 
-# player information don't run a lot because it takes a lot of time/memory
-if (run_player_info) {
-  player_info_temp <- parse_api_list("https://api.sleeper.app/v1/players/nfl")
-
-  player_information <- map(
-    player_info_temp,
-    ~ {
-      tibble(
-        name = .x$full_name,
-        player_id = .x$player_id,
-        position = .x$fantasy_positions,
-        birth_date = .x$birth_date,
-        height = .x$height,
-        weight = .x$weight,
-        years_exp = .x$years_exp
-      )
-    }
-  ) |>
-    rbindlist(fill = TRUE) |>
-    as_tibble()
-
-  # all 32 defenses
-  defenses <- box_score_def26 |>
-    rename(name = team) |>
-    select(name) |>
-    distinct() |>
-    mutate(
-      name = recode(name, "LA" = "LAR"),
-      player_id = name,
-      position = "DST"
-    )
-
-  # load player info
-  player_info <- player_information |>
-    select(name, player_id, position, birth_date, years_exp) |>
-    filter(position %in% c("TE", "RB", "WR", "QB", "K")) |>
-    # remove duplicate names
-    filter(
-      player_id != 4634,
-      player_id != 748,
-      player_id != 232,
-      player_id != 7437,
-      player_id != 638
-    ) |>
-    mutate(
-      position = case_when(
-        name == "Taysom Hill" ~ "TE",
-        .default = position
-      ),
-      birth_date = case_when(
-        name == "Efton Chism" ~ "2001-10-26",
-        name == "Isaiah Bond" ~ "2004-03-15",
-        .default = birth_date
-      )
-    ) |>
-    distinct() |>
-    bind_rows(defenses) |>
-    name_correction()
-
-  player_info <- player_info |>
-    mutate(
-      birth_date = case_when(
-        name == "Jam Miller" & is.na(birth_date) ~ "2004-04-29",
-        name == "Le'Veon Moss" & is.na(birth_date) ~ "2002-11-15",
-        .default = birth_date
-      ),
-      birth_date = ymd(birth_date)
-    )
-
-  write_csv(player_info, here("Data/player_info.csv"))
-} else {
-  player_info <- read_csv("Data/player_info.csv", show_col_types = FALSE)
-}
-rm(draft_urls)
-
 # Now, I want to compile each players total assets
+
+# future rookie drafts start the season after the last completed rookie draft
+first_future_draft <- draft_meta |>
+  filter(type == "rookie", status == "complete") |>
+  pull(season) |>
+  c(min(league_seasons) - 1) |>
+  max() +
+  1
 
 # assigned picks
 assigned_picks <- expand_grid(
-  roster_id = 1:12,
-  round = 1:3,
-  season = (2023 + length(draft_picks)):(2026 + length(draft_picks))
+  roster_id = sort(unique(rosters$roster_id)),
+  round = seq_len(draft_rounds),
+  season = first_future_draft:(first_future_draft + n_future_draft_seasons - 1)
 )
 
-# traded picks
+# traded picks (past seasons cached)
 traded_picks <- map(
-  all_league_ids,
-  ~ str_c("https://api.sleeper.app/v1/league/", .x, "/traded_picks") |>
-    parse_api() |>
-    mutate(season = as.numeric(season))
+  seq_along(all_league_ids),
+  ~ cached_season(
+    "traded_picks",
+    league_seasons[[.x]],
+    \() {
+      str_c(
+        "https://api.sleeper.app/v1/league/",
+        all_league_ids[[.x]],
+        "/traded_picks"
+      ) |>
+        parse_api()
+    }
+  )
 ) |>
-  bind_rows() |>
+  keep(\(tp) nrow(tp) > 0) |>
+  map(\(tp) mutate(tp, season = as.numeric(season))) |>
+  bind_rows(
+    # typed template, so the joins below work even if no picks were ever traded
+    tibble(
+      season = double(),
+      round = integer(),
+      roster_id = integer(),
+      owner_id = integer(),
+      previous_owner_id = integer()
+    )
+  ) |>
   mutate(index = row_number()) |>
   arrange(desc(index)) |>
   distinct(round, season, roster_id, .keep_all = TRUE) |>
@@ -440,28 +676,48 @@ write_csv(future_draft_picks, here("Data/future_draft_picks.csv"))
 # need weekly player ranking for above replacement metric
 # https://www.fftoday.com/rankings/playerwkproj.php?Season=2026&GameWeek=1&PosID=10&LeagueID=208518
 
-# projections26 <- tibble(week = c(1:17), projection = NA, name = NA) # temporary solution
-
-# only scrape weeks not already saved (past projections don't change)
+# only scrape fantasy weeks with box scores that are not already saved (past
+# projections don't change). Nothing is scraped before week 1.
 proj_path <- here(str_c("Data/projections", current_season %% 100, ".csv"))
 existing <- if (file.exists(proj_path)) {
   read_csv(proj_path, show_col_types = FALSE)
 } else {
-  tibble()
+  tibble(name = character(), projection = double(), week = double(), position = character())
 }
 
-weeks_needed <- setdiff(1:max(box_score_off26$week), unique(existing$week))
+weeks_needed <- intersect(nfl_weeks_with_stats, league_weeks) |>
+  setdiff(existing$week)
 
-if (length(weeks_needed) > 0) {
-  new_proj <- map(weeks_needed, \(wk) combine_week(wk, current_season)) |>
-    rbindlist() |>
-    as_tibble() |>
-    name_correction()
+# minimum players per position for a scraped week to be saved (bye weeks included)
+min_projected <- c(QB = 20, RB = 35, WR = 50, TE = 20, K = 18, DST = 18)
 
-  projections26 <- bind_rows(existing, new_proj)
-  write_csv(projections26, proj_path)
-} else {
-  projections26 <- existing
+new_proj <- map(weeks_needed, \(wk) {
+  week_proj <- tryCatch(
+    combine_week(wk, current_season) |> name_correction(),
+    error = function(e) {
+      warning("projection scrape failed for week ", wk, ": ", conditionMessage(e))
+      NULL
+    }
+  )
+  if (is.null(week_proj)) {
+    return(NULL)
+  }
+
+  counts <- table(factor(week_proj$position, levels = names(min_projected)))
+  short <- names(min_projected)[counts < min_projected]
+  if (length(short) > 0) {
+    warning(
+      "week ", wk, " projections look incomplete (", str_flatten_comma(short),
+      "), not saved, will retry next run"
+    )
+    return(NULL)
+  }
+  week_proj
+}) |>
+  bind_rows()
+
+if (nrow(new_proj) > 0) {
+  write_csv(bind_rows(existing, new_proj), proj_path)
 }
 
 # older seasons' projections (Data/projections24.csv, ...) are read directly by
@@ -576,60 +832,117 @@ if (length(weeks_needed) > 0) {
 #
 # bind_rows(t50, b51) |> write_csv(here("Data/ktc_value082324"))
 
-# instantaneous keep_trade_cut value
-ktc_rows <- 0
+# instantaneous keep_trade_cut value: 10 pages of 50 players, retried a few times.
+# If KTC cannot be scraped, today's file is not written and the latest saved
+# values are used instead.
+ktc_expected <- 500
+ktc_attempts <- 3
+keep_trade_cut <- NULL
+ktc_players <- 0
 
-while (ktc_rows != 500) {
-  keep_trade_cut <- map_dfr(
-    0:9,
-    ~ str_c(
-      "https://keeptradecut.com/dynasty-rankings?page=",
-      .x,
-      "&filters=QB|WR|RB|TE|RDP&format=2"
+for (attempt in seq_len(ktc_attempts)) {
+  scraped <- tryCatch(
+    map_dfr(
+      0:9,
+      ~ str_c(
+        "https://keeptradecut.com/dynasty-rankings?page=",
+        .x,
+        "&filters=QB|WR|RB|TE|RDP&format=2"
+      ) |>
+        player_value()
     ) |>
-      player_value()
-  ) |>
-    select(name, position, ktc_value) |>
-    name_correction()
-
-  ktc_rows <- keep_trade_cut |> distinct(name) |> nrow()
-}
-
-keep_trade_cut <- keep_trade_cut |>
-  left_join(
-    select(player_info, name, position, player_id),
-    by = join_by(name, position)
+      select(name, position, ktc_value) |>
+      name_correction(),
+    error = function(e) {
+      message("KTC scrape failed (attempt ", attempt, "): ", conditionMessage(e))
+      NULL
+    }
   )
 
+  if (!is.null(scraped)) {
+    n_players <- scraped |> distinct(name, position) |> nrow()
+    # keep the most complete attempt
+    if (n_players > ktc_players) {
+      keep_trade_cut <- scraped
+      ktc_players <- n_players
+    }
+    if (n_players >= ktc_expected) {
+      break
+    }
+    message("KTC returned ", n_players, " players (attempt ", attempt, ")")
+  }
+}
+
 # periodically save
-date <- str_c(
+ktc_date <- str_c(
   month(today()) |> str_pad(2, side = "left", pad = "0"),
   day(today()) |> str_pad(2, side = "left", pad = "0"),
   year(today()) |> str_sub(start = 3, end = 4)
 )
 
-write_csv(
-  keep_trade_cut,
-  here(paste0("Data/ktc values/ktc_value", date, ".csv"))
-)
+if (ktc_players >= 0.99 * ktc_expected) {
+  keep_trade_cut <- keep_trade_cut |>
+    left_join(
+      select(player_info, name, position, player_id),
+      by = join_by(name, position)
+    )
 
-season_dates <- tibble(
-  season_start = c(ymd("2024-09-05"), ymd("2025-09-04"), ymd("2026-09-10")),
-  season_end = c(ymd("2024-12-30"), ymd("2025-12-29"), ymd("2027-01-04"))
+  write_csv(
+    keep_trade_cut,
+    here(paste0("Data/ktc values/ktc_value", ktc_date, ".csv"))
+  )
+} else {
+  ktc_files <- list.files(
+    here("Data/ktc values"),
+    pattern = "^ktc_value\\d{6}\\.csv$",
+    full.names = TRUE
+  )
+  latest_ktc <- ktc_files[which.max(mdy(str_extract(basename(ktc_files), "\\d{6}")))]
+
+  warning(
+    "KTC returned ", ktc_players, " of ", ktc_expected,
+    " players, so today's values were not saved. Using ", basename(latest_ktc)
+  )
+
+  keep_trade_cut <- read_csv(
+    latest_ktc,
+    show_col_types = FALSE,
+    col_types = cols(player_id = col_character())
+  )
+}
+
+# Season dates --------------------------------------------------------------
+# first game of week 1 to the last game of the final fantasy week
+
+season_dates <- tryCatch(
+  nflreadr::load_schedules(league_seasons) |>
+    filter(game_type == "REG") |>
+    mutate(gameday = as.Date(gameday)) |>
+    summarize(
+      season_start = min(gameday),
+      season_end = max(gameday[week == max(league_weeks)]),
+      .by = season
+    ) |>
+    arrange(season) |>
+    select(season_start, season_end),
+  error = function(e) {
+    warning("NFL schedule unavailable, keeping saved season dates: ", conditionMessage(e))
+    read_csv(here("Data/season_dates.csv"), show_col_types = FALSE)
+  }
 )
 write_csv(season_dates, here("Data/season_dates.csv"))
 
 # remove objects and functions to declutter environment
-rm(
-  league_id_24,
-  league_id_25,
-  league_id_26,
-  combine_week,
-  grab_projection,
-  grab_rankings,
-  parse_api,
-  parse_api_list,
-  player_value,
-  ktc_rows,
-  draft_trades_urls
-)
+rm(list = intersect(
+  c(
+    "combine_week", "grab_projection", "grab_rankings", "player_value",
+    "parse_api", "parse_api_list", "parse_api_raw", "sleeper_get",
+    "fetch_league_drafts", "has_content", "all_weeks_present", "setting",
+    "current_settings", "missing_players", "nflverse_headshots",
+    "box_score_headshots", "drafts", "existing", "new_proj", "weeks_needed",
+    "min_projected", "scraped", "n_players", "attempt", "ktc_attempts",
+    "ktc_expected", "ktc_players", "ktc_files", "latest_ktc", "ktc_date",
+    "player_info_path", "team_stat_cols", "league_users"
+  ),
+  ls()
+))

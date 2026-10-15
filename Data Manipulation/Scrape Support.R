@@ -113,23 +113,33 @@ name_correction <- function(df) {
 }
 
 # Sleeper API -------------------------------------------------------------
+# GET with retries; stops with a clear message if Sleeper returns an error
+sleeper_get <- function(url) {
+  response <- httr::RETRY(
+    "GET",
+    url,
+    times = 3,
+    terminate_on = c(400, 403, 404),
+    quiet = TRUE
+  )
+  httr::stop_for_status(response, task = paste("fetch", url))
+  httr::content(response, "text", encoding = "UTF-8")
+}
+
 # enter url, return parsed object
 parse_api <- function(url) {
-  response <- GET(url)
-  content <- content(response, "text")
-  parsed <- fromJSON(content) |>
+  fromJSON(sleeper_get(url)) |>
     as_tibble()
-
-  return(parsed)
 }
 
 # leave as list
 parse_api_list <- function(url) {
-  response <- GET(url)
-  content <- content(response, "text")
-  parsed <- fromJSON(content)
+  fromJSON(sleeper_get(url))
+}
 
-  return(parsed)
+# leave as nested lists, no simplification (one element per JSON record)
+parse_api_raw <- function(url) {
+  fromJSON(sleeper_get(url), simplifyVector = FALSE)
 }
 
 # league settings: scoring weights and starting lineup slots
@@ -141,7 +151,9 @@ fetch_sleeper_league <- function(league_id) {
       stat = names(league$scoring_settings),
       weight = as.numeric(unlist(league$scoring_settings))
     ),
-    roster_positions = unlist(league$roster_positions)
+    roster_positions = unlist(league$roster_positions),
+    settings = league$settings, # playoff_week_start, playoff_teams, draft_rounds, ...
+    season = as.numeric(league$season)
   )
 }
 
