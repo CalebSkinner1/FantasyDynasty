@@ -13,9 +13,17 @@ plot_future_value_df <- read_csv(
   col_types = cols(player_id = col_character())
 )
 
+# expected value added this season: mean over the projection quantiles, each floored
+# at 0, matching how Player Total Value computes future value
 next_year_production <- plot_future_value_df |>
   filter(season == year(today() - days(10))) |>
-  select(player_id, proj_tva_50)
+  mutate(
+    expected_tva = pick(starts_with("proj_tva_")) |>
+      as.matrix() |>
+      pmax(0) |>
+      rowMeans()
+  ) |>
+  select(player_id, expected_tva)
 
 grab_team_assets_df <- read_csv(
   here("Shiny/Saved Files/grab_team_assets_df.csv"),
@@ -38,7 +46,7 @@ assets_df <- grab_team_assets_df |>
     )
   ) |>
   left_join(next_year_production, by = join_by(player_id)) |>
-  mutate(upcoming_year = replace_na(proj_tva_50, 0)) |>
+  mutate(upcoming_year = replace_na(expected_tva, 0)) |>
   left_join(users, by = join_by(roster_id)) |>
   select(
     display_name,

@@ -421,10 +421,14 @@ posterior_mean <- function(fit, data) {
 }
 
 # model the size of the out-of-fold residuals: log E|residual| is smooth in each
-# predictor, plus a position effect
+# predictor, plus a position effect. The residuals are not normal (right-skewed, heavy
+# tailed), so the shape of the noise is taken from the data: each residual is divided
+# by the GAM's predicted E|residual|, and the quantiles of these standardized residuals
+# (z_quantiles) replace normal quantiles in compute_quantiles()
 model_residuals <- function(data, oof_pred) {
+  resid <- data$Y - oof_pred
   new_data <- data |>
-    mutate(abs_residuals = abs(Y - oof_pred)) |>
+    mutate(abs_residuals = abs(resid)) |>
     select(-Y)
 
   library("mgcv")
@@ -444,13 +448,17 @@ model_residuals <- function(data, oof_pred) {
 
   gam_coef <- coef(gam_model)
 
+  z <- resid / fitted(gam_model)
+  z_quantiles <- unname(quantile(z, probs = quantile_probs))
+
   gam_model$model <- NULL
   gam_model$y <- NULL
   gam_model$residuals <- NULL
 
   list(
     model = gam_model,
-    coef = gam_coef
+    coef = gam_coef,
+    z_quantiles = z_quantiles
   )
 }
 
@@ -513,7 +521,8 @@ update_data_year <- function(data) {
 }
 
 # predictive quantiles (one row per quantile, one column per player): the
-# posterior mean plus normal quantiles with the residual model's scale
+# posterior mean plus the empirical quantiles of the standardized residuals, scaled
+# by the residual model's predicted E|residual| (see model_residuals())
 compute_quantiles <- function(
   samples,
   resid_fit,
@@ -528,13 +537,16 @@ compute_quantiles <- function(
   )
 
   eta <- Xp %*% resid_fit$coef #linear predictor
-  # the residual model predicts E|residual|, which for normal errors is
-  # sigma * sqrt(2 / pi), so rescale it to the standard deviation
-  sigma_hat <- resid_fit$model$family$linkinv(eta) |>
-    as.vector() *
-    sqrt(base::pi / 2)
+  scale_hat <- resid_fit$model$family$linkinv(eta) |> as.vector() # E|residual|
 
-  outer(qnorm(quantile_probs), sigma_hat) +
+  z_quantiles <- resid_fit$z_quantiles
+  if (is.null(z_quantiles)) {
+    # residual model saved before the empirical quantiles were added (retrain to
+    # update): normal errors, where E|residual| = sigma * sqrt(2 / pi)
+    z_quantiles <- qnorm(quantile_probs) * sqrt(base::pi / 2)
+  }
+
+  outer(z_quantiles, scale_hat) +
     matrix(posterior_mean, nrow = length(quantile_probs), ncol = length(posterior_mean), byrow = TRUE)
 }
 
@@ -715,8 +727,10 @@ next_years <- function(
   updating_list$seasons_list
 }
 
-# discounted sum of the median projections over the first `years` seasons. Season k
-# of the path is weighted discount_rate^(first_exponent + k - 1).
+# discounted sum of the expected projections over the first `years` seasons. Each
+# season's value is the mean over the quantiles, with each quantile floored at 0 (a
+# player below replacement level is benched, not started). Season k of the path is
+# weighted discount_rate^(first_exponent + k - 1).
 compute_future_value <- function(
   seasons_list,
   years = 8,
@@ -726,7 +740,11 @@ compute_future_value <- function(
   future_value <- imap(
     1:years,
     ~ {
-      pmax(seasons_list[[.x]]$proj_tva_50, 0) *
+      seasons_list[[.x]] |>
+        select(starts_with("proj_tva_")) |>
+        as.matrix() |>
+        pmax(0) |>
+        rowMeans() *
         discount_rate^(first_exponent + .x - 1)
     }
   ) |>
