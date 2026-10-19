@@ -863,7 +863,7 @@ compute_most_wins <- function(wins_df, enter_round, enter_season) {
       losses = sum(result == "loss"),
       games = n()
     ) |>
-    mutate(win_percentage = scales::percent(wins / games, accuracy = .01)) |>
+    mutate(win_percentage = 100 * wins / games) |> # numeric, so it sorts correctly
     select(team, wins, losses, win_percentage) |>
     arrange(desc(wins)) |>
     shiny_edit_tables()
@@ -903,7 +903,7 @@ highest_team_total <- function(wins_df, enter_round, enter_season) {
     shiny_edit_tables()
 }
 
-# compute fantasy points scored in season
+# fantasy points scored as a starter in the selected seasons
 compute_total_points_player <- function(
   value_added,
   wins_df,
@@ -925,6 +925,7 @@ compute_total_points_player <- function(
       by = join_by(season, week, roster_id)
     ) |>
     filter(
+      type.x == "starter", # points count only when the player was started
       type.y %in% enter_round,
       season %in% enter_season,
       position %in% enter_position
@@ -969,8 +970,7 @@ compute_value_added_player <- function(
     shiny_edit_tables()
 }
 
-# highest fantasy total in game
-# compute fantasy points scored in season
+# most fantasy points in a game as a starter
 highest_player_total <- function(
   value_added,
   wins_df,
@@ -992,6 +992,7 @@ highest_player_total <- function(
       by = join_by(season, week, roster_id)
     ) |>
     filter(
+      type.x == "starter", # points count only when the player was started
       type.y %in% enter_round,
       season %in% enter_season,
       position %in% enter_position
