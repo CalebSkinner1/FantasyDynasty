@@ -989,92 +989,76 @@ highest_player_total <- function(
 }
 
 # Trade Machine -----------------------------------------------------------
-grade_trade_wrapper <- function(assets_df, mvt, team1_players, team2_players) {
-  team1_assets_lost <- assets_df |> filter(name_code %in% team1_players)
-  team2_assets_lost <- assets_df |> filter(name_code %in% team2_players)
+# grades a trade: team1 sends team1_players and team2 sends team2_players (name_codes from
+# assets_df). Each team's assets are looked up on its own roster. A team that receives
+# more players than it sends must drop players, and one that sends more can add free
+# agents, valued with roster_spot_value (picks take no roster spot).
+grade_trade_wrapper <- function(
+  assets_df,
+  roster_spot_value,
+  team1,
+  team1_players,
+  team2,
+  team2_players
+) {
+  team1_assets_lost <- assets_df |>
+    filter(display_name == team1, name_code %in% team1_players)
+  team2_assets_lost <- assets_df |>
+    filter(display_name == team2, name_code %in% team2_players)
 
   team1_assets_gained <- team2_assets_lost |>
-    mutate(team = team1_assets_lost$display_name[1]) |>
+    mutate(team = team1) |>
     select(team, name, position, future_value, upcoming_year)
 
   team2_assets_gained <- team1_assets_lost |>
-    mutate(team = team2_assets_lost$display_name[1]) |>
+    mutate(team = team2) |>
     select(team, name, position, future_value, upcoming_year)
 
-  roster_size_adj <- length(team1_players) -
-    length(team2_players) -
-    sum(str_count(team1_players, "Draft")) +
-    sum(str_count(team2_players, "Draft"))
-
-  if (roster_size_adj > 0) {
-    team1_assets_gained <- team1_assets_gained |>
-      add_row(
-        team = team1_assets_gained$team[1],
+  # roster spots: n spots of one type (add = spot gained, drop = spot lost)
+  spot_rows <- function(team, spot_type, n) {
+    roster_spot_value |>
+      filter(type == spot_type) |>
+      transmute(
+        team = team,
         name = "roster size adjustment",
-        position = "gained",
-        future_value = filter(
-          mvt,
-          season == max(mvt$season),
-          type == "add"
-        )$total_value_added[1] *
-          roster_size_adj,
-        upcoming_year = future_value * .25
-      )
-
-    team2_assets_gained <- team2_assets_gained |>
-      add_row(
-        team = team2_assets_gained$team[1],
-        name = "roster size adjustment",
-        position = "lost",
-        future_value = filter(
-          mvt,
-          season == max(mvt$season),
-          type == "drop"
-        )$total_value_added[1] *
-          roster_size_adj,
-        upcoming_year = future_value * .5
-      )
-  } else if (roster_size_adj < 0) {
-    team1_assets_gained <- team1_assets_gained |>
-      add_row(
-        team = team1_assets_gained$team[1],
-        name = "roster size adjustment",
-        position = "lost",
-        future_value = filter(
-          mvt,
-          season == max(mvt$season),
-          type == "drop"
-        )$total_value_added[1] *
-          (-roster_size_adj),
-        upcoming_year = future_value * .5
-      )
-
-    team2_assets_gained <- team2_assets_gained |>
-      add_row(
-        team = team2_assets_gained$team[1],
-        name = "roster size adjustment",
-        position = "gained",
-        future_value = filter(
-          mvt,
-          season == max(mvt$season),
-          type == "add"
-        )$total_value_added[1] *
-          (-roster_size_adj),
-        upcoming_year = future_value * .5
+        position = if_else(spot_type == "add", "gained", "lost"),
+        future_value = future_value * n,
+        upcoming_year = upcoming_year * n
       )
   }
 
+  # players team1 sends minus players team2 sends
+  roster_size_adj <- sum(!is.na(team1_assets_lost$player_id)) -
+    sum(!is.na(team2_assets_lost$player_id))
+
+  if (roster_size_adj > 0) {
+    team1_assets_gained <- bind_rows(
+      team1_assets_gained,
+      spot_rows(team1, "add", roster_size_adj)
+    )
+    team2_assets_gained <- bind_rows(
+      team2_assets_gained,
+      spot_rows(team2, "drop", roster_size_adj)
+    )
+  } else if (roster_size_adj < 0) {
+    team1_assets_gained <- bind_rows(
+      team1_assets_gained,
+      spot_rows(team1, "drop", -roster_size_adj)
+    )
+    team2_assets_gained <- bind_rows(
+      team2_assets_gained,
+      spot_rows(team2, "add", -roster_size_adj)
+    )
+  }
+
+  # the upcoming season is the current season in season and the next one in the offseason
+  upcoming_label <- first(assets_df$upcoming_label, default = "Current Season")
+
   overall_value <- sum(team1_assets_gained$future_value) -
     sum(team2_assets_gained$future_value)
-  ov_favor <- if_else(
-    overall_value > 0,
-    team1_assets_gained$team[1],
-    team2_assets_gained$team[1]
-  )
-
   ov_statement <- str_c(
     "Trade Total Future Value Favors: ",
-    ov_favor,
+    if_else(overall_value > 0, team1, team2),
     " (",
     round(abs(overall_value), digits = 2),
     ")"
@@ -1082,15 +1066,11 @@ grade_trade_wrapper <- function(assets_df, mvt, team1_players, team2_players) {
 
   immediate_value <- sum(team1_assets_gained$upcoming_year) -
     sum(team2_assets_gained$upcoming_year)
-  iv_favor <- if_else(
-    immediate_value > 0,
-    team1_assets_gained$team[1],
-    team2_assets_gained$team[1]
-  )
-
   iv_statement <- str_c(
-    "Trade Current Season Value Favors: ",
-    iv_favor,
+    "Trade ",
+    upcoming_label,
+    " Value Favors: ",
+    if_else(immediate_value > 0, team1, team2),
     " (",
     round(abs(immediate_value), digits = 2),
     ")"
@@ -1100,11 +1080,16 @@ grade_trade_wrapper <- function(assets_df, mvt, team1_players, team2_players) {
     "team1" = janitor::adorn_totals(team1_assets_gained),
     "team2" = janitor::adorn_totals(team2_assets_gained),
     "ov_statement" = ov_statement,
-    "iv_statement" = iv_statement
+    "iv_statement" = iv_statement,
+    "upcoming_label" = upcoming_label
   )
 }
 
-graph_trade <- function(team1_assets_received, team2_assets_received) {
+graph_trade <- function(
+  team1_assets_received,
+  team2_assets_received,
+  upcoming_label = "Current Season"
+) {
   bind_rows(
     slice_tail(team1_assets_received, n = 1) |>
       mutate(team = team1_assets_received$team[1]),
@@ -1118,11 +1103,7 @@ graph_trade <- function(team1_assets_received, team2_assets_received) {
       values_to = "value"
     ) |>
     mutate(
-      type = recode(
-        type,
-        future_value = "Future Value",
-        upcoming_year = "Current Season"
-      )
+      type = if_else(type == "future_value", "Future Value", upcoming_label)
     ) |>
     ggplot() +
     geom_bar(

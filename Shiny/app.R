@@ -1363,16 +1363,26 @@ server <- function(input, output, session) {
     )
   })
 
-  output$overall_value <- renderValueBox({
+  # graded once per change of teams or assets, shared by the outputs below
+  trade_valuation <- reactive({
     req(input$team1_assets, input$team2_assets)
-    trade_valuation <- grade_trade_wrapper(
+    validate(need(
+      input$trade_machine_team1 != input$trade_machine_team2,
+      "Select two different teams."
+    ))
+    grade_trade_wrapper(
       assets_df,
-      marginal_transaction_value,
+      roster_spot_value,
+      input$trade_machine_team1,
       input$team1_assets,
+      input$trade_machine_team2,
       input$team2_assets
     )
+  })
+
+  output$overall_value <- renderValueBox({
     valueBox(
-      value = trade_valuation$ov_statement,
+      value = trade_valuation()$ov_statement,
       subtitle = "Net future value",
       icon = icon("scale-balanced"),
       color = "navy",
@@ -1382,27 +1392,16 @@ server <- function(input, output, session) {
 
   output$immediate_value <- renderUI({
     #immediate value statement
-    req(input$team1_assets, input$team2_assets) #require input
-    trade_valuation <- grade_trade_wrapper(
-      assets_df,
-      marginal_transaction_value,
-      input$team1_assets,
-      input$team2_assets
-    )
-
-    h3(trade_valuation$iv_statement)
+    h3(trade_valuation()$iv_statement)
   })
 
   output$plot_trade_assets <- renderPlot({
     #first plot
-    req(input$team1_assets, input$team2_assets)
-    trade_valuation <- grade_trade_wrapper(
-      assets_df,
-      marginal_transaction_value,
-      input$team1_assets,
-      input$team2_assets
+    p <- graph_trade(
+      trade_valuation()$team1,
+      trade_valuation()$team2,
+      trade_valuation()$upcoming_label
     )
-    p <- graph_trade(trade_valuation$team1, trade_valuation$team2)
     plot(p)
   })
 
@@ -1415,15 +1414,7 @@ server <- function(input, output, session) {
 
   output$team1_trade_outlook <- renderDT({
     #table 1
-    req(input$team1_assets, input$team2_assets) #require input
-    trade_valuation <- grade_trade_wrapper(
-      assets_df,
-      marginal_transaction_value,
-      input$team1_assets,
-      input$team2_assets
-    )
-
-    trade_valuation$team1 |>
+    trade_valuation()$team1 |>
       select(-team) |>
       shiny_edit_tables() |>
       dt(page = 5)
@@ -1438,15 +1429,7 @@ server <- function(input, output, session) {
 
   output$team2_trade_outlook <- renderDT({
     #table 2
-    req(input$team1_assets, input$team2_assets) #require input
-    trade_valuation <- grade_trade_wrapper(
-      assets_df,
-      marginal_transaction_value,
-      input$team1_assets,
-      input$team2_assets
-    )
-
-    trade_valuation$team2 |>
+    trade_valuation()$team2 |>
       select(-team) |>
       shiny_edit_tables() |>
       dt(page = 5)

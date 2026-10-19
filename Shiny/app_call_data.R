@@ -90,8 +90,8 @@ assets_df <- read_csv(
   str_c(script_data_path, "assets_df.csv"),
   show_col_types = FALSE
 )
-marginal_transaction_value <- read_csv(
-  str_c(script_data_path, "marginal_transaction_value.csv"),
+roster_spot_value <- read_csv(
+  str_c(script_data_path, "roster_spot_value.csv"),
   show_col_types = FALSE
 )
 
