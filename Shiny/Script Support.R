@@ -674,22 +674,38 @@ team_matchup_record <- function(
     enter_seasons <- team_records_df |> pull(season) |> unique()
   }
 
-  df <- team_records_df |>
+  games <- team_records_df |>
     filter(
-      str_detect(team, enter_team),
+      team == enter_team,
       round %in% enter_round,
       season %in% enter_seasons
-    ) |>
-    group_by(opponent) |>
-    summarize(
-      games = n(),
-      wins = sum(outcome == "win"),
-      losses = sum(outcome == "loss"),
-      `points for` = sum(points),
-      `points against` = sum(opp_points)
-    ) |>
-    arrange(desc(wins), losses) |>
-    janitor::adorn_totals()
+    )
+
+  # record and points for a set of games
+  record <- function(df) {
+    df |>
+      summarize(
+        games = n(),
+        wins = sum(outcome == "win"),
+        losses = sum(outcome == "loss"),
+        `win %` = 100 * wins / games,
+        `points for` = sum(points),
+        `points against` = sum(opp_points),
+        `avg points for` = mean(points),
+        `avg points against` = mean(opp_points)
+      )
+  }
+
+  # one row per opponent, then the total over all games
+  df <- bind_rows(
+    games |>
+      group_by(opponent) |>
+      record() |>
+      arrange(desc(wins), losses),
+    games |>
+      record() |>
+      mutate(opponent = "Total")
+  )
 
   if (shiny) {
     df |>
