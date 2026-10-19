@@ -1,12 +1,16 @@
-# Team Rankings Script
-suppressPackageStartupMessages(library("here"))
+# Team Rankings
+# weekly Elo ratings for every team, each team's peak and low, and the total future value
+# of each team's assets, for the Team Rankings page. Uses the completed games from
+# Matchups.R, so it runs after it.
+suppressPackageStartupMessages({
+  library("here")
+  library("tidyverse")
+})
 
 message("begin computing Team Rankings...")
 
-source(here("Shiny/Script Support.R"))
-
-matchups_table <- read_csv(
-  here("Data/derived/matchups_table.csv"),
+team_records_df <- read_csv(
+  here("Shiny/Saved Files/team_records_df.csv"),
   show_col_types = FALSE
 )
 grab_team_assets_df <- read_csv(
@@ -14,165 +18,111 @@ grab_team_assets_df <- read_csv(
   show_col_types = FALSE
 )
 users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
-  select(-owner_id)
+  select(roster_id, display_name)
 
-# ELO Rankings ------------------------------------------------------------
+# Elo Rankings ------------------------------------------------------------
+# Each week every team is compared with every other team that played that week (as if it
+# had played the whole league), so the schedule doesn't matter. Against one opponent the
+# rating changes by
+#   K * mov * (S - E)
+#   S   = 1 for a win, 0 for a loss (.5 for a tie)
+#   E   = 1 / (1 + 10^((opp_elo - elo) / 400)), the expected result given the ratings
+#   mov = log(|point difference| + 1) * 2.2 / ((winner's elo - loser's elo) * .001 + 2.2),
+#         larger for bigger wins, damped when the favorite wins (538's NFL Elo)
+# and a team's weekly change is the average over its opponents. A team that wins as
+# expected gains little and an upset moves both ratings a lot, so ratings settle around
+# each team's true strength. At the start of each season ratings regress toward 1500.
 
-# functions
-# computes elo rating after game (margin of victory modifier)
-movm <- function(point_diff, elo_winner, elo_loser, K = 10) {
-  K * log(abs(point_diff) + 1) * (2.2 / ((elo_winner - elo_loser) * .001 + 2.2))
-}
+elo_k <- 20 # how fast ratings move
+elo_carryover <- .75 # share of a team's distance from 1500 kept into the next season
 
-compute_week <- function(matchups, elo_table, K) {
-  # takes matchup table and current elo rankings and gives new elo rankings
-  df <- matchups |>
-    left_join(elo_table, by = join_by(roster_id)) |>
-    left_join(
-      elo_table |> rename(opp_elo = elo),
-      by = join_by(opponent_id == roster_id)
-    ) |>
+# one week: ratings is a named vector (names = roster_id); week_points has roster_id, points
+elo_week <- function(ratings, week_points, K) {
+  changes <- week_points |>
+    cross_join(week_points |> rename(opponent_id = roster_id, opp_points = points)) |>
+    filter(roster_id != opponent_id) |>
     mutate(
+      elo = ratings[as.character(roster_id)],
+      opp_elo = ratings[as.character(opponent_id)],
       point_diff = points - opp_points,
-      elo_winner = if_else(points > opp_points, elo, opp_elo),
-      elo_loser = if_else(points > opp_points, opp_elo, elo),
-      elo = elo + movm(point_diff, elo_winner, elo_loser, K) * sign(point_diff)
+      result = case_when(point_diff > 0 ~ 1, point_diff < 0 ~ 0, .default = .5),
+      expected = 1 / (1 + 10^((opp_elo - elo) / 400)),
+      winner_gap = if_else(point_diff >= 0, elo - opp_elo, opp_elo - elo),
+      mov = log(abs(point_diff) + 1) * 2.2 / (winner_gap * .001 + 2.2),
+      change = K * mov * (result - expected)
     ) |>
-    select(roster_id, elo) |>
-    group_by(roster_id) |>
-    summarize(elo = mean(elo))
+    summarize(change = mean(change), .by = roster_id)
 
-  anti_join(elo_table, df, by = join_by(roster_id)) |>
-    select(roster_id, elo) |>
-    bind_rows(df)
+  ids <- as.character(changes$roster_id)
+  ratings[ids] <- ratings[ids] + changes$change
+  ratings
 }
 
-# initialize
-elo_init <- users |> mutate(elo = 1500)
+# ratings after every completed week, plus week 0 (the rating entering each season), in
+# long format: season, week, roster_id, elo
+compute_elo <- function(team_records_df, init_table, K = elo_k, lambda = elo_carryover) {
+  team_weeks <- team_records_df |>
+    distinct(season, week, roster_id, points) |>
+    arrange(season, week)
 
-# weeks
-matchup_list <- matchups_table |>
-  filter(points != 0) |>
-  select(season, week, roster_id, points) |>
-  left_join(
-    matchups_table |>
-      filter(points != 0) |>
-      select(season, week, opponent_id, opp_points),
-    by = join_by(season, week),
-    relationship = "many-to-many"
-  ) |>
-  filter(roster_id != opponent_id) |>
-  group_split(season, week)
-
-# function computes elo over time
-compute_elo <- function(matchup_list, init_table, K = 10, lambda = .75) {
-  master_table <- elo_init |> rename(start = elo)
-
-  prev_elo <- elo_init
-
-  # compute elo over time
-  for (i in 1:length(matchup_list)) {
-    new_elo <- compute_week(matchup_list[[i]], prev_elo, K)
-
-    names <- colnames(master_table)
-    master_table <- master_table |> left_join(new_elo, by = join_by(roster_id))
-    colnames(master_table) <- c(
-      names,
-      paste0(matchup_list[[i]]$season[1], "_week", matchup_list[[i]]$week[1])
-    )
-
-    if (matchup_list[[i]]$week[1] == 17) {
-      #reset elo after end of season
-      new_elo <- new_elo |> mutate(elo = elo * lambda + (1 - lambda) * 1500)
-
-      names <- colnames(master_table)
-      master_table <- master_table |>
-        left_join(new_elo, by = join_by(roster_id))
-      colnames(master_table) <- c(
-        names,
-        paste0(matchup_list[[i]]$season[1] + 1, "_week", 0)
-      )
-    }
-
-    prev_elo <- new_elo
+  ratings <- set_names(init_table$elo, init_table$roster_id)
+  snapshot <- function(ratings, season, week) {
+    tibble(season, week, roster_id = as.numeric(names(ratings)), elo = unname(ratings))
   }
 
-  master_table |> select(-roster_id)
+  history <- list()
+  for (s in sort(unique(team_weeks$season))) {
+    if (length(history) > 0) {
+      ratings <- lambda * ratings + (1 - lambda) * 1500 # new season: regress toward 1500
+    }
+    history <- c(history, list(snapshot(ratings, s, 0)))
+
+    season_weeks <- team_weeks |> filter(season == s)
+    for (w in sort(unique(season_weeks$week))) {
+      ratings <- elo_week(ratings, season_weeks |> filter(week == w), K)
+      history <- c(history, list(snapshot(ratings, s, w)))
+    }
+  }
+
+  bind_rows(history)
 }
 
-weekly_elo <- compute_elo(matchup_list, elo_init) |>
-  rename("2024_week0" = start) |>
-  pivot_longer(
-    cols = contains("week"),
-    names_to = "date",
-    values_to = "elo"
-  ) |>
-  rename(team = display_name) |>
-  mutate(
-    season = str_sub(date, start = 1, end = 4),
-    week = str_remove(date, str_c(season, "_week")),
-    date_hide = as.numeric(season) + (as.numeric(week) - 1) / 18,
-    date = str_c(str_sub(season, 3, 4), "w", week)
-  ) |>
-  select(-season, -week)
+elo_init <- users |> transmute(roster_id, elo = 1500)
+
+weekly_elo <- compute_elo(team_records_df, elo_init) |>
+  left_join(users, by = join_by(roster_id)) |>
+  transmute(
+    team = display_name,
+    date = str_c(season %% 100, "w", week),
+    elo,
+    date_hide = season + (week - 1) / 18 # x position: weeks in order, week 0 before week 1
+  )
 
 # example
 # graph_elo(weekly_elo)
 
-max_elo <- rename(weekly_elo, "max_elo_date" = date) |>
-  select(-date_hide) |>
-  group_by(team) |>
-  mutate(max_elo = max(elo)) |>
-  filter(max_elo == elo) |>
-  slice(1)
+# peak and low ratings (with when they happened), and the composite rating: the average
+# distance from 1500 after each played week (the week 0 starting ratings are left out)
+when <- function(date) {
+  str_c("20", str_sub(date, 1, 2), " week ", str_remove(date, "^\\d+w"))
+}
 
-min_elo <- rename(weekly_elo, "min_elo_date" = date) |>
-  select(-date_hide) |>
-  group_by(team) |>
-  mutate(min_elo = min(elo)) |>
-  filter(min_elo == elo) |>
-  slice(1)
-
-# peak rankings
 total_success <- weekly_elo |>
-  group_by(team) |>
   summarize(
-    max_elo = max(elo),
-    min_elo = min(elo),
-    composite_rating = round(mean(elo - 1500), digits = 2)
+    composite_rating = round(mean(elo[!str_detect(date, "w0$")] - 1500), digits = 2),
+    peak = str_c(round(max(elo), 2), " in ", when(date[which.max(elo)])),
+    low = str_c(round(min(elo), 2), " in ", when(date[which.min(elo)])),
+    .by = team
   ) |>
-  left_join(max_elo, by = join_by(team, max_elo == elo)) |>
-  left_join(min_elo, by = join_by(team, min_elo == elo)) |>
-  mutate(
-    "peak" = str_c(
-      round(max_elo, 2),
-      " in 20",
-      str_sub(max_elo_date, 1, 2),
-      " week ",
-      str_sub(max_elo_date, start = 4)
-    ),
-    "low" = str_c(
-      round(min_elo, 2),
-      " in 20",
-      str_sub(min_elo_date, 1, 2),
-      " week ",
-      str_sub(min_elo_date, start = 4)
-    )
-  ) |>
-  select(team, composite_rating, peak, low) |>
   arrange(desc(composite_rating))
-
 
 # Future Value Assets -----------------------------------------------------
 
 all_assets_summary_df <- grab_team_assets_df |>
-  group_by(roster_id) |>
-  summarize(total_future_value = sum(future_value)) |>
+  summarize(total_future_value = sum(future_value), .by = roster_id) |>
   left_join(users, by = join_by(roster_id)) |>
   arrange(desc(total_future_value)) |>
-  rename(team = display_name) |>
-  select(team, total_future_value)
-
+  select(team = display_name, total_future_value)
 
 # dfs to save -------------------------------------------------------------
 
