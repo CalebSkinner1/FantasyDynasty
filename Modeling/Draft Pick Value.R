@@ -4,7 +4,7 @@
 #
 # For each rookie draft pick, four quantities are modeled as a heteroskedastic
 # polynomial regression on pick number (MCMC Samplers.R):
-#   total value  = realized value added + 0.95 * future value
+#   total value  = realized value added + future value (future value is already discounted)
 #   first year, second year, third year = value added in the player's 1st/2nd/3rd season
 # A season's target is
 #   finished:     realized value added (one row per player)
@@ -40,7 +40,7 @@ player_total_value <- read_csv(
   mutate(
     # future value only covers the rest of the current season, so the realized
     # value of that season is not counted twice
-    total_value = rowSums(across(matches("^sva_\\d{4}$"))) + future_value * .95 # devalue the future
+    total_value = rowSums(across(matches("^sva_\\d{4}$"))) + future_value
   ) |>
   select(player_id, total_value)
 
@@ -58,7 +58,10 @@ player_info <- read_csv(
 ) |>
   distinct(player_id, .keep_all = TRUE)
 
-season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(
+  here("Shiny/Saved Files/season_dates.csv"),
+  show_col_types = FALSE
+)
 
 # draft metadata cached by Scraping.R: each draft's own season, rounds, and status
 cache_dir <- here("Data/raw/sleeper")
@@ -234,7 +237,10 @@ rookie_draft_values <- imap(
   bind_rows() |>
   relocate(pick_no, metric)
 
-write_csv(rookie_draft_values, here("Data/model_output/rookie_draft_values.csv"))
+write_csv(
+  rookie_draft_values,
+  here("Data/model_output/rookie_draft_values.csv")
+)
 
 # total value fit, shown on the Modeling page
 quantiles_tv <- quantiles_list[["total value"]]

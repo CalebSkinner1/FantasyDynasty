@@ -1,187 +1,144 @@
 # Transaction Grades
-# similar to Draft Grades.R and Trade Grades.R, this page grades each transaction by a fantasy user
+# grades each waiver and free agent transaction by the value the team gained and lost,
+# assessed today: realized value added since the transaction plus current future value.
+# Writes the app's transaction tables, marginal_transaction_value.csv (the value of a
+# roster spot, used by Trade Grades), and Data/derived/individual_transactions.csv and
+# transaction_adds.csv (used by Fantasy Teams).
 
-suppressPackageStartupMessages(library("here"))
+suppressPackageStartupMessages({
+  library("here")
+  library("tidyverse")
+})
 
 message("begin computing Transaction Grades...")
 
 # load data
-source(here("Shiny/Script Support.R"))
 transactions <- readRDS(here("Data/derived/transactions.rds")) #transactions, including trades
 player_total_value <- read_csv(
   here("Shiny/Saved Files/player_total_value.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
-value_added <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE)
+value_added <- read_csv(
+  here("Data/derived/va.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
 
 player_info <- read_csv(
   here("Data/raw/player_info.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 ) |>
+  distinct(player_id, .keep_all = TRUE) |>
   select(-birth_date)
 
 users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(-owner_id)
 
-total_transaction_value <- transactions |>
+completed_transactions <- transactions |>
   filter(type %in% c("waiver", "free_agent")) |>
-  filter(status == "complete") %>%
-  # KEPT as %>%: nrow(.) is nested inside split()'s argument -- no |>
-  # equivalent for a dot nested inside another function call.
-  split(seq_len(nrow(.))) |>
-  # `.` in the original map(., ~{...}) was in the first argument
-  # position, exactly where |> puts the LHS by default -- dropped.
-  map(
-    ~ {
-      this_season <- .x$season |> as.numeric()
+  filter(status == "complete") |>
+  mutate(transaction_id = as.character(row_number()))
 
-      this_week <- .x$week |> as.numeric() #week of transaction
+# every player added or dropped: one row per transaction and player
+transaction_moves <- function(col, move_type) {
+  completed_transactions |>
+    select(transaction_id, season, week, players = all_of(col)) |>
+    unpack(players) |>
+    pivot_longer(
+      cols = -c(transaction_id, season, week),
+      names_to = "player_id",
+      values_to = "roster_id",
+      values_drop_na = TRUE
+    ) |>
+    mutate(type = move_type)
+}
 
-      # gained
-      adds <- .x$adds |>
-        pivot_longer(
-          cols = everything(),
-          names_to = "player_id",
-          values_to = "roster_id"
-        ) |>
-        drop_na()
+moves <- bind_rows(
+  transaction_moves("adds", "add"),
+  transaction_moves("drops", "drop")
+) |>
+  mutate(season = as.numeric(season), week = as.numeric(week))
 
-      # FIX: was join_by(name, position) -- both adds (via player_info)
-      # and value_added now carry player_id, so this can key on that
-      # instead. value_added's own name/position dropped to avoid
-      # colliding with the copies already carried from player_info.
-      # roster_id deliberately left to collide (roster_id.x/roster_id.y)
-      # -- both needed below. player_id kept in the group_by so it
-      # survives into the join further down.
-      realized_value_gained <- adds |>
-        left_join(player_info, by = join_by(player_id)) |>
-        left_join(
-          value_added |> select(-name, -position),
-          by = join_by(player_id)
-        ) |>
-        filter(season >= this_season) |>
-        filter(
-          season > this_season |
-            week > this_week |
-            (week == this_week & roster_id.y == roster_id.x)
-        ) |>
-        group_by(player_id, name, position) |>
-        summarize(realized_value = sum(value_added), .groups = "keep") |>
-        ungroup()
-
-      # FIX: was join_by(player_id, position, name) for the future-value
-      # join (redundant compound key -- player_id alone is enough and
-      # more robust) and join_by(name, position) for the realized-value
-      # join (now player_id, since both sides carry it). player_id added
-      # to the select, which was dropping it immediately after the first
-      # join.
-      total_player_value_gained <- adds |>
-        left_join(player_info, by = join_by(player_id)) |>
-        left_join(
-          player_total_value |> select(-name, -position),
-          by = join_by(player_id)
-        ) |> # future value
-        select(roster_id, player_id, name, position, future_value) |>
-        left_join(
-          realized_value_gained |> select(-name, -position),
-          by = join_by(player_id)
-        ) |>
-        mutate(
-          realized_value = replace_na(realized_value, 0), # if no realized value
-          future_value = replace_na(future_value, 0)
-        ) # if no future value
-
-      # lost
-      drops <- .x$drops |>
-        pivot_longer(
-          cols = everything(),
-          names_to = "player_id",
-          values_to = "roster_id"
-        ) |>
-        drop_na()
-
-      # same fixes as realized_value_gained above
-      realized_value_lost <- drops |>
-        left_join(player_info, by = join_by(player_id)) |>
-        left_join(
-          value_added |> select(-name, -position),
-          by = join_by(player_id)
-        ) |>
-        filter(season >= this_season) |>
-        filter(
-          season > this_season |
-            week > this_week |
-            (week == this_week & roster_id.y != roster_id.x)
-        ) |>
-        group_by(player_id, name, position) |>
-        summarize(realized_value = sum(value_added), .groups = "keep") |>
-        ungroup()
-
-      # same fixes as total_player_value_gained above
-      total_player_value_lost <- drops |>
-        left_join(player_info, by = join_by(player_id)) |>
-        left_join(
-          player_total_value |> select(-name, -position),
-          by = join_by(player_id)
-        ) |> # future value
-        select(roster_id, player_id, name, position, future_value) |>
-        left_join(
-          realized_value_lost |> select(-name, -position),
-          by = join_by(player_id)
-        ) |>
-        mutate(
-          realized_value = replace_na(realized_value, 0), # if no realized value
-          future_value = replace_na(future_value, 0)
-        ) # if no future value
-
-      total_transaction_value_gained <- total_player_value_gained |>
-        left_join(users, by = join_by(roster_id)) |>
-        rename(team_name = display_name) |>
-        select(-roster_id) |>
-        relocate(team_name) |>
-        mutate(
-          total_value = realized_value + .95 * future_value,
-          type = "add"
-        ) |>
-        arrange(desc(team_name))
-
-      # players lost
-      total_transaction_value_lost <- total_player_value_lost |>
-        left_join(users, by = join_by(roster_id)) |>
-        rename(team_name = display_name) |>
-        select(-roster_id) |>
-        relocate(team_name) |>
-        mutate(
-          realized_value = -realized_value, #lost
-          future_value = -future_value, #lost
-          total_value = realized_value + .95 * future_value,
-          type = "drop"
-        ) |>
-        arrange(desc(team_name))
-
-      total_transaction_value <- bind_rows(
-        total_transaction_value_gained,
-        total_transaction_value_lost
-      ) |>
-        mutate(
-          week = this_week,
-          season = this_season,
-        )
-      return(total_transaction_value)
-    }
+# value added since the transaction. In the transaction's own week, an added player's
+# value counts only if he played for the adding team that week (and a dropped player's
+# only if he didn't play for the dropping team)
+realized_since <- moves |>
+  inner_join(
+    value_added |>
+      select(
+        player_id,
+        va_roster_id = roster_id,
+        va_season = season,
+        va_week = week,
+        value_added
+      ),
+    by = join_by(player_id),
+    relationship = "many-to-many"
+  ) |>
+  filter(
+    va_season > season |
+      (va_season == season & va_week > week) |
+      (va_season == season &
+        va_week == week &
+        (va_roster_id == roster_id) == (type == "add"))
+  ) |>
+  summarize(
+    realized_value = sum(value_added),
+    .by = c(transaction_id, player_id, type)
   )
 
-transaction_comparison <- map(
-  total_transaction_value,
-  ~ .x |>
-    group_by(team_name) |>
-    summarize(
-      total_transaction_value = sum(total_value),
-      total_future_value = sum(future_value),
-      total_realized_value = sum(realized_value)
-    )
-) |>
-  bind_rows(.id = "transaction_id")
+# value gained (adds) and lost (drops) in every transaction: realized value since the
+# transaction plus current future value, negative for players dropped
+transaction_values <- moves |>
+  left_join(realized_since, by = join_by(transaction_id, player_id, type)) |>
+  left_join(
+    player_info |> select(player_id, name, position),
+    by = join_by(player_id)
+  ) |>
+  left_join(
+    player_total_value |> select(player_id, future_value),
+    by = join_by(player_id)
+  ) |>
+  left_join(users, by = join_by(roster_id)) |>
+  mutate(
+    across(c(realized_value, future_value), ~ replace_na(.x, 0)),
+    sign = if_else(type == "drop", -1, 1),
+    realized_value = sign * realized_value,
+    future_value = sign * future_value,
+    total_value = realized_value + future_value
+  ) |>
+  arrange(as.numeric(transaction_id), type) |> # adds before drops
+  select(
+    transaction_id,
+    team_name = display_name,
+    player_id,
+    name,
+    position,
+    future_value,
+    realized_value,
+    total_value,
+    type,
+    week,
+    season
+  )
+
+# one table per transaction (the app's breakdown), named by transaction number
+total_transaction_value <- transaction_values |>
+  select(-transaction_id) |>
+  split(factor(
+    transaction_values$transaction_id,
+    levels = unique(transaction_values$transaction_id)
+  ))
+
+transaction_comparison <- transaction_values |>
+  summarize(
+    total_transaction_value = sum(total_value),
+    total_future_value = sum(future_value),
+    total_realized_value = sum(realized_value),
+    .by = c(transaction_id, team_name)
+  )
 
 individual_transactions <- transaction_comparison |> # transactions
   rename(
@@ -191,11 +148,10 @@ individual_transactions <- transaction_comparison |> # transactions
   ) |>
   left_join(users, by = join_by(team_name == display_name)) |>
   left_join(
-    bind_rows(total_transaction_value, .id = "transaction_id") |>
-      left_join(users, by = join_by(team_name == display_name)) |>
+    transaction_values |>
       filter(type == "add") |>
       group_by(transaction_id) |>
-      slice_max(total_value) |>
+      slice_max(total_value, n = 1, with_ties = FALSE) |>
       select(transaction_id, team_name, name, position, season, week),
     by = join_by(transaction_id, team_name)
   ) |>
@@ -228,8 +184,7 @@ top_transactions <- individual_transactions |>
   relocate(c(team_name, transaction_details))
 
 # mean add/drop value (mean value gained from adding/dropping a player)
-marginal_transaction_value <- total_transaction_value |>
-  bind_rows() |>
+marginal_transaction_value <- transaction_values |>
   filter(position != "K", position != "DST") |>
   group_by(season, type) |>
   summarize(total_value_added = mean(total_value), .groups = "keep")
@@ -252,8 +207,6 @@ overall_transaction_winners <- transaction_comparison |>
     total_future_value,
     total_transaction_value
   )
-
-rm(value_added)
 
 # dfs to save -------------------------------------------------------------
 
@@ -278,6 +231,32 @@ save(
   total_transaction_value,
   file = here("Shiny/Saved Files/total_transaction_value.Rdata")
 )
+
+# for Fantasy Teams: graded transactions (acquisitions) and every player added, with
+# when (for the latest way each team acquired each player)
+write_csv(
+  individual_transactions,
+  here("Data/derived/individual_transactions.csv")
+)
+
+users_by_name <- users |> select(roster_id, team_name = display_name)
+transaction_adds <- transaction_values |>
+  filter(type == "add") |>
+  left_join(users_by_name, by = join_by(team_name)) |>
+  left_join(
+    completed_transactions |> select(transaction_id, created),
+    by = join_by(transaction_id)
+  ) |>
+  transmute(
+    roster_id,
+    player_id,
+    season,
+    week,
+    created,
+    avenue = str_c(season, " W", week, " transaction")
+  )
+
+write_csv(transaction_adds, here("Data/derived/transaction_adds.csv"))
 
 # Examples ----------------------------------------------------------------
 

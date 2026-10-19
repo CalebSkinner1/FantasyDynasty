@@ -26,7 +26,7 @@ league_seasons <- as.numeric(names(league_ids))
 current_season <- max(league_seasons)
 current_league_id <- league_ids[[as.character(current_season)]]
 
-n_future_draft_seasons <- 4 # tradeable future rookie drafts
+n_future_draft_seasons <- 3 # tradeable future rookie drafts (picks can be traded three years out)
 
 # force a player_info refresh (it also refreshes on its own when a rostered
 # player is missing). Sleeper asks that /players/nfl be called at most once a day.
@@ -568,6 +568,11 @@ draft_meta <- tibble(
   arrange(season, rounds)
 
 drafts <- drafts[draft_meta$index]
+
+# season and type of each draft, in the same order as draft_picks.rds (draft_id links the two)
+draft_meta |>
+  transmute(draft_id = map_chr(drafts, "draft_id"), season, type, rounds, status) |>
+  write_csv(here("Data/derived/drafts.csv"))
 
 # Get picks in a draft
 draft_picks <- map(drafts, "picks")

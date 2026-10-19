@@ -2,11 +2,7 @@
 
 # libraries
 suppressPackageStartupMessages({
-  library("LaplacesDemon")
-  library("invgamma")
   library("tidyverse")
-  library("tictoc")
-  library("mcmcr")
 })
 
 # paper that explains
@@ -43,14 +39,16 @@ reg_gibbs_sampler <- function(
   # run ols
   ols <- lm(Y ~ X - 1)
 
-  sigma_prop <- summary(ols)$sigma^2
+  # prior guess for sigma^2 (the OLS estimate), also the starting value
+  sigma2_0 <- summary(ols)$sigma^2
+  sigma_prop <- sigma2_0
 
   # specify hyperparameters
   if (missing(g)) {
     g <- n * p
   }
   if (missing(Sigma_0)) {
-    Sigma_0 <- g * sigma_prop * solve(gram)
+    Sigma_0 <- g * sigma2_0 * solve(gram)
   }
   if (missing(beta_0)) {
     beta_0 <- ols %>% coef()
@@ -75,13 +73,10 @@ reg_gibbs_sampler <- function(
     l <- invSigma_0 %*% beta_0 + (sigma_prop^(-1)) * crossprod(X, Y)
     beta_prop <- MASS::mvrnorm(1, invQ %*% l, invQ)
 
-    # draw sigma^2
-    sigma_prop <- rinvgamma(
-      1,
-      (nu_0 + n * p) / 2,
-      (nu_0 * sigma_prop + t((Y - X %*% beta_prop)) %*% (Y - X %*% beta_prop)) /
-        2
-    )
+    # draw sigma^2 from its full conditional, inverse gamma with
+    # shape (nu_0 + n) / 2 and rate (nu_0 * sigma2_0 + SSR) / 2
+    ssr <- sum((Y - X %*% beta_prop)^2)
+    sigma_prop <- 1 / rgamma(1, shape = (nu_0 + n) / 2, rate = (nu_0 * sigma2_0 + ssr) / 2)
 
     if (i > burn_in & (i - burn_in - 1) %% thin == 0) {
       #keep
@@ -357,7 +352,7 @@ hlr_gibbs_sampler <- function(
 
   # initialize
   beta_prop <- MASS::mvrnorm(1, mu_0, Lambda_0) #overall coef
-  invSigma_prop <- rwishart(eta_0, S_0) # variance of subgroup coef
+  invSigma_prop <- LaplacesDemon::rwishart(eta_0, S_0) # variance of subgroup coef
   zeta_prop <- rgamma(1, shape = a_0, rate = b_0) # scale of variance
   beta_j_prop <- MASS::mvrnorm(J, beta_prop, invSigma_prop) # subgroup coef
   invsigma_j_prop <- rgamma(4, shape = nu_0 / 2, rate = nu_0 * zeta_prop / 2) # precision
@@ -399,7 +394,7 @@ hlr_gibbs_sampler <- function(
     beta_prop <- MASS::mvrnorm(1, invQ %*% l, invQ)
 
     # draw invSigma
-    invSigma_prop <- rwishart(
+    invSigma_prop <- LaplacesDemon::rwishart(
       eta_0 + J,
       S_0 +
         Reduce(

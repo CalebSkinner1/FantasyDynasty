@@ -1,286 +1,226 @@
 # Fantasy Teams
-# this page is for interesting summaries of fantasy teams- eventually I'd like this to be a page in
-# an RShiny
+# team tables for the Fantasy Teams page: current assets (players and picks) and how each
+# was acquired, position outlook, avenue grades, and every acquisition graded.
+# Reads the outputs of Pick Values, Draft Grades, Transaction Grades and Trade Grades, so
+# it runs after them.
 
 suppressPackageStartupMessages({
   library("here")
-  library("tidymodels")
+  library("tidyverse")
 })
 
-# load data
-source(here("Shiny/Script Support.R"))
+message("begin computing Fantasy Teams...")
 
-# Grades
-source(here("Scripts/Draft Grades.R")) # Draft Grades, about one second
-source(here("Scripts/Trade Grades.R")) # Trade Grades, less than one second
-source(here("Scripts/Transaction Grades.R")) # Transaction Grades, nine seconds
-
-message("begin computing Fantasy Team...")
+position_levels <- c("QB", "RB", "WR", "TE", "K", "DST")
 
 # load data
-season_value_added <- read_csv(here("Shiny/Saved Files/season_value_added.csv"), show_col_types = FALSE)
+users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
+  select(roster_id, display_name)
+
+player_info <- read_csv(
+  here("Data/raw/player_info.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+) |>
+  distinct(player_id, .keep_all = TRUE) |>
+  select(player_id, name, position)
+
 player_total_value <- read_csv(
   here("Shiny/Saved Files/player_total_value.csv"),
-  ,
-  show_col_types = FALSE
-)
-player_info <- read_csv(here("Data/raw/player_info.csv"), show_col_types = FALSE)
-final_standings_odds <- read_csv(
-  here("Data/model_output/final_standings_odds.csv"),
-  ,
-  show_col_types = FALSE
-)
-rookie_draft_values <- read_csv(
-  here("Data/model_output/rookie_draft_values.csv"),
-  ,
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 ) |>
-  filter(metric == "total value") |>
-  select(pick_no, proj_tva_50)
+  select(player_id, future_value)
 
-users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
-  select(-owner_id)
-
+current_roster <- read_csv(
+  here("Data/derived/current_roster.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
 future_draft_picks <- read_csv(
   here("Data/derived/future_draft_picks.csv"),
   show_col_types = FALSE
 )
-
-draft_picks <- readRDS(here("Data/derived/draft_picks.rds"))
-
-# picks that we known the draft order
-known_draft_picks <-
-  if (nrow(future_draft_picks |> filter(!is.na(draft_order))) == 0) {
-    tibble()
-  } else {
-    future_draft_picks |>
-      filter(!is.na(draft_order)) |>
-      mutate(pick_no = (round - 1) * 12 + draft_order) |>
-      select(roster_id, season, round, pick_no, pick_slot) |>
-      left_join(rookie_draft_values, by = join_by(pick_no)) |>
-      select(-pick_no)
-  }
-
-# but! we also need to value all of the draft picks of which we don't know the order
-exp_draft_values <- final_standings_odds |>
-  filter(type == "rank") |>
-  select(-type) |>
-  expand_grid(round = 1:3) |>
-  mutate(pick_no = (round - 1) * 12 + (13 - result)) |>
-  left_join(rookie_draft_values, by = join_by(pick_no)) |>
-  # weight each potential draft pick by odds of receiving it
-  mutate(weight_value = perc * proj_tva_50) |>
-  # for each roster and season and round
-  group_by(season, roster_id, round) |>
-  summarize(exp_total_value = sum(weight_value), .groups = "keep") |>
-  ungroup() |>
-  # but draft in next season
-  mutate(season = season + 1)
-
-unknown_draft_picks <- future_draft_picks |>
-  filter(is.na(draft_order)) |>
-  left_join(
-    exp_draft_values,
-    by = join_by(season, round, pick_slot == roster_id)
-  ) |>
-  select(roster_id, season, round, exp_total_value, pick_slot)
-
-future_draft_pick_exp_values <- unknown_draft_picks |>
-  bind_rows(known_draft_picks) |>
-  select(-roster_id)
-
-realized_draft_pick_exp_values <- bind_rows(draft_picks, .id = "draft_id") |>
-  filter(draft_id != 2) |>
-  left_join(rookie_draft_values, by = join_by(pick_no)) |>
-  mutate(
-    season = if_else(
-      as.numeric(draft_id) == 1,
-      2023 + as.numeric(draft_id),
-      2022 + as.numeric(draft_id)
-    )
-  ) |>
-  left_join(
-    draft_order |> filter(type == "rookie"),
-    by = join_by(season, draft_slot == draft_order)
-  ) |>
-  rename(pick_slot = roster_id.y, exp_total_value = proj_tva_50) |>
-  select(season, round, exp_total_value, pick_slot)
-
-all_draft_pick_exp_values <- bind_rows(
-  realized_draft_pick_exp_values,
-  future_draft_pick_exp_values
-)
-
-# draft picks
-draft_assets <- bind_rows(known_draft_picks, unknown_draft_picks) |>
-  mutate(
-    player_id = NA,
-    name = str_c(season, " ", round, "R Draft Pick"),
-    future_value = exp_total_value * .95^(season - 2025), # slowly devalue draft picks
-    future_value = future_value * .85 # totally arbitrary uncertainty penalty
-  ) |>
-  left_join(users, by = join_by(pick_slot == roster_id)) |>
-  rename(position = display_name) |>
-  select(roster_id, player_id, name, position, future_value) |>
-  left_join(users, by = join_by(roster_id)) |>
-  rename(team_name = display_name)
-
-# future assets
-current_roster <- read_csv(
-  here("Data/derived/current_roster.csv"),
+pick_values <- read_csv(
+  here("Data/model_output/all_draft_pick_exp_values.csv"),
   show_col_types = FALSE
 ) |>
-  left_join(player_info, by = join_by(player_id)) |>
-  left_join(
-    player_total_value |> select(-name, -position),
-    by = join_by(player_id)
-  ) |>
-  select(roster_id, player_id, name, position, future_value, sva_2024) |>
-  left_join(users, by = join_by(roster_id)) |>
-  rename(team_name = display_name)
+  select(season, round, pick_slot, future_value)
+value_added <- read_csv(
+  here("Data/derived/va.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
 
-total_assets <- current_roster |>
-  select(-sva_2024) |>
-  bind_rows(draft_assets) |>
+# grades (Draft Grades, Trade Grades, Transaction Grades)
+picks_df <- read_csv(
+  here("Shiny/Saved Files/picks_df.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+draft_grades_by_team <- read_csv(
+  here("Data/derived/draft_grades_by_team.csv"),
+  show_col_types = FALSE
+)
+draft_selections <- read_csv(
+  here("Data/derived/draft_selections.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+trade_adds <- read_csv(
+  here("Data/derived/trade_adds.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+transaction_adds <- read_csv(
+  here("Data/derived/transaction_adds.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+individual_trades <- read_csv(
+  here("Data/derived/individual_trades.csv"),
+  show_col_types = FALSE
+)
+individual_transactions <- read_csv(
+  here("Data/derived/individual_transactions.csv"),
+  show_col_types = FALSE
+)
+overall_trade_winners <- read_csv(
+  here("Shiny/Saved Files/overall_trade_winners.csv"),
+  show_col_types = FALSE
+)
+overall_transaction_winners <- read_csv(
+  here("Shiny/Saved Files/overall_transaction_winners.csv"),
+  show_col_types = FALSE
+)
+
+# Current assets ----------------------------------------------------------------
+
+player_assets <- current_roster |>
+  select(roster_id, player_id) |>
+  left_join(player_info, by = join_by(player_id)) |>
+  left_join(player_total_value, by = join_by(player_id))
+
+# picks are named by season and round; position is the team the pick originally belonged to
+pick_assets <- future_draft_picks |>
+  left_join(pick_values, by = join_by(season, round, pick_slot)) |>
+  left_join(users, by = join_by(pick_slot == roster_id)) |>
+  transmute(
+    roster_id,
+    player_id = NA_character_,
+    name = str_c(season, " ", round, "R Draft Pick"),
+    position = display_name,
+    future_value
+  )
+
+total_assets <- bind_rows(player_assets, pick_assets) |>
   mutate(future_value = replace_na(future_value, 0))
 
-value_added <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE) |>
-  left_join(users, by = join_by(roster_id)) |>
-  rename(team_name = display_name)
+# Acquisition avenue ------------------------------------------------------------
+# the latest way the team acquired each asset: a draft, trade, or transaction. Drafts
+# come before any trade or transaction of the same season; within a week, trades and
+# transactions are ordered by when they happened. Players are matched by player_id and
+# picks by name and original team.
+
+asset_key <- function(player_id, name, position) {
+  coalesce(player_id, str_c(name, " - ", position))
+}
+
+acquisition_events <- bind_rows(
+  draft_selections |> mutate(week = 0),
+  trade_adds,
+  transaction_adds
+) |>
+  mutate(key = asset_key(player_id, name, position)) |>
+  arrange(roster_id, key, season, week, created) |>
+  slice_tail(n = 1, by = c(roster_id, key)) |>
+  select(roster_id, key, avenue)
 
 player_avenues <- total_assets |>
-  left_join(
-    bind_rows(total_transaction_value) |> # transactions
-      filter(type == "add") |>
-      mutate(transaction_avenue = str_c(season, " W", week, " transaction")) |>
-      group_by(name, position) |>
-      slice_max((season + as.numeric(week) / 20), n = 1) |>
-      select(-contains("value"), -type, -season, -week),
-    by = join_by(name, position, team_name)
-  ) |>
-  left_join(
-    bind_rows(total_trade_value) |> # trades
-      filter(type == "add") |>
-      mutate(trade_avenue = str_c(season, " W", week, " trade")) |>
-      group_by(name, position) |>
-      slice_max(season + as.numeric(week) / 20, n = 1) |>
-      select(-contains("value"), -type, -season, -week),
-    by = join_by(name, position, team_name)
-  ) |>
-  left_join(
-    bind_rows(rookie_vs_expecations, .id = "season") |> # rookie draft
-      mutate(
-        rookie_draft_avenue = str_c(
-          as.numeric(season) + 2023,
-          " rookie draft pick ",
-          pick_no
-        )
-      ) |>
-      select(name, position, roster_id, rookie_draft_avenue),
-    by = join_by(name, position, roster_id)
-  ) |>
-  left_join(
-    init_vs_expectation |> # initial draft
-      mutate(initial_draft_avenue = str_c("initial draft pick ", pick_no)) |>
-      select(name, position, roster_id, initial_draft_avenue),
-    by = join_by(name, position, roster_id)
-  ) |>
+  mutate(key = asset_key(player_id, name, position)) |>
+  left_join(acquisition_events, by = join_by(roster_id, key)) |>
   mutate(
-    t_avenue = case_when(
-      is.na(transaction_avenue) ~ trade_avenue,
-      is.na(trade_avenue) ~ transaction_avenue,
-      as.numeric(str_extract(trade_avenue, "\\d{4}")) +
-        as.numeric(str_extract(trade_avenue, "(?<=W)\\d+")) / 20 >
-        as.numeric(str_extract(transaction_avenue, "\\d{4}")) +
-          as.numeric(str_extract(transaction_avenue, "(?<=W)\\d+")) /
-            20 ~ trade_avenue,
-      .default = transaction_avenue
-    ),
-    avenue = coalesce(rookie_draft_avenue, initial_draft_avenue, t_avenue)
-  ) |>
-  select(roster_id, player_id, name, position, future_value, avenue) |>
-  mutate(
-    avenue = case_when(
-      is.na(avenue) & position == "K" ~ "initial draft",
-      is.na(avenue) & str_detect(name, "Draft Pick") ~ "own pick",
-      .default = avenue
+    avenue = if_else(
+      is.na(avenue) & str_detect(name, "Draft Pick"),
+      "own pick",
+      avenue
     )
   ) |>
-  distinct()
+  select(roster_id, player_id, name, position, future_value, avenue)
 
-# overall draft, trade, transaction grades
+# Avenue grades -----------------------------------------------------------------
 
 value_avenues <- bind_rows(
-  bind_rows(rookie_draft_value, .id = "season") |>
-    mutate(avenue = str_c("rookie draft ", as.numeric(season) + 2023)) |>
-    rename(
-      total_value = "total_draft_value"
-    ) |>
-    select(-season, -display_name),
-  initial_draft_value |>
-    mutate(
-      value_over_expected = total_draft_value - mean(total_draft_value),
-      avenue = "initial draft"
-    ) |>
-    rename(
-      total_value = "total_draft_value"
-    ) |>
-    select(-display_name),
-  overall_trade_winners |>
-    mutate(
-      value_over_expected = total_trade_value,
-      avenue = "trade"
-    ) |>
-    rename(total_value = "total_trade_value") |>
-    left_join(users, by = join_by(team_name == display_name)) |>
-    select(-team_name, -trades),
+  draft_grades_by_team,
   overall_transaction_winners |>
-    mutate(
-      value_over_expected = total_transaction_value,
-      avenue = "transaction"
-    ) |>
-    rename(total_value = "total_transaction_value") |>
     left_join(users, by = join_by(team_name == display_name)) |>
-    select(-team_name, -transactions)
-) |>
-  mutate(
-    avenue = factor(
-      avenue,
-      levels = c(
-        "initial draft",
-        "rookie draft 2024",
-        "rookie draft 2025",
-        "transaction",
-        "trade"
-      )
+    transmute(
+      roster_id,
+      value_over_expected = total_transaction_value,
+      total_realized_value,
+      total_future_value,
+      avenue = "transaction"
+    ),
+  overall_trade_winners |>
+    left_join(users, by = join_by(team_name == display_name)) |>
+    transmute(
+      roster_id,
+      value_over_expected = total_trade_value,
+      total_realized_value,
+      total_future_value,
+      avenue = "trade"
     )
-  ) |>
-  select(-total_value)
+) |>
+  arrange(roster_id)
 
-# acquisitions
+# acquisitions ------------------------------------------------------------------
+
 acquisitions <- bind_rows(
-  init_vs_expectation |> # initial draft
-    mutate(avenue = str_c("initial draft pick ", pick_no)) |>
-    select(-pick_no),
-  bind_rows(rookie_vs_expecations, .id = "season") |> # rookie drafts
+  picks_df |> # drafts
     mutate(
-      avenue = str_c(as.numeric(season) + 2023, " rookie draft pick ", pick_no)
-    ) |>
-    select(-proj_tva_50, -pick_no, -season),
-  individual_trades |> # trades
-    select(-trade_id),
-  individual_transactions |> # transactions
-    select(-transaction_id)
-)
+      avenue = if_else(
+        draft == "initial draft",
+        str_c("initial draft pick ", pick_no),
+        str_c(season, " rookie draft pick ", pick_no)
+      )
+    ),
+  individual_trades,
+  individual_transactions
+) |>
+  select(
+    roster_id,
+    name,
+    position,
+    realized_value,
+    future_value,
+    total_value,
+    value_over_expected,
+    avenue
+  )
+
+# Position outlook --------------------------------------------------------------
+# realized value: all value added at the position while on this roster, including players
+# no longer there. future value: current roster only.
+
+realized_value <- value_added |>
+  summarize(realized_value = sum(value_added), .by = c(roster_id, position))
+
+position_outlook_df <- player_assets |>
+  summarize(
+    future_value = sum(future_value, na.rm = TRUE),
+    .by = c(roster_id, position)
+  ) |>
+  full_join(realized_value, by = join_by(roster_id, position)) |>
+  mutate(
+    position = factor(position, position_levels),
+    across(c(future_value, realized_value), ~ replace_na(.x, 0))
+  ) |>
+  select(roster_id, position, realized_value, future_value) |>
+  arrange(position, roster_id)
 
 # dfs to save -------------------------------------------------------------
 
-grab_team_assets_df <- total_assets |>
-  left_join(
-    player_avenues |>
-      select(name, position, roster_id, avenue),
-    by = join_by(roster_id, name, position)
-  ) |>
+grab_team_assets_df <- player_avenues |>
   arrange(desc(future_value)) |>
   select(roster_id, player_id, name, position, future_value, avenue)
 
@@ -288,63 +228,20 @@ write_csv(
   grab_team_assets_df,
   here("Shiny/Saved Files/grab_team_assets_df.csv")
 )
-
-realized_value <- value_added |>
-  # filter(roster_id == enter_roster_id) |>
-  group_by(roster_id, position) |>
-  summarize(
-    realized_value = sum(value_added),
-    .groups = "keep"
-  ) |>
-  ungroup()
-
-position_outlook_df <- current_roster |>
-  group_by(roster_id, position) |>
-  summarize(
-    future_value = sum(future_value),
-    .groups = "keep"
-  ) |>
-  ungroup() |>
-  left_join(realized_value, by = join_by(position, roster_id)) |>
-  mutate(
-    position = factor(position, position_levels),
-    across(future_value:realized_value, ~ replace_na(.x, 0))
-  ) |>
-  relocate(realized_value, .after = position) |>
-  arrange(position)
-
 write_csv(
   position_outlook_df,
   here("Shiny/Saved Files/position_outlook_df.csv")
 )
-
 write_csv(value_avenues, here("Shiny/Saved Files/value_avenues.csv"))
 write_csv(acquisitions, here("Shiny/Saved Files/acquisitions.csv"))
 write_csv(player_avenues, here("Shiny/Saved Files/player_avenues.csv"))
 
-write_csv(all_draft_pick_exp_values, here("Data/model_output/all_draft_pick_exp_values.csv"))
-
-# Examples ----------------------------------------------------------------
+# Examples (app functions in Shiny/Script Support.R) ------------------------------
 # grab_team_assets(4, shiny = TRUE)
-#
 # position_outlook(4, shiny = TRUE)
-#
 # grab_team_contributors(4, enter_season = 2024, shiny = TRUE)
-#
 # grab_team_contributors_weekly(enter_roster_id = 4, enter_season = 2024, enter_week = 5, shiny = TRUE)
-#
 # value_avenues |> overall_grades(enter_roster_id = 6, shiny = TRUE)
-
 # acquisitions |> top_acquisitions(4, "trade", shiny = TRUE)
-# acquisitions |> top_acquisitions(4, "initial draft")
-# acquisitions |> top_acquisitions(4, "transaction")
-# acquisitions |> top_acquisitions(4, "trade")
-# acquisitions |> top_acquisitions(4, "rookie draft")
-
-# acquisitions |> worst_acquisitions(4)
-# acquisitions |> worst_acquisitions(4, "initial draft")
-# acquisitions |> worst_acquisitions(1, "transaction")
-# acquisitions |> worst_acquisitions(4, "trade")
 # acquisitions |> worst_acquisitions(4, "rookie draft")
-
 # player_avenues |> team_composition(4)

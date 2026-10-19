@@ -26,7 +26,19 @@ run_step("Modeling/Future Standings.R")
 # Individual Players
 run_step("Scripts/Individual Players.R")
 
-# Fantasy Teams (also runs Draft Grades, Trade Grades, and Transaction Grades, ~15 seconds)
+# Pick Values (expected value of every draft pick; needs Future Standings)
+run_step("Scripts/Pick Values.R")
+
+# Draft Grades
+run_step("Scripts/Draft Grades.R")
+
+# Transaction Grades (also the value of a roster spot, used by Trade Grades)
+run_step("Scripts/Transaction Grades.R")
+
+# Trade Grades (needs Pick Values and Transaction Grades)
+run_step("Scripts/Trade Grades.R")
+
+# Fantasy Teams (needs Pick Values and the three grades)
 run_step("Scripts/Fantasy Teams.R")
 
 # Trade Machine
