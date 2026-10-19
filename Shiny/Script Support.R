@@ -46,12 +46,12 @@ basic_info <- function(enter_name) {
     shiny_edit_tables()
 }
 
-# plots players median future value over next fifteen years
+# plots a player's expected value added by season (the mean used in future value),
+# with 80% and 95% credible regions
 plot_future_value <- function(enter_name) {
   plot_future_value_df |>
     filter(name == enter_name) |>
     ggplot(aes(x = season)) +
-    geom_line(aes(y = proj_tva_50), color = "indianred3") +
     geom_ribbon(
       aes(ymin = proj_tva_10, ymax = proj_tva_90),
       fill = "cadetblue4",
@@ -62,6 +62,7 @@ plot_future_value <- function(enter_name) {
       fill = "cadetblue1",
       alpha = .5
     ) +
+    geom_line(aes(y = expected_tva), color = "indianred3") +
     labs(
       title = str_c(enter_name, " Projected Total Value Added"),
       x = "",

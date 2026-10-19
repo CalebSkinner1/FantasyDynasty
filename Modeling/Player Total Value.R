@@ -215,6 +215,13 @@ message(
   " complete"
 )
 
+# share of the season elapsed (p) as used above, saved so the app's scripts split the
+# current season the same way future value does
+today_value$context |>
+  as_tibble() |>
+  mutate(date = today()) |>
+  write_csv(here("Data/model_output/season_context.csv"))
+
 n_incomplete <- today_value$future_value |>
   filter(is.na(future_value)) |>
   nrow()
