@@ -228,19 +228,32 @@ projections <- map(
   \(s) {
     read_csv(
       here(str_c("Data/raw/projections/projections", s %% 100, ".csv")),
-      show_col_types = FALSE
+      col_types = cols(.default = col_character())
     ) |>
       mutate(season = s)
   }
 ) |>
-  bind_rows() |>
+  # older files have no player_id or source columns
+  bind_rows(tibble(player_id = character(), source = character())) |>
+  mutate(
+    projection = as.numeric(projection),
+    week = as.numeric(week),
+    # Sleeper projections carry ids and K/DST points; older FFToday rows have neither
+    source = coalesce(source, "fftoday")
+  ) |>
   name_correction()
 
 if (!"position" %in% names(projections)) {
   stop("Projection files need a position column (see combine_week()).")
 }
 
+# Sleeper projections already have ids; FFToday rows are matched on name and position
+proj_known <- projections |>
+  filter(!is.na(player_id))
+
 proj_ids <- projections |>
+  filter(is.na(player_id)) |>
+  select(-player_id) |>
   left_join(
     player_info |> distinct(name, position, player_id, years_exp),
     by = join_by(name, position),
@@ -292,10 +305,11 @@ if (nrow(unmatched) > 0) {
 }
 
 proj_ids <- proj_ids |>
+  bind_rows(proj_known) |>
   filter(!is.na(player_id)) |>
   # a player listed on two position pages keeps his higher projection
   slice_max(projection, n = 1, with_ties = FALSE, by = c(season, week, player_id)) |>
-  select(season, week, player_id, projection, proj_position = position)
+  select(season, week, player_id, projection, proj_position = position, source)
 
 # Fantasy Points for Everyone ----------------------------------------------
 # rostered players already have exact points from the matchups. Free agents get
@@ -480,7 +494,8 @@ points <- points |>
 # K/DST projections are rankings, convert them to points ----------------------
 # FFToday only ranks kickers and defenses (stored as 33 - rank). Map rank to
 # expected points with a linear fit of actual points on rank, which keeps the order
-# (and so every replacement choice) unchanged.
+# (and so every replacement choice) unchanged. Sleeper K/DST projections are already
+# points and are left as they are.
 
 all_points <- bind_rows(
   rostered |>
@@ -490,7 +505,7 @@ all_points <- bind_rows(
   distinct(season, week, player_id, .keep_all = TRUE)
 
 kdst_fit <- proj_ids |>
-  filter(proj_position %in% c("K", "DST")) |>
+  filter(proj_position %in% c("K", "DST"), source == "fftoday") |>
   mutate(rank = 33 - projection) |>
   semi_join(weeks_played, by = join_by(season, week)) |>
   left_join(all_points, by = join_by(season, week, player_id)) |>
@@ -512,7 +527,7 @@ proj_ids <- proj_ids |>
   left_join(kdst_fit, by = join_by(proj_position)) |>
   mutate(
     projection = if_else(
-      is.na(slope),
+      is.na(slope) | source != "fftoday",
       projection,
       intercept + slope * (33 - projection)
     )
@@ -520,7 +535,26 @@ proj_ids <- proj_ids |>
   select(season, week, player_id, projection)
 
 rostered <- rostered |>
-  left_join(proj_ids, by = join_by(season, week, player_id)) |>
+  left_join(proj_ids, by = join_by(season, week, player_id))
+
+# guard: a week whose projections are missing (e.g. a failed scrape) would be
+# computed with every projection set to 0, which makes its replacement choices
+# arbitrary. Flag any week where most starters have no projection.
+missing_projections <- rostered |>
+  filter(starter) |>
+  summarize(share_missing = mean(is.na(projection)), .by = c(season, week)) |>
+  filter(share_missing > 0.5)
+
+if (nrow(missing_projections) > 0) {
+  warning(
+    "No projections for ",
+    str_flatten_comma(str_c(missing_projections$season, " week ", missing_projections$week)),
+    ": value added for these weeks is computed with every projection set to 0 and ",
+    "is not reliable. Rerun Scraping.R once projections are available."
+  )
+}
+
+rostered <- rostered |>
   mutate(projection = coalesce(projection, 0)) # unprojected bench players
 
 # Replacement Level --------------------------------------------------------
@@ -694,6 +728,7 @@ rm(list = intersect(
     "read_cache", "load_ff_ids", "matchup_week_long", "nflverse_points",
     "rostered", "weeks_played", "completed_weeks", "in_progress", "lineup",
     "dedicated_slots", "qb_slots", "starting_slots", "projections", "proj_ids",
+    "proj_known", "missing_projections",
     "unmatched", "ff_ids", "second_pass", "still_unmatched", "stats_points",
     "stats_check", "untrusted", "points", "all_points", "kdst_fit", "free_agents",
     "bench_best", "team_replacement", "starters", "dupes", "missing_info",
