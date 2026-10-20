@@ -6,19 +6,18 @@ library("shiny")
 library("shinydashboard")
 library("DT")
 
-# only if running on local machine
 print("App starting...") # for logs
-if (interactive()) {
-  setwd(here::here("Shiny"))
-}
 
-# Source the function files in the folder
-source("app_call_data.R")
+# the app's files live in the Shiny folder (the working directory when deployed; found
+# with here() when run locally)
+app_dir <- if (interactive()) here::here("Shiny") else "."
+source(file.path(app_dir, "app_call_data.R"))
 print("Loaded functions") # for logs
 
 # Define UI
 ui <- dashboardPage(
   skin = "green",
+  title = "Baylor Seniors Dynasty League",
   dashboardHeader(title = "Baylor Seniors"),
   dashboardSidebar(
     sidebarMenu(
@@ -65,7 +64,7 @@ ui <- dashboardPage(
       tabItem(
         # Home Tab
         tabName = "home",
-        titlePanel("Fantasy Football Dynasty League"),
+        h2("Fantasy Football Dynasty League"),
         p(
           "Hello! This site hosts results and analysis for the Baylor Seniors Fantasy Football Superflex Dynasty League. The analysis
         is built on the",
@@ -174,7 +173,7 @@ ui <- dashboardPage(
         fluidRow(
           column(
             9,
-            titlePanel("Individual Players"),
+            h2("Individual Players"),
             p(
               "Select any player and this page will report the player's value added and future value. The future value for each year is the
           median of 5000 samples, while the colored regions are the 80% and 95% credible regions."
@@ -182,11 +181,7 @@ ui <- dashboardPage(
             selectizeInput(
               inputId = "player_name",
               label = "Enter a Player's Name",
-              choices = filter(
-                player_total_value,
-                position %in% c("QB", "WR", "RB", "TE")
-              ) |>
-                pull(name),
+              choices = player_choices,
               options = list(
                 placeholder = "Start typing...",
                 maxOptions = 5 # Limit the number of suggestions shown
@@ -226,7 +221,7 @@ ui <- dashboardPage(
         fluidRow(
           column(
             9,
-            titlePanel("Fantasy Teams"),
+            h2("Fantasy Teams"),
             p(
               "Select a user to view the team's top assets and acquisitions."
             ),
@@ -238,7 +233,7 @@ ui <- dashboardPage(
               selected = users$display_name[1],
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 5 # Limit the number of suggestions shown
+                maxOptions = nrow(users) # Limit the number of suggestions shown
               )
             )
           ),
@@ -267,12 +262,10 @@ ui <- dashboardPage(
         selectizeInput(
           inputId = "team_week",
           label = "Enter Week",
-          choices = c(1:17),
-          # multiple = TRUE, #enable multiple selections
-          selected = 1,
+          choices = NULL, # completed weeks of the selected season, set in the server
           options = list(
             placeholder = "Start typing...",
-            maxOptions = 5 # Limit the number of suggestions shown
+            maxOptions = 18 # Limit the number of suggestions shown
           )
         ),
         uiOutput("team_contributors_weekly_title"),
@@ -313,7 +306,7 @@ ui <- dashboardPage(
       tabItem(
         # Page 3 Tab
         tabName = "draft",
-        titlePanel("Draft Grades"),
+        h2("Draft Grades"),
         p(
           "Select a draft to view the top picks and best overall drafts. The user's expected value is the
         anticipated value accrued from the user's set of picks. This provides a standard against which to compare drafts."
@@ -342,27 +335,17 @@ ui <- dashboardPage(
       tabItem(
         # Page 4 Tab
         tabName = "transaction",
-        titlePanel("Transaction Grades"),
-        uiOutput("transaction_winners_title"),
+        h2("Transaction Grades"),
+        h3("Transaction Winners"),
         p("The total value gained or lost from all transactions."),
         DTOutput("transaction_winners"),
-        uiOutput("top_transaction_title"),
+        h3("Top Transactions"),
         p(
           "The most successful transactions in league history. This is assessed now, not at the time of the transaction."
         ),
         DTOutput("top_transaction"),
         p(
-          "Select a single transaction to see a full breakdown of the value gained and lost from added and dropped players."
-        ),
-        selectizeInput(
-          inputId = "transaction_selection",
-          label = "Enter Transaction ID",
-          choices = unique(transaction_comparison$transaction_id),
-          # multiple = TRUE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5 # Limit the number of suggestions shown
-          )
+          "Click a transaction in the table above to see a full breakdown of the value gained and lost from added and dropped players."
         ),
         uiOutput("individual_transaction_title"),
         DTOutput("individual_transaction")
@@ -371,27 +354,17 @@ ui <- dashboardPage(
       tabItem(
         # Page 5 Tab
         tabName = "trade",
-        titlePanel("Trade Grades"),
-        uiOutput("trade_winners_title"),
+        h2("Trade Grades"),
+        h3("Trade Winners"),
         p("The total value gained or lost from all trades."),
         DTOutput("trade_winners"),
-        uiOutput("trade_lopsided_title"),
+        h3("Lopsided Trades"),
         p(
           "The most unfair trades in league history. This is assessed now, not at the time of the trade."
         ),
         DTOutput("trade_lopsided"),
         p(
-          "Select a single trade to see a full breakdown of the value gained and lost for each user."
-        ),
-        selectizeInput(
-          inputId = "trade_selection",
-          label = "Enter Trade ID",
-          choices = unique(comparison$trade_id),
-          # multiple = TRUE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 3 # Limit the number of suggestions shown
-          )
+          "Click a trade in the table above to see a full breakdown of the value gained and lost for each user."
         ),
         uiOutput("individual_trade_title"),
         DTOutput("individual_trade")
@@ -400,7 +373,7 @@ ui <- dashboardPage(
       tabItem(
         # Page 6 Tab
         tabName = "trade_machine",
-        titlePanel("Trade Machine"),
+        h2("Trade Machine"),
         p(
           "This Trade Machine compares the projected future value of various assets in a potential trade.
         It outputs the net future value and net next year value for each fantasy team."
@@ -430,7 +403,7 @@ ui <- dashboardPage(
               selected = users$display_name[1],
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 5 # Limit the number of suggestions shown
+                maxOptions = nrow(users) # Limit the number of suggestions shown
               )
             )
           ),
@@ -443,7 +416,7 @@ ui <- dashboardPage(
               selected = users$display_name[2],
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 5 # Limit the number of suggestions shown
+                maxOptions = nrow(users) # Limit the number of suggestions shown
               )
             )
           )
@@ -458,7 +431,7 @@ ui <- dashboardPage(
               multiple = TRUE, #enable multiple selections
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 12 # Limit the number of suggestions shown
+                maxOptions = 100 # show every asset
               )
             )
           ),
@@ -471,7 +444,7 @@ ui <- dashboardPage(
               multiple = TRUE, #enable multiple selections
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 12 # Limit the number of suggestions shown
+                maxOptions = 100 # show every asset
               )
             )
           )
@@ -498,7 +471,7 @@ ui <- dashboardPage(
       tabItem(
         # Page 7 Tab
         tabName = "future_standings",
-        titlePanel("Future Standings"),
+        h2("Future Standings"),
         p(
           "I simulate final standings over the next three years 5000 times. In each simulation,
           I project the value added for each player and find the total value added for each fantasy team.
@@ -506,16 +479,16 @@ ui <- dashboardPage(
           compute the final standings odds for each team. The championship odds and most common finish are below."
         ),
 
-        uiOutput("championship_odds_title"),
+        h3("Championship Odds"),
         DTOutput("championship_odds"),
 
-        uiOutput("playoff_odds_title"),
+        h3("Playoff Odds"),
         DTOutput("playoff_odds"),
 
-        uiOutput("bye_odds_title"),
+        h3("First Round Bye Odds"),
         DTOutput("bye_odds"),
 
-        uiOutput("n1_pick_odds_title"),
+        h3("Number 1 Pick Odds"),
         DTOutput("n1_pick_odds"),
 
         selectizeInput(
@@ -536,7 +509,7 @@ ui <- dashboardPage(
       tabItem(
         # Page 8 Tab
         tabName = "rankings",
-        titlePanel("Player Rankings"),
+        h2("Player Rankings"),
         p(
           "Player's future value, ranked and displayed over time.
           Select a position to see the top players of that position."
@@ -553,17 +526,13 @@ ui <- dashboardPage(
           )
         ),
 
-        uiOutput("players_top_future_value_title"),
+        h3("Players Ranked by Future Value"),
         DTOutput("players_top_future_value"),
 
         selectizeInput(
           inputId = "enter_players",
           label = "Enter Players",
-          choices = filter(
-            player_total_value,
-            position %in% c("QB", "WR", "RB", "TE")
-          ) |>
-            pull(name),
+          choices = player_choices,
           multiple = TRUE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -571,7 +540,7 @@ ui <- dashboardPage(
           )
         ),
 
-        uiOutput("future_value_over_time_title"),
+        h3("Future Value over Time"),
         p(
           "Demonstrates a player's future value at different points in the league history. Please note that
           these estimations were conducted at irregular intervals until June 2025. Note that a player's value will
@@ -580,18 +549,14 @@ ui <- dashboardPage(
         ),
         plotlyOutput("future_value_over_time"),
 
-        uiOutput("comparable_future_value_title"),
+        h3("Compare Future Value with similar players"),
         p(
           "Select a single player and see the trajectory of similar players of the same position."
         ),
         selectizeInput(
           inputId = "enter_player",
           label = "Enter one Player",
-          choices = filter(
-            player_total_value,
-            position %in% c("QB", "WR", "RB", "TE")
-          ) |>
-            pull(name),
+          choices = player_choices,
           multiple = FALSE, #enable multiple selections
           options = list(
             placeholder = "Start typing...",
@@ -604,10 +569,10 @@ ui <- dashboardPage(
       tabItem(
         # Page 9 Tab
         tabName = "team_rankings",
-        titlePanel("Team Rankings"),
+        h2("Team Rankings"),
         p("Team rankings by Elo and total future value of assets."),
 
-        uiOutput("elo_rankings_title"),
+        h3("Elo Rankings"),
         p(
           "Elo is a simple rating system developed by physicist Dr. Arpad Elo. Teams gain points for winning and lose points
           for losing. The strength of opponent and margin of victory are taken into account. The average score is 1500 and ratings
@@ -632,7 +597,7 @@ ui <- dashboardPage(
               selected = users$display_name[1],
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 5 # Limit the number of suggestions shown
+                maxOptions = nrow(users) # Limit the number of suggestions shown
               )
             )
           ),
@@ -645,24 +610,24 @@ ui <- dashboardPage(
               selected = users$display_name[2],
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 5 # Limit the number of suggestions shown
+                maxOptions = nrow(users) # Limit the number of suggestions shown
               )
             )
           )
         ),
         DTOutput("elo_win_prob"),
 
-        uiOutput("total_success_title"),
+        h3("High and Low Elo Rating"),
         DTOutput("total_success"),
 
-        uiOutput("future_assets_title"),
+        h3("Total Future Assets"),
         DTOutput("future_assets")
       ),
 
       tabItem(
         # Page 10 Tab
         tabName = "matchups",
-        titlePanel("Matchup History"),
+        h2("Matchup History"),
         p("Select a team to see historical records against opponents."),
         fluidRow(
           column(
@@ -674,7 +639,7 @@ ui <- dashboardPage(
               selected = users$display_name[1],
               options = list(
                 placeholder = "Start typing...",
-                maxOptions = 5 # Limit the number of suggestions shown
+                maxOptions = nrow(users) # Limit the number of suggestions shown
               )
             )
           ),
@@ -716,17 +681,17 @@ ui <- dashboardPage(
       tabItem(
         # Page 11 Tab
         tabName = "history",
-        titlePanel("League History"),
+        h2("League History"),
         p(
           "This page lists the league champions and notable records set in the league."
         ),
-        uiOutput("championship_title"),
+        h3("Championships"),
         DTOutput("championship"),
 
-        uiOutput("finalists_title"),
+        h3("Finals"),
         DTOutput("finalists"),
 
-        uiOutput("playoffs_title"),
+        h3("Playoff Appearances"),
         DTOutput("playoffs"),
 
         fluidRow(
@@ -760,13 +725,13 @@ ui <- dashboardPage(
           )
         ),
 
-        uiOutput("most_wins_title"),
+        h3("Most Wins"),
         DTOutput("most_wins"),
 
-        uiOutput("most_points_title"),
+        h3("Most Fantasy Points"),
         DTOutput("most_points"),
 
-        uiOutput("highest_team_game_title"),
+        h3("Most Fantasy Points in a Game"),
         p(
           "Note: reverse the sort on this column to see the lowest team total in league history."
         ),
@@ -780,24 +745,24 @@ ui <- dashboardPage(
           selected = "All",
           options = list(
             placeholder = "Start typing...",
-            maxOptions = 5 # Limit the number of suggestions shown
+            maxOptions = length(unique(value_added$position)) + 1 # Limit the number of suggestions shown
           )
         ),
 
-        uiOutput("player_highest_season_title"),
+        h3("Player's Total Fantasy Points"),
         DTOutput("player_highest_season"),
 
-        uiOutput("player_highest_va_season_title"),
+        h3("Player's Total Realized Value"),
         DTOutput("player_highest_va_season"),
 
-        uiOutput("player_best_game_title"),
+        h3("Player's Most Fantasy Points in a Game"),
         DTOutput("player_best_game")
       ),
 
       tabItem(
         # Page 12 Tab
         tabName = "modeling",
-        titlePanel("Model Explanations and Fit"),
+        h2("Model Explanations and Fit"),
         withMathJax(),
         p(
           "This site makes dozens of projections and draws substantial conclusions. Why should you trust them? Let me try to convince you."
@@ -981,16 +946,23 @@ ui <- dashboardPage(
 # Define Server
 server <- function(input, output, session) {
   # Reactivity for Page 1
+  # input$player_name is the player's player_id; player_label() is his name
+
+  player_label <- reactive({
+    req(input$player_name)
+    names(player_choices)[match(input$player_name, player_choices)]
+  })
 
   output$player_image <- renderUI({
     # user image
     req(input$player_name)
     image_url <- player_headshot |>
-      filter(name == input$player_name) |>
+      filter(player_id == input$player_name) |>
       slice(1) |>
       pull(headshot_url)
+    req(length(image_url) == 1)
 
-    tags$img(src = image_url, height = "150px")
+    tags$img(src = image_url, height = "150px", alt = player_label())
   })
 
   output$player_basic_info <- renderDT({
@@ -1009,12 +981,12 @@ server <- function(input, output, session) {
   output$tabulate_realized_value_title <- renderUI({
     #title
     req(input$player_name, input$player_season) #require input
-    h3(str_c(input$player_name, " Seasons"))
+    h3(str_c(player_label(), " Seasons"))
   })
 
   output$tabulate_realized_value <- renderDT({
     #table 2
-    req(input$player_season)
+    req(input$player_name, input$player_season)
     tabulate_realized_value(
       value_added,
       input$player_name,
@@ -1026,11 +998,26 @@ server <- function(input, output, session) {
 
   output$weekly_results <- renderPlot({
     #second plot
-    req(input$player_season) #require input
+    req(input$player_name, input$player_season) #require input
     weekly_results(value_added, input$player_name, input$player_season)
   })
 
   # Reactivity for Page 2
+
+  observeEvent(input$team_season, {
+    weeks <- value_added |>
+      filter(season == max(as.numeric(input$team_season))) |>
+      distinct(week) |>
+      arrange(week) |>
+      pull(week)
+
+    updateSelectizeInput(
+      session,
+      "team_week",
+      choices = weeks,
+      selected = max(weeks)
+    )
+  })
 
   output$image_ui <- renderUI({
     # user image
@@ -1235,11 +1222,6 @@ server <- function(input, output, session) {
 
   # Reactivity for Page 4
 
-  output$transaction_winners_title <- renderUI({
-    #title
-    h3("Transaction Winners")
-  })
-
   output$transaction_winners <- renderDT({
     #table 1
     overall_transaction_winners |>
@@ -1247,22 +1229,22 @@ server <- function(input, output, session) {
       dt(page = 12)
   })
 
-  output$top_transaction_title <- renderUI({
-    #title
-    h3("Top Transactions")
+  output$top_transaction <- renderDT({
+    #table 2: click a row to see its breakdown below (the first row to start)
+    top_transactions |>
+      select(-transaction_id) |>
+      shiny_edit_tables() |>
+      dt(page = 5, dom = "ftip", selection = list(mode = "single", selected = 1))
   })
 
-  output$top_transaction <- renderDT({
-    #table 2
-    top_transactions |>
-      shiny_edit_tables() |>
-      rename("Transaction ID" = "Transaction Id") |>
-      dt(page = 5)
+  # transaction_id of the clicked row
+  selected_transaction <- reactive({
+    req(input$top_transaction_rows_selected)
+    as.character(top_transactions$transaction_id[input$top_transaction_rows_selected])
   })
 
   output$individual_transaction_title <- renderUI({
-    req(input$transaction_selection)
-    txn <- total_transaction_value[[input$transaction_selection]]
+    txn <- total_transaction_value[[selected_transaction()]]
     h3(str_c(
       txn$team_name[1],
       "'s ",
@@ -1275,20 +1257,11 @@ server <- function(input, output, session) {
 
   output$individual_transaction <- renderDT({
     #table 3
-    req(input$transaction_selection) #require input
-    inspect_individual_transaction(
-      input$transaction_selection,
-      shiny = TRUE
-    ) |>
+    inspect_individual_transaction(selected_transaction(), shiny = TRUE) |>
       dt(page = 12)
   })
 
   # Reactivity for Page 5
-
-  output$trade_winners_title <- renderUI({
-    #title
-    h3("Trade Winners")
-  })
 
   output$trade_winners <- renderDT({
     #table 1
@@ -1297,22 +1270,22 @@ server <- function(input, output, session) {
       dt(page = 12)
   })
 
-  output$trade_lopsided_title <- renderUI({
-    #title
-    h3("Lopsided Trades")
+  output$trade_lopsided <- renderDT({
+    #table 2: click a row to see its breakdown below (the first row to start)
+    lopsided_trades |>
+      select(-trade_id) |>
+      shiny_edit_tables() |>
+      dt(page = 5, dom = "ftip", selection = list(mode = "single", selected = 1))
   })
 
-  output$trade_lopsided <- renderDT({
-    #table 2
-    lopsided_trades |>
-      shiny_edit_tables() |>
-      rename("Trade ID" = "Trade Id") |>
-      dt(page = 5)
+  # trade_id of the clicked row
+  selected_trade <- reactive({
+    req(input$trade_lopsided_rows_selected)
+    as.character(lopsided_trades$trade_id[input$trade_lopsided_rows_selected])
   })
 
   output$individual_trade_title <- renderUI({
-    req(input$trade_selection)
-    trade <- total_trade_value[[input$trade_selection]]
+    trade <- total_trade_value[[selected_trade()]]
     teams <- trade |>
       select(team_name) |>
       distinct() |>
@@ -1322,8 +1295,7 @@ server <- function(input, output, session) {
 
   output$individual_trade <- renderDT({
     #table 3
-    req(input$trade_selection) #require input
-    inspect_individual_trade(input$trade_selection, shiny = TRUE) |>
+    inspect_individual_trade(selected_trade(), shiny = TRUE) |>
       dt(page = 12)
   })
 
@@ -1365,7 +1337,11 @@ server <- function(input, output, session) {
 
   # graded once per change of teams or assets, shared by the outputs below
   trade_valuation <- reactive({
-    req(input$team1_assets, input$team2_assets)
+    req(
+      input$trade_machine_team1,
+      input$trade_machine_team2,
+      length(input$team1_assets) + length(input$team2_assets) > 0
+    )
     validate(need(
       input$trade_machine_team1 != input$trade_machine_team2,
       "Select two different teams."
@@ -1437,21 +1413,11 @@ server <- function(input, output, session) {
 
   # Reactivity for Page 7
 
-  output$championship_odds_title <- renderUI({
-    #title
-    h3("Championship Odds")
-  })
-
   output$championship_odds <- renderDT({
     #table 1
     champion_odds |>
       shiny_edit_tables() |>
       dt(page = 12)
-  })
-
-  output$playoff_odds_title <- renderUI({
-    #title
-    h3("Playoff Odds")
   })
 
   output$playoff_odds <- renderDT({
@@ -1461,21 +1427,11 @@ server <- function(input, output, session) {
       dt(page = 12)
   })
 
-  output$bye_odds_title <- renderUI({
-    #title
-    h3("First Round Bye Odds")
-  })
-
   output$bye_odds <- renderDT({
     #table 3
     bye_odds |>
       shiny_edit_tables() |>
       dt(page = 12)
-  })
-
-  output$n1_pick_odds_title <- renderUI({
-    #title
-    h3("Number 1 Pick Odds")
   })
 
   output$n1_pick_odds <- renderDT({
@@ -1501,11 +1457,6 @@ server <- function(input, output, session) {
 
   # Reactivity for Page 8
 
-  output$players_top_future_value_title <- renderUI({
-    #title
-    h3("Players Ranked by Future Value")
-  })
-
   output$players_top_future_value <- renderDT({
     #table 1
     req(input$enter_position) #require input
@@ -1514,20 +1465,10 @@ server <- function(input, output, session) {
       dt(page = 5)
   })
 
-  output$future_value_over_time_title <- renderUI({
-    #title
-    h3("Future Value over Time")
-  })
-
   output$future_value_over_time <- renderPlotly({
     # first plot
     req(input$enter_players) #require input
     future_value_time |> plot_over_time(input$enter_players)
-  })
-
-  output$comparable_future_value_title <- renderUI({
-    #title
-    h3("Compare Future Value with similar players")
   })
 
   output$comparable_future_value <- renderPlotly({
@@ -1538,11 +1479,6 @@ server <- function(input, output, session) {
   })
 
   # Reactivity for Page 9
-
-  output$elo_rankings_title <- renderUI({
-    #title
-    h3("Elo Rankings")
-  })
 
   output$elo_rankings <- renderPlotly({
     #first plot
@@ -1561,21 +1497,11 @@ server <- function(input, output, session) {
       dt(page = 2)
   })
 
-  output$total_success_title <- renderUI({
-    #title
-    h3("High and Low Elo Rating")
-  })
-
   output$total_success <- renderDT({
     #table 2
     total_success |>
       shiny_edit_tables() |>
       dt(page = 12)
-  })
-
-  output$future_assets_title <- renderUI({
-    #title
-    h3("Total Future Assets")
   })
 
   output$future_assets <- renderDT({
@@ -1608,21 +1534,11 @@ server <- function(input, output, session) {
 
   # Reactivity for Page 11
 
-  output$championship_title <- renderUI({
-    #title
-    h3("Championships")
-  })
-
   output$championship <- renderDT({
     # table 1
     championships_df |>
       shiny_edit_tables() |>
       dt(page = 5)
-  })
-
-  output$finalists_title <- renderUI({
-    #title
-    h3("Finals")
   })
 
   output$finalists <- renderDT({
@@ -1632,21 +1548,11 @@ server <- function(input, output, session) {
       dt(page = 5)
   })
 
-  output$playoffs_title <- renderUI({
-    #title
-    h3("Playoff Appearances")
-  })
-
   output$playoffs <- renderDT({
     # table 3
     playoffs_df |>
       shiny_edit_tables() |>
       dt(page = 6)
-  })
-
-  output$most_wins_title <- renderUI({
-    #title
-    h3("Most Wins")
   })
 
   output$most_wins <- renderDT({
@@ -1660,11 +1566,6 @@ server <- function(input, output, session) {
       dt(page = 5)
   })
 
-  output$most_points_title <- renderUI({
-    #title
-    h3("Most Fantasy Points")
-  })
-
   output$most_points <- renderDT({
     # table 5
     req(input$enter_round_history, input$enter_season_history)
@@ -1676,11 +1577,6 @@ server <- function(input, output, session) {
       dt(page = 5)
   })
 
-  output$highest_team_game_title <- renderUI({
-    #title
-    h3("Most Fantasy Points in a Game")
-  })
-
   output$highest_team_game <- renderDT({
     # table 6
     req(input$enter_round_history, input$enter_season_history)
@@ -1690,11 +1586,6 @@ server <- function(input, output, session) {
       input$enter_season_history
     ) |>
       dt(page = 5)
-  })
-
-  output$player_highest_season_title <- renderUI({
-    #title
-    h3("Player's Total Fantasy Points")
   })
 
   output$player_highest_season <- renderDT({
@@ -1714,11 +1605,6 @@ server <- function(input, output, session) {
       dt(page = 5)
   })
 
-  output$player_highest_va_season_title <- renderUI({
-    #title
-    h3("Player's Total Realized Value")
-  })
-
   output$player_highest_va_season <- renderDT({
     # table 8
     req(
@@ -1734,11 +1620,6 @@ server <- function(input, output, session) {
       input$enter_position_history
     ) |>
       dt(page = 5)
-  })
-
-  output$player_best_game_title <- renderUI({
-    #title
-    h3("Player's Most Fantasy Points in a Game")
   })
 
   output$player_best_game <- renderDT({

@@ -53,6 +53,7 @@ basic_info_df <- player_total_value |>
     age = time_length(interval(birth_date, today()), "years")
   ) |>
   select(
+    player_id, # for the app's lookups (not shown)
     name,
     position,
     birth_date,
@@ -111,6 +112,6 @@ write_csv(
 write_csv(value_added, here("Shiny/Saved Files/value_added.csv"))
 
 # Examples (app functions in Shiny/Script Support.R) -----------------------------
-# plot_future_value("Josh Allen")
-# value_added |> tabulate_realized_value("Caleb Williams", 2024, shiny = FALSE)
-# value_added |> weekly_results("James Cook", 2024)
+# plot_future_value("4984") # Josh Allen (functions take player_ids)
+# value_added |> tabulate_realized_value("11560", 2024, shiny = FALSE) # Caleb Williams
+# value_added |> weekly_results("8138", 2024) # James Cook

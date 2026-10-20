@@ -340,7 +340,6 @@ box_score_headshots <- if (nrow(box_score_off_current) > 0) {
 
 player_headshot <- player_info |>
   filter(position != "DST") |>
-  arrange(years_exp) |> # for repeated names, the more recent player
   left_join(nflverse_headshots, by = join_by(player_id)) |>
   left_join(box_score_headshots, by = join_by(name, position)) |>
   mutate(
@@ -350,8 +349,8 @@ player_headshot <- player_info |>
       str_c("https://sleepercdn.com/content/nfl/players/", player_id, ".jpg")
     )
   ) |>
-  distinct(name, .keep_all = TRUE) |>
-  select(name, headshot_url)
+  distinct(player_id, .keep_all = TRUE) |>
+  select(player_id, name, headshot_url)
 
 player_headshot |> write_csv(here("Shiny/Saved Files/player_headshot.csv"))
 

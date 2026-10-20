@@ -1,9 +1,13 @@
 # call data from csvs
 
-script_data_path <- "Saved Files/"
+# app.R sets app_dir (the Shiny folder); default to the working directory
+if (!exists("app_dir")) {
+  app_dir <- "."
+}
+script_data_path <- file.path(app_dir, "Saved Files", "")
 
 # load necessary functions
-source("Script Support.R")
+source(file.path(app_dir, "Script Support.R"))
 
 # load data files
 
@@ -20,7 +24,8 @@ acquisitions <- read_csv(
 )
 grab_team_assets_df <- read_csv(
   str_c(script_data_path, "grab_team_assets_df.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 player_avenues <- read_csv(
   str_c(script_data_path, "player_avenues.csv"),
@@ -34,19 +39,23 @@ value_avenues <- read_csv(
 # individual players
 basic_info_df <- read_csv(
   str_c(script_data_path, "basic_info_df.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 plot_future_value_df <- read_csv(
   str_c(script_data_path, "plot_future_value_df.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 value_added <- read_csv(
   str_c(script_data_path, "value_added.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 player_headshot <- read_csv(
   str_c(script_data_path, "player_headshot.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 
 # drafts
@@ -88,7 +97,8 @@ load(str_c(script_data_path, "total_trade_value.Rdata"))
 # trade grades
 assets_df <- read_csv(
   str_c(script_data_path, "assets_df.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 roster_spot_value <- read_csv(
   str_c(script_data_path, "roster_spot_value.csv"),
@@ -158,25 +168,24 @@ wins_df <- read_csv(
 # player rankings
 future_value_time <- read_csv(
   str_c(script_data_path, "future_value_time.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 
 # load from data folder
 player_total_value <- read_csv(
   str_c(script_data_path, "player_total_value.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 users <- read_csv(str_c(script_data_path, "users.csv"), show_col_types = FALSE)
 season_value_added <- read_csv(
   str_c(script_data_path, "season_value_added.csv"),
-  show_col_types = FALSE
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
 )
 avatar <- read_csv(
   str_c(script_data_path, "avatar.csv"),
-  show_col_types = FALSE
-)
-future_value_time <- read_csv(
-  str_c(script_data_path, "future_value_time.csv"),
   show_col_types = FALSE
 )
 
@@ -193,3 +202,20 @@ draft_fit_plot <- read_csv(
   str_c(script_data_path, "draft_fit_plot.csv"),
   show_col_types = FALSE
 )
+
+# files written before player_id was added (Scraping.R and Individual Players.R now
+# include it): match by name
+if (!"player_id" %in% names(player_headshot)) {
+  player_headshot <- player_headshot |>
+    inner_join(select(player_total_value, name, player_id), by = join_by(name))
+}
+if (!"player_id" %in% names(basic_info_df)) {
+  basic_info_df <- basic_info_df |>
+    inner_join(select(player_total_value, name, player_id), by = join_by(name))
+}
+
+# player selectors: names shown, player_id returned (names can repeat)
+player_choices <- player_total_value |>
+  filter(position %in% c("QB", "WR", "RB", "TE")) |>
+  select(name, player_id) |>
+  deframe()
