@@ -3,7 +3,8 @@
 # doesn't work for current version of R, so I backed up to 4.4.2
 
 library("shiny")
-library("shinydashboard")
+library("bs4Dash")
+library("fresh")
 library("DT")
 
 print("App starting...") # for logs
@@ -15,11 +16,49 @@ source(file.path(app_dir, "app_call_data.R"))
 print("Loaded functions") # for logs
 
 # Define UI
+# bs4Dash (AdminLTE 3 / Bootstrap 4) with a fresh theme; thematic matches the ggplot
+# charts to the page (see thematic_shiny() at the bottom). Boxes sit side by side on wide
+# screens and stack into one column on phones.
+
+app_theme <- create_theme(
+  bs4dash_status(
+    primary = "#00a65a",
+    success = "#00a65a",
+    info = "#2a78d6",
+    warning = "#eda100",
+    danger = "#e34948"
+  ),
+  bs4dash_layout(main_bg = "#f4f6f9"),
+  bs4dash_sidebar_dark(bg = "#222d32", color = "#c2c7d0", hover_color = "#ffffff")
+)
+
+# a page section: a card with a title (text or a uiOutput)
+panel <- function(..., title = NULL, width = 12) {
+  box(
+    ...,
+    title = title,
+    width = width,
+    status = "success",
+    solidHeader = FALSE,
+    collapsible = FALSE
+  )
+}
+
 ui <- dashboardPage(
-  skin = "green",
   title = "Baylor Seniors Dynasty League",
-  dashboardHeader(title = "Baylor Seniors"),
+  freshTheme = app_theme,
+  dark = NULL,
+  help = NULL,
+  scrollToTop = TRUE,
+  dashboardHeader(
+    title = dashboardBrand(title = "Baylor Seniors", color = "success"),
+    status = "success",
+    skin = "dark"
+  ),
   dashboardSidebar(
+    skin = "dark",
+    status = "success",
+    elevation = 3,
     sidebarMenu(
       id = "sidebar",
       menuItem("Home", tabName = "home", icon = icon("house")),
@@ -60,11 +99,16 @@ ui <- dashboardPage(
     )
   ),
   dashboardBody(
+    # titles that come from the server (uiOutput) sit inside the card titles
+    tags$head(tags$style(HTML(
+      ".card-title h3 { font-size: 1.1rem; margin: 0; }"
+    ))),
     tabItems(
       tabItem(
         # Home Tab
         tabName = "home",
         h2("Fantasy Football Dynasty League"),
+        p(em(str_c("Data updated ", data_updated_label, "."))),
         p(
           "Hello! This site hosts results and analysis for the Baylor Seniors Fantasy Football Superflex Dynasty League. The analysis
         is built on the",
@@ -170,10 +214,11 @@ ui <- dashboardPage(
       tabItem(
         # Page 1 Tab
         tabName = "players",
+        h2("Individual Players"),
         fluidRow(
-          column(
-            9,
-            h2("Individual Players"),
+          panel(
+            width = 9,
+            title = "Player",
             p(
               "Select any player and this page will report the player's value added and future value. The future value for each year is the
           median of 5000 samples, while the colored regions are the 80% and 95% credible regions."
@@ -190,8 +235,21 @@ ui <- dashboardPage(
           ),
           column(3, uiOutput("player_image"))
         ),
-        DTOutput("player_basic_info"),
-        plotOutput("plot_future_value", height = "400px", width = "100%"),
+        panel(title = "Value to Date", DTOutput("player_basic_info")),
+        fluidRow(
+          panel(
+            width = 7,
+            title = "Projected Value Added",
+            plotOutput("plot_future_value", height = "400px", width = "100%")
+          ),
+          panel(
+            width = 5,
+            title = "Future Value over Time",
+            plotlyOutput("player_value_over_time", height = "400px")
+          )
+        ),
+        panel(
+          title = uiOutput("tabulate_realized_value_title", inline = TRUE),
         p(
           "Enter a season to see the player's value added and fantasy points scored."
         ),
@@ -206,26 +264,29 @@ ui <- dashboardPage(
             maxOptions = length(unique(season_value_added$season)) # Limit the number of suggestions shown
           )
         ),
-        uiOutput("tabulate_realized_value_title"),
-        DTOutput("tabulate_realized_value"),
+          DTOutput("tabulate_realized_value")
+        ),
+        panel(
+          title = "Weekly Results",
         p(
           "This visual will show the player's weekly output, projected output, and value added over the course of a season.
           It defaults to the most recent season selected of the choices above."
         ),
-        plotOutput("weekly_results")
+          plotOutput("weekly_results", height = "450px")
+        )
       ),
 
       tabItem(
         # Page 2 Tab
         tabName = "teams",
+        h2("Fantasy Teams"),
         fluidRow(
-          column(
-            9,
-            h2("Fantasy Teams"),
+          panel(
+            width = 9,
+            title = "Team",
             p(
               "Select a user to view the team's top assets and acquisitions."
             ),
-
             selectizeInput(
               inputId = "team_name",
               label = "Enter a Team's Name",
@@ -239,12 +300,24 @@ ui <- dashboardPage(
           ),
           column(3, uiOutput("image_ui"))
         ),
-        uiOutput("team_assets_title"),
-        p("Top future assets on the team."),
-        DTOutput("team_assets"),
-        uiOutput("position_outlook_title"),
-        p("Asset value by position."),
-        DTOutput("position_outlook"),
+        fluidRow(
+          panel(
+            width = 6,
+            title = uiOutput("team_assets_title", inline = TRUE),
+            p("Top future assets on the team."),
+            DTOutput("team_assets")
+          ),
+          panel(
+            width = 6,
+            title = uiOutput("position_outlook_title", inline = TRUE),
+            p("Asset value by position."),
+            DTOutput("position_outlook")
+          )
+        ),
+        fluidRow(
+          panel(
+            width = 6,
+            title = uiOutput("team_contributors_title", inline = TRUE),
         selectizeInput(
           inputId = "team_season",
           label = "Enter Season",
@@ -256,9 +329,12 @@ ui <- dashboardPage(
             maxOptions = length(unique(season_value_added$season)) # Limit the number of suggestions shown
           )
         ),
-        uiOutput("team_contributors_title"),
-        p("Top contributors in this season."),
-        DTOutput("team_contributors"),
+            p("Top contributors in this season."),
+            DTOutput("team_contributors")
+          ),
+          panel(
+            width = 6,
+            title = uiOutput("team_contributors_weekly_title", inline = TRUE),
         selectizeInput(
           inputId = "team_week",
           label = "Enter Week",
@@ -268,14 +344,28 @@ ui <- dashboardPage(
             maxOptions = 18 # Limit the number of suggestions shown
           )
         ),
-        uiOutput("team_contributors_weekly_title"),
         p(
           "Weekly starters. This will default to the most recent season selected."
         ),
-        DTOutput("team_contributors_weekly"),
-        uiOutput("avenue_grades_title"),
-        p("Performance across acquisition avenues."),
-        DTOutput("avenue_grades"),
+            DTOutput("team_contributors_weekly")
+          )
+        ),
+        fluidRow(
+          panel(
+            width = 6,
+            title = uiOutput("avenue_grades_title", inline = TRUE),
+            p("Performance across acquisition avenues."),
+            DTOutput("avenue_grades")
+          ),
+          panel(
+            width = 6,
+            title = uiOutput("team_composition_title", inline = TRUE),
+            p("Proportion of total value on roster acquired from various avenues."),
+            DTOutput("team_composition")
+          )
+        ),
+        panel(
+          title = "Acquisitions",
         selectizeInput(
           inputId = "team_avenue",
           label = "Enter Acquisition Avenue",
@@ -292,21 +382,29 @@ ui <- dashboardPage(
             maxOptions = 5 # Limit the number of suggestions shown
           )
         ),
-        uiOutput("top_acquisitions_title"),
-        p("Filter by avenue to see top trade, draft pick, transaction, etc."),
-        DTOutput("top_acquisitions"),
-        uiOutput("worst_acquisitions_title"),
-        p("Filter by avenue to see worst trade, draft pick, transaction, etc."),
-        DTOutput("worst_acquisitions"),
-        uiOutput("team_composition_title"),
-        p("Proportion of total value on roster acquired from various avenues."),
-        DTOutput("team_composition")
+          fluidRow(
+            column(
+              6,
+              uiOutput("top_acquisitions_title"),
+              p("Filter by avenue to see top trade, draft pick, transaction, etc."),
+              DTOutput("top_acquisitions")
+            ),
+            column(
+              6,
+              uiOutput("worst_acquisitions_title"),
+              p("Filter by avenue to see worst trade, draft pick, transaction, etc."),
+              DTOutput("worst_acquisitions")
+            )
+          )
+        )
       ),
 
       tabItem(
         # Page 3 Tab
         tabName = "draft",
         h2("Draft Grades"),
+        panel(
+          title = "Draft",
         p(
           "Select a draft to view the top picks and best overall drafts. The user's expected value is the
         anticipated value accrued from the user's set of picks. This provides a standard against which to compare drafts."
@@ -323,57 +421,90 @@ ui <- dashboardPage(
             placeholder = "Start typing...",
             maxOptions = length(c(unique(picks_df$draft), "All")) # Limit the number of suggestions shown
           )
+        )
         ),
-        uiOutput("draft_ranking_title"),
-        DTOutput("draft_ranking"),
-        uiOutput("best_picks_title"),
-        DTOutput("best_picks"),
-        uiOutput("worst_picks_title"),
-        DTOutput("worst_picks")
+        panel(
+          title = uiOutput("draft_ranking_title", inline = TRUE),
+          DTOutput("draft_ranking")
+        ),
+        fluidRow(
+          panel(
+            width = 6,
+            title = uiOutput("best_picks_title", inline = TRUE),
+            DTOutput("best_picks")
+          ),
+          panel(
+            width = 6,
+            title = uiOutput("worst_picks_title", inline = TRUE),
+            DTOutput("worst_picks")
+          )
+        )
       ),
 
       tabItem(
         # Page 4 Tab
         tabName = "transaction",
         h2("Transaction Grades"),
-        h3("Transaction Winners"),
-        p("The total value gained or lost from all transactions."),
-        DTOutput("transaction_winners"),
-        h3("Top Transactions"),
+        panel(
+          title = "Top Transactions",
         p(
           "The most successful transactions in league history. This is assessed now, not at the time of the transaction."
         ),
-        DTOutput("top_transaction"),
+          DTOutput("top_transaction"),
         p(
           "Click a transaction in the table above to see a full breakdown of the value gained and lost from added and dropped players."
+        )
         ),
-        uiOutput("individual_transaction_title"),
-        DTOutput("individual_transaction")
+        fluidRow(
+          panel(
+            width = 6,
+            title = uiOutput("individual_transaction_title", inline = TRUE),
+            DTOutput("individual_transaction")
+          ),
+          panel(
+            width = 6,
+            title = "Transaction Winners",
+            p("The total value gained or lost from all transactions."),
+            DTOutput("transaction_winners")
+          )
+        )
       ),
 
       tabItem(
         # Page 5 Tab
         tabName = "trade",
         h2("Trade Grades"),
-        h3("Trade Winners"),
-        p("The total value gained or lost from all trades."),
-        DTOutput("trade_winners"),
-        h3("Lopsided Trades"),
+        panel(
+          title = "Lopsided Trades",
         p(
           "The most unfair trades in league history. This is assessed now, not at the time of the trade."
         ),
-        DTOutput("trade_lopsided"),
+          DTOutput("trade_lopsided"),
         p(
           "Click a trade in the table above to see a full breakdown of the value gained and lost for each user."
+        )
         ),
-        uiOutput("individual_trade_title"),
-        DTOutput("individual_trade")
+        fluidRow(
+          panel(
+            width = 6,
+            title = uiOutput("individual_trade_title", inline = TRUE),
+            DTOutput("individual_trade")
+          ),
+          panel(
+            width = 6,
+            title = "Trade Winners",
+            p("The total value gained or lost from all trades."),
+            DTOutput("trade_winners")
+          )
+        )
       ),
 
       tabItem(
         # Page 6 Tab
         tabName = "trade_machine",
         h2("Trade Machine"),
+        panel(
+          title = "Build a Trade",
         p(
           "This Trade Machine compares the projected future value of various assets in a potential trade.
         It outputs the net future value and net next year value for each fantasy team."
@@ -448,24 +579,28 @@ ui <- dashboardPage(
               )
             )
           )
+        )
         ),
         fluidRow(
           valueBoxOutput("overall_value", width = 6),
-          column(6, uiOutput("immediate_value"))
+          valueBoxOutput("immediate_value", width = 6)
         ),
-        plotOutput("plot_trade_assets", height = "300px", width = "100%"),
+        panel(
+          title = "Value Exchanged",
+          plotOutput("plot_trade_assets", height = "300px", width = "100%")
+        ),
         fluidRow(
-          column(
-            6,
-            uiOutput("team1_trade_outlook_title"),
+          panel(
+            width = 6,
+            title = uiOutput("team1_trade_outlook_title", inline = TRUE),
             DTOutput("team1_trade_outlook")
           ),
-          column(
-            6,
-            uiOutput("team2_trade_outlook_title"),
+          panel(
+            width = 6,
+            title = uiOutput("team2_trade_outlook_title", inline = TRUE),
             DTOutput("team2_trade_outlook")
           )
-        ),
+        )
       ),
 
       tabItem(
@@ -478,19 +613,18 @@ ui <- dashboardPage(
           This informs the teams' win probability for each game in the season. I simulate three consecutive seasons, and
           compute the final standings odds for each team. The championship odds and most common finish are below."
         ),
-
-        h3("Championship Odds"),
-        DTOutput("championship_odds"),
-
-        h3("Playoff Odds"),
-        DTOutput("playoff_odds"),
-
-        h3("First Round Bye Odds"),
-        DTOutput("bye_odds"),
-
-        h3("Number 1 Pick Odds"),
-        DTOutput("n1_pick_odds"),
-
+        fluidRow(
+          panel(width = 6, title = "Championship Odds", DTOutput("championship_odds")),
+          panel(width = 6, title = "Playoff Odds", DTOutput("playoff_odds"))
+        ),
+        fluidRow(
+          panel(width = 6, title = "First Round Bye Odds", DTOutput("bye_odds")),
+          panel(width = 6, title = "Number 1 Pick Odds", DTOutput("n1_pick_odds"))
+        ),
+        fluidRow(
+          panel(
+            width = 6,
+            title = uiOutput("most_common_finish_title", inline = TRUE),
         selectizeInput(
           inputId = "standings_season",
           label = "Enter Season",
@@ -501,15 +635,18 @@ ui <- dashboardPage(
             maxOptions = length(unique(most_common_finish_df$season)) # Limit the number of suggestions shown
           )
         ),
-        uiOutput("most_common_finish_title"),
-        p("The most likely finish for each Fantasy Team."),
-        DTOutput("most_common_finish")
+            p("The most likely finish for each Fantasy Team."),
+            DTOutput("most_common_finish")
+          )
+        )
       ),
 
       tabItem(
         # Page 8 Tab
         tabName = "rankings",
         h2("Player Rankings"),
+        panel(
+          title = "Players Ranked by Future Value",
         p(
           "Player's future value, ranked and displayed over time.
           Select a position to see the top players of that position."
@@ -525,10 +662,12 @@ ui <- dashboardPage(
             maxOptions = 5 # Limit the number of suggestions shown
           )
         ),
-
-        h3("Players Ranked by Future Value"),
-        DTOutput("players_top_future_value"),
-
+          DTOutput("players_top_future_value")
+        ),
+        fluidRow(
+          panel(
+            width = 6,
+            title = "Future Value over Time",
         selectizeInput(
           inputId = "enter_players",
           label = "Enter Players",
@@ -539,17 +678,17 @@ ui <- dashboardPage(
             maxOptions = 5 # Limit the number of suggestions shown
           )
         ),
-
-        h3("Future Value over Time"),
         p(
           "Demonstrates a player's future value at different points in the league history. Please note that
           these estimations were conducted at irregular intervals until June 2025. Note that a player's value will
           gradually decrease over the course of a season as the player ages and has fewer expected games remaining in his career.
           There are some notable exceptions, typically when a player dramatically exceeds expectations."
         ),
-        plotlyOutput("future_value_over_time"),
-
-        h3("Compare Future Value with similar players"),
+            plotlyOutput("future_value_over_time")
+          ),
+          panel(
+            width = 6,
+            title = "Compare Future Value with similar players",
         p(
           "Select a single player and see the trajectory of similar players of the same position."
         ),
@@ -563,7 +702,9 @@ ui <- dashboardPage(
             maxOptions = 5 # Limit the number of suggestions shown
           )
         ),
-        plotlyOutput("comparable_future_value")
+            plotlyOutput("comparable_future_value")
+          )
+        )
       ),
 
       tabItem(
@@ -571,8 +712,8 @@ ui <- dashboardPage(
         tabName = "team_rankings",
         h2("Team Rankings"),
         p("Team rankings by Elo and total future value of assets."),
-
-        h3("Elo Rankings"),
+        panel(
+          title = "Elo Rankings",
         p(
           "Elo is a simple rating system developed by physicist Dr. Arpad Elo. Teams gain points for winning and lose points
           for losing. The strength of opponent and margin of victory are taken into account. The average score is 1500 and ratings
@@ -583,7 +724,12 @@ ui <- dashboardPage(
           together. This removes any scheduling bias from the rating. Elo is not a forward facing predictive metric, but it is useful
           to understand team strength over time."
         ),
-        plotlyOutput("elo_rankings", height = "400px", width = "100%"),
+          plotlyOutput("elo_rankings", height = "400px", width = "100%")
+        ),
+        fluidRow(
+          panel(
+            width = 6,
+            title = "Win Probability",
         p(
           "Elo also gives implied win probabilities. Select two teams to compare their win probability."
         ),
@@ -615,19 +761,23 @@ ui <- dashboardPage(
             )
           )
         ),
-        DTOutput("elo_win_prob"),
-
-        h3("High and Low Elo Rating"),
-        DTOutput("total_success"),
-
-        h3("Total Future Assets"),
-        DTOutput("future_assets")
+            DTOutput("elo_win_prob")
+          ),
+          panel(
+            width = 6,
+            title = "Total Future Assets",
+            DTOutput("future_assets")
+          )
+        ),
+        panel(title = "High and Low Elo Rating", DTOutput("total_success"))
       ),
 
       tabItem(
         # Page 10 Tab
         tabName = "matchups",
         h2("Matchup History"),
+        panel(
+          title = uiOutput("matchups_title", inline = TRUE),
         p("Select a team to see historical records against opponents."),
         fluidRow(
           column(
@@ -672,10 +822,8 @@ ui <- dashboardPage(
             )
           )
         ),
-
-        uiOutput("matchups_title"),
-
-        DTOutput("matchup_history"),
+          DTOutput("matchup_history")
+        )
       ),
 
       tabItem(
@@ -685,15 +833,13 @@ ui <- dashboardPage(
         p(
           "This page lists the league champions and notable records set in the league."
         ),
-        h3("Championships"),
-        DTOutput("championship"),
-
-        h3("Finals"),
-        DTOutput("finalists"),
-
-        h3("Playoff Appearances"),
-        DTOutput("playoffs"),
-
+        fluidRow(
+          panel(width = 4, title = "Championships", DTOutput("championship")),
+          panel(width = 4, title = "Finals", DTOutput("finalists")),
+          panel(width = 4, title = "Playoff Appearances", DTOutput("playoffs"))
+        ),
+        panel(
+          title = "Records",
         fluidRow(
           column(
             6,
@@ -723,20 +869,21 @@ ui <- dashboardPage(
               )
             )
           )
+        )
         ),
-
-        h3("Most Wins"),
-        DTOutput("most_wins"),
-
-        h3("Most Fantasy Points"),
-        DTOutput("most_points"),
-
-        h3("Most Fantasy Points in a Game"),
+        fluidRow(
+          panel(width = 6, title = "Most Wins", DTOutput("most_wins")),
+          panel(width = 6, title = "Most Fantasy Points", DTOutput("most_points"))
+        ),
+        panel(
+          title = "Most Fantasy Points in a Game",
         p(
           "Note: reverse the sort on this column to see the lowest team total in league history."
         ),
-        DTOutput("highest_team_game"),
-
+          DTOutput("highest_team_game")
+        ),
+        panel(
+          title = "Player Records",
         selectizeInput(
           inputId = "enter_position_history",
           label = "Enter Position",
@@ -747,16 +894,21 @@ ui <- dashboardPage(
             placeholder = "Start typing...",
             maxOptions = length(unique(value_added$position)) + 1 # Limit the number of suggestions shown
           )
+        )
         ),
-
-        h3("Player's Total Fantasy Points"),
-        DTOutput("player_highest_season"),
-
-        h3("Player's Total Realized Value"),
-        DTOutput("player_highest_va_season"),
-
-        h3("Player's Most Fantasy Points in a Game"),
-        DTOutput("player_best_game")
+        fluidRow(
+          panel(
+            width = 6,
+            title = "Player's Total Fantasy Points",
+            DTOutput("player_highest_season")
+          ),
+          panel(
+            width = 6,
+            title = "Player's Total Realized Value",
+            DTOutput("player_highest_va_season")
+          )
+        ),
+        panel(title = "Player's Most Fantasy Points in a Game", DTOutput("player_best_game"))
       ),
 
       tabItem(
@@ -960,9 +1112,28 @@ server <- function(input, output, session) {
       filter(player_id == input$player_name) |>
       slice(1) |>
       pull(headshot_url)
-    req(length(image_url) == 1)
 
-    tags$img(src = image_url, height = "150px", alt = player_label())
+    # Sleeper's default player avatar when there is no headshot or it fails to load (and
+    # a plain silhouette if that fails too)
+    player_default <- "https://sleepercdn.com/images/v2/icons/player_default.webp"
+    silhouette <- str_c(
+      "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>",
+      "<circle cx='50' cy='36' r='20' fill='%23c3c2b7'/>",
+      "<path d='M14 96c4-22 20-32 36-32s32 10 36 32z' fill='%23c3c2b7'/></svg>"
+    )
+    if (length(image_url) != 1 || is.na(image_url)) {
+      image_url <- player_default
+    }
+
+    tags$img(
+      src = image_url,
+      height = "150px",
+      alt = player_label(),
+      onerror = str_c(
+        "this.onerror = function() { this.onerror = null; this.src = \"", silhouette, "\"; };",
+        "this.src = \"", player_default, "\";"
+      )
+    )
   })
 
   output$player_basic_info <- renderDT({
@@ -976,6 +1147,11 @@ server <- function(input, output, session) {
     req(input$player_name)
     p <- plot_future_value(input$player_name)
     plot(p)
+  })
+
+  output$player_value_over_time <- renderPlotly({
+    req(input$player_name)
+    plot_over_time(future_value_time, input$player_name)
   })
 
   output$tabulate_realized_value_title <- renderUI({
@@ -1108,7 +1284,7 @@ server <- function(input, output, session) {
         input$team_week,
         shiny = TRUE
       ) |>
-      dt(page = 5)
+      dt(page = 12) # a full lineup and its total on one page
   })
 
   output$avenue_grades_title <- renderUI({
@@ -1176,7 +1352,7 @@ server <- function(input, output, session) {
     #table 8
     req(input$team_name) # require input
     team_composition(player_avenues, rid(), shiny = TRUE) |>
-      dt(page = 5)
+      dt(page = 5, percent = "Proportion")
   })
 
   # Reactivity for Page 3
@@ -1356,19 +1532,35 @@ server <- function(input, output, session) {
     )
   })
 
-  output$overall_value <- renderValueBox({
+  # value: the net difference; subtitle: which team it favors
+  trade_box <- function(value, favor, what, icon_name, color) {
     valueBox(
-      value = trade_valuation()$ov_statement,
-      subtitle = "Net future value",
-      icon = icon("scale-balanced"),
-      color = "navy",
+      value = round(value, 1),
+      subtitle = if (value < .05) {
+        str_c(what, ": even")
+      } else {
+        str_c(what, " favors ", favor)
+      },
+      icon = icon(icon_name),
+      color = color,
       width = NULL
     )
+  }
+
+  output$overall_value <- renderValueBox({
+    tv <- trade_valuation()
+    trade_box(tv$ov_value, tv$ov_favor, "Future value", "scale-balanced", "navy")
   })
 
-  output$immediate_value <- renderUI({
-    #immediate value statement
-    h3(trade_valuation()$iv_statement)
+  output$immediate_value <- renderValueBox({
+    tv <- trade_valuation()
+    trade_box(
+      tv$iv_value,
+      tv$iv_favor,
+      str_c(tv$upcoming_label, " value"),
+      "calendar",
+      "green"
+    )
   })
 
   output$plot_trade_assets <- renderPlot({
@@ -1417,28 +1609,28 @@ server <- function(input, output, session) {
     #table 1
     champion_odds |>
       shiny_edit_tables() |>
-      dt(page = 12)
+      dt(page = 12, percent = TRUE)
   })
 
   output$playoff_odds <- renderDT({
     #table 2
     playoff_odds |>
       shiny_edit_tables() |>
-      dt(page = 12)
+      dt(page = 12, percent = TRUE)
   })
 
   output$bye_odds <- renderDT({
     #table 3
     bye_odds |>
       shiny_edit_tables() |>
-      dt(page = 12)
+      dt(page = 12, percent = TRUE)
   })
 
   output$n1_pick_odds <- renderDT({
     #table 4
     n1_pick_odds |>
       shiny_edit_tables() |>
-      dt(page = 12)
+      dt(page = 12, percent = TRUE)
   })
 
   output$most_common_finish_title <- renderUI({
@@ -1452,7 +1644,7 @@ server <- function(input, output, session) {
     req(input$standings_season) #require input
     most_common_finish_df |>
       most_common_finish(input$standings_season, shiny = TRUE) |>
-      dt(page = 12)
+      dt(page = 12, percent = "Probability")
   })
 
   # Reactivity for Page 8
@@ -1494,7 +1686,7 @@ server <- function(input, output, session) {
       filter(elos, team == input$team1),
       filter(elos, team == input$team2)
     ) |>
-      dt(page = 2)
+      dt(page = 2, percent = "Win Probability")
   })
 
   output$total_success <- renderDT({
@@ -1529,7 +1721,7 @@ server <- function(input, output, session) {
         input$team_seasons,
         shiny = TRUE
       ) |>
-      dt(page = 12)
+      dt(page = 12, percent = "Win %")
   })
 
   # Reactivity for Page 11
@@ -1563,7 +1755,7 @@ server <- function(input, output, session) {
       input$enter_round_history,
       input$enter_season_history
     ) |>
-      dt(page = 5)
+      dt(page = 5, percent = "Win Percentage")
   })
 
   output$most_points <- renderDT({
@@ -1690,9 +1882,11 @@ server <- function(input, output, session) {
       ) +
       labs(x = "Draft Pick", y = "Total Value Added")
 
-    ggplotly(p, tooltip = c("y", "text"))
+    as_plotly(p, tooltip = c("y", "text"))
   })
 }
 
 # Run the App
+# ggplot charts take the page's colors and fonts
+thematic::thematic_shiny()
 shinyApp(ui, server)

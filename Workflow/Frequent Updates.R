@@ -58,6 +58,13 @@ run_step("Scripts/History.R")
 
 # Deploy -------------------------------------------------------------------
 
+# the date shown on the app's home page
+write.csv(
+  data.frame(updated = as.character(Sys.Date())),
+  here::here("Shiny/Saved Files/last_updated.csv"),
+  row.names = FALSE
+)
+
 message("\n== deploying the app")
 rsconnect::deployApp(
   appDir = here::here("Shiny"),

@@ -14,13 +14,20 @@ suppressPackageStartupMessages({
 # function to edit tables for shiny
 shiny_edit_tables <- function(df) {
   df |>
-    mutate(across(where(is.numeric), ~ round(.x, 2))) |>
+    mutate(across(where(is.numeric), ~ round(.x, 1))) |>
     rename_with(~ str_replace_all(.x, "_", " "), everything()) |>
     rename_with(~ str_to_title(.x), everything())
 }
 
-dt <- function(df, page = 5, dom = "tip", selection = "none") {
-  datatable(
+# app tables. A search box appears when the table runs past one page; percent names the
+# columns shown with a % sign (TRUE for every numeric column); a "Total" row in the
+# first column is bold
+dt <- function(df, page = 5, dom = NULL, selection = "none", percent = NULL) {
+  if (is.null(dom)) {
+    dom <- if (nrow(df) > page) "ftip" else "tip"
+  }
+
+  table <- datatable(
     df,
     rownames = FALSE,
     selection = selection,
@@ -32,10 +39,58 @@ dt <- function(df, page = 5, dom = "tip", selection = "none") {
       dom = dom
     )
   )
+
+  if (isTRUE(percent)) {
+    percent <- names(df)[map_lgl(df, is.numeric)]
+  }
+  if (length(percent) > 0) {
+    table <- table |> formatString(percent, suffix = "%")
+  }
+
+  if (nrow(df) > 0 && "Total" %in% df[[1]]) {
+    table <- table |>
+      formatStyle(
+        names(df),
+        valueColumns = names(df)[1],
+        fontWeight = styleEqual("Total", "bold")
+      )
+  }
+
+  table
 }
 
 #position_levels
 position_levels <- c("QB", "RB", "WR", "TE", "K", "DST")
+
+# plotly charts in the page's sans-serif font (thematic otherwise leaves them in serif)
+as_plotly <- function(p, ...) {
+  font_stack <- "'Source Sans Pro', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+  ggplotly(p + theme(text = element_text(family = font_stack)), ...) |>
+    layout(font = list(family = font_stack))
+}
+
+# Team colors ---------------------------------------------------------------
+# one fixed color per team, assigned in roster_id order, so a team has the same color in
+# every chart. Add scale_color_team() or scale_fill_team() to any chart that colors by team
+# name. (Twelve colors that pass the dataviz palette checks for neighboring colors; with
+# this many, rely on hover or labels as well as color.)
+team_palette <- c(
+  "#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300",
+  "#6250d6", "#e34948", "#0f8fa8", "#a35f00", "#b53e9a", "#6f9d00"
+)
+
+team_colors <- function() {
+  teams <- users |> arrange(roster_id)
+  set_names(team_palette[seq_len(nrow(teams))], teams$display_name)
+}
+
+scale_color_team <- function(...) {
+  scale_color_manual(values = team_colors(), ...)
+}
+
+scale_fill_team <- function(...) {
+  scale_fill_manual(values = team_colors(), ...)
+}
 
 # Individual Players ------------------------------------------------------
 
@@ -50,6 +105,8 @@ basic_info <- function(enter_id) {
 # with 80% and 95% credible regions
 plot_future_value <- function(enter_id) {
   enter_name <- plot_future_value_df$name[match(enter_id, plot_future_value_df$player_id)]
+  first_season <- min(plot_future_value_df$season)
+  season_label <- if (exists("upcoming_season_label")) upcoming_season_label else "Current Season"
 
   plot_future_value_df |>
     filter(player_id == enter_id) |>
@@ -65,11 +122,23 @@ plot_future_value <- function(enter_id) {
       alpha = .5
     ) +
     geom_line(aes(y = expected_tva), color = "indianred3") +
+    # the first projected season (the current season in season, the next one in the offseason)
+    geom_vline(xintercept = first_season, linetype = "dashed", color = "grey40") +
+    annotate(
+      "text",
+      x = first_season,
+      y = Inf,
+      label = season_label,
+      hjust = -.05,
+      vjust = 1.5,
+      color = "grey30"
+    ) +
     labs(
       title = str_c(enter_name, " Projected Total Value Added"),
-      x = "",
-      y = ""
+      x = "Season",
+      y = "Value added"
     ) +
+    scale_x_continuous(breaks = scales::breaks_width(1)) +
     geom_point(
       data = season_value_added |> filter(player_id == enter_id),
       aes(x = season, y = total_value_added)
@@ -562,6 +631,9 @@ draft_rankings <- function(enter_draft, shiny) {
 }
 
 # points by week compared with projected
+# a player's weekly results in one season, in two panels with their own scales:
+#   Fantasy points: bars (started or on the bench), with his pre-game projection
+#   Value added: what he added over replacement in the weeks he started (0 on the bench)
 weekly_results <- function(va_data, enter_id, enter_season) {
   player_games <- va_data |>
     filter(player_id == enter_id, season == max(enter_season))
@@ -571,21 +643,54 @@ weekly_results <- function(va_data, enter_id, enter_season) {
   ))
   enter_name <- player_games$name[1]
 
-  player_games |>
-    select(week, sleeper_points, projection, value_added) |>
-    pivot_longer(
-      cols = c(sleeper_points, projection, value_added),
-      names_to = "type",
-      values_to = "value"
-    ) |>
-    ggplot() +
-    geom_line(aes(x = week, y = value, color = type)) +
-    geom_hline(yintercept = 0) +
-    labs(x = "", y = "", title = str_c(enter_name, ": Weekly Sleeper Points")) +
-    scale_color_manual(
-      values = c("forestgreen", "cadetblue2", "indianred3"),
-      labels = c("Projection", "Sleeper Points", "Value Added"),
-      name = ""
+  panels <- c("Fantasy points", "Value added")
+  points <- player_games |>
+    mutate(
+      panel = factor(panels[1], panels),
+      status = if_else(type == "starter", "Started", "Bench")
+    )
+  value <- player_games |>
+    mutate(panel = factor(panels[2], panels))
+
+  ggplot() +
+    geom_col(
+      data = points,
+      aes(x = week, y = sleeper_points, fill = status),
+      width = .7
+    ) +
+    geom_line(
+      data = points,
+      aes(x = week, y = projection, color = "Projection"),
+      linewidth = .8
+    ) +
+    geom_point(
+      data = points,
+      aes(x = week, y = projection, color = "Projection"),
+      size = 2
+    ) +
+    geom_col(
+      data = value,
+      aes(x = week, y = value_added),
+      fill = "#52514e",
+      width = .7
+    ) +
+    geom_hline(yintercept = 0, color = "grey40") +
+    facet_grid(panel ~ ., scales = "free_y", switch = "y") +
+    scale_fill_manual(values = c(Started = "#2a78d6", Bench = "#c3c2b7")) +
+    scale_color_manual(values = c(Projection = "#eb6834")) +
+    scale_x_continuous(breaks = scales::breaks_width(1)) +
+    labs(
+      title = str_c(enter_name, ": ", max(enter_season), " Weekly Results"),
+      x = "Week",
+      y = NULL,
+      fill = NULL,
+      color = NULL
+    ) +
+    theme(
+      strip.placement = "outside",
+      strip.text.y.left = element_text(angle = 90, size = 11),
+      legend.position = "top",
+      panel.grid.minor = element_blank()
     )
 }
 
@@ -606,7 +711,7 @@ inspect_individual_trade <- function(trade_id, shiny = FALSE) {
 
   df <- total_trade_value[[trade_id]] |>
     filter(type == "add" | name == "roster size adjustment") |>
-    select(-season, -week, -type) |>
+    select(-season, -week, -type, -player_id) |>
     group_by(team_name) |>
     group_map(~ .x |> adorn_totals("row"), .keep = TRUE) |>
     bind_rows()
@@ -790,7 +895,7 @@ plot_over_time <- function(future_value_time, enter_ids) {
     geom_line(aes(x = Date, y = `Future Value`, color = Name)) +
     theme(legend.position = "none")
 
-  ggplotly(p)
+  as_plotly(p)
 }
 
 # future value over time for a player and the four players closest to him in future
@@ -822,18 +927,35 @@ comparable_players <- function(
 # Team Rankings -----------------------------------------------------------
 
 graph_elo <- function(weekly_elo) {
-  p <- weekly_elo |>
-    ggplot() +
-    geom_line(aes(x = date_hide, y = elo, color = team)) +
-    scale_x_continuous(
-      breaks = weekly_elo$date_hide,
-      labels = weekly_elo$date
-    ) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    labs(x = "", y = "ELO", title = "Team ELO") +
-    theme(legend.position = "none")
+  elo <- weekly_elo |>
+    mutate(
+      season = 2000 + as.numeric(str_extract(date, "^\\d+")),
+      week = as.numeric(str_remove(date, "^\\d+w")),
+      hover = str_c(team, "<br>", season, " week ", week, "<br>Elo ", round(elo))
+    )
+  # each season starts at its week 0 row
+  season_starts <- elo |>
+    filter(week == 0) |>
+    distinct(season, date_hide)
 
-  ggplotly(p, tooltip = c("color", "y"))
+  p <- elo |>
+    ggplot(aes(x = date_hide, y = elo, color = team, group = team, text = hover)) +
+    geom_vline(
+      data = season_starts,
+      aes(xintercept = date_hide),
+      linetype = "dashed",
+      color = "grey70"
+    ) +
+    geom_line() +
+    scale_x_continuous(
+      breaks = season_starts$date_hide,
+      labels = season_starts$season
+    ) +
+    scale_color_team() +
+    labs(x = "", y = "Elo", title = "Team Elo") +
+    theme(legend.position = "none", panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text")
 }
 
 # compute win probability of two teams
@@ -845,12 +967,10 @@ elo_win_probability <- function(team1_elo_df, team2_elo_df) {
   bind_rows(team1_elo_df, team2_elo_df) |>
     ungroup() |>
     mutate(
-      win_probability = scales::percent(c(perc, 1 - perc), accuracy = .01)
+      win_probability = 100 * c(perc, 1 - perc)
     ) |>
     select(team, elo, win_probability) |>
     shiny_edit_tables()
-
-  # |> scales::percent(accuracy = .01)
 }
 
 # History -----------------------------------------------------------------
@@ -1117,6 +1237,10 @@ grade_trade_wrapper <- function(
     "team2" = add_total(team2_assets_gained, team2),
     "ov_statement" = ov_statement,
     "iv_statement" = iv_statement,
+    "ov_value" = abs(overall_value),
+    "ov_favor" = if_else(overall_value > 0, team1, team2),
+    "iv_value" = abs(immediate_value),
+    "iv_favor" = if_else(immediate_value > 0, team1, team2),
     "upcoming_label" = upcoming_label
   )
 }
@@ -1144,6 +1268,7 @@ graph_trade <- function(
       position = position_dodge(width = 1),
       width = 1
     ) +
+    scale_fill_team() +
     labs(x = "", y = "") +
     theme(legend.title = element_blank())
 }

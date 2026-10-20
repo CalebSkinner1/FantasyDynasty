@@ -219,3 +219,17 @@ player_choices <- player_total_value |>
   filter(position %in% c("QB", "WR", "RB", "TE")) |>
   select(name, player_id) |>
   deframe()
+
+# the upcoming season's name for charts: "Current Season" in season, "Next Season" in the
+# offseason (Trade Machine.R)
+upcoming_season_label <- first(assets_df$upcoming_label, default = "Current Season")
+
+# when the data was last updated: written by Workflow/Frequent Updates.R before each
+# deploy (otherwise the newest data file's date)
+updated_path <- str_c(script_data_path, "last_updated.csv")
+data_updated <- if (file.exists(updated_path)) {
+  as.Date(read_csv(updated_path, show_col_types = FALSE)$updated[1])
+} else {
+  as.Date(max(file.mtime(list.files(script_data_path, full.names = TRUE))))
+}
+data_updated_label <- str_squish(format(data_updated, "%B %e, %Y"))
