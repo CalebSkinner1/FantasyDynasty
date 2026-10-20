@@ -157,17 +157,28 @@ fetch_sleeper_league <- function(league_id) {
   )
 }
 
-# weekly stats for every NFL player (unofficial Sleeper endpoint), returned long:
-# player_id, stat, value. Returns NULL if the endpoint is unavailable.
-fetch_sleeper_stats <- function(season, week) {
+# weekly stats (type = "stats") or pre-game projections (type = "projections") for
+# every NFL player from Sleeper's unofficial endpoints, returned long: player_id,
+# stat, value. Projections use the same stat names as stats, so both are scored with
+# score_sleeper_stats(). Returns NULL if the endpoint is unavailable.
+fetch_sleeper_stats <- function(season, week, type = c("stats", "projections")) {
+  type <- match.arg(type)
+  positions <- str_c(
+    "&position%5B%5D=",
+    c("QB", "RB", "WR", "TE", "K", "DEF"),
+    collapse = ""
+  )
   urls <- c(
-    str_c("https://api.sleeper.app/v1/stats/nfl/regular/", season, "/", week),
+    str_c("https://api.sleeper.app/v1/", type, "/nfl/regular/", season, "/", week),
     str_c(
-      "https://api.sleeper.com/stats/nfl/",
+      "https://api.sleeper.com/",
+      type,
+      "/nfl/",
       season,
       "/",
       week,
-      "?season_type=regular"
+      "?season_type=regular",
+      if (type == "projections") positions else ""
     )
   )
 
@@ -232,6 +243,31 @@ score_sleeper_stats <- function(stats_long, scoring) {
   stats_long |>
     inner_join(scoring, by = join_by(stat)) |>
     summarize(pts = round(sum(value * weight), 2), .by = player_id)
+}
+
+# one week of Sleeper projections in league points, in the projections file format:
+# name, projection, week, position, player_id, source. NULL if unavailable.
+fetch_sleeper_projections <- function(season, week, scoring, player_info) {
+  proj <- fetch_sleeper_stats(season, week, type = "projections")
+  if (is.null(proj)) {
+    return(NULL)
+  }
+
+  score_sleeper_stats(proj, scoring) |>
+    inner_join(
+      player_info |>
+        transmute(player_id = as.character(player_id), name, position),
+      by = join_by(player_id)
+    ) |>
+    filter(position %in% c("QB", "RB", "WR", "TE", "K", "DST")) |>
+    transmute(
+      name,
+      projection = pts,
+      week = week,
+      position,
+      player_id,
+      source = "sleeper"
+    )
 }
 
 # Scrape Projections ------------------------------------------------------
