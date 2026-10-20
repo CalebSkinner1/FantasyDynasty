@@ -29,7 +29,11 @@ app_theme <- create_theme(
     danger = "#e34948"
   ),
   bs4dash_layout(main_bg = "#f4f6f9"),
-  bs4dash_sidebar_dark(bg = "#222d32", color = "#c2c7d0", hover_color = "#ffffff")
+  bs4dash_sidebar_dark(
+    bg = "#222d32",
+    color = "#c2c7d0",
+    hover_color = "#ffffff"
+  )
 )
 
 # a page section: a card with a title (text or a uiOutput)
@@ -165,10 +169,10 @@ ui <- dashboardPage(
           needs a third less than a team with one."
         ),
         p(
-          "Replacement level is shared by every player at a position and is defined as the best available bench player
-        or free agent at that position. It is the hypothetical substitute if a particular starter
-        is removed from the lineup. Each team has a replacement level player for each position, and I estimate the global replacement level value by averaging
-        the performance of the hypothetical replacement for all twelve teams."
+          "A player's replacement is the substitute his team would have started instead. This is the team's best
+          bench player at that position or the average output of the top three projected free agents.
+          I average this replacement output across all twelve teams, and blend that week's level (70%)
+          with the season-to-date average (30%) to stabilize the estimate."
         ),
         p(
           "A player's value added can change drastically depending on the player's position and the team's composition. For example, a user starts
@@ -191,8 +195,9 @@ ui <- dashboardPage(
             target = "_blank"
           ),
           "The model generates samples from those future years which simulate a player's career from end to end.
-        Summing the results over the next eight years gives the player's future value. Following standard practice
-        in finance and economics, I discount each successive year by 5%."
+          I set all negative value added predictions to zero, because the player would be benched, and sum
+          over the next eight years to obtain a player's future value. Following standard practice
+          in finance and economics, I discount each successive year by 5%."
         ),
         h4("Other Models"),
         p(
@@ -220,12 +225,14 @@ ui <- dashboardPage(
             width = 9,
             title = "Player",
             p(
-              "Select any player and this page will report the player's value added and future value. The future value for each year is the
-          median of 5000 samples, while the colored regions are the 80% and 95% credible regions."
+              "Select any player to see his value added to date and his projected value added in future seasons.
+              The line is his expected value added each season, the average of his simulated outcomes with below-replacement
+              seasons set to zero. The shaded regions are the 80% and 95% credible intervals. The current season combines value
+              added so far with the projection for the rest of the season."
             ),
             selectizeInput(
               inputId = "player_name",
-              label = "Enter a Player's Name",
+              label = "Select a Player",
               choices = player_choices,
               options = list(
                 placeholder = "Start typing...",
@@ -245,33 +252,36 @@ ui <- dashboardPage(
           panel(
             width = 5,
             title = "Future Value over Time",
+            p(
+              "Player's future value over time as his KeepTradeCut value varies, production accumulates, and age increases."
+            ),
             plotlyOutput("player_value_over_time", height = "400px")
           )
         ),
         panel(
           title = uiOutput("tabulate_realized_value_title", inline = TRUE),
-        p(
-          "Enter a season to see the player's value added and fantasy points scored."
-        ),
-        selectizeInput(
-          inputId = "player_season",
-          label = "Enter Season",
-          choices = unique(season_value_added$season),
-          multiple = TRUE, #enable multiple selections
-          selected = max(season_value_added$season),
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = length(unique(season_value_added$season)) # Limit the number of suggestions shown
-          )
-        ),
+          p(
+            "Enter a season to see the player's value added and fantasy points scored."
+          ),
+          selectizeInput(
+            inputId = "player_season",
+            label = "Select Seasons",
+            choices = unique(season_value_added$season),
+            multiple = TRUE, #enable multiple selections
+            selected = max(season_value_added$season),
+            options = list(
+              placeholder = "Start typing...",
+              maxOptions = length(unique(season_value_added$season)) # Limit the number of suggestions shown
+            )
+          ),
           DTOutput("tabulate_realized_value")
         ),
         panel(
           title = "Weekly Results",
-        p(
-          "This visual will show the player's weekly output, projected output, and value added over the course of a season.
-          It defaults to the most recent season selected of the choices above."
-        ),
+          p(
+            "The blue bars are fantasy points in weeks the player started, the gray bars are bench points, and the orange
+            line is his projection. The lower panel shows weekly value added."
+          ),
           plotOutput("weekly_results", height = "450px")
         )
       ),
@@ -289,7 +299,7 @@ ui <- dashboardPage(
             ),
             selectizeInput(
               inputId = "team_name",
-              label = "Enter a Team's Name",
+              label = "Select a Team",
               choices = users$display_name,
               selected = users$display_name[1],
               options = list(
@@ -318,35 +328,35 @@ ui <- dashboardPage(
           panel(
             width = 6,
             title = uiOutput("team_contributors_title", inline = TRUE),
-        selectizeInput(
-          inputId = "team_season",
-          label = "Enter Season",
-          choices = unique(season_value_added$season),
-          multiple = TRUE, #enable multiple selections
-          selected = max(season_value_added$season),
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = length(unique(season_value_added$season)) # Limit the number of suggestions shown
-          )
-        ),
+            selectizeInput(
+              inputId = "team_season",
+              label = "Select Seasons",
+              choices = unique(season_value_added$season),
+              multiple = TRUE, #enable multiple selections
+              selected = max(season_value_added$season),
+              options = list(
+                placeholder = "Start typing...",
+                maxOptions = length(unique(season_value_added$season)) # Limit the number of suggestions shown
+              )
+            ),
             p("Top contributors in this season."),
             DTOutput("team_contributors")
           ),
           panel(
             width = 6,
             title = uiOutput("team_contributors_weekly_title", inline = TRUE),
-        selectizeInput(
-          inputId = "team_week",
-          label = "Enter Week",
-          choices = NULL, # completed weeks of the selected season, set in the server
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 18 # Limit the number of suggestions shown
-          )
-        ),
-        p(
-          "Weekly starters. This will default to the most recent season selected."
-        ),
+            selectizeInput(
+              inputId = "team_week",
+              label = "Select a Week",
+              choices = NULL, # completed weeks of the selected season, set in the server
+              options = list(
+                placeholder = "Start typing...",
+                maxOptions = 18 # Limit the number of suggestions shown
+              )
+            ),
+            p(
+              "Weekly starters. This defaults to the most recent week."
+            ),
             DTOutput("team_contributors_weekly")
           )
         ),
@@ -360,39 +370,45 @@ ui <- dashboardPage(
           panel(
             width = 6,
             title = uiOutput("team_composition_title", inline = TRUE),
-            p("Proportion of total value on roster acquired from various avenues."),
+            p(
+              "Proportion of total value on roster acquired from various avenues."
+            ),
             DTOutput("team_composition")
           )
         ),
         panel(
           title = "Acquisitions",
-        selectizeInput(
-          inputId = "team_avenue",
-          label = "Enter Acquisition Avenue",
-          choices = c(
-            "rookie draft",
-            "initial draft",
-            "trade",
-            "transaction",
-            "All"
+          selectizeInput(
+            inputId = "team_avenue",
+            label = "Select an Acquisition Avenue",
+            choices = c(
+              "rookie draft",
+              "initial draft",
+              "trade",
+              "transaction",
+              "All"
+            ),
+            # multiple = TRUE, #enable multiple selections
+            options = list(
+              placeholder = "Start typing...",
+              maxOptions = 5 # Limit the number of suggestions shown
+            )
           ),
-          # multiple = TRUE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5 # Limit the number of suggestions shown
-          )
-        ),
           fluidRow(
             column(
               6,
               uiOutput("top_acquisitions_title"),
-              p("Filter by avenue to see top trade, draft pick, transaction, etc."),
+              p(
+                "Filter by avenue to see top trade, draft pick, transaction, etc."
+              ),
               DTOutput("top_acquisitions")
             ),
             column(
               6,
               uiOutput("worst_acquisitions_title"),
-              p("Filter by avenue to see worst trade, draft pick, transaction, etc."),
+              p(
+                "Filter by avenue to see worst trade, draft pick, transaction, etc."
+              ),
               DTOutput("worst_acquisitions")
             )
           )
@@ -405,23 +421,24 @@ ui <- dashboardPage(
         h2("Draft Grades"),
         panel(
           title = "Draft",
-        p(
-          "Select a draft to view the top picks and best overall drafts. The user's expected value is the
-        anticipated value accrued from the user's set of picks. This provides a standard against which to compare drafts."
-        ),
-        selectizeInput(
-          inputId = "draft_selection",
-          label = "Enter Draft",
-          choices = c(
-            unique(picks_df$draft),
-            "All"
+          p(
+            "Select a draft to view the top picks and best overall drafts. Each pick is graded against the value
+            expected from that draft slot. Rookie drafts use the rookie pick model, and the startup draft is
+            graded against the league average. This provides a standard against which to compare drafts."
           ),
-          # multiple = TRUE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = length(c(unique(picks_df$draft), "All")) # Limit the number of suggestions shown
+          selectizeInput(
+            inputId = "draft_selection",
+            label = "Select a Draft",
+            choices = c(
+              unique(picks_df$draft),
+              "All"
+            ),
+            # multiple = TRUE, #enable multiple selections
+            options = list(
+              placeholder = "Start typing...",
+              maxOptions = length(c(unique(picks_df$draft), "All")) # Limit the number of suggestions shown
+            )
           )
-        )
         ),
         panel(
           title = uiOutput("draft_ranking_title", inline = TRUE),
@@ -447,13 +464,15 @@ ui <- dashboardPage(
         h2("Transaction Grades"),
         panel(
           title = "Top Transactions",
-        p(
-          "The most successful transactions in league history. This is assessed now, not at the time of the transaction."
-        ),
+          p(
+            "The most successful transactions in league history. This is assessed now, not at the time of the transaction.
+            A player's later value counts for the team that added him even if he leaves, and transactions that only
+            dropped a player aren't listed."
+          ),
           DTOutput("top_transaction"),
-        p(
-          "Click a transaction in the table above to see a full breakdown of the value gained and lost from added and dropped players."
-        )
+          p(
+            "Click a transaction in the table above to see a full breakdown of the value gained and lost from added and dropped players."
+          )
         ),
         fluidRow(
           panel(
@@ -476,13 +495,14 @@ ui <- dashboardPage(
         h2("Trade Grades"),
         panel(
           title = "Lopsided Trades",
-        p(
-          "The most unfair trades in league history. This is assessed now, not at the time of the trade."
-        ),
+          p(
+            "The most unfair trades in league history. This is assessed now, not at the time of the trade.
+            A player's value produced after the trade counts for the team that received him, even if he later leaves."
+          ),
           DTOutput("trade_lopsided"),
-        p(
-          "Click a trade in the table above to see a full breakdown of the value gained and lost for each user."
-        )
+          p(
+            "Click a trade in the table above to see a full breakdown of the value gained and lost for each user."
+          )
         ),
         fluidRow(
           panel(
@@ -505,81 +525,82 @@ ui <- dashboardPage(
         h2("Trade Machine"),
         panel(
           title = "Build a Trade",
-        p(
-          "This Trade Machine compares the projected future value of various assets in a potential trade.
-        It outputs the net future value and net next year value for each fantasy team."
-        ),
-        p(
-          "Please note that
+          p(
+            "This Trade Machine compares the projected future value of various assets in a potential trade.
+        It outputs the net future value and net value for the rest of the current season."
+          ),
+          p(
+            "Please note that
         fantasy trades are incredibly contextual. Consider your own team composition
         and championship window carefully before making a trade. Like many trade calculators,
-        Trade Machine treats player's values as additive, but, obviously, this is an approximate way to compute
+        Trade Machine treats values as additive, but, obviously, this is an approximate way to compute
         value (for example, 1 first round pick is more valuable than 3 third round picks, even though the sum of the latter's
         KTC value is higher). The ",
-          strong("value added"),
-          " metric helps account for this, but nothing is perfect. Also, please note
+            strong("value added"),
+            " metric helps account for this, but nothing is perfect. Also, please note
           that the model has no direct injury input. A player's future value will dynamically respond to an injury,
           but the response is indirect and lagged."
-        ),
-        p(
-          "Enter two teams and select assets from each team to view projected trade grade."
-        ),
-        fluidRow(
-          column(
-            6,
-            selectizeInput(
-              inputId = "trade_machine_team1",
-              label = "Enter a Team's Name",
-              choices = users$display_name,
-              selected = users$display_name[1],
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = nrow(users) # Limit the number of suggestions shown
+          ),
+          p(
+            "Select two teams and the assets each would send (one side can be empty). If one team receives more players
+            than it sends, it must drop players, so the trade is adjusted by the value of the average add or drop."
+          ),
+          fluidRow(
+            column(
+              6,
+              selectizeInput(
+                inputId = "trade_machine_team1",
+                label = "Select Team 1",
+                choices = users$display_name,
+                selected = users$display_name[1],
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = nrow(users) # Limit the number of suggestions shown
+                )
+              )
+            ),
+            column(
+              6,
+              selectizeInput(
+                inputId = "trade_machine_team2",
+                label = "Select Team 2",
+                choices = users$display_name,
+                selected = users$display_name[2],
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = nrow(users) # Limit the number of suggestions shown
+                )
               )
             )
           ),
-          column(
-            6,
-            selectizeInput(
-              inputId = "trade_machine_team2",
-              label = "Enter a Team's Name",
-              choices = users$display_name,
-              selected = users$display_name[2],
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = nrow(users) # Limit the number of suggestions shown
+          fluidRow(
+            column(
+              6,
+              selectizeInput(
+                inputId = "team1_assets",
+                label = "Select Team 1 Assets",
+                choices = NULL,
+                multiple = TRUE, #enable multiple selections
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = 100 # show every asset
+                )
+              )
+            ),
+            column(
+              6,
+              selectizeInput(
+                inputId = "team2_assets",
+                label = "Select Team 2 Assets",
+                choices = NULL,
+                multiple = TRUE, #enable multiple selections
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = 100 # show every asset
+                )
               )
             )
           )
-        ),
-        fluidRow(
-          column(
-            6,
-            selectizeInput(
-              inputId = "team1_assets",
-              label = "Select Team 1 Assets",
-              choices = NULL,
-              multiple = TRUE, #enable multiple selections
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = 100 # show every asset
-              )
-            )
-          ),
-          column(
-            6,
-            selectizeInput(
-              inputId = "team2_assets",
-              label = "Select Team 2 Assets",
-              choices = NULL,
-              multiple = TRUE, #enable multiple selections
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = 100 # show every asset
-              )
-            )
-          )
-        )
         ),
         fluidRow(
           valueBoxOutput("overall_value", width = 6),
@@ -608,33 +629,46 @@ ui <- dashboardPage(
         tabName = "future_standings",
         h2("Future Standings"),
         p(
-          "I simulate final standings over the next three years 5000 times. In each simulation,
+          "I simulate final standings over the next three years 50,000 times. In each simulation,
           I project the value added for each player and find the total value added for each fantasy team.
-          This informs the teams' win probability for each game in the season. I simulate three consecutive seasons, and
-          compute the final standings odds for each team. The championship odds and most common finish are below."
+          Then, a team's weekly score is drawn around a replacement-level lineup plus its projected value added,
+          and the season, playoffs and draft order are played out. This yields final standing,
+          championship, and draft pick odds for each team."
         ),
         fluidRow(
-          panel(width = 6, title = "Championship Odds", DTOutput("championship_odds")),
+          panel(
+            width = 6,
+            title = "Championship Odds (%)",
+            DTOutput("championship_odds")
+          ),
           panel(width = 6, title = "Playoff Odds", DTOutput("playoff_odds"))
         ),
         fluidRow(
-          panel(width = 6, title = "First Round Bye Odds", DTOutput("bye_odds")),
-          panel(width = 6, title = "Number 1 Pick Odds", DTOutput("n1_pick_odds"))
+          panel(
+            width = 6,
+            title = "First Round Bye Odds (%)",
+            DTOutput("bye_odds")
+          ),
+          panel(
+            width = 6,
+            title = "Number 1 Pick Odds by Draft (%)",
+            DTOutput("n1_pick_odds")
+          )
         ),
         fluidRow(
           panel(
             width = 6,
             title = uiOutput("most_common_finish_title", inline = TRUE),
-        selectizeInput(
-          inputId = "standings_season",
-          label = "Enter Season",
-          choices = unique(most_common_finish_df$season),
-          selected = min(most_common_finish_df$season),
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = length(unique(most_common_finish_df$season)) # Limit the number of suggestions shown
-          )
-        ),
+            selectizeInput(
+              inputId = "standings_season",
+              label = "Select a Season",
+              choices = unique(most_common_finish_df$season),
+              selected = min(most_common_finish_df$season),
+              options = list(
+                placeholder = "Start typing...",
+                maxOptions = length(unique(most_common_finish_df$season)) # Limit the number of suggestions shown
+              )
+            ),
             p("The most likely finish for each Fantasy Team."),
             DTOutput("most_common_finish")
           )
@@ -647,61 +681,61 @@ ui <- dashboardPage(
         h2("Player Rankings"),
         panel(
           title = "Players Ranked by Future Value",
-        p(
-          "Player's future value, ranked and displayed over time.
+          p(
+            "Players' future value, ranked and displayed over time.
           Select a position to see the top players of that position."
-        ),
-        selectizeInput(
-          inputId = "enter_position",
-          label = "Enter Position",
-          choices = c("All", "QB", "RB", "WR", "TE"),
-          multiple = TRUE, # enable multiple selections
-          selected = "All",
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5 # Limit the number of suggestions shown
-          )
-        ),
+          ),
+          selectizeInput(
+            inputId = "enter_position",
+            label = "Select Positions",
+            choices = c("All", "QB", "RB", "WR", "TE"),
+            multiple = TRUE, # enable multiple selections
+            selected = "All",
+            options = list(
+              placeholder = "Start typing...",
+              maxOptions = 5 # Limit the number of suggestions shown
+            )
+          ),
           DTOutput("players_top_future_value")
         ),
         fluidRow(
           panel(
             width = 6,
             title = "Future Value over Time",
-        selectizeInput(
-          inputId = "enter_players",
-          label = "Enter Players",
-          choices = player_choices,
-          multiple = TRUE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5 # Limit the number of suggestions shown
-          )
-        ),
-        p(
-          "Demonstrates a player's future value at different points in the league history. Please note that
+            selectizeInput(
+              inputId = "enter_players",
+              label = "Select Players",
+              choices = player_choices,
+              multiple = TRUE, #enable multiple selections
+              options = list(
+                placeholder = "Start typing...",
+                maxOptions = 5 # Limit the number of suggestions shown
+              )
+            ),
+            p(
+              "Demonstrates a player's future value at different points in the league history. Please note that
           these estimations were conducted at irregular intervals until June 2025. Note that a player's value will
           gradually decrease over the course of a season as the player ages and has fewer expected games remaining in his career.
           There are some notable exceptions, typically when a player dramatically exceeds expectations."
-        ),
+            ),
             plotlyOutput("future_value_over_time")
           ),
           panel(
             width = 6,
-            title = "Compare Future Value with similar players",
-        p(
-          "Select a single player and see the trajectory of similar players of the same position."
-        ),
-        selectizeInput(
-          inputId = "enter_player",
-          label = "Enter one Player",
-          choices = player_choices,
-          multiple = FALSE, #enable multiple selections
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = 5 # Limit the number of suggestions shown
-          )
-        ),
+            title = "Compare Future Value with Similar Players",
+            p(
+              "Select a single player and see the trajectory of similar players of the same position."
+            ),
+            selectizeInput(
+              inputId = "enter_player",
+              label = "Select a Player",
+              choices = player_choices,
+              multiple = FALSE, #enable multiple selections
+              options = list(
+                placeholder = "Start typing...",
+                maxOptions = 5 # Limit the number of suggestions shown
+              )
+            ),
             plotlyOutput("comparable_future_value")
           )
         )
@@ -714,53 +748,53 @@ ui <- dashboardPage(
         p("Team rankings by Elo and total future value of assets."),
         panel(
           title = "Elo Rankings",
-        p(
-          "Elo is a simple rating system developed by physicist Dr. Arpad Elo. Teams gain points for winning and lose points
-          for losing. The strength of opponent and margin of victory are taken into account. The average score is 1500 and ratings
-          are discounted by 25% at the end of each season. Elo gives more weight to recent games, but all games have non-zero impact
-          on the rating. Elo is simple to compute and interpret, but it is not a perfect fit for Fantasy sports. Teams have no direct
-          impact on their opponent's score, but their 'Points Against' are factored into the score. For this reason, each
-          week, I compute the adjustments as if each fantasy team had played all other teams in the league, and I average the adjustments
-          together. This removes any scheduling bias from the rating. Elo is not a forward facing predictive metric, but it is useful
-          to understand team strength over time."
-        ),
+          p(
+            "Elo is a simple rating system developed by physicist Dr. Arpad Elo. Each result is compared with what the ratings
+            expected: beating a weaker team earns little, an upset earns a lot, and bigger margins of victory count more.
+            The average Elo is 1500 and ratings are discounted by 25% at the end of each season. Elo gives more weight to recent games,
+            but all games have non-zero impact on the rating. Elo is simple to compute and interpret, but it is not a
+            perfect fit for Fantasy sports. Teams have no direct impact on their opponent's score, but their 'Points Against' are factored
+            into the score. For this reason, each week, I compute the adjustments as if each fantasy team had played
+            all other teams in the league, and I average the adjustments together. This removes any scheduling
+            bias from the rating. Elo is not a forward facing predictive metric, but it is useful to understand team strength over time."
+          ),
           plotlyOutput("elo_rankings", height = "400px", width = "100%")
         ),
         fluidRow(
           panel(
             width = 6,
             title = "Win Probability",
-        p(
-          "Elo also gives implied win probabilities. Select two teams to compare their win probability."
-        ),
-        fluidRow(
-          column(
-            6,
-            selectizeInput(
-              inputId = "team1",
-              label = "Enter a Team's Name",
-              choices = users$display_name,
-              selected = users$display_name[1],
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = nrow(users) # Limit the number of suggestions shown
+            p(
+              "Elo also gives implied win probabilities. Select two teams to compare their win probability."
+            ),
+            fluidRow(
+              column(
+                6,
+                selectizeInput(
+                  inputId = "team1",
+                  label = "Select Team 1",
+                  choices = users$display_name,
+                  selected = users$display_name[1],
+                  options = list(
+                    placeholder = "Start typing...",
+                    maxOptions = nrow(users) # Limit the number of suggestions shown
+                  )
+                )
+              ),
+              column(
+                6,
+                selectizeInput(
+                  inputId = "team2",
+                  label = "Select Team 2",
+                  choices = users$display_name,
+                  selected = users$display_name[2],
+                  options = list(
+                    placeholder = "Start typing...",
+                    maxOptions = nrow(users) # Limit the number of suggestions shown
+                  )
+                )
               )
-            )
-          ),
-          column(
-            6,
-            selectizeInput(
-              inputId = "team2",
-              label = "Enter a Team's Name",
-              choices = users$display_name,
-              selected = users$display_name[2],
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = nrow(users) # Limit the number of suggestions shown
-              )
-            )
-          )
-        ),
+            ),
             DTOutput("elo_win_prob")
           ),
           panel(
@@ -778,50 +812,50 @@ ui <- dashboardPage(
         h2("Matchup History"),
         panel(
           title = uiOutput("matchups_title", inline = TRUE),
-        p("Select a team to see historical records against opponents."),
-        fluidRow(
-          column(
-            4,
-            selectizeInput(
-              inputId = "matchups_team_name",
-              label = "Enter a Team's Name",
-              choices = users$display_name,
-              selected = users$display_name[1],
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = nrow(users) # Limit the number of suggestions shown
+          p("Select a team to see historical records against opponents."),
+          fluidRow(
+            column(
+              4,
+              selectizeInput(
+                inputId = "matchups_team_name",
+                label = "Select a Team",
+                choices = users$display_name,
+                selected = users$display_name[1],
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = nrow(users) # Limit the number of suggestions shown
+                )
+              )
+            ),
+            column(
+              4,
+              selectizeInput(
+                inputId = "team_seasons",
+                label = "Select Seasons",
+                choices = unique(team_records_df$season),
+                multiple = TRUE, #enable multiple selections
+                selected = max(team_records_df$season),
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = length(unique(team_records_df$season)) # Limit the number of suggestions shown
+                )
+              )
+            ),
+            column(
+              4,
+              selectizeInput(
+                inputId = "enter_round",
+                label = "Select Rounds",
+                choices = c("All", unique(team_records_df$round)),
+                multiple = TRUE, #enable multiple selections
+                selected = "All",
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = length(c("All", unique(team_records_df$round))) # Limit the number of suggestions shown
+                )
               )
             )
           ),
-          column(
-            4,
-            selectizeInput(
-              inputId = "team_seasons",
-              label = "Enter Season",
-              choices = unique(team_records_df$season),
-              multiple = TRUE, #enable multiple selections
-              selected = max(team_records_df$season),
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = length(unique(team_records_df$season)) # Limit the number of suggestions shown
-              )
-            )
-          ),
-          column(
-            4,
-            selectizeInput(
-              inputId = "enter_round",
-              label = "Enter Round",
-              choices = c("All", unique(team_records_df$round)),
-              multiple = TRUE, #enable multiple selections
-              selected = "All",
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = length(c("All", unique(team_records_df$round))) # Limit the number of suggestions shown
-              )
-            )
-          )
-        ),
           DTOutput("matchup_history")
         )
       ),
@@ -840,66 +874,70 @@ ui <- dashboardPage(
         ),
         panel(
           title = "Records",
-        fluidRow(
-          column(
-            6,
-            selectizeInput(
-              inputId = "enter_season_history",
-              label = "Enter Season",
-              choices = unique(wins_df$season),
-              multiple = TRUE, #enable multiple selections
-              selected = max(wins_df$season),
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = length(unique(wins_df$season)) # Limit the number of suggestions shown
+          fluidRow(
+            column(
+              6,
+              selectizeInput(
+                inputId = "enter_season_history",
+                label = "Select Seasons",
+                choices = unique(wins_df$season),
+                multiple = TRUE, #enable multiple selections
+                selected = max(wins_df$season),
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = length(unique(wins_df$season)) # Limit the number of suggestions shown
+                )
               )
-            )
-          ),
-          column(
-            6,
-            selectizeInput(
-              inputId = "enter_round_history",
-              label = "Enter Game Type",
-              choices = c("All", unique(wins_df$type)),
-              multiple = TRUE, #enable multiple selections
-              selected = "All",
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = (length(unique(wins_df$type)) + 1) # Limit the number of suggestions shown
+            ),
+            column(
+              6,
+              selectizeInput(
+                inputId = "enter_round_history",
+                label = "Select Game Types",
+                choices = c("All", unique(wins_df$type)),
+                multiple = TRUE, #enable multiple selections
+                selected = "All",
+                options = list(
+                  placeholder = "Start typing...",
+                  maxOptions = (length(unique(wins_df$type)) + 1) # Limit the number of suggestions shown
+                )
               )
             )
           )
-        )
         ),
         fluidRow(
           panel(width = 6, title = "Most Wins", DTOutput("most_wins")),
-          panel(width = 6, title = "Most Fantasy Points", DTOutput("most_points"))
+          panel(
+            width = 6,
+            title = "Most Fantasy Points",
+            DTOutput("most_points")
+          )
         ),
         panel(
           title = "Most Fantasy Points in a Game",
-        p(
-          "Note: reverse the sort on this column to see the lowest team total in league history."
-        ),
+          p(
+            "Note: reverse the sort on this column to see the lowest team total in league history."
+          ),
           DTOutput("highest_team_game")
         ),
         panel(
           title = "Player Records",
-        selectizeInput(
-          inputId = "enter_position_history",
-          label = "Enter Position",
-          choices = c("All", unique(value_added$position)),
-          multiple = TRUE, #enable multiple selections
-          selected = "All",
-          options = list(
-            placeholder = "Start typing...",
-            maxOptions = length(unique(value_added$position)) + 1 # Limit the number of suggestions shown
+          selectizeInput(
+            inputId = "enter_position_history",
+            label = "Select Positions",
+            choices = c("All", unique(value_added$position)),
+            multiple = TRUE, #enable multiple selections
+            selected = "All",
+            options = list(
+              placeholder = "Start typing...",
+              maxOptions = length(unique(value_added$position)) + 1 # Limit the number of suggestions shown
+            )
           )
-        )
         ),
         fluidRow(
           panel(
             width = 6,
-            title = "Player's Total Fantasy Points",
+            title = "Player's Total Fantasy Points (as a starter)",
             DTOutput("player_highest_season")
           ),
           panel(
@@ -908,7 +946,10 @@ ui <- dashboardPage(
             DTOutput("player_highest_va_season")
           )
         ),
-        panel(title = "Player's Most Fantasy Points in a Game", DTOutput("player_best_game"))
+        panel(
+          title = "Player's Most Fantasy Points in a Game (as a starter)",
+          DTOutput("player_best_game")
+        )
       ),
 
       tabItem(
@@ -922,7 +963,7 @@ ui <- dashboardPage(
         h4("Value Added"), # mathematically show
         p(
           "Debates are waged and numbers are crunched to project the future of fantasy players, but far less attention is devoted
-        to understanding their realized value. As Robert Kiyosaki once said, 'the best way to predict the future is to study the past.'
+        to understanding their realized value. As the saying goes, 'the best way to predict the future is to study the past.'
         To address this, I propose the ",
           strong("value added"),
           "
@@ -934,7 +975,7 @@ ui <- dashboardPage(
         of a season. Players earn points only when started, so let
         \\(S_w\\) denote the set of starters in week \\(w\\). A player’s position
         determines their potential replacement. There are eight lineup types:",
-          "\\[P = \\{\\text{QB, RB, WR, TE, SUPERFLEX, FLEX, K, DEF} \\}.\\]"
+          "\\[P = \\{\\text{QB, RB, WR, TE, SUPERFLEX, FLEX, K, DST} \\}.\\]"
         ),
         p(
           "Replacement players are determined using pre-game projections \\(\\hat{x}_{j w}\\).
@@ -942,8 +983,12 @@ ui <- dashboardPage(
           "\\[j^{*}_{p T w} = \\arg\\max_{j \\in p \\cap S_w^c \\cap T} \\hat{x}_{j w},\\]"
         ),
         p(
+          "If the team's best bench option \\(j^{*}\\) is projected below the best free agent, the replacement output is
+        instead the mean actual points of the three highest-projected free agents."
+        ),
+        p(
           "The realized replacement output is",
-          "\\[r_{p T w} = \\sum_{T} \\mathbb{1}_{j \\in T} x_{j^{*}_{p T w} w}.\\]"
+          "\\[r_{p T w} = x_{j^{*}_{p T w} w}.\\]"
         ),
         p(
           "The realized replacement output is very volatile across each week and team. A more stable estimate of the replacement value
@@ -953,11 +998,12 @@ ui <- dashboardPage(
         p(
           "Even this estimate can fluctuate some week to week, so I smooth the weekly replacement estimate \\(\\bar{r}_{p w}\\) toward
         the season-long average at each position, yielding the weighted-weekly replacement:",
-          "\\[wr_{p w} = (1- \\alpha) \\bar{r}_{p w} + \\alpha \\frac{1}{17} \\sum_{u = 1}^{17} \\bar{r}_{p u},\\]"
+          "\\[wr_{p w} = (1- \\alpha) \\bar{r}_{p w} + \\alpha \\frac{1}{W} \\sum_{u = 1}^{W} \\bar{r}_{p u},\\]",
+          "where \\(W\\) is the number of weeks played so far and \\(\\alpha \\in (0, 1)\\) is a mixing parameter.
+          I set \\(\\alpha = 0.3\\)."
         ),
         p(
-          "where \\(\\alpha \\in (0, 1)\\) is a mixing parameter. I set \\(\\alpha = 0.3\\).
-        Finally, value added for player \\(j\\) in week \\(w\\) is defined",
+          "Finally, value added for player \\(j\\) in week \\(w\\) is defined",
           "\\[
           v_{j w} =
             \\begin{cases}
@@ -979,12 +1025,13 @@ ui <- dashboardPage(
         At the beginning of a season \\(t\\), I observe each player's age \\(a_{j t}\\), KeepTradeCut value \\(k_{j t}\\),
         position \\(p_{j t}\\). I model the player's value added over the course of the subsequent season as",
           "\\[sv_{j, t + 1} = f_{\\text{BART}}(a_{j t}, k_{j t}, p_{j t}) + \\epsilon_{j, t + 1}, \\\\
-        \\epsilon_{j, t + 1} = \\sigma_{j, t + 1} z_{j, t + 1}, \\\\
-        z_{j, t + 1} \\sim N(0, 1),\\]",
-          "where the conditional variance is modeled as",
-          "\\[\\log \\sigma_{j, t + 1} = g_{\\text{GAM}}(a_{j t}, k_{j t}, p_{j t}) \\]",
+          \\epsilon_{j, t + 1} = \\sigma_{j, t + 1} z_{j, t + 1}\\]",
+          "where \\(z_{j, t + 1}\\) is drawn from the empirical distribution of standardized out-of-fold residuals.",
+          "The residual scale is modeled as",
+          "\\[\\mathbb{E}|\\epsilon_{j, t + 1}| = g_{\\text{GAM}}(a_{j t}, k_{j t}, p_{j t}) \\]",
           "The mean structure is modeled using Bayesian Additive Regression Trees (BART),
-        while heteroskedasticity in the residuals is accommodated by modeling the log standard deviation as a smooth
+        while heteroskedasticity in the residuals is accommodated by modeling the expected absolute residual
+        (\\(\\sigma = \\mathbb{E}|\\epsilon|\\sqrt{\\pi/2}\\)) as a smooth
         function of the same covariates using a generalized additive model (GAM)."
         ),
         p(
@@ -1006,9 +1053,9 @@ ui <- dashboardPage(
         Age and position naturally carry forward from one season to the next, but the KeepTradeCut value requires additional modeling.
         I therefore model a player's KeepTradeCut at the beginning of the next season using an additional BART model:",
           "\\[k_{j t + 1} = f_{\\text{BART}}(a_{j t}, sv_{j t + 1}, p_{j t}, k_{j t}) + \\delta_{j t + 1}, \\\\
-        \\delta_{j t + 1} = \\tau_{j t + 1} z_{j t + 1}, \\\\
-        z_{j t + 1} \\sim N(0, 1),\\]",
-          "where, again, the conditional variance is modeled as",
+        \\delta_{j t + 1} = \\tau_{j t + 1} z_{j t + 1},\\]",
+          "where \\(z_{j, t+1}\\) is drawn from the empirical distribution of standardized out-of-fold residuals.
+        The residual scale is modeled as",
           "\\[\\log \\tau_{j t + 1} = g_{\\text{GAM}}(a_{j t}, sv_{j t + 1}, p_{j t}, k_{j t}). \\]"
         ),
         p(
@@ -1024,8 +1071,10 @@ ui <- dashboardPage(
         Additional constraints are imposed to prevent unrealistic extrapolation (for example, predicting performance for 50-year-old players)."
         ),
         p(
-          "Finally, a player's future value is defined as a discounted sum of the median predicted seasonal value over the next eight seasons:",
-          "\\[f_j = \\sum_{t=1}^8 (1-\\gamma)^t \\hat{sv}_{j t}, \\]",
+          "Finally, a player's future value is a discounted sum of his expected seasonal value added
+          over the next eight seasons, where each season's expectation counts below-replacement outcomes as zero.
+          During the season, the current season is weighted by the share remaining and is not discounted:",
+          "\\[f_j = \\sum_{t=0}^7 (1-\\gamma)^t \\, \\mathbb{E}\\left[\\max(sv_{j t}, 0)\\right],\\]",
           "where \\(\\gamma = 0.05 \\) is the temporal discount factor."
         ),
 
@@ -1047,10 +1096,9 @@ ui <- dashboardPage(
         allowing for heteroskedasticity across draft positions."
         ),
         p(
-          "I assign the regression coefficients \\(\\beta\\) a standard g-prior and place a conjugate inverse-gamma prior
-        on \\(\\sigma_j^2\\) (see Sosa and Aristizabal (2021) for an accessible overview of Bayesian hierarchical linear regression).
-        Posterior inference is conducted using a Gibbs sampler with an embedded Metropolis-Hastings step
-        to estimate the heteroskedastic variance structure. The full MCMC implementation is available on ",
+          "I assign the regression coefficients \\(\\beta\\) a standard g-prior and model the log variance as a linear function of
+          the same pick terms, \\(\\log \\sigma_j^2 = \\gamma_0 + \\gamma_1 d_j + \\gamma_2 \\sqrt{d_j}\\),
+          sampled with a Metropolis-Hastings step inside the Gibbs sampler. The full MCMC implementation is available at ",
           a(
             "GitHub",
             href = "https://github.com/CalebSkinner1/FantasyDynasty/blob/main-branch/Modeling/MCMC%20Samplers.R",
@@ -1060,7 +1108,8 @@ ui <- dashboardPage(
         ),
         p(
           "I plot drafted players' Total Value Added across their rookie draft position. The blue line is the median projected
-        value, while the shaded region corresponds to 95% credible intervals. Hover on the point to see the player's name."
+        value, while the shaded region corresponds to 95% credible intervals. Pick values used elsewhere on the site are the posterior mean,
+        which sits above the median because a few picks become stars. Hover on the point to see the player's name."
         ),
         plotlyOutput("draft_fit", height = "400px", width = "100%"),
 
@@ -1069,24 +1118,28 @@ ui <- dashboardPage(
           "Finally, I leverage the simulated player career trajectories to predict the outcomes of future
         fantasy matchups. I approximate the strength \\(s_T\\) of a fantasy team \\(T\\) by summing the projected
         season value added of the top twelve players on the roster:
-          \\[\\tilde{s}_{T} = \\sum_{j \\in T}^{12} \\tilde{sv}_{j}. \\]"
+          \\[\\tilde{s}_{T} = \\sum_{j \\in T_{12}} \\tilde{sv}_{j}. \\]"
         ),
         p(
-          "I model the total fantasy points scored \\(o_{T w}\\) given the team's strength with
-        a simple linear regression:",
-          "\\[o_{T w} = \\beta_0 + \\beta_1 \\tilde{s}_{T} + \\beta_2 \\sqrt{\\tilde{s}_{T}} + \\epsilon_{T w}, \\\\
-        \\epsilon_{T w} \\sim N(0, \\sigma^2)\\]"
+          "I model the team's weekly score as normally distributed around the league's replacement-level lineup
+          plus the team's projected value added spread across the season's 17 weeks:",
+          "\\[o_{T w} \\sim N\\left(R + \\tilde{s}_T / 17, \\sigma^2\\right),\\]",
+          "where \\(R\\) is the summed replacement level of a starting lineup and \\(\\sigma \\approx 22\\) is the
+          typical week-to-week standard deviation of a team's score around its own season average. I estimate
+          it as the pooled within-team-season standard deviation of regular season scores,",
+          "\\[\\hat{\\sigma}^2 = \\frac{1}{N - G}\\sum_{T,t}\\sum_{w}\\left(o_{T t w} - \\bar{o}_{T t}\\right)^2,\\]",
+          "where \\(N\\) is the number of team-weeks and \\(G\\) the number of team-seasons.
+          Currently \\(\\hat{\\sigma} \\approx 22\\) points."
         ),
         p(
           "To simulate each fantasy matchup within a given season, I draw new noise terms
-        \\(\\epsilon_{T w} \\sim N(0, \\hat{\\sigma}^2)\\) and generate weekly outcomes:",
-          "\\[\\tilde{o}_{T w} = \\hat{\\beta}_0 + \\hat{\\beta}_1 s_T + \\hat{\\beta}_2 \\sqrt{s_T} + \\tilde{\\epsilon}_{T w}. \\]"
+        \\(\\tilde{\\epsilon}_{T w} \\sim N(0, \\hat{\\sigma}^2)\\) and generate weekly outcomes:",
+          "\\[\\tilde{o}_{T w} = R + \\tilde{s}_T / 17 + \\tilde{\\epsilon}_{T w}\\]"
         ),
         p(
           "Because the weekly schedule is known, simulated weekly outputs for each team are sufficient to generate
-        complete season outcomes. To associate probabilities with each possible finishing position, 5,000 posterior
-        samples of each player's projected seasonal value added are generated, and the full
-        season simulation is repeated independently for each sample. After simulating both the regular season and playoffs,
+        complete season outcomes. To associate probabilities with each possible finishing position, we generate 50,000 independent
+        simulations, with each drawing a fresh projection for every player and draft pick each season. After simulating both the regular season and playoffs,
         draft positions are determined and incorporated into each team's asset portfolio. By iterating this process,
         I generate projected league standings for the next three seasons."
         ),
@@ -1130,8 +1183,12 @@ server <- function(input, output, session) {
       height = "150px",
       alt = player_label(),
       onerror = str_c(
-        "this.onerror = function() { this.onerror = null; this.src = \"", silhouette, "\"; };",
-        "this.src = \"", player_default, "\";"
+        "this.onerror = function() { this.onerror = null; this.src = \"",
+        silhouette,
+        "\"; };",
+        "this.src = \"",
+        player_default,
+        "\";"
       )
     )
   })
@@ -1410,13 +1467,19 @@ server <- function(input, output, session) {
     top_transactions |>
       select(-transaction_id) |>
       shiny_edit_tables() |>
-      dt(page = 5, dom = "ftip", selection = list(mode = "single", selected = 1))
+      dt(
+        page = 5,
+        dom = "ftip",
+        selection = list(mode = "single", selected = 1)
+      )
   })
 
   # transaction_id of the clicked row
   selected_transaction <- reactive({
     req(input$top_transaction_rows_selected)
-    as.character(top_transactions$transaction_id[input$top_transaction_rows_selected])
+    as.character(top_transactions$transaction_id[
+      input$top_transaction_rows_selected
+    ])
   })
 
   output$individual_transaction_title <- renderUI({
@@ -1451,7 +1514,11 @@ server <- function(input, output, session) {
     lopsided_trades |>
       select(-trade_id) |>
       shiny_edit_tables() |>
-      dt(page = 5, dom = "ftip", selection = list(mode = "single", selected = 1))
+      dt(
+        page = 5,
+        dom = "ftip",
+        selection = list(mode = "single", selected = 1)
+      )
   })
 
   # trade_id of the clicked row
@@ -1549,7 +1616,13 @@ server <- function(input, output, session) {
 
   output$overall_value <- renderValueBox({
     tv <- trade_valuation()
-    trade_box(tv$ov_value, tv$ov_favor, "Future value", "scale-balanced", "navy")
+    trade_box(
+      tv$ov_value,
+      tv$ov_favor,
+      "Future value",
+      "scale-balanced",
+      "navy"
+    )
   })
 
   output$immediate_value <- renderValueBox({
