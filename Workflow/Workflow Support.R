@@ -28,10 +28,10 @@ run_step <- function(script, options = list()) {
   on.exit(setwd(old_wd))
   status <- system2(file.path(R.home("bin"), "Rscript"), c("-e", shQuote(expr)))
 
-  minutes <- as.numeric(difftime(Sys.time(), start, units = "mins"))
+  seconds <- as.numeric(difftime(Sys.time(), start, units = "secs"))
   if (status != 0) {
-    stop(script, " failed after ", round(minutes, 1), " minutes", call. = FALSE)
+    stop(script, " failed after ", round(seconds), " seconds", call. = FALSE)
   }
-  message("== ", script, " finished in ", round(minutes, 1), " minutes")
-  invisible(minutes)
+  message("== ", script, " finished in ", round(seconds), " seconds")
+  invisible(seconds)
 }
