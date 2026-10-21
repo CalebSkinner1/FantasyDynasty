@@ -2,8 +2,8 @@
 # grades each waiver and free agent transaction by the value the team gained and lost,
 # assessed today: realized value added since the transaction plus current future value.
 # Writes the app's transaction tables, marginal_transaction_value.csv (the value of a
-# roster spot, used by Trade Grades), and Data/derived/individual_transactions.csv and
-# transaction_adds.csv (used by Fantasy Teams).
+# roster spot, used by Trade Grades), and Data/derived/individual_transactions.csv,
+# transaction_adds.csv, and transaction_moves.csv (used by Fantasy Teams).
 
 suppressPackageStartupMessages({
   library("here")
@@ -183,11 +183,17 @@ top_transactions <- individual_transactions |>
   ) |>
   relocate(c(team_name, transaction_details))
 
-# mean add/drop value (mean value gained from adding/dropping a player)
+# mean add/drop value (mean value gained from adding/dropping a player), with its realized
+# and future parts (total_value_added = realized_value + future_value)
 marginal_transaction_value <- transaction_values |>
   filter(position != "K", position != "DST") |>
-  group_by(season, type) |>
-  summarize(total_value_added = mean(total_value), .groups = "keep")
+  summarize(
+    total_value_added = mean(total_value),
+    realized_value = mean(realized_value),
+    future_value = mean(future_value),
+    .by = c(season, type)
+  ) |>
+  arrange(season, type)
 
 # by fantasy owner
 overall_transaction_winners <- transaction_comparison |>
@@ -257,6 +263,19 @@ transaction_adds <- transaction_values |>
   )
 
 write_csv(transaction_adds, here("Data/derived/transaction_adds.csv"))
+
+# every add and drop with when it happened (team changes on the Individual Players page)
+transaction_moves_dated <- moves |>
+  left_join(
+    completed_transactions |> select(transaction_id, created),
+    by = join_by(transaction_id)
+  ) |>
+  select(transaction_id, roster_id, player_id, type, season, week, created)
+
+write_csv(
+  transaction_moves_dated,
+  here("Data/derived/transaction_moves.csv")
+)
 
 # Examples ----------------------------------------------------------------
 

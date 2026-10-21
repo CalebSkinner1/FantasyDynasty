@@ -1,8 +1,8 @@
 # Fantasy Teams
 # team tables for the Fantasy Teams page: current assets (players and picks) and how each
 # was acquired, position outlook, avenue grades, and every acquisition graded.
-# Reads the outputs of Pick Values, Draft Grades, Transaction Grades and Trade Grades, so
-# it runs after them.
+# Also writes every player's team changes (player_moves.csv). Reads the outputs of Pick
+# Values, Draft Grades, Transaction Grades and Trade Grades, so it runs after them.
 
 suppressPackageStartupMessages({
   library("here")
@@ -92,6 +92,16 @@ overall_trade_winners <- read_csv(
 overall_transaction_winners <- read_csv(
   here("Shiny/Saved Files/overall_transaction_winners.csv"),
   show_col_types = FALSE
+)
+trade_moves <- read_csv(
+  here("Data/derived/trade_moves.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character(), trade_id = col_character())
+)
+transaction_moves <- read_csv(
+  here("Data/derived/transaction_moves.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character(), transaction_id = col_character())
 )
 
 # Current assets ----------------------------------------------------------------
@@ -218,6 +228,45 @@ position_outlook_df <- player_assets |>
   select(roster_id, position, realized_value, future_value) |>
   arrange(position, roster_id)
 
+# Player moves ------------------------------------------------------------------
+# every time a player changed teams (traded, added, or dropped), with when, for the
+# dashed lines on the Individual Players page. tab and target_id open the trade or
+# transaction grade.
+
+team_name <- function(id) users$display_name[match(id, users$roster_id)]
+move_date <- function(created) {
+  as_date(as_datetime(created / 1000, tz = "America/Chicago"))
+}
+
+player_moves <- bind_rows(
+  trade_moves |>
+    transmute(
+      player_id,
+      created,
+      label = str_c(
+        "Traded from ", team_name(from_roster_id), " to ", team_name(to_roster_id),
+        " (", season, " W", week, " trade)"
+      ),
+      tab = "trade",
+      target_id = trade_id
+    ),
+  transaction_moves |>
+    transmute(
+      player_id,
+      created,
+      label = str_c(
+        if_else(type == "add", "Added by ", "Dropped by "),
+        team_name(roster_id),
+        " (", season, " W", week, " transaction)"
+      ),
+      tab = "transaction",
+      target_id = transaction_id
+    )
+) |>
+  mutate(date = move_date(created)) |>
+  arrange(player_id, created) |>
+  select(player_id, date, label, tab, target_id)
+
 # dfs to save -------------------------------------------------------------
 
 grab_team_assets_df <- player_avenues |>
@@ -235,6 +284,7 @@ write_csv(
 write_csv(value_avenues, here("Shiny/Saved Files/value_avenues.csv"))
 write_csv(acquisitions, here("Shiny/Saved Files/acquisitions.csv"))
 write_csv(player_avenues, here("Shiny/Saved Files/player_avenues.csv"))
+write_csv(player_moves, here("Shiny/Saved Files/player_moves.csv"))
 
 # Examples (app functions in Shiny/Script Support.R) ------------------------------
 # grab_team_assets(4, shiny = TRUE)

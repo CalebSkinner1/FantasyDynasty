@@ -19,24 +19,80 @@ shiny_edit_tables <- function(df) {
     rename_with(~ str_to_title(.x), everything())
 }
 
+# player and team names in a table become links: a team name opens Fantasy Teams and a
+# player name opens Individual Players (app.R listens for these clicks). A column is
+# linked when its values are names; player_choices maps names to player_id (set in
+# app_call_data.R). Returns the table and which columns were linked.
+link_names <- function(df) {
+  linked <- character()
+  link <- function(class, id, label) {
+    escaped <- map_chr(label, \(x) if (is.na(x)) NA_character_ else htmltools::htmlEscape(x))
+    case_when(
+      is.na(label) ~ NA_character_,
+      is.na(id) ~ escaped,
+      TRUE ~ str_c(
+        "<a href=\"#\" class=\"", class, "\" data-id=\"",
+        map_chr(id, \(x) htmltools::htmlEscape(coalesce(x, ""), attribute = TRUE)),
+        "\">", escaped, "</a>"
+      )
+    )
+  }
+  for (col in names(df)) {
+    values <- df[[col]]
+    if (!is.character(values) || all(is.na(values))) next
+    if (any(values %in% users$display_name)) {
+      team_id <- if_else(values %in% users$display_name, values, NA_character_)
+      df[[col]] <- link("team-link", team_id, values)
+      linked <- c(linked, col)
+    } else if (exists("player_choices") && any(values %in% names(player_choices))) {
+      player_id <- unname(player_choices[values])
+      df[[col]] <- link("player-link", player_id, values)
+      linked <- c(linked, col)
+    }
+  }
+  list(df = df, linked = linked)
+}
+
 # app tables. A search box appears when the table runs past one page; percent names the
 # columns shown with a % sign (TRUE for every numeric column); a "Total" row in the
-# first column is bold
-dt <- function(df, page = 5, dom = NULL, selection = "none", percent = NULL) {
+# first column is bold. Player and team names link to their pages (links = FALSE to skip)
+dt <- function(
+  df,
+  page = 5,
+  dom = NULL,
+  selection = "none",
+  percent = NULL,
+  links = TRUE,
+  options = list()
+) {
   if (is.null(dom)) {
     dom <- if (nrow(df) > page) "ftip" else "tip"
+  }
+
+  total_row <- nrow(df) > 0 && "Total" %in% df[[1]]
+  first_col <- df[[1]]
+  escape <- TRUE
+  if (links && nrow(df) > 0) {
+    linked <- link_names(df)
+    df <- linked$df
+    unlinked <- setdiff(names(df), linked$linked)
+    escape <- if (length(unlinked) == 0) FALSE else unlinked
   }
 
   table <- datatable(
     df,
     rownames = FALSE,
     selection = selection,
+    escape = escape,
     class = "compact stripe hover",
-    options = list(
-      pageLength = page,
-      ordering = TRUE,
-      scrollX = TRUE,
-      dom = dom
+    options = modifyList(
+      list(
+        pageLength = page,
+        ordering = TRUE,
+        scrollX = TRUE,
+        dom = dom
+      ),
+      options
     )
   )
 
@@ -47,16 +103,29 @@ dt <- function(df, page = 5, dom = NULL, selection = "none", percent = NULL) {
     table <- table |> formatString(percent, suffix = "%")
   }
 
-  if (nrow(df) > 0 && "Total" %in% df[[1]]) {
+  if (total_row) {
+    rows <- which(first_col == "Total")
     table <- table |>
       formatStyle(
         names(df),
-        valueColumns = names(df)[1],
-        fontWeight = styleEqual("Total", "bold")
+        target = "row",
+        fontWeight = styleRow(rows, "bold")
       )
   }
 
   table
+}
+
+# a selectable table's row for an id (NULL when it isn't in the table), and the first row
+# of the page that shows it (0-based, for DT's displayStart)
+row_of <- function(id, ids) {
+  row <- match(id, ids)
+  if (is.na(row)) NULL else row
+}
+
+page_start <- function(id, ids, page = 5) {
+  row <- match(id, ids)
+  if (is.na(row)) 0 else (row - 1) %/% page * page
 }
 
 #position_levels
@@ -503,6 +572,81 @@ team_composition <- function(player_avenues, enter_roster_id, shiny = FALSE) {
   }
 }
 
+# a team's bio for the Fantasy Teams page: records, playoff results, and where its
+# ratings rank in the league. One row per stat: label, value, and a detail line
+team_bio <- function(enter_team) {
+  ordinal <- function(n) {
+    suffix <- case_when(
+      n %% 100 %in% 11:13 ~ "th",
+      n %% 10 == 1 ~ "st",
+      n %% 10 == 2 ~ "nd",
+      n %% 10 == 3 ~ "rd",
+      TRUE ~ "th"
+    )
+    str_c(n, suffix)
+  }
+  rank_of <- function(df, value_col) {
+    df |>
+      mutate(rank = min_rank(desc(.data[[value_col]]))) |>
+      filter(team == enter_team)
+  }
+  record <- function(games) {
+    wins <- sum(games$result == "win")
+    losses <- sum(games$result == "loss")
+    ties <- sum(games$result == "tie")
+    str_c(wins, "-", losses, if (ties > 0) str_c("-", ties))
+  }
+  count_for <- function(df, col) {
+    n <- df[[col]][df$team == enter_team]
+    if (length(n) == 0 || is.na(n[1])) 0 else n[1]
+  }
+
+  games <- wins_df |> filter(team == enter_team)
+  regular <- games |> filter(type == "regular season")
+  playoff_games <- games |> filter(type == "winner's bracket")
+  n_teams <- nrow(users)
+
+  elo <- weekly_elo |>
+    slice_max(date_hide, n = 1, with_ties = FALSE, by = team) |>
+    rank_of("elo")
+  composite <- total_success |> rank_of("composite_rating")
+  future <- all_assets_summary_df |> rank_of("total_future_value")
+
+  berths <- count_for(playoffs_df, "playoff_berths")
+  finals <- count_for(finals_df, "finals_appearances")
+  titles <- count_for(championships_df, "championships")
+
+  tibble(
+    label = c(
+      "Record",
+      "Playoffs",
+      "Championships",
+      "Elo rating",
+      "Composite rating",
+      "Future value"
+    ),
+    value = c(
+      record(regular),
+      str_c(berths, if_else(berths == 1, " berth", " berths")),
+      as.character(titles),
+      scales::comma(elo$elo, accuracy = 1),
+      scales::comma(composite$composite_rating, accuracy = .1),
+      scales::comma(future$total_future_value, accuracy = 1)
+    ),
+    detail = c(
+      str_c("regular season, ", round(100 * mean(regular$result == "win")), "% wins"),
+      if_else(
+        nrow(playoff_games) > 0,
+        str_c(record(playoff_games), " in playoff games"),
+        "no playoff games yet"
+      ),
+      str_c(finals, if_else(finals == 1, " finals appearance", " finals appearances")),
+      str_c(ordinal(elo$rank), " of ", n_teams),
+      str_c(ordinal(composite$rank), " of ", n_teams),
+      str_c(ordinal(future$rank), " of ", n_teams, " in total assets")
+    )
+  )
+}
 
 # Draft Grades ------------------------------------------------------------
 
@@ -630,10 +774,11 @@ draft_rankings <- function(enter_draft, shiny) {
   }
 }
 
-# points by week compared with projected
-# a player's weekly results in one season, in two panels with their own scales:
-#   Fantasy points: bars (started or on the bench), with his pre-game projection
-#   Value added: what he added over replacement in the weeks he started (0 on the bench)
+# a player's weekly results in one season, one bar per week split into replacement level
+# and value added (points = replacement + value added, for weeks he started):
+#   gray up to the replacement level and blue above it when he beat replacement
+#   red when he fell short, with a dashed line at the replacement level
+#   hollow bars for bench weeks (no value added); orange dots are his projection
 weekly_results <- function(va_data, enter_id, enter_season) {
   player_games <- va_data |>
     filter(player_id == enter_id, season == max(enter_season))
@@ -643,55 +788,97 @@ weekly_results <- function(va_data, enter_id, enter_season) {
   ))
   enter_name <- player_games$name[1]
 
-  panels <- c("Fantasy points", "Value added")
-  points <- player_games |>
+  signed <- function(x) str_c(if_else(x >= 0, "+", ""), round(x, 1))
+  weeks <- player_games |>
     mutate(
-      panel = factor(panels[1], panels),
-      status = if_else(type == "starter", "Started", "Bench")
+      started = type == "starter",
+      replacement = sleeper_points - value_added,
+      xmin = week - .35,
+      xmax = week + .35,
+      text = if_else(
+        started,
+        str_c(
+          "Week ", week, " (started for ", display_name, ")",
+          "<br>Points: ", round(sleeper_points, 1),
+          "<br>Replacement level: ", round(replacement, 1),
+          "<br>Value added: ", signed(value_added),
+          "<br>Projection: ", round(projection, 1)
+        ),
+        str_c(
+          "Week ", week, " (bench for ", display_name, ")",
+          "<br>Points: ", round(sleeper_points, 1),
+          "<br>Projection: ", round(projection, 1)
+        )
+      )
     )
-  value <- player_games |>
-    mutate(panel = factor(panels[2], panels))
 
-  ggplot() +
-    geom_col(
-      data = points,
-      aes(x = week, y = sleeper_points, fill = status),
-      width = .7
+  above <- weeks |> filter(started, value_added >= 0)
+  below <- weeks |> filter(started, value_added < 0)
+  bench <- weeks |> filter(!started)
+
+  # layers are added only when they have weeks to draw (plotly fails on empty layers)
+  p <- ggplot(weeks) +
+    geom_hline(yintercept = 0, color = "grey60")
+
+  # beat replacement: replacement level (gray) plus value added (blue)
+  if (nrow(above) > 0) {
+    p <- p +
+      geom_rect(
+        data = above,
+        aes(xmin = xmin, xmax = xmax, ymin = 0, ymax = replacement, text = text),
+        fill = "#c3c2b7"
+      ) +
+      geom_rect(
+        data = above,
+        aes(xmin = xmin, xmax = xmax, ymin = replacement, ymax = sleeper_points, text = text),
+        fill = "#2a78d6"
+      )
+  }
+  # fell short of replacement: red bar, dashed line at the replacement level
+  if (nrow(below) > 0) {
+    p <- p +
+      geom_rect(
+        data = below,
+        aes(xmin = xmin, xmax = xmax, ymin = 0, ymax = sleeper_points, text = text),
+        fill = "#e34948"
+      ) +
+      geom_segment(
+        data = below,
+        aes(x = xmin, xend = xmax, y = replacement, yend = replacement, text = text),
+        linetype = "dashed",
+        color = "#52514e",
+        linewidth = .6
+      )
+  }
+  # bench weeks
+  if (nrow(bench) > 0) {
+    p <- p +
+      geom_rect(
+        data = bench,
+        aes(xmin = xmin, xmax = xmax, ymin = 0, ymax = sleeper_points, text = text),
+        fill = NA,
+        color = "#8a8980",
+        linewidth = .4
+      )
+  }
+  # projection
+  p <- p +
+    geom_line(aes(x = week, y = projection), color = "#eb6834", linewidth = .4) +
+    geom_point(aes(x = week, y = projection, text = text), color = "#eb6834", size = 1.8) +
+    scale_x_continuous(
+      breaks = scales::breaks_width(1),
+      limits = c(.5, max(weeks$week) + .5),
+      expand = c(0, 0)
     ) +
-    geom_line(
-      data = points,
-      aes(x = week, y = projection, color = "Projection"),
-      linewidth = .8
-    ) +
-    geom_point(
-      data = points,
-      aes(x = week, y = projection, color = "Projection"),
-      size = 2
-    ) +
-    geom_col(
-      data = value,
-      aes(x = week, y = value_added),
-      fill = "#52514e",
-      width = .7
-    ) +
-    geom_hline(yintercept = 0, color = "grey40") +
-    facet_grid(panel ~ ., scales = "free_y", switch = "y") +
-    scale_fill_manual(values = c(Started = "#2a78d6", Bench = "#c3c2b7")) +
-    scale_color_manual(values = c(Projection = "#eb6834")) +
-    scale_x_continuous(breaks = scales::breaks_width(1)) +
     labs(
       title = str_c(enter_name, ": ", max(enter_season), " Weekly Results"),
       x = "Week",
-      y = NULL,
-      fill = NULL,
-      color = NULL
+      y = "Fantasy points"
     ) +
-    theme(
-      strip.placement = "outside",
-      strip.text.y.left = element_text(angle = 90, size = 11),
-      legend.position = "top",
-      panel.grid.minor = element_blank()
-    )
+    theme(panel.grid.minor = element_blank(), panel.grid.major.x = element_blank())
+
+  as_plotly(p, tooltip = "text") |>
+    plotly::layout(showlegend = FALSE)
 }
 
 # Trade Grades ------------------------------------------------------------
@@ -709,8 +896,10 @@ inspect_individual_trade <- function(trade_id, shiny = FALSE) {
       .
     )
 
+  # what each team received: players, picks, and its own roster size adjustment (a
+  # partner's adjustment counts against the team in its grade but isn't listed)
   df <- total_trade_value[[trade_id]] |>
-    filter(type == "add" | name == "roster size adjustment") |>
+    filter(type == "add") |>
     select(-season, -week, -type, -player_id) |>
     group_by(team_name) |>
     group_map(~ .x |> adorn_totals("row"), .keep = TRUE) |>
@@ -886,16 +1075,58 @@ top_future_value_player <- function(player_total_value, enter_position) {
     shiny_edit_tables()
 }
 
-# future value over time for the selected players (by player_id)
-plot_over_time <- function(future_value_time, enter_ids) {
-  p <- future_value_time |>
+# future value over time for the selected players (by player_id). With moves (a player's
+# team changes from player_moves.csv), dashed lines mark each trade, add, and drop; hover
+# the marker at the top for what happened, and click it to open that trade or
+# transaction (key = "tab|id", read in app.R from the plot's source)
+plot_over_time <- function(
+  future_value_time,
+  enter_ids,
+  moves = NULL,
+  source = "A"
+) {
+  df <- future_value_time |>
     filter(player_id %in% enter_ids, !is.na(future_value)) |>
-    rename("Future Value" = future_value, "Name" = name, "Date" = date) |>
-    ggplot() +
-    geom_line(aes(x = Date, y = `Future Value`, color = Name)) +
+    mutate(
+      text = str_c(name, "<br>", format(date, "%b %e, %Y"), "<br>Future value: ", round(future_value, 1))
+    )
+
+  p <- ggplot(df) +
+    geom_line(aes(x = date, y = future_value, color = name, group = name, text = text)) +
+    labs(x = "Date", y = "Future value") +
     theme(legend.position = "none")
 
-  as_plotly(p)
+  if (!is.null(moves) && nrow(df) > 0) {
+    top <- max(df$future_value) * 1.08
+    bottom <- min(0, min(df$future_value))
+    marks <- moves |>
+      filter(player_id %in% enter_ids, date >= min(df$date), date <= max(df$date)) |>
+      summarize(
+        text = str_c(format(first(date), "%b %e, %Y"), "<br>", str_c(label, collapse = "<br>")),
+        key = str_c(first(tab), "|", first(target_id)),
+        .by = date
+      )
+    if (nrow(marks) > 0) {
+      p <- p +
+        geom_segment(
+          data = marks,
+          aes(x = date, xend = date, y = bottom, yend = top),
+          linetype = "dashed",
+          color = "grey55",
+          linewidth = .4
+        ) +
+        geom_point(
+          data = marks,
+          aes(x = date, y = top, text = str_c(text, "<br><i>Click to open the grade</i>"), key = key),
+          shape = 25,
+          size = 2.6,
+          fill = "#52514e",
+          color = "#52514e"
+        )
+    }
+  }
+
+  as_plotly(p, tooltip = "text", source = source)
 }
 
 # future value over time for a player and the four players closest to him in future

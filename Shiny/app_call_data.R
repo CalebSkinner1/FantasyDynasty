@@ -165,6 +165,25 @@ wins_df <- read_csv(
   show_col_types = FALSE
 )
 
+# every player's team changes (Fantasy Teams.R), marked on the future value chart. Empty
+# until that script has run once with this version
+moves_path <- str_c(script_data_path, "player_moves.csv")
+player_moves <- if (file.exists(moves_path)) {
+  read_csv(
+    moves_path,
+    show_col_types = FALSE,
+    col_types = cols(player_id = col_character(), target_id = col_character())
+  )
+} else {
+  tibble(
+    player_id = character(),
+    date = as.Date(character()),
+    label = character(),
+    tab = character(),
+    target_id = character()
+  )
+}
+
 # player rankings
 future_value_time <- read_csv(
   str_c(script_data_path, "future_value_time.csv"),

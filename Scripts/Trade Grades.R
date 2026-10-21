@@ -4,9 +4,13 @@
 #   picks:   expected pick value, discounted .95 per season until the draft (Pick Values.R)
 #   roster spots: a team that receives more players than it sends must drop players, and
 #            one that sends more can add free agents; each spot is worth the average add
-#            or drop in that season (marginal_transaction_value.csv, Transaction Grades.R)
+#            or drop in that season (marginal_transaction_value.csv, Transaction Grades.R).
+#            Like the Trade Machine, a team's grade is what it received minus what its
+#            partners received, so a partner's roster spot counts against the team and
+#            every trade sums to zero.
 # Runs after Transaction Grades and Pick Values. Writes the app's trade tables and
-# Data/derived/individual_trades.csv and trade_adds.csv (used by Fantasy Teams).
+# Data/derived/individual_trades.csv, trade_adds.csv, and trade_moves.csv (used by Fantasy
+# Teams).
 
 suppressPackageStartupMessages({
   library("here")
@@ -106,14 +110,16 @@ player_values <- function(players, this_season, this_week, type) {
     )
 }
 
-# value of one roster spot in a season: the average add (gained) or drop (lost)
+# value of one roster spot in a season: the average add (gained) or drop (lost, negative),
+# as realized, future, and total value
 spot_value <- function(this_season, this_type) {
   mtv <- marginal_transaction_value |> filter(type == this_type)
-  value <- mtv$total_value_added[mtv$season == this_season]
-  if (length(value) == 0) {
-    value <- mtv$total_value_added[mtv$season == max(mtv$season)]
+  if (!this_season %in% mtv$season) {
+    this_season <- max(mtv$season)
   }
-  value
+  mtv |>
+    filter(season == this_season) |>
+    transmute(realized_value, future_value, total_value = total_value_added)
 }
 
 compute_trade_value <- function(trade) {
@@ -152,7 +158,12 @@ compute_trade_value <- function(trade) {
     picks <- tibble()
   }
 
-  # roster size adjustment: net players received (picks take no roster spot)
+  # roster size adjustment: net players received (picks take no roster spot). A team that
+  # receives more players must drop the extra (lost spots, negative); one that sends more
+  # can add free agents (gained spots). Each team's own adjustment is something it
+  # received ("add"); a partner's adjustment counts against the team ("drop"), split
+  # evenly among the partners, so the trade sums to zero
+  trade_teams <- unique(c(players$roster_id, if (nrow(picks) > 0) picks$roster_id))
   roster_spots <- full_join(
     count(adds, roster_id, name = "received"),
     count(drops, roster_id, name = "sent"),
@@ -165,19 +176,25 @@ compute_trade_value <- function(trade) {
     filter(net != 0)
 
   adjustment <- roster_spots |>
-    transmute(
-      roster_id,
-      name = "roster size adjustment",
-      position = if_else(net > 0, "lost", "gained"),
-      future_value = 0,
-      realized_value = 0,
-      type = if_else(net > 0, "drop", "add"),
-      total_value = if_else(
-        net > 0,
-        net * spot_value(this_season, "drop"), # must drop players (negative value)
-        -net * spot_value(this_season, "add") # can add free agents
-      )
-    )
+    pmap(\(roster_id, net, ...) {
+      spot <- spot_value(this_season, if_else(net > 0, "drop", "add"))
+      own <- spot |>
+        mutate(
+          across(everything(), ~ .x * abs(net)),
+          roster_id = roster_id,
+          position = if_else(net > 0, "lost", "gained"),
+          type = "add"
+        )
+      partners <- setdiff(trade_teams, roster_id)
+      partner_rows <- own |>
+        mutate(across(c(realized_value, future_value, total_value), ~ -.x / length(partners))) |>
+        select(-roster_id) |>
+        expand_grid(roster_id = partners) |>
+        mutate(position = str_c("partner ", position), type = "drop")
+      bind_rows(own, partner_rows)
+    }) |>
+    bind_rows() |>
+    mutate(name = "roster size adjustment", player_id = NA_character_)
 
   bind_rows(players, picks) |>
     mutate(
@@ -236,9 +253,9 @@ trade_partners <- comparison |>
   filter(team_name != partner) |>
   summarize(other_teams = str_flatten(partner, ", "), .by = c(trade_id, team_name))
 
-# most valuable asset each team received
+# most valuable asset each team received (a player or pick, not a roster spot)
 top_asset <- bind_rows(total_trade_value, .id = "trade_id") |>
-  filter(type == "add") |>
+  filter(type == "add", name != "roster size adjustment") |>
   slice_max(total_value, n = 1, with_ties = FALSE, by = c(trade_id, team_name)) |>
   select(trade_id, team_name, name, position)
 
@@ -253,6 +270,8 @@ individual_trades <- comparison |>
   left_join(trade_partners, by = join_by(trade_id, team_name)) |>
   left_join(top_asset, by = join_by(trade_id, team_name)) |>
   mutate(
+    # a team that received only a roster spot (it sent players for nothing)
+    name = coalesce(name, "roster spot"),
     value_over_expected = total_value,
     avenue = str_c(season, " W", week, " trade with ", other_teams)
   ) |>
@@ -411,6 +430,28 @@ trade_adds <- bind_rows(total_trade_value, .id = "trade_id") |>
   )
 
 write_csv(trade_adds, here("Data/derived/trade_adds.csv"))
+
+# every player traded, from and to which team, and when (team changes on the Individual
+# Players page)
+trade_player_rows <- bind_rows(total_trade_value, .id = "trade_id") |>
+  filter(!is.na(player_id)) |>
+  left_join(users, by = join_by(team_name == display_name))
+
+trade_moves <- trade_player_rows |>
+  filter(type == "add") |>
+  select(trade_id, player_id, to_roster_id = roster_id, season, week) |>
+  left_join(
+    trade_player_rows |>
+      filter(type == "drop") |>
+      select(trade_id, player_id, from_roster_id = roster_id),
+    by = join_by(trade_id, player_id)
+  ) |>
+  left_join(
+    trades |> transmute(trade_id = as.character(row_number()), created),
+    by = join_by(trade_id)
+  )
+
+write_csv(trade_moves, here("Data/derived/trade_moves.csv"))
 
 # Examples (app functions in Shiny/Script Support.R) ------------------------------
 # inspect_individual_trade(9) # what is trade 9

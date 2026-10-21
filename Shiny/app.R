@@ -104,9 +104,59 @@ ui <- dashboardPage(
   ),
   dashboardBody(
     # titles that come from the server (uiOutput) sit inside the card titles
-    tags$head(tags$style(HTML(
-      ".card-title h3 { font-size: 1.1rem; margin: 0; }"
-    ))),
+    tags$head(
+      tags$style(HTML(
+        "
+        .card-title h3 { font-size: 1.1rem; margin: 0; }
+
+        /* stat tiles (team bio, trade verdict) */
+        .stat-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 0.75rem;
+          margin-top: 0.5rem;
+        }
+        .stat-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        @media (max-width: 576px) {
+          .stat-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        .stat-tile {
+          background: #ffffff;
+          border: 1px solid #e3e6ea;
+          border-left: 4px solid #00a65a;
+          border-radius: 0.35rem;
+          padding: 0.6rem 0.8rem;
+        }
+        .stat-tile.info { border-left-color: #2a78d6; }
+        .stat-tile.muted { border-left-color: #c3c2b7; }
+        .stat-label {
+          font-size: 0.75rem;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          color: #6c757d;
+        }
+        .stat-value { font-size: 1.5rem; font-weight: 600; line-height: 1.3; color: #212529; }
+        .stat-detail { font-size: 0.85rem; color: #6c757d; }
+        .stat-tile.large .stat-value { font-size: 2rem; }
+
+        /* player and team names in tables */
+        a.player-link, a.team-link { color: #1c5fae; }
+        a.player-link:hover, a.team-link:hover { text-decoration: underline; }
+        "
+      )),
+      # a click on a player or team name opens that player's or team's page (app.R
+      # server: goto_player, goto_team)
+      tags$script(HTML(
+        "
+        $(document).on('click', 'a.player-link, a.team-link', function(e) {
+          e.preventDefault();
+          var input = $(this).hasClass('player-link') ? 'goto_player' : 'goto_team';
+          Shiny.setInputValue(input, String($(this).data('id')), {priority: 'event'});
+          window.scrollTo(0, 0);
+        });
+        "
+      ))
+    ),
     tabItems(
       tabItem(
         # Home Tab
@@ -253,7 +303,8 @@ ui <- dashboardPage(
             width = 5,
             title = "Future Value over Time",
             p(
-              "Player's future value over time as his KeepTradeCut value varies, production accumulates, and age increases."
+              "Player's future value over time as his KeepTradeCut value varies, production accumulates, and age increases.
+              Dashed lines mark team changes; hover over the marker at the top for details and click it to open the grade."
             ),
             plotlyOutput("player_value_over_time", height = "400px")
           )
@@ -279,10 +330,11 @@ ui <- dashboardPage(
         panel(
           title = "Weekly Results",
           p(
-            "The blue bars are fantasy points in weeks the player started, the gray bars are bench points, and the orange
-            line is his projection. The lower panel shows weekly value added."
+            "Each bar is the player's fantasy points in a week. In weeks he started, the gray part is the replacement level
+            and the blue part is his value added above it. A red bar fell short of replacement, which is marked by the dashed
+            line. Hollow bars are bench weeks, and orange dots are his projection. Hover over a week for the numbers."
           ),
-          plotOutput("weekly_results", height = "450px")
+          plotlyOutput("weekly_results", height = "420px")
         )
       ),
 
@@ -306,7 +358,8 @@ ui <- dashboardPage(
                 placeholder = "Start typing...",
                 maxOptions = nrow(users) # Limit the number of suggestions shown
               )
-            )
+            ),
+            uiOutput("team_bio")
           ),
           column(3, uiOutput("image_ui"))
         ),
@@ -455,6 +508,18 @@ ui <- dashboardPage(
             title = uiOutput("worst_picks_title", inline = TRUE),
             DTOutput("worst_picks")
           )
+        ),
+        panel(
+          title = "Rookie Pick Value",
+          p(
+            "Each point is a drafted rookie's total value added (realized value plus future value) by his draft position.
+            The blue line is the model's median, and the shaded region is the 95% credible interval. Rookie picks are
+            graded against the model's mean, which sits above the median because a few picks become stars. Hover over
+            a point to see the player. The",
+            strong("Modeling"),
+            "tab explains the model."
+          ),
+          plotlyOutput("draft_fit_grades", height = "400px", width = "100%")
         )
       ),
 
@@ -602,9 +667,9 @@ ui <- dashboardPage(
             )
           )
         ),
-        fluidRow(
-          valueBoxOutput("overall_value", width = 6),
-          valueBoxOutput("immediate_value", width = 6)
+        panel(
+          title = "Verdict",
+          uiOutput("trade_verdict")
         ),
         panel(
           title = "Value Exchanged",
@@ -1150,6 +1215,24 @@ ui <- dashboardPage(
 
 # Define Server
 server <- function(input, output, session) {
+  # Links between pages --------------------------------------------------------
+  # a player or team name clicked in any table opens its page (see the script in the
+  # page head)
+  observeEvent(input$goto_player, {
+    updateSelectizeInput(session, "player_name", selected = input$goto_player)
+    updateTabItems(session, "sidebar", selected = "players")
+  })
+
+  observeEvent(input$goto_team, {
+    updateSelectizeInput(session, "team_name", selected = input$goto_team)
+    updateTabItems(session, "sidebar", selected = "teams")
+  })
+
+  # the trade and transaction shown in the Trade Grades and Transaction Grades breakdowns:
+  # set by clicking a row in their tables or a team-change marker on a player's chart
+  selected_trade <- reactiveVal(as.character(lopsided_trades$trade_id[1]))
+  selected_transaction <- reactiveVal(as.character(top_transactions$transaction_id[1]))
+
   # Reactivity for Page 1
   # input$player_name is the player's player_id; player_label() is his name
 
@@ -1208,7 +1291,37 @@ server <- function(input, output, session) {
 
   output$player_value_over_time <- renderPlotly({
     req(input$player_name)
-    plot_over_time(future_value_time, input$player_name)
+    plot_over_time(
+      future_value_time,
+      input$player_name,
+      moves = player_moves,
+      source = "player_moves"
+    ) |>
+      event_register("plotly_click")
+  })
+
+  # a click on a team-change marker opens that trade or transaction
+  # (event_data warns until the chart has been drawn once)
+  move_click <- reactive(suppressWarnings(event_data("plotly_click", source = "player_moves")))
+  observeEvent(move_click(), {
+    key <- move_click()$key
+    req(length(key) == 1, str_detect(key, "\\|"))
+    target <- str_split_1(key, "\\|")
+    if (target[1] == "trade") {
+      selected_trade(target[2])
+      row <- match(target[2], as.character(lopsided_trades$trade_id))
+      if (!is.na(row)) {
+        dataTableProxy("trade_lopsided") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
+      }
+      updateTabItems(session, "sidebar", selected = "trade")
+    } else {
+      selected_transaction(target[2])
+      row <- match(target[2], as.character(top_transactions$transaction_id))
+      if (!is.na(row)) {
+        dataTableProxy("top_transaction") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
+      }
+      updateTabItems(session, "sidebar", selected = "transaction")
+    }
   })
 
   output$tabulate_realized_value_title <- renderUI({
@@ -1229,7 +1342,7 @@ server <- function(input, output, session) {
       dt(page = 5)
   })
 
-  output$weekly_results <- renderPlot({
+  output$weekly_results <- renderPlotly({
     #second plot
     req(input$player_name, input$player_season) #require input
     weekly_results(value_added, input$player_name, input$player_season)
@@ -1260,6 +1373,22 @@ server <- function(input, output, session) {
       pull(avatar_url)
 
     tags$img(src = image_url, height = "150px")
+  })
+
+  output$team_bio <- renderUI({
+    req(input$team_name)
+    bio <- team_bio(input$team_name)
+    div(
+      class = "stat-grid three",
+      pmap(bio, \(label, value, detail) {
+        div(
+          class = "stat-tile",
+          div(class = "stat-label", label),
+          div(class = "stat-value", value),
+          div(class = "stat-detail", detail)
+        )
+      })
+    )
   })
 
   output$team_assets_title <- renderUI({
@@ -1470,16 +1599,19 @@ server <- function(input, output, session) {
       dt(
         page = 5,
         dom = "ftip",
-        selection = list(mode = "single", selected = 1)
+        selection = list(
+          mode = "single",
+          selected = row_of(isolate(selected_transaction()), top_transactions$transaction_id)
+        ),
+        options = list(displayStart = page_start(isolate(selected_transaction()), top_transactions$transaction_id))
       )
   })
 
   # transaction_id of the clicked row
-  selected_transaction <- reactive({
-    req(input$top_transaction_rows_selected)
-    as.character(top_transactions$transaction_id[
+  observeEvent(input$top_transaction_rows_selected, {
+    selected_transaction(as.character(top_transactions$transaction_id[
       input$top_transaction_rows_selected
-    ])
+    ]))
   })
 
   output$individual_transaction_title <- renderUI({
@@ -1517,14 +1649,19 @@ server <- function(input, output, session) {
       dt(
         page = 5,
         dom = "ftip",
-        selection = list(mode = "single", selected = 1)
+        selection = list(
+          mode = "single",
+          selected = row_of(isolate(selected_trade()), lopsided_trades$trade_id)
+        ),
+        options = list(displayStart = page_start(isolate(selected_trade()), lopsided_trades$trade_id))
       )
   })
 
   # trade_id of the clicked row
-  selected_trade <- reactive({
-    req(input$trade_lopsided_rows_selected)
-    as.character(lopsided_trades$trade_id[input$trade_lopsided_rows_selected])
+  observeEvent(input$trade_lopsided_rows_selected, {
+    selected_trade(as.character(lopsided_trades$trade_id[
+      input$trade_lopsided_rows_selected
+    ]))
   })
 
   output$individual_trade_title <- renderUI({
@@ -1580,14 +1717,14 @@ server <- function(input, output, session) {
 
   # graded once per change of teams or assets, shared by the outputs below
   trade_valuation <- reactive({
-    req(
-      input$trade_machine_team1,
-      input$trade_machine_team2,
-      length(input$team1_assets) + length(input$team2_assets) > 0
-    )
+    req(input$trade_machine_team1, input$trade_machine_team2)
     validate(need(
       input$trade_machine_team1 != input$trade_machine_team2,
       "Select two different teams."
+    ))
+    validate(need(
+      length(input$team1_assets) + length(input$team2_assets) > 0,
+      "Select the assets each team would send to grade the trade."
     ))
     grade_trade_wrapper(
       assets_df,
@@ -1599,40 +1736,27 @@ server <- function(input, output, session) {
     )
   })
 
-  # value: the net difference; subtitle: which team it favors
-  trade_box <- function(value, favor, what, icon_name, color) {
-    valueBox(
-      value = round(value, 1),
-      subtitle = if (value < .05) {
-        str_c(what, ": even")
-      } else {
-        str_c(what, " favors ", favor)
-      },
-      icon = icon(icon_name),
-      color = color,
-      width = NULL
-    )
-  }
-
-  output$overall_value <- renderValueBox({
+  # the net difference in future value and in the upcoming season's value, and which team
+  # each favors
+  output$trade_verdict <- renderUI({
     tv <- trade_valuation()
-    trade_box(
-      tv$ov_value,
-      tv$ov_favor,
-      "Future value",
-      "scale-balanced",
-      "navy"
-    )
-  })
-
-  output$immediate_value <- renderValueBox({
-    tv <- trade_valuation()
-    trade_box(
-      tv$iv_value,
-      tv$iv_favor,
-      str_c(tv$upcoming_label, " value"),
-      "calendar",
-      "green"
+    tile <- function(what, value, favor, class) {
+      even <- value < .05
+      div(
+        class = str_c("stat-tile large ", if (even) "muted" else class),
+        div(class = "stat-label", what),
+        div(class = "stat-value", if (even) "Even" else format(round(value, 1), nsmall = 1, big.mark = ",")),
+        div(
+          class = "stat-detail",
+          if (even) "neither team gains" else tagList("favors ", strong(favor))
+        )
+      )
+    }
+    div(
+      class = "stat-grid",
+      style = "margin-top: 0;",
+      tile("Future value", tv$ov_value, tv$ov_favor, "success"),
+      tile(str_c(tv$upcoming_label, " value"), tv$iv_value, tv$iv_favor, "info")
     )
   })
 
@@ -1942,8 +2066,8 @@ server <- function(input, output, session) {
     plot(p)
   })
 
-  output$draft_fit <- renderPlotly({
-    #first plot
+  # rookie pick model fit, on the Modeling and Draft Grades pages
+  draft_fit_chart <- function() {
     p <- draft_fit_plot |>
       ggplot(aes(x = pick_no)) +
       geom_point(aes(y = `Total Value`, text = paste0("Name: ", name))) +
@@ -1956,7 +2080,10 @@ server <- function(input, output, session) {
       labs(x = "Draft Pick", y = "Total Value Added")
 
     as_plotly(p, tooltip = c("y", "text"))
-  })
+  }
+
+  output$draft_fit <- renderPlotly(draft_fit_chart())
+  output$draft_fit_grades <- renderPlotly(draft_fit_chart())
 }
 
 # Run the App
