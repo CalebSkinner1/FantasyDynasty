@@ -364,31 +364,6 @@ overall_trade_winners <- comparison |>
 # # compute value over time
 # total_trade_value_time
 
-# dfs to save -------------------------------------------------------------
-
-write_csv(
-  overall_trade_winners,
-  here("Shiny/Saved Files/overall_trade_winners.csv")
-)
-
-write_csv(lopsided_trades, here("Shiny/Saved Files/lopsided_trades.csv"))
-
-write_csv(comparison, here("Shiny/Saved Files/comparison.csv"))
-
-save(
-  total_trade_value,
-  file = here("Shiny/Saved Files/total_trade_value.Rdata")
-)
-
-# Examples ----------------------------------------------------------------
-
-# inspect_individual_trade(9) # what is trade 9
-# inspect_individual_trade(20) # what is trade 20
-# inspect_individual_trade(7) # what is trade 7
-# inspect_individual_trade(4) # what is trade 4
-# inspect_individual_trade(19) # what is trade 19
-# inspect_individual_trade(27) # what is trade 27
-
 rm(value_added)
 
 # dfs to save -------------------------------------------------------------

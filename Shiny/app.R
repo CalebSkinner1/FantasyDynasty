@@ -116,9 +116,9 @@ ui <- dashboardPage(
           gap: 0.75rem;
           margin-top: 0.5rem;
         }
-        .stat-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        @media (max-width: 576px) {
-          .stat-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .stat-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        @media (max-width: 768px) {
+          .stat-grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         .stat-tile {
           background: #ffffff;
@@ -275,10 +275,7 @@ ui <- dashboardPage(
             width = 9,
             title = "Player",
             p(
-              "Select any player to see his value added to date and his projected value added in future seasons.
-              The line is his expected value added each season, the average of his simulated outcomes with below-replacement
-              seasons set to zero. The shaded regions are the 80% and 95% credible intervals. The current season combines value
-              added so far with the projection for the rest of the season."
+              "Select any player to see his value added to date and his projected value added in future seasons."
             ),
             selectizeInput(
               inputId = "player_name",
@@ -297,6 +294,11 @@ ui <- dashboardPage(
           panel(
             width = 7,
             title = "Projected Value Added",
+            p(
+              "The line is his expected value added each season, the average of his simulated outcomes with below-replacement
+              seasons set to zero. The shaded regions are the 80% and 95% credible intervals. The current season combines value
+              added so far with the projection for the rest of the season."
+            ),
             plotOutput("plot_future_value", height = "400px", width = "100%")
           ),
           panel(
@@ -868,7 +870,18 @@ ui <- dashboardPage(
             DTOutput("future_assets")
           )
         ),
-        panel(title = "High and Low Elo Rating", DTOutput("total_success"))
+        panel(
+          title = "High and Low Elo Rating",
+          DTOutput("total_success"),
+          p(
+            style = "margin-top: 1rem;",
+            strong("Composite rating"),
+            "is a team's average Elo rating, measured as points above or below the league average of 1500,
+            over every week it has played since the league began. A team that has hovered around 1550 has a composite
+            rating near +50, and a team that has hovered around 1450 is near -50. Where the peak and low show a team's best
+            and worst moments, the composite rating rewards a team that stays strong season after season."
+          )
+        )
       ),
 
       tabItem(
@@ -1300,9 +1313,12 @@ server <- function(input, output, session) {
       event_register("plotly_click")
   })
 
-  # a click on a team-change marker opens that trade or transaction
-  # (event_data warns until the chart has been drawn once)
-  move_click <- reactive(suppressWarnings(event_data("plotly_click", source = "player_moves")))
+  # a click on a team-change marker opens that trade or transaction (priority "event" so
+  # clicking the same marker again still opens it; event_data warns until the chart has
+  # been drawn once)
+  move_click <- reactive(suppressWarnings(
+    event_data("plotly_click", source = "player_moves", priority = "event")
+  ))
   observeEvent(move_click(), {
     key <- move_click()$key
     req(length(key) == 1, str_detect(key, "\\|"))
@@ -1379,7 +1395,7 @@ server <- function(input, output, session) {
     req(input$team_name)
     bio <- team_bio(input$team_name)
     div(
-      class = "stat-grid three",
+      class = "stat-grid four", # two rows: this season, then all time
       pmap(bio, \(label, value, detail) {
         div(
           class = "stat-tile",
@@ -1422,7 +1438,7 @@ server <- function(input, output, session) {
       select(roster_id) |>
       pull() |>
       position_outlook(shiny = TRUE) |>
-      dt(page = 5)
+      dt(paging = FALSE) # all six positions
   })
 
   output$team_contributors_title <- renderUI({
@@ -1489,7 +1505,7 @@ server <- function(input, output, session) {
   output$avenue_grades <- renderDT({
     #table 5
     req(input$team_name) # require input
-    overall_grades(value_avenues, rid(), shiny = TRUE) |> dt(page = 5)
+    overall_grades(value_avenues, rid(), shiny = TRUE) |> dt(paging = FALSE)
   })
 
   output$top_acquisitions_title <- renderUI({
@@ -1538,7 +1554,7 @@ server <- function(input, output, session) {
     #table 8
     req(input$team_name) # require input
     team_composition(player_avenues, rid(), shiny = TRUE) |>
-      dt(page = 5, percent = "Proportion")
+      dt(paging = FALSE, percent = "Proportion")
   })
 
   # Reactivity for Page 3
@@ -1737,13 +1753,16 @@ server <- function(input, output, session) {
   })
 
   # the net difference in future value and in the upcoming season's value, and which team
-  # each favors
+  # each favors. A tile takes the favored team's color (its color in the chart below)
   output$trade_verdict <- renderUI({
     tv <- trade_valuation()
-    tile <- function(what, value, favor, class) {
+    tile <- function(what, value, favor) {
       even <- value < .05
+      color <- team_colors()[[favor]]
       div(
-        class = str_c("stat-tile large ", if (even) "muted" else class),
+        class = str_c("stat-tile large", if (even) " muted"),
+        # team color border with a light tint of it (hex alpha 1a = 10%)
+        style = if (!even) str_c("border-left-color: ", color, "; background: ", color, "1a;"),
         div(class = "stat-label", what),
         div(class = "stat-value", if (even) "Even" else format(round(value, 1), nsmall = 1, big.mark = ",")),
         div(
@@ -1755,8 +1774,8 @@ server <- function(input, output, session) {
     div(
       class = "stat-grid",
       style = "margin-top: 0;",
-      tile("Future value", tv$ov_value, tv$ov_favor, "success"),
-      tile(str_c(tv$upcoming_label, " value"), tv$iv_value, tv$iv_favor, "info")
+      tile("Future value", tv$ov_value, tv$ov_favor),
+      tile(str_c(tv$upcoming_label, " value"), tv$iv_value, tv$iv_favor)
     )
   })
 

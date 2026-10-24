@@ -53,12 +53,14 @@ link_names <- function(df) {
   list(df = df, linked = linked)
 }
 
-# app tables. A search box appears when the table runs past one page; percent names the
-# columns shown with a % sign (TRUE for every numeric column); a "Total" row in the
-# first column is bold. Player and team names link to their pages (links = FALSE to skip)
+# app tables. A search box appears when the table runs past one page; paging = FALSE
+# shows every row with no page buttons; percent names the columns shown with a % sign
+# (TRUE for every numeric column); a "Total" row in the first column is bold. Player and
+# team names link to their pages (links = FALSE to skip)
 dt <- function(
   df,
   page = 5,
+  paging = TRUE,
   dom = NULL,
   selection = "none",
   percent = NULL,
@@ -66,11 +68,10 @@ dt <- function(
   options = list()
 ) {
   if (is.null(dom)) {
-    dom <- if (nrow(df) > page) "ftip" else "tip"
+    dom <- if (!paging) "t" else if (nrow(df) > page) "ftip" else "tip"
   }
 
   total_row <- nrow(df) > 0 && "Total" %in% df[[1]]
-  first_col <- df[[1]]
   escape <- TRUE
   if (links && nrow(df) > 0) {
     linked <- link_names(df)
@@ -88,6 +89,7 @@ dt <- function(
     options = modifyList(
       list(
         pageLength = page,
+        paging = paging,
         ordering = TRUE,
         scrollX = TRUE,
         dom = dom
@@ -103,13 +105,13 @@ dt <- function(
     table <- table |> formatString(percent, suffix = "%")
   }
 
+  # matched by the first column's value, so the row stays bold on any page or sort
   if (total_row) {
-    rows <- which(first_col == "Total")
     table <- table |>
       formatStyle(
-        names(df),
+        names(df)[1],
         target = "row",
-        fontWeight = styleRow(rows, "bold")
+        fontWeight = styleEqual("Total", "bold")
       )
   }
 
@@ -572,8 +574,9 @@ team_composition <- function(player_avenues, enter_roster_id, shiny = FALSE) {
   }
 }
 
-# a team's bio for the Fantasy Teams page: records, playoff results, and where its
-# ratings rank in the league. One row per stat: label, value, and a detail line
+# a team's bio for the Fantasy Teams page, one row per stat (label, value, and a detail
+# line) in display order: this season (record, future value, playoff odds, Elo), then
+# all time (record, championships, playoff berths, composite rating)
 team_bio <- function(enter_team) {
   ordinal <- function(n) {
     suffix <- case_when(
@@ -606,6 +609,27 @@ team_bio <- function(enter_team) {
   playoff_games <- games |> filter(type == "winner's bracket")
   n_teams <- nrow(users)
 
+  # this season's record and place in the standings (wins, then points for)
+  this_season <- max(wins_df$season)
+  current <- regular |> filter(season == this_season)
+  standing <- wins_df |>
+    filter(season == this_season, type == "regular season") |>
+    summarize(wins = sum(result == "win"), points = sum(points), .by = team) |>
+    arrange(desc(wins), desc(points)) |>
+    mutate(rank = row_number()) |>
+    filter(team == enter_team)
+
+  # playoff odds for the first simulated season (Future Standings)
+  odds_season <- names(playoff_odds)[2]
+  playoff <- playoff_odds |>
+    select(team, odds = all_of(odds_season)) |>
+    rank_of("odds")
+  odds_label <- case_when(
+    playoff$odds > 99 & playoff$odds < 100 ~ ">99%",
+    playoff$odds > 0 & playoff$odds < 1 ~ "<1%",
+    TRUE ~ str_c(round(playoff$odds), "%")
+  )
+
   elo <- weekly_elo |>
     slice_max(date_hide, n = 1, with_ties = FALSE, by = team) |>
     rank_of("elo")
@@ -618,32 +642,38 @@ team_bio <- function(enter_team) {
 
   tibble(
     label = c(
-      "Record",
-      "Playoffs",
-      "Championships",
+      "Current record",
+      "Future value",
+      "Playoff odds",
       "Elo rating",
-      "Composite rating",
-      "Future value"
+      "All-time record",
+      "Championships",
+      "Playoff berths",
+      "Composite rating"
     ),
     value = c(
-      record(regular),
-      str_c(berths, if_else(berths == 1, " berth", " berths")),
-      as.character(titles),
+      record(current),
+      scales::comma(future$total_future_value, accuracy = 1),
+      odds_label,
       scales::comma(elo$elo, accuracy = 1),
-      scales::comma(composite$composite_rating, accuracy = .1),
-      scales::comma(future$total_future_value, accuracy = 1)
+      record(regular),
+      as.character(titles),
+      as.character(berths),
+      scales::comma(composite$composite_rating, accuracy = .1)
     ),
     detail = c(
+      str_c(this_season, " season, ", ordinal(standing$rank), " of ", n_teams),
+      str_c(ordinal(future$rank), " of ", n_teams, " in total assets"),
+      str_c(odds_season, " season, ", ordinal(playoff$rank), " of ", n_teams),
+      str_c(ordinal(elo$rank), " of ", n_teams),
       str_c("regular season, ", round(100 * mean(regular$result == "win")), "% wins"),
+      str_c(finals, if_else(finals == 1, " finals appearance", " finals appearances")),
       if_else(
         nrow(playoff_games) > 0,
         str_c(record(playoff_games), " in playoff games"),
         "no playoff games yet"
       ),
-      str_c(finals, if_else(finals == 1, " finals appearance", " finals appearances")),
-      str_c(ordinal(elo$rank), " of ", n_teams),
-      str_c(ordinal(composite$rank), " of ", n_teams),
-      str_c(ordinal(future$rank), " of ", n_teams, " in total assets")
+      str_c(ordinal(composite$rank), " of ", n_teams)
     )
   )
 }
@@ -1126,7 +1156,14 @@ plot_over_time <- function(
     }
   }
 
-  as_plotly(p, tooltip = "text", source = source)
+  # the dashed lines ignore the mouse: each one ends exactly at its marker, so otherwise
+  # it takes the marker's hover and click (and the click has no trade or transaction)
+  chart <- as_plotly(p, tooltip = "text", source = source) |> plotly_build()
+  chart$x$data <- map(chart$x$data, \(trace) {
+    if (identical(trace$line$dash, "dash")) trace$hoverinfo <- "skip"
+    trace
+  })
+  chart
 }
 
 # future value over time for a player and the four players closest to him in future
