@@ -127,7 +127,6 @@ ui <- dashboardPage(
           border-radius: 0.35rem;
           padding: 0.6rem 0.8rem;
         }
-        .stat-tile.info { border-left-color: #2a78d6; }
         .stat-tile.muted { border-left-color: #c3c2b7; }
         .stat-label {
           font-size: 0.75rem;

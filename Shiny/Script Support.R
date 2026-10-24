@@ -53,8 +53,8 @@ link_names <- function(df) {
   list(df = df, linked = linked)
 }
 
-# app tables. A search box appears when the table runs past one page; paging = FALSE
-# shows every row with no page buttons; percent names the columns shown with a % sign
+# app tables. A search box and page buttons appear only when the table runs past one
+# page; paging = FALSE shows every row with no page buttons; percent names the columns shown with a % sign
 # (TRUE for every numeric column); a "Total" row in the first column is bold. Player and
 # team names link to their pages (links = FALSE to skip)
 dt <- function(
@@ -68,7 +68,7 @@ dt <- function(
   options = list()
 ) {
   if (is.null(dom)) {
-    dom <- if (!paging) "t" else if (nrow(df) > page) "ftip" else "tip"
+    dom <- if (paging && nrow(df) > page) "ftip" else "t"
   }
 
   total_row <- nrow(df) > 0 && "Total" %in% df[[1]]
