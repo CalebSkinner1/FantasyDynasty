@@ -265,6 +265,20 @@ last_date_fvt <- if (nrow(future_value_time) > 0) {
 
 message("begin mapping future value over time...")
 
+# each date's simulations of the next three seasons (the current season first in season,
+# the next season first in the offseason), for the future standings over time
+# (Modeling/Future Standings.R). Saved as Modeling/models/simulations/<date>.rds
+simulations_dir <- here("Modeling/models/simulations")
+dir.create(simulations_dir, showWarnings = FALSE)
+
+save_simulations <- function(value, date, n_seasons = 3) {
+  sims <- value$sims_current %||% value$sims_next
+  saveRDS(
+    sims[seq_len(min(n_seasons, length(sims)))],
+    file.path(simulations_dir, str_c(date, ".rds"))
+  )
+}
+
 while (last_date_fvt < max(ktc_tibble$date)) {
   ktc_snapshot <- ktc_tibble |>
     filter(date > last_date_fvt) |>
@@ -273,9 +287,9 @@ while (last_date_fvt < max(ktc_tibble$date)) {
   current_date <- ktc_snapshot$date[1]
   message("starting ", current_date)
 
-  new_future_value <- if (current_date == today()) {
+  date_value <- if (current_date == today()) {
     # today's values were just simulated above with the same inputs, so reuse them
-    today_value$future_value
+    today_value
   } else {
     future_value_at_date(
       future_value_names,
@@ -283,10 +297,11 @@ while (last_date_fvt < max(ktc_tibble$date)) {
       current_date,
       season_dates,
       models
-    )$future_value
+    )
   }
+  save_simulations(date_value, current_date)
 
-  future_value_time <- bind_rows(new_future_value, future_value_time)
+  future_value_time <- bind_rows(date_value$future_value, future_value_time)
 
   message("finished ", current_date)
 

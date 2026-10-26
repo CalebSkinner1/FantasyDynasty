@@ -171,15 +171,25 @@ unplayed_schedule <- function(schedule) {
   )
 }
 
-# schedules for the simulated seasons: the current season as played so far, then future
-# seasons on the current (or most recent) regular-season schedule
-build_schedules <- function(matchups_table, va, seasons, fmt) {
+# weeks of a season finished by the end of date: Player Value Added.R counted the week
+# (which guards against a mid-week run) and its last game, on Monday, was by then (the NFL
+# week runs Thursday to Monday, and season_start is the Thursday of week 1)
+completed_weeks_on <- function(va, season_dates, yr, date) {
+  start <- season_dates$season_start[year(season_dates$season_start) == yr]
+  if (length(start) != 1) {
+    return(numeric())
+  }
+  va |>
+    filter(season == yr) |>
+    distinct(week) |>
+    filter(start + 7 * (week - 1) + 4 <= date) |>
+    pull(week)
+}
+
+# schedules for the simulated seasons: the first season with its completed weeks played,
+# then future seasons on the current (or most recent) regular-season schedule
+build_schedules <- function(matchups_table, seasons, fmt, completed_weeks) {
   if (seasons[1] %in% matchups_table$season) {
-    # weeks Player Value Added.R counted as complete (guards against a mid-week run)
-    completed_weeks <- va |>
-      filter(season == seasons[1]) |>
-      distinct(week) |>
-      pull(week)
     first <- season_schedule(matchups_table, seasons[1], fmt, completed_weeks)
   } else {
     latest <- max(matchups_table$season)
@@ -366,6 +376,85 @@ realized_draft_order <- function(matchups_table, yr, fmt) {
   # every game is realized, so the scoring inputs are irrelevant
   result <- simulate_season(schedule, numeric(fmt$num_teams), 0, 1, 1, fmt)
   draft_order_from_rank(result$rank, fmt)
+}
+
+# league settings of a season (or the latest cached season before it)
+league_format_for <- function(yr) {
+  cached <- list.files(here("Data/raw/sleeper"), pattern = "^league_\\d{4}\\.rds$") |>
+    str_extract("\\d{4}") |>
+    as.numeric()
+  read_league_cache(max(cached[cached <= yr])) |>
+    league_format()
+}
+
+# future standings at a date -------------------------------------------------
+
+# odds of each final rank and of a bye in the next n_years seasons, as the league stood at
+# the end of date. Games finished by then keep their real result; the rest are simulated.
+#   state   the rosters and draft picks on that date: list(roster = player_id and
+#           roster_id, picks = as in future_draft_picks.csv)
+#   sims    that date's player simulations by season, the first being the season under way
+#           (the next one in the offseason): player_simulations.rds, or a date's file in
+#           Modeling/models/simulations
+#   league  inputs shared by every date: the points model, rookie pick values (rookie
+#           matrices), every game (matchups_table), the weeks with value added (va), and
+#           season_dates
+# Each date uses the same seed, so the odds move only with the league, not with
+# simulation noise. Run inside a future plan (Future Standings.R sets one).
+future_standings_at <- function(
+  date,
+  state,
+  sims,
+  league,
+  n_sims = 50000,
+  seed = 123,
+  n_years = 3,
+  n_top = 12
+) {
+  seasons <- as.numeric(names(sims))[seq_len(n_years)]
+  fmt <- league_format_for(seasons[1])
+
+  picks <- state$picks |>
+    filter(season %in% seasons)
+  if (
+    nrow(picks) > 0 &&
+      max(picks$round) * fmt$num_teams > nrow(league$rookie[["first year"]])
+  ) {
+    stop("rookie_draft_values.csv does not cover round ", max(picks$round))
+  }
+
+  # order of the first simulated draft if it was not set yet (offseason)
+  orders <- list()
+  if (any(is.na(picks$draft_order[picks$season == seasons[1]]))) {
+    orders[[as.character(seasons[1])]] <- realized_draft_order(
+      league$matchups_table,
+      seasons[1] - 1,
+      fmt
+    )
+  }
+
+  completed_weeks <- completed_weeks_on(league$va, league$season_dates, seasons[1], date)
+
+  inputs <- list(
+    seasons = seasons,
+    fmt = fmt,
+    model = league$model,
+    base = season_base(league$model, seasons),
+    n_top = n_top,
+    schedules = build_schedules(league$matchups_table, seasons, fmt, completed_weeks),
+    players = map(sims[seq_len(n_years)], \(d) player_assets(d, state$roster)),
+    picks = picks,
+    rookie = league$rookie,
+    orders = orders
+  )
+
+  results <- future_map(
+    seq_len(n_sims),
+    \(i) simulate_future(inputs),
+    .options = furrr_options(seed = seed)
+  )
+
+  summarize_standings(results, seasons, fmt)
 }
 
 # share of simulations with each final rank and with a bye, by season and roster

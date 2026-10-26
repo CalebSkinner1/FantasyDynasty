@@ -1032,6 +1032,309 @@ season_dates <- tryCatch(
 )
 write_csv(season_dates, here("Shiny/Saved Files/season_dates.csv"))
 
+# Rosters and picks over time -----------------------------------------------
+# every team's roster and draft picks on each KTC date (as of the end of that day, Central
+# time), for the future standings over time. Each date is rebuilt backward from today: a
+# player was on the roster his first move after that date took him from, or on today's
+# roster if he hasn't moved since (and likewise for a pick's owner). Dates already saved
+# are not recomputed, except today's, which can still change. Delete the two files to
+# rebuild every date.
+#   rosters_time.csv  date, roster_id, player_id
+#   picks_time.csv    date, roster_id (owner), round, season, pick_slot (the team the
+#                     pick originally belonged to), draft_order (blank until the season
+#                     before that draft is over), as in future_draft_picks.csv
+# A move is a completed transaction (add, drop, trade, commissioner move) or a draft
+# selection. Each player's and pick's moves are also checked forward from the startup
+# draft, and any break in the chain is reported.
+
+# end of a date (Central time) in Sleeper's milliseconds
+end_of_day_ms <- function(date) {
+  as.numeric(force_tz(as_datetime(date + 1), "America/Chicago")) * 1000
+}
+
+# when each completed draft finished (its last pick), pulled from Sleeper once per draft
+draft_ids <- map_chr(drafts, "draft_id")
+draft_times_path <- here("Data/derived/draft_times.csv")
+draft_times <- if (file.exists(draft_times_path)) {
+  read_csv(draft_times_path, col_types = cols(draft_id = "c", .default = "d"))
+} else {
+  tibble(draft_id = character(), start_time = double(), last_picked = double())
+}
+
+new_drafts <- draft_ids[draft_meta$status == "complete" & !draft_ids %in% draft_times$draft_id]
+if (length(new_drafts) > 0) {
+  draft_times <- map(new_drafts, \(id) {
+    d <- parse_api_raw(str_c("https://api.sleeper.app/v1/draft/", id))
+    tibble(
+      draft_id = id,
+      start_time = as.numeric(d$start_time %||% NA),
+      last_picked = as.numeric(d$last_picked %||% NA)
+    )
+  }) |>
+    bind_rows(draft_times, ... = _) |>
+    arrange(start_time)
+  write_csv(draft_times, draft_times_path)
+}
+
+completed_drafts <- tibble(
+  index = seq_along(drafts),
+  draft_id = draft_ids,
+  season = draft_meta$season,
+  type = draft_meta$type,
+  status = draft_meta$status
+) |>
+  filter(status == "complete") |>
+  left_join(draft_times, by = join_by(draft_id)) |>
+  mutate(time = coalesce(last_picked, start_time))
+
+if (anyNA(completed_drafts$time)) {
+  stop("Sleeper gave no time for a completed draft (draft_times.csv)")
+}
+
+# Moves --------------------------------------------------------------------------
+# one row per move of a player or pick: from and to a roster_id (NA for a player not on
+# a roster, or for a pick once it is used). A transaction takes effect when Sleeper
+# completes it (status_updated), not when it is proposed (created): waivers process
+# about a day later and trades after their review period.
+
+txn <- transactions |>
+  filter(status == "complete")
+
+txn_players <- function(col) {
+  txn |>
+    select(transaction_id, time = status_updated, players = all_of(col)) |>
+    unpack(players) |>
+    pivot_longer(
+      -c(transaction_id, time),
+      names_to = "player_id",
+      values_to = "roster_id",
+      values_drop_na = TRUE
+    ) |>
+    mutate(roster_id = as.integer(roster_id))
+}
+
+player_moves <- bind_rows(
+  # transactions (a traded player is dropped by one team and added by the other)
+  full_join(
+    txn_players("drops") |> rename(from = roster_id),
+    txn_players("adds") |> rename(to = roster_id),
+    by = join_by(transaction_id, time, player_id)
+  ) |>
+    transmute(player_id, time, from, to, move = "transaction"),
+  # draft selections (the startup draft and rookie drafts)
+  pmap(completed_drafts, \(index, season, type, time, ...) {
+    draft_picks[[index]] |>
+      filter(!is.na(player_id), player_id != "") |>
+      transmute(
+        player_id,
+        time = time,
+        from = NA_integer_,
+        to = as.integer(roster_id),
+        move = str_c(season, " ", type, " draft")
+      )
+  }) |>
+    bind_rows()
+) |>
+  mutate(start = NA_integer_) # off every roster before the startup draft
+
+rosters_today <- rosters |>
+  transmute(player_id, now = as.integer(roster_id), start = NA_integer_)
+
+# a pick is named by its season, round, and pick_slot (the team it originally belonged to)
+pick_keys <- c("season", "round", "pick_slot")
+
+rookie_slots <- draft_order |>
+  filter(type == "rookie") |>
+  transmute(season, draft_slot = draft_order, pick_slot = as.integer(roster_id))
+
+pick_moves <- bind_rows(
+  # trades
+  txn |>
+    filter(map_int(draft_picks, NROW) > 0) |>
+    select(time = status_updated, draft_picks) |>
+    unnest(draft_picks) |>
+    transmute(
+      season = as.numeric(season),
+      round = as.integer(round),
+      pick_slot = as.integer(roster_id),
+      time,
+      from = as.integer(previous_owner_id),
+      to = as.integer(owner_id),
+      move = "trade"
+    ),
+  # used in a rookie draft by the team holding it
+  pmap(filter(completed_drafts, type == "rookie"), \(index, season, time, ...) {
+    draft_picks[[index]] |>
+      transmute(
+        season = season,
+        round = as.integer(round),
+        draft_slot = as.numeric(draft_slot),
+        time = time,
+        from = as.integer(roster_id),
+        to = NA_integer_,
+        move = "draft"
+      )
+  }) |>
+    bind_rows() |>
+    left_join(rookie_slots, by = join_by(season, draft_slot)) |>
+    select(-draft_slot)
+) |>
+  mutate(start = pick_slot) # each team starts with its own picks
+
+picks_today <- future_draft_picks |>
+  transmute(
+    season,
+    round = as.integer(round),
+    pick_slot = as.integer(pick_slot),
+    now = as.integer(roster_id),
+    start = pick_slot
+  )
+
+# Check the chains ------------------------------------------------------------------
+# forward from the startup draft, each move must start where the one before it ended (a
+# player off every roster, a pick with its original team) and the last must end where
+# things are today. A break means a move is missing or out of order, so dates before it
+# may put that player or pick on the wrong team.
+
+same <- function(a, b) coalesce(a, -1L) == coalesce(b, -1L)
+
+chain_breaks <- function(moves, today, keys) {
+  steps <- moves |>
+    arrange(time) |>
+    mutate(expected = if_else(row_number() == 1, start, lag(to)), .by = all_of(keys))
+
+  # where each chain ends (where it started, if nothing ever moved) against today
+  ends <- steps |>
+    slice_tail(n = 1, by = all_of(keys)) |>
+    select(all_of(keys), time, ended = to) |>
+    full_join(today, by = keys) |>
+    mutate(ended = if_else(is.na(time), start, ended)) |>
+    filter(!same(ended, now))
+
+  bind_rows(
+    steps |>
+      filter(!same(from, expected)) |>
+      transmute(across(all_of(keys)), time, move, problem = str_c(
+        "moved from ", coalesce(as.character(from), "no roster"),
+        " but was on ", coalesce(as.character(expected), "no roster")
+      )),
+    ends |>
+      transmute(across(all_of(keys)), time, move = "today", problem = str_c(
+        "on ", coalesce(as.character(now), "no roster"), " today but last moved to ",
+        if_else(is.na(time), "nothing (no move found)", coalesce(as.character(ended), "no roster"))
+      ))
+  ) |>
+    mutate(date = as_date(as_datetime(time / 1000, tz = "America/Chicago")))
+}
+
+breaks <- bind_rows(
+  chain_breaks(player_moves, rosters_today, "player_id") |>
+    mutate(what = str_c("player ", player_id)),
+  chain_breaks(pick_moves, picks_today, pick_keys) |>
+    mutate(what = str_c(season, " round ", round, " pick of ", pick_slot))
+)
+
+if (nrow(breaks) > 0) {
+  warning(
+    nrow(breaks), " break(s) in the chain of moves since the startup draft (rosters and ",
+    "picks before each date shown may be off):\n",
+    str_flatten(str_c("  ", breaks$date, " ", breaks$what, " (", breaks$move, "): ",
+                      breaks$problem), "\n"),
+    call. = FALSE
+  )
+}
+
+# Rebuild each date --------------------------------------------------------------------
+
+# where each player or pick was at the end of a date: where its first later move started,
+# or where it is today
+state_on <- function(date, moves, today, keys) {
+  later <- moves |>
+    filter(time > end_of_day_ms(date)) |>
+    slice_min(time, n = 1, with_ties = FALSE, by = all_of(keys)) |>
+    select(all_of(keys), state = from)
+
+  today |>
+    select(all_of(keys), state = now) |>
+    anti_join(later, by = keys) |>
+    bind_rows(later) |>
+    filter(!is.na(state))
+}
+
+# draft order: set once the season before the draft is over (the league's first rookie
+# draft followed the startup draft)
+season_ends <- season_dates |>
+  transmute(season = year(season_start) + 1, order_known_after = season_end)
+rookie_orders <- rookie_slots |>
+  rename(draft_order = draft_slot)
+
+picks_on <- function(date) {
+  done <- completed_drafts |>
+    filter(type == "rookie", time <= end_of_day_ms(date)) |>
+    pull(season)
+  first_draft <- max(c(done, min(league_seasons) - 1)) + 1
+
+  state_on(date, pick_moves, picks_today, pick_keys) |>
+    filter(season %in% (first_draft + seq_len(n_future_draft_seasons) - 1)) |>
+    left_join(season_ends, by = join_by(season)) |>
+    left_join(rookie_orders, by = join_by(season, pick_slot)) |>
+    transmute(
+      date = date,
+      roster_id = state,
+      round,
+      season,
+      pick_slot,
+      draft_order = if_else(
+        season == min(league_seasons) | coalesce(order_known_after < date, FALSE),
+        draft_order,
+        NA
+      )
+    ) |>
+    arrange(season, round, roster_id)
+}
+
+rosters_on <- function(date) {
+  state_on(date, player_moves, rosters_today, "player_id") |>
+    transmute(date = date, roster_id = state, player_id) |>
+    arrange(roster_id, player_id)
+}
+
+# every KTC date since the startup draft; saved dates are kept (today's is redone)
+startup_done <- completed_drafts |>
+  filter(type == "veteran") |>
+  pull(time) |>
+  min()
+ktc_dates <- list.files(here("Data/raw/ktc"), pattern = "^ktc_\\d{4}-\\d{2}-\\d{2}\\.csv$") |>
+  str_extract("\\d{4}-\\d{2}-\\d{2}") |>
+  ymd() |>
+  keep(\(d) end_of_day_ms(d) > startup_done) |>
+  sort()
+
+update_over_time <- function(path, build, col_types) {
+  saved <- if (file.exists(path)) {
+    read_csv(path, col_types = col_types) |> filter(date != today())
+  } else {
+    NULL
+  }
+  new_dates <- ktc_dates[!ktc_dates %in% saved$date]
+  bind_rows(saved, map(new_dates, build)) |>
+    arrange(date) |>
+    write_csv(path)
+  length(new_dates)
+}
+
+n_new <- update_over_time(
+  here("Data/derived/rosters_time.csv"),
+  rosters_on,
+  cols(date = col_date(), player_id = col_character(), .default = col_integer())
+)
+update_over_time(
+  here("Data/derived/picks_time.csv"),
+  picks_on,
+  cols(date = col_date(), season = col_double(), .default = col_integer())
+)
+message("rosters and picks over time: ", n_new, " date(s) added")
+
 # remove objects and functions to declutter environment
 rm(
   list = intersect(
@@ -1069,7 +1372,27 @@ rm(
       "ktc_date",
       "player_info_path",
       "team_stat_cols",
-      "league_users"
+      "league_users",
+      "end_of_day_ms",
+      "draft_ids",
+      "draft_times_path",
+      "new_drafts",
+      "txn",
+      "txn_players",
+      "rookie_slots",
+      "rookie_orders",
+      "season_ends",
+      "same",
+      "chain_breaks",
+      "breaks",
+      "state_on",
+      "picks_on",
+      "rosters_on",
+      "update_over_time",
+      "n_new",
+      "startup_done",
+      "ktc_dates",
+      "pick_keys"
     ),
     ls()
   )
