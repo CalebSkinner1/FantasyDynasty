@@ -527,11 +527,11 @@ ui <- dashboardPage(
             hide it."
           ),
           selectizeInput(
-              inputId = "draft_highlight",
-              label = "Highlight a Team",
-              choices = c("None" = "none", users$display_name),
-              selected = "none"
-            ),
+            inputId = "draft_highlight",
+            label = "Highlight a Team",
+            choices = c("None" = "none", users$display_name),
+            selected = "none"
+          ),
           plotlyOutput("draft_grades_time", height = "400px")
         ),
         fluidRow(
@@ -782,17 +782,19 @@ ui <- dashboardPage(
             column(
               4,
               selectizeInput(
-              inputId = "odds_highlight",
-              label = "Highlight a Team",
-              choices = c("None" = "none", users$display_name),
-              selected = "none"
-            )
+                inputId = "odds_highlight",
+                label = "Highlight a Team",
+                choices = c("None" = "none", users$display_name),
+                selected = "none"
+              )
             )
           ),
           fluidRow(
             column(
               5,
-              p("Odds (%) for each of the next three seasons; the selected season is shaded."),
+              p(
+                "Odds (%) for each of the next three seasons; the selected season is shaded."
+              ),
               DTOutput("odds_table")
             ),
             column(
@@ -909,11 +911,11 @@ ui <- dashboardPage(
             bias from the rating. Elo is not a forward facing predictive metric, but it is useful to understand team strength over time."
           ),
           selectizeInput(
-              inputId = "elo_highlight",
-              label = "Highlight a Team",
-              choices = c("None" = "none", users$display_name),
-              selected = "none"
-            ),
+            inputId = "elo_highlight",
+            label = "Highlight a Team",
+            choices = c("None" = "none", users$display_name),
+            selected = "none"
+          ),
           plotlyOutput("elo_rankings", height = "400px", width = "100%")
         ),
         fluidRow(
@@ -970,9 +972,9 @@ ui <- dashboardPage(
             style = "margin-top: 1rem;",
             strong("Composite rating"),
             "is a team's average Elo rating, measured as points above or below the league average of 1500,
-            over every week it has played since the league began. A team that has hovered around 1550 has a composite
-            rating near +50, and a team that has hovered around 1450 is near -50. Where the peak and low show a team's best
-            and worst moments, the composite rating rewards a team that stays strong season after season."
+            over every week since the league began. A team that has hovered around 1550 has a composite
+            rating near +50, and a team that has hovered around 1450 is near -50. While the peak and low show a team's best
+            and worst moments, the composite rating rewards a team with continued success."
           )
         )
       ),
@@ -1339,7 +1341,9 @@ server <- function(input, output, session) {
   # the trade and transaction shown in the Trade Grades and Transaction Grades breakdowns:
   # set by clicking a row in their tables or a team-change marker on a player's chart
   selected_trade <- reactiveVal(as.character(lopsided_trades$trade_id[1]))
-  selected_transaction <- reactiveVal(as.character(top_transactions$transaction_id[1]))
+  selected_transaction <- reactiveVal(as.character(top_transactions$transaction_id[
+    1
+  ]))
 
   # Reactivity for Page 1
   # input$player_name is the player's player_id; player_label() is his name
@@ -1426,19 +1430,25 @@ server <- function(input, output, session) {
           selected_trade(target[2])
           row <- match(target[2], as.character(lopsided_trades$trade_id))
           if (!is.na(row)) {
-            dataTableProxy("trade_lopsided") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
+            dataTableProxy("trade_lopsided") |>
+              selectRows(row) |>
+              selectPage((row - 1) %/% 5 + 1)
           }
           updateTabItems(session, "sidebar", selected = "trade")
         } else {
           selected_transaction(target[2])
           row <- match(target[2], as.character(top_transactions$transaction_id))
           if (!is.na(row)) {
-            dataTableProxy("top_transaction") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
+            dataTableProxy("top_transaction") |>
+              selectRows(row) |>
+              selectPage((row - 1) %/% 5 + 1)
           }
           updateTabItems(session, "sidebar", selected = "transaction")
         }
       },
-      error = function(e) message("team-change click failed: ", conditionMessage(e))
+      error = function(e) {
+        message("team-change click failed: ", conditionMessage(e))
+      }
     )
   })
 
@@ -1696,7 +1706,11 @@ server <- function(input, output, session) {
 
   output$draft_grades_time <- renderPlotly({
     req(input$draft_selection)
-    plot_draft_grades_time(draft_grades_time, input$draft_selection, input$draft_highlight)
+    plot_draft_grades_time(
+      draft_grades_time,
+      input$draft_selection,
+      input$draft_highlight
+    )
   })
 
   output$best_picks_title <- renderUI({
@@ -1744,9 +1758,17 @@ server <- function(input, output, session) {
         dom = "ftip",
         selection = list(
           mode = "single",
-          selected = row_of(isolate(selected_transaction()), top_transactions$transaction_id)
+          selected = row_of(
+            isolate(selected_transaction()),
+            top_transactions$transaction_id
+          )
         ),
-        options = list(displayStart = page_start(isolate(selected_transaction()), top_transactions$transaction_id))
+        options = list(
+          displayStart = page_start(
+            isolate(selected_transaction()),
+            top_transactions$transaction_id
+          )
+        )
       )
   })
 
@@ -1777,7 +1799,11 @@ server <- function(input, output, session) {
 
   output$transaction_grade_time <- renderPlotly({
     team <- total_transaction_value[[selected_transaction()]]$team_name[1]
-    plot_transaction_grade_time(transaction_grades_time, selected_transaction(), team)
+    plot_transaction_grade_time(
+      transaction_grades_time,
+      selected_transaction(),
+      team
+    )
   })
 
   # Reactivity for Page 5
@@ -1801,7 +1827,12 @@ server <- function(input, output, session) {
           mode = "single",
           selected = row_of(isolate(selected_trade()), lopsided_trades$trade_id)
         ),
-        options = list(displayStart = page_start(isolate(selected_trade()), lopsided_trades$trade_id))
+        options = list(
+          displayStart = page_start(
+            isolate(selected_trade()),
+            lopsided_trades$trade_id
+          )
+        )
       )
   })
 
@@ -1898,9 +1929,18 @@ server <- function(input, output, session) {
       div(
         class = str_c("stat-tile large", if (even) " muted"),
         # team color border with a light tint of it (hex alpha 1a = 10%)
-        style = if (!even) str_c("border-left-color: ", color, "; background: ", color, "1a;"),
+        style = if (!even) {
+          str_c("border-left-color: ", color, "; background: ", color, "1a;")
+        },
         div(class = "stat-label", what),
-        div(class = "stat-value", if (even) "Even" else format(round(value, 1), nsmall = 1, big.mark = ",")),
+        div(
+          class = "stat-value",
+          if (even) {
+            "Even"
+          } else {
+            format(round(value, 1), nsmall = 1, big.mark = ",")
+          }
+        ),
         div(
           class = "stat-detail",
           if (even) "neither team gains" else tagList("favors ", strong(favor))
@@ -1935,7 +1975,9 @@ server <- function(input, output, session) {
   trade_outlook_table <- function(assets) {
     assets |>
       select(-team) |>
-      rename(!!str_c(trade_valuation()$upcoming_label, " value") := upcoming_year) |>
+      rename(
+        !!str_c(trade_valuation()$upcoming_label, " value") := upcoming_year
+      ) |>
       shiny_edit_tables() |>
       dt(page = 5)
   }
@@ -1993,7 +2035,11 @@ server <- function(input, output, session) {
       dt(page = 12, percent = TRUE)
     if (input$odds_season %in% names(odds_tables[[input$odds_type]])) {
       table <- table |>
-        formatStyle(input$odds_season, backgroundColor = "#e8f1fc", fontWeight = "bold")
+        formatStyle(
+          input$odds_season,
+          backgroundColor = "#e8f1fc",
+          fontWeight = "bold"
+        )
     }
     table
   })
@@ -2010,7 +2056,12 @@ server <- function(input, output, session) {
 
   output$odds_time <- renderPlotly({
     req(input$odds_type, input$odds_season)
-    plot_odds_time(odds_time, input$odds_type, as.numeric(input$odds_season), input$odds_highlight)
+    plot_odds_time(
+      odds_time,
+      input$odds_type,
+      as.numeric(input$odds_season),
+      input$odds_highlight
+    )
   })
 
   output$finish_odds_title <- renderUI({
@@ -2069,18 +2120,24 @@ server <- function(input, output, session) {
     table <- total_success |>
       shiny_edit_tables()
     # the week columns sort by when they happened (Team Rankings.R's hidden order columns)
-    week_cols <- match(c("Peak Week", "Low Week", "Peak Order", "Low Order"), names(table)) - 1
+    week_cols <- match(
+      c("Peak Week", "Low Week", "Peak Order", "Low Order"),
+      names(table)
+    ) -
+      1
     if (anyNA(week_cols)) {
       return(dt(table, page = 12))
     }
     dt(
       table,
       page = 12,
-      options = list(columnDefs = list(
-        list(targets = week_cols[1], orderData = week_cols[3]),
-        list(targets = week_cols[2], orderData = week_cols[4]),
-        list(targets = week_cols[3:4], visible = FALSE)
-      ))
+      options = list(
+        columnDefs = list(
+          list(targets = week_cols[1], orderData = week_cols[3]),
+          list(targets = week_cols[2], orderData = week_cols[4]),
+          list(targets = week_cols[3:4], visible = FALSE)
+        )
+      )
     )
   })
 
