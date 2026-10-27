@@ -1542,8 +1542,7 @@ graph_trade <- function(
 }
 
 # Over time charts ----------------------------------------------------------
-# values and grades on every KTC date (the scripts' *_time.csv files). Points mark the
-# dates values were computed, which were sparse in 2024.
+# values and grades on every KTC date (the scripts' *_time.csv files)
 
 # asset colors: the first five categorical slots in fixed order (validated with the
 # dataviz palette checks; QB to TE match position order, picks last)
@@ -1609,10 +1608,9 @@ plot_draft_grades_time <- function(draft_grades_time, enter_draft) {
   p <- ggplot(df, aes(x = date, y = value, color = team, group = team, text = text)) +
     geom_hline(yintercept = 0, color = "grey60") +
     geom_line() +
-    geom_point(size = .8) +
     scale_color_team() +
-    labs(x = NULL, y = "Value over expected", color = NULL) +
-    theme(panel.grid.minor = element_blank())
+    labs(x = NULL, y = "Value over expected") +
+    theme(legend.position = "none", panel.grid.minor = element_blank())
 
   as_plotly(p, tooltip = "text")
 }
@@ -1637,7 +1635,6 @@ plot_trade_grade_time <- function(trade_grades_time, enter_trade) {
   p <- ggplot(df, aes(x = date, y = total, color = team_name, group = team_name, text = text)) +
     geom_hline(yintercept = 0, color = "grey60") +
     geom_line() +
-    geom_point(size = 1.2) +
     scale_color_team() +
     scale_x_date(limits = c(min(df$trade_date, df$date), max(df$date))) +
     labs(x = NULL, y = "Value gained", color = NULL) +
@@ -1669,11 +1666,82 @@ plot_transaction_grade_time <- function(transaction_grades_time, enter_transacti
   p <- ggplot(df, aes(x = date, y = total, group = 1, text = text)) +
     geom_hline(yintercept = 0, color = "grey60") +
     geom_line(color = color) +
-    geom_point(color = color, size = 1.2) +
     scale_x_date(limits = c(min(df$transaction_date, df$date), max(df$date))) +
     labs(x = NULL, y = "Value gained") +
     theme(panel.grid.minor = element_blank())
 
   as_plotly(p, tooltip = "text") |>
     mark_move(df$transaction_date[1], "Transaction")
+}
+
+# Future Standings: odds over time and the finish grid -----------------------------
+
+# the four odds the page offers, by the name used in odds_time.csv
+odds_choices <- c(
+  "Championship" = "champion",
+  "Playoffs" = "playoffs",
+  "First Round Bye" = "bye",
+  "Number 1 Pick" = "n1_pick"
+)
+
+# each team's odds (percent) on every date for one season (a draft season for #1 pick)
+plot_odds_time <- function(odds_time, enter_odds, enter_season) {
+  label <- names(odds_choices)[odds_choices == enter_odds]
+  df <- odds_time |>
+    filter(odds == enter_odds, season == enter_season)
+  shiny::validate(shiny::need(nrow(df) > 0, "No odds over time for this season yet."))
+
+  df <- df |>
+    mutate(text = str_c(team, "<br>", format(date, "%b %e, %Y"), "<br>", label, " odds: ", perc, "%"))
+
+  p <- ggplot(df, aes(x = date, y = perc, color = team, group = team, text = text)) +
+    geom_line() +
+    scale_color_team() +
+    scale_y_continuous(labels = \(x) str_c(x, "%"), limits = c(0, NA)) +
+    labs(x = NULL, y = NULL) +
+    theme(legend.position = "none", panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text")
+}
+
+# each team's chance (percent) at every final position in one season, teams in order of
+# average finish. Cells are shaded by chance on one blue ramp (light to dark, the
+# sequential steps of the dataviz palette), with the number in every cell.
+finish_grid <- function(finish_odds, enter_season) {
+  ordinal <- function(n) {
+    str_c(n, case_when(
+      n %% 100 %in% 11:13 ~ "th",
+      n %% 10 == 1 ~ "st",
+      n %% 10 == 2 ~ "nd",
+      n %% 10 == 3 ~ "rd",
+      TRUE ~ "th"
+    ))
+  }
+
+  df <- finish_odds |>
+    filter(season == enter_season)
+  shiny::validate(shiny::need(nrow(df) > 0, "No standings for this season."))
+
+  df <- df |>
+    mutate(average_finish = round(sum(finish * probability) / sum(probability), 1), .by = team) |>
+    mutate(finish = factor(ordinal(finish), ordinal(sort(unique(finish))))) |>
+    pivot_wider(names_from = finish, values_from = probability) |>
+    arrange(average_finish) |>
+    select(-season) |>
+    rename(Team = team, `Avg Finish` = average_finish)
+
+  finishes <- setdiff(names(df), c("Team", "Avg Finish"))
+  cuts <- c(1, 5, 10, 15, 20, 30, 40, 55, 70)
+  ramp <- c(
+    "#ffffff", "#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef",
+    "#6da7ec", "#5598e7", "#3987e5", "#2a78d6", "#1c5cab"
+  )
+
+  dt(df, paging = FALSE, percent = finishes) |>
+    formatStyle(
+      finishes,
+      backgroundColor = styleInterval(cuts, ramp),
+      color = styleInterval(55, c("#212529", "#ffffff")),
+      textAlign = "center"
+    )
 }

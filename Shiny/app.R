@@ -147,6 +147,15 @@ ui <- dashboardPage(
       # server: goto_player, goto_team)
       tags$script(HTML(
         "
+        // realign table headers when a page or the sidebar is shown (tables drawn while
+        // hidden measure their columns wrong)
+        $(document).on('shown.bs.tab collapsed.lte.pushmenu shown.lte.pushmenu', function() {
+          // DataTables loads with the first table, so it may not exist yet
+          if ($.fn.dataTable) $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
+        });
+        $(document).on('init.dt', function(e, settings) {
+          setTimeout(function() { new $.fn.dataTable.Api(settings).columns.adjust(); }, 0);
+        });
         $(document).on('click', 'a.player-link, a.team-link', function(e) {
           e.preventDefault();
           var input = $(this).hasClass('player-link') ? 'goto_player' : 'goto_team';
@@ -739,43 +748,59 @@ ui <- dashboardPage(
           and the season, playoffs and draft order are played out. This yields final standing,
           championship, and draft pick odds for each team."
         ),
-        fluidRow(
-          panel(
-            width = 6,
-            title = "Championship Odds (%)",
-            DTOutput("championship_odds")
-          ),
-          panel(width = 6, title = "Playoff Odds", DTOutput("playoff_odds"))
-        ),
-        fluidRow(
-          panel(
-            width = 6,
-            title = "First Round Bye Odds (%)",
-            DTOutput("bye_odds")
-          ),
-          panel(
-            width = 6,
-            title = "Number 1 Pick Odds by Draft (%)",
-            DTOutput("n1_pick_odds")
-          )
-        ),
-        fluidRow(
-          panel(
-            width = 6,
-            title = uiOutput("most_common_finish_title", inline = TRUE),
-            selectizeInput(
-              inputId = "standings_season",
-              label = "Select a Season",
-              choices = unique(most_common_finish_df$season),
-              selected = min(most_common_finish_df$season),
-              options = list(
-                placeholder = "Start typing...",
-                maxOptions = length(unique(most_common_finish_df$season)) # Limit the number of suggestions shown
+        panel(
+          title = uiOutput("odds_title", inline = TRUE),
+          fluidRow(
+            column(
+              6,
+              selectizeInput(
+                inputId = "odds_type",
+                label = "Select Odds",
+                choices = odds_choices,
+                selected = "champion"
               )
             ),
-            p("The most likely finish for each Fantasy Team."),
-            DTOutput("most_common_finish")
+            column(
+              6,
+              selectizeInput(
+                inputId = "odds_season",
+                label = "Select a Season",
+                choices = setdiff(names(champion_odds), "team")
+              )
+            )
+          ),
+          fluidRow(
+            column(
+              5,
+              p("Odds (%) for each of the next three seasons; the selected season is shaded."),
+              DTOutput("odds_table")
+            ),
+            column(
+              7,
+              uiOutput("odds_time_title"),
+              p(
+                "Each team's odds for the selected season on every date since it entered the
+                three-season window. As the season is played, the lines settle at 0% or 100%.
+                Hover over a line for the team."
+              ),
+              plotlyOutput("odds_time", height = "420px")
+            )
           )
+        ),
+        panel(
+          title = uiOutput("finish_odds_title", inline = TRUE),
+          selectizeInput(
+            inputId = "standings_season",
+            label = "Select a Season",
+            choices = unique(finish_odds$season),
+            selected = min(finish_odds$season, Inf)
+          ),
+          p(
+            "Each team's chance (%) of every final position, with teams in order of their average
+            finish. 1st is the champion and 2nd the runner-up; everyone else is ordered by
+            regular-season record, which also sets the next draft's order. Darker cells are more likely."
+          ),
+          DTOutput("finish_odds")
         )
       ),
 
@@ -1901,46 +1926,70 @@ server <- function(input, output, session) {
 
   # Reactivity for Page 7
 
-  output$championship_odds <- renderDT({
-    #table 1
-    champion_odds |>
-      shiny_edit_tables() |>
-      dt(page = 12, percent = TRUE)
+  # the four odds tables, by the names in odds_choices
+  odds_tables <- list(
+    champion = champion_odds,
+    playoffs = playoff_odds,
+    bye = bye_odds,
+    n1_pick = n1_pick_odds
+  )
+  odds_label <- reactive(names(odds_choices)[odds_choices == input$odds_type])
+
+  # the season choices follow the odds (#1 pick odds are by draft season); the selection
+  # keeps its place in the list
+  season_choices <- reactiveVal(setdiff(names(champion_odds), "team"))
+  observeEvent(input$odds_type, {
+    seasons <- setdiff(names(odds_tables[[input$odds_type]]), "team")
+    position <- match(isolate(input$odds_season), season_choices())
+    season_choices(seasons)
+    updateSelectizeInput(
+      session,
+      "odds_season",
+      choices = seasons,
+      selected = seasons[min(coalesce(position, 1L), length(seasons))]
+    )
   })
 
-  output$playoff_odds <- renderDT({
-    #table 2
-    playoff_odds |>
-      shiny_edit_tables() |>
-      dt(page = 12, percent = TRUE)
+  output$odds_title <- renderUI({
+    req(input$odds_type)
+    h3(str_c(odds_label(), " Odds"))
   })
 
-  output$bye_odds <- renderDT({
-    #table 3
-    bye_odds |>
+  output$odds_table <- renderDT({
+    req(input$odds_type, input$odds_season)
+    table <- odds_tables[[input$odds_type]] |>
       shiny_edit_tables() |>
       dt(page = 12, percent = TRUE)
+    if (input$odds_season %in% names(odds_tables[[input$odds_type]])) {
+      table <- table |>
+        formatStyle(input$odds_season, backgroundColor = "#e8f1fc", fontWeight = "bold")
+    }
+    table
   })
 
-  output$n1_pick_odds <- renderDT({
-    #table 4
-    n1_pick_odds |>
-      shiny_edit_tables() |>
-      dt(page = 12, percent = TRUE)
+  output$odds_time_title <- renderUI({
+    req(input$odds_type, input$odds_season)
+    season_name <- if (input$odds_type == "n1_pick") {
+      str_c(input$odds_season, " Draft")
+    } else {
+      input$odds_season
+    }
+    h5(str_c(season_name, " ", odds_label(), " Odds over Time"))
   })
 
-  output$most_common_finish_title <- renderUI({
-    #title
+  output$odds_time <- renderPlotly({
+    req(input$odds_type, input$odds_season)
+    plot_odds_time(odds_time, input$odds_type, as.numeric(input$odds_season))
+  })
+
+  output$finish_odds_title <- renderUI({
     req(input$standings_season)
-    h3(str_c(input$standings_season, " Most Likely Finish"))
+    h3(str_c(input$standings_season, " Finish Odds"))
   })
 
-  output$most_common_finish <- renderDT({
-    #table 5
-    req(input$standings_season) #require input
-    most_common_finish_df |>
-      most_common_finish(input$standings_season, shiny = TRUE) |>
-      dt(page = 12, percent = "Probability")
+  output$finish_odds <- renderDT({
+    req(input$standings_season)
+    finish_grid(finish_odds, as.numeric(input$standings_season))
   })
 
   # Reactivity for Page 8

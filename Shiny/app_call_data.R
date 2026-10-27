@@ -218,6 +218,17 @@ trade_grades_time <- read_over_time(
                  date = as.Date(character()), realized_value = double(), future_value = double())
 )
 
+# Future Standings: the odds on every past date and each team's chance at every finish
+odds_time <- read_over_time(
+  "odds_time.csv",
+  empty = tibble(odds = character(), season = double(), date = as.Date(character()),
+                 team = character(), perc = double())
+)
+finish_odds <- read_over_time(
+  "finish_odds.csv",
+  empty = tibble(season = double(), team = character(), finish = integer(), probability = double())
+)
+
 # player rankings
 future_value_time <- read_csv(
   str_c(script_data_path, "future_value_time.csv"),

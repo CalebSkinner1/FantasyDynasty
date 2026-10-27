@@ -1,7 +1,9 @@
 # Future Standings Script
 # odds tables for the Future Standings page from the simulated final standings
 # (Modeling/Future Standings.R). Odds are numbers from 0 to 100 (percent), so the app
-# sorts them correctly, and each table is sorted by the first simulated season.
+# sorts them correctly, and each table is sorted by the first simulated season. Also each
+# team's chance at every final position (finish_odds.csv) and the odds on every past date
+# (odds_time.csv).
 suppressPackageStartupMessages({
   library("here")
   library("tidyverse")
@@ -74,6 +76,42 @@ most_common_finish_df <- final_standings_odds |>
   rename(finish = result) |>
   select(season, finish, perc, team, probability)
 
+# chance of every final position (the Future Standings page's grid): finish 1 is the
+# champion, then the runner-up, then everyone else by regular-season record
+finish_odds <- final_standings_odds |>
+  filter(type == "rank") |>
+  complete(season, team, result = seq_len(num_teams), fill = list(perc = 0)) |>
+  transmute(season, team, finish = result, probability = round(100 * perc, 1)) |>
+  arrange(season, team, finish)
+
+# Odds over time --------------------------------------------------------------
+# the same four odds on every past date (Future Standings.R's final_standings_odds_time.csv),
+# by the season they are for (for #1 pick odds, the draft season), as percents
+
+standings_time_path <- here("Data/model_output/final_standings_odds_time.csv")
+
+if (file.exists(standings_time_path)) {
+  standings_time <- read_csv(standings_time_path, show_col_types = FALSE) |>
+    left_join(users, by = join_by(roster_id)) |>
+    rename(team = display_name)
+
+  odds_time <- bind_rows(
+    standings_time |> filter(type == "rank", result == 1) |> mutate(odds = "champion"),
+    standings_time |> filter(type == "rank", result <= playoff_teams) |> mutate(odds = "playoffs"),
+    standings_time |> filter(type == "bye", result == 1) |> mutate(odds = "bye"),
+    standings_time |>
+      filter(type == "rank", result == num_teams) |>
+      mutate(odds = "n1_pick", season = season + 1)
+  ) |>
+    summarize(perc = sum(perc), .by = c(odds, season, date, team)) |>
+    # a team with no simulations meeting the condition has 0
+    complete(nesting(odds, season, date), team, fill = list(perc = 0)) |>
+    mutate(perc = round(100 * perc, 1)) |>
+    arrange(odds, season, date, team)
+
+  write_csv(odds_time, here("Shiny/Saved Files/odds_time.csv"))
+}
+
 # dfs to save -------------------------------------------------------------
 
 write_csv(
@@ -84,6 +122,7 @@ write_csv(champion_odds, here("Shiny/Saved Files/champion_odds.csv"))
 write_csv(playoff_odds, here("Shiny/Saved Files/playoff_odds.csv"))
 write_csv(bye_odds, here("Shiny/Saved Files/bye_odds.csv"))
 write_csv(n1_pick_odds, here("Shiny/Saved Files/n1_pick_odds.csv"))
+write_csv(finish_odds, here("Shiny/Saved Files/finish_odds.csv"))
 
 # final_standings_odds |>
 #   filter(season == 2026, type == "rank") |>
