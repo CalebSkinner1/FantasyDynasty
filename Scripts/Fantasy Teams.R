@@ -1,8 +1,9 @@
 # Fantasy Teams
 # team tables for the Fantasy Teams page: current assets (players and picks) and how each
 # was acquired, position outlook, avenue grades, and every acquisition graded.
-# Also writes every player's team changes (player_moves.csv). Reads the outputs of Pick
-# Values, Draft Grades, Transaction Grades and Trade Grades, so it runs after them.
+# Also writes every player's team changes (player_moves.csv) and each team's future value
+# on every past date (team_value_time.csv). Reads the outputs of Pick Values, Draft
+# Grades, Transaction Grades and Trade Grades, so it runs after them.
 
 suppressPackageStartupMessages({
   library("here")
@@ -266,6 +267,54 @@ player_moves <- bind_rows(
   mutate(date = move_date(created)) |>
   arrange(player_id, created) |>
   select(player_id, date, label, tab, target_id)
+
+# Team value over time ----------------------------------------------------------
+# each team's future value on every date with pick values (Pick Values.R): the future
+# value of its players that date (future_value_time.csv, rosters from Scraping.R's
+# rosters_time.csv) plus the value of its unused picks that date. A year of new picks
+# joins every team's assets when each rookie draft finishes, which is when Sleeper adds
+# them. The latest date equals today's total future assets (Team Rankings).
+
+pick_values_time_path <- here("Data/model_output/pick_values_time.csv")
+
+if (file.exists(pick_values_time_path)) {
+  pick_values_time <- read_csv(pick_values_time_path, show_col_types = FALSE)
+  rosters_time <- read_csv(
+    here("Data/derived/rosters_time.csv"),
+    col_types = cols(date = col_date(), player_id = col_character(), .default = col_integer())
+  )
+  future_value_time <- read_csv(
+    here("Shiny/Saved Files/future_value_time.csv"),
+    show_col_types = FALSE,
+    col_types = cols(player_id = col_character())
+  )
+
+  value_dates <- intersect(unique(pick_values_time$date), unique(future_value_time$date)) |>
+    as_date()
+
+  team_value_time <- full_join(
+    rosters_time |>
+      filter(date %in% value_dates) |>
+      left_join(
+        future_value_time |> select(player_id, date, future_value),
+        by = join_by(player_id, date)
+      ) |>
+      summarize(player_value = sum(future_value, na.rm = TRUE), .by = c(date, roster_id)),
+    pick_values_time |>
+      filter(date %in% value_dates) |>
+      summarize(pick_value = sum(future_value), .by = c(date, roster_id)),
+    by = join_by(date, roster_id)
+  ) |>
+    mutate(
+      across(c(player_value, pick_value), ~ replace_na(.x, 0)),
+      total_value = player_value + pick_value
+    ) |>
+    left_join(users, by = join_by(roster_id)) |>
+    select(date, roster_id, team = display_name, player_value, pick_value, total_value) |>
+    arrange(date, roster_id)
+
+  write_csv(team_value_time, here("Shiny/Saved Files/team_value_time.csv"))
+}
 
 # dfs to save -------------------------------------------------------------
 

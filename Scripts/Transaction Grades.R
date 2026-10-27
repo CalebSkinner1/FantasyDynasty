@@ -3,12 +3,15 @@
 # assessed today: realized value added since the transaction plus current future value.
 # Writes the app's transaction tables, marginal_transaction_value.csv (the value of a
 # roster spot, used by Trade Grades), and Data/derived/individual_transactions.csv,
-# transaction_adds.csv, and transaction_moves.csv (used by Fantasy Teams).
+# transaction_adds.csv, and transaction_moves.csv (used by Fantasy Teams). Also grades
+# each transaction on every past date (transaction_grades_time.csv).
 
 suppressPackageStartupMessages({
   library("here")
   library("tidyverse")
 })
+
+source(here("Scripts/Over Time Support.R")) # value_over_time()
 
 message("begin computing Transaction Grades...")
 
@@ -64,7 +67,7 @@ moves <- bind_rows(
 # value added since the transaction. In the transaction's own week, an added player's
 # value counts only if he played for the adding team that week (and a dropped player's
 # only if he didn't play for the dropping team)
-realized_since <- moves |>
+counted_va <- moves |>
   inner_join(
     value_added |>
       select(
@@ -83,7 +86,9 @@ realized_since <- moves |>
       (va_season == season &
         va_week == week &
         (va_roster_id == roster_id) == (type == "add"))
-  ) |>
+  )
+
+realized_since <- counted_va |>
   summarize(
     realized_value = sum(value_added),
     .by = c(transaction_id, player_id, type)
@@ -213,6 +218,71 @@ overall_transaction_winners <- transaction_comparison |>
     total_future_value,
     total_transaction_value
   )
+
+# Transaction grades over time --------------------------------------------------
+# each transaction's grade on every KTC date from the first one on or after it went
+# through: realized value from the transaction through the weeks finished by that date,
+# plus future value that date (see Scripts/Over Time Support.R). The latest date equals
+# today's grade. Written to transaction_grades_time.csv, one row per transaction, team,
+# and date.
+
+future_value_time <- read_csv(
+  here("Shiny/Saved Files/future_value_time.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+
+transaction_dates <- completed_transactions |>
+  transmute(transaction_id, transaction_date = sleeper_date(status_updated))
+
+transaction_assets <- transaction_values |>
+  left_join(transaction_dates, by = join_by(transaction_id)) |>
+  transmute(
+    asset = str_c(transaction_id, player_id, type, sep = "|"),
+    transaction_id,
+    transaction_date,
+    team_name,
+    start = transaction_date,
+    sign = if_else(type == "drop", -1, 1),
+    player_id,
+    pick_season = NA_real_,
+    pick_round = NA_integer_,
+    pick_slot = NA_integer_,
+    pick_drafted = as_date(NA),
+    fixed_realized = 0,
+    fixed_future = 0
+  )
+
+transaction_grades_time <- value_over_time(
+  transaction_assets,
+  counted_va |>
+    transmute(
+      asset = str_c(transaction_id, player_id, type, sep = "|"),
+      season = va_season,
+      week = va_week,
+      value_added
+    ),
+  sort(unique(future_value_time$date)),
+  future_value_time,
+  week_end_dates(value_added, season_dates)
+) |>
+  left_join(
+    transaction_assets |> select(asset, transaction_id, transaction_date, team_name),
+    by = join_by(asset)
+  ) |>
+  summarize(
+    realized_value = sum(realized_value),
+    future_value = sum(future_value),
+    .by = c(transaction_id, transaction_date, team_name, date)
+  ) |>
+  mutate(total_value = realized_value + future_value) |>
+  arrange(as.numeric(transaction_id), date)
+
+write_csv(
+  transaction_grades_time,
+  here("Shiny/Saved Files/transaction_grades_time.csv")
+)
 
 # dfs to save -------------------------------------------------------------
 

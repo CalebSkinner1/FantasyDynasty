@@ -8,6 +8,7 @@
 #   Data/derived/draft_grades_by_team.csv   each team's grade in each draft (Fantasy Teams)
 #   Data/derived/draft_selections.csv       who drafted each player (Fantasy Teams)
 #   Data/derived/startup_draft_day_trades.csv  the startup draft-day pick swap (Trade Grades)
+#   Shiny/Saved Files/draft_grades_time.csv  every pick's grade on every past date (app)
 
 suppressPackageStartupMessages({
   library("here")
@@ -15,6 +16,7 @@ suppressPackageStartupMessages({
 })
 
 source(here("Modeling/MCMC Samplers.R")) # reg_gibbs_sampler()
+source(here("Scripts/Over Time Support.R")) # value_over_time()
 
 message("begin computing Draft Grades...")
 
@@ -257,6 +259,91 @@ draft_selections <- draft_values |>
   )
 
 write_csv(draft_selections, here("Data/derived/draft_selections.csv"))
+
+# Draft grades over time ----------------------------------------------------------
+# each pick's grade on every KTC date from the first one on or after its draft finished:
+# the drafted player's realized value through the weeks finished by that date (on any
+# roster, as above) plus his future value that date, minus the pick's expected value. A
+# startup kicker pick's rookie draft slot keeps its value (see Scripts/Over Time
+# Support.R). The latest date equals today's grade. Written to draft_grades_time.csv, one
+# row per pick and date (picks_df.csv has each pick's player).
+
+future_value_time <- read_csv(
+  here("Shiny/Saved Files/future_value_time.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+value_added <- read_csv(
+  here("Data/derived/va.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+) |>
+  select(player_id, season, week, value_added)
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+
+drafts_finished <- draft_finished_dates() |>
+  transmute(season, draft = if_else(type == "veteran", "initial draft", str_c(season, " rookie draft")), finished)
+
+draft_assets <- bind_rows(
+  # startup picks: the player, plus the rookie draft slot for a team's first kicker pick
+  # (counted above the worst slot, as in startup_pick_values)
+  startup_values |>
+    mutate(
+      draft = "initial draft",
+      season = startup_season,
+      fixed_future = if_else(
+        name == "rookie draft slot",
+        total_value - min(slot_values$total_value),
+        0
+      )
+    ),
+  rookie_grades |>
+    mutate(fixed_future = 0)
+) |>
+  left_join(drafts_finished, by = join_by(season, draft)) |>
+  mutate(
+    asset = str_c(draft, pick_no, row_number(), sep = "|"),
+    start = finished,
+    sign = 1,
+    pick_season = NA_real_,
+    pick_round = NA_integer_,
+    pick_slot = NA_integer_,
+    pick_drafted = as_date(NA),
+    fixed_realized = 0
+  )
+
+pick_expectations <- picks_df |>
+  distinct(draft, pick_no, roster_id, exp_total_value)
+
+draft_grades_time <- value_over_time(
+  draft_assets,
+  draft_assets |>
+    filter(!is.na(player_id)) |>
+    select(asset, player_id) |>
+    inner_join(value_added, by = join_by(player_id), relationship = "many-to-many") |>
+    select(asset, season, week, value_added),
+  sort(unique(future_value_time$date)),
+  future_value_time,
+  week_end_dates(value_added, season_dates)
+) |>
+  left_join(draft_assets |> select(asset, draft, season, pick_no), by = join_by(asset)) |>
+  summarize(
+    realized_value = sum(realized_value),
+    future_value = sum(future_value),
+    .by = c(draft, season, pick_no, date)
+  ) |>
+  left_join(pick_expectations, by = join_by(draft, pick_no)) |>
+  mutate(
+    total_value = realized_value + future_value,
+    value_over_expected = total_value - exp_total_value
+  ) |>
+  select(
+    draft, season, pick_no, roster_id, date, realized_value, future_value, total_value,
+    exp_total_value, value_over_expected
+  ) |>
+  arrange(season, desc(draft == "initial draft"), pick_no, date)
+
+write_csv(draft_grades_time, here("Shiny/Saved Files/draft_grades_time.csv"))
 
 # Examples (app functions in Shiny/Script Support.R) ------------------------------
 # draft_rankings("2025 rookie draft", shiny = TRUE)

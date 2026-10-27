@@ -12,7 +12,8 @@
 #            players the picks became. It is graded as the picks, each at its expected value
 #            from the startup draft's curve (Draft Grades), like a used rookie pick. Draft
 #            Grades credits the players themselves, so they aren't counted twice.
-# Runs after Transaction Grades and Pick Values. Writes the app's trade tables and
+# Runs after Transaction Grades and Pick Values. Writes the app's trade tables, each
+# trade's grade on every past date (trade_grades_time.csv), and
 # Data/derived/individual_trades.csv, trade_adds.csv, and trade_moves.csv (used by Fantasy
 # Teams).
 
@@ -20,6 +21,8 @@ suppressPackageStartupMessages({
   library("here")
   library("tidyverse")
 })
+
+source(here("Scripts/Over Time Support.R")) # value_over_time()
 
 message("begin computing Trade Grades...")
 
@@ -210,13 +213,19 @@ compute_trade_value <- function(trade) {
         name = str_c(season, " ", round, "R Draft Pick"),
         position = display_name,
         future_value = replace_na(future_value, 0),
-        realized_value = 0
+        realized_value = 0,
+        pick_season = season,
+        pick_round = as.integer(round),
+        pick_slot = as.integer(roster_id)
       )
     picks <- bind_rows(
       picks |> mutate(roster_id = owner_id, type = "add"),
       picks |> mutate(roster_id = previous_owner_id, type = "drop")
     ) |>
-      select(roster_id, player_id, name, position, future_value, realized_value, type)
+      select(
+        roster_id, player_id, name, position, future_value, realized_value, type,
+        pick_season, pick_round, pick_slot
+      )
   } else {
     picks <- tibble()
   }
@@ -259,7 +268,7 @@ compute_trade_value <- function(trade) {
     bind_rows() |>
     mutate(name = "roster size adjustment", player_id = NA_character_)
 
-  bind_rows(players, picks) |>
+  bind_rows(pick_keys, players, picks) |>
     mutate(
       # value lost counts against the team
       realized_value = if_else(type == "drop", -realized_value, realized_value),
@@ -279,10 +288,17 @@ compute_trade_value <- function(trade) {
       season,
       week,
       type,
-      total_value
+      total_value,
+      pick_season,
+      pick_round,
+      pick_slot
     ) |>
     arrange(desc(team_name))
 }
+
+# a traded pick's season, round, and pick_slot (the team it originally belonged to), kept
+# for its value over time; blank for players and roster spots
+pick_keys <- tibble(pick_season = double(), pick_round = integer(), pick_slot = integer())
 
 trades <- transactions |>
   filter(type == "trade")
@@ -301,10 +317,13 @@ if (length(swap_transaction_id) != 1) {
 }
 
 # named by trade number; trades that moved no players or picks (e.g. FAAB only) are dropped
-total_trade_value <- trades |>
+trade_assets <- trades |>
   split(seq_len(nrow(trades))) |>
   map(compute_trade_value) |>
   discard(\(x) nrow(x) == 0)
+
+total_trade_value <- trade_assets |>
+  map(\(x) select(x, -c(pick_season, pick_round, pick_slot)))
 
 comparison <- total_trade_value |>
   map(
@@ -439,6 +458,96 @@ overall_trade_winners <- comparison |>
 #
 # # compute value over time
 # total_trade_value_time
+
+# Trade grades over time ----------------------------------------------------------
+# each trade's grade on every KTC date from the first one on or after it went through:
+# realized value from the trade through the weeks finished by that date, plus that date's
+# future value. An unused pick is worth that date's pick value (Pick Values.R) and, once
+# drafted, its pick number's value; roster spots and the startup swap's picks keep their
+# value (see Scripts/Over Time Support.R). The latest date equals today's grade. Written
+# to trade_grades_time.csv, one row per trade, team, and date, with the trade's date.
+
+future_value_time <- read_csv(
+  here("Shiny/Saved Files/future_value_time.csv"),
+  show_col_types = FALSE,
+  col_types = cols(player_id = col_character())
+)
+season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+pick_values_time_path <- here("Data/model_output/pick_values_time.csv")
+pick_values_time <- if (file.exists(pick_values_time_path)) {
+  read_csv(pick_values_time_path, show_col_types = FALSE)
+}
+
+trade_dates <- tibble(
+  trade_id = as.character(seq_len(nrow(trades))),
+  trade_date = sleeper_date(trades$status_updated)
+)
+
+trade_assets_time <- bind_rows(trade_assets, .id = "trade_id") |>
+  mutate(asset = str_c(trade_id, "-", row_number())) |>
+  left_join(trade_dates, by = join_by(trade_id)) |>
+  left_join(users, by = join_by(team_name == display_name)) |>
+  left_join(
+    draft_finished_dates() |>
+      filter(type == "rookie") |>
+      select(pick_season = season, pick_drafted = finished),
+    by = join_by(pick_season)
+  ) |>
+  mutate(
+    start = trade_date,
+    sign = if_else(type == "drop", -1, 1),
+    fixed_realized = realized_value,
+    fixed_future = future_value
+  )
+
+# the value added rows that count for each player (as in realized_since())
+trade_counted_va <- trade_assets_time |>
+  filter(!is.na(player_id)) |>
+  select(asset, player_id, roster_id, trade_season = season, trade_week = week, type) |>
+  inner_join(
+    value_added |> rename(va_roster_id = roster_id),
+    by = join_by(player_id),
+    relationship = "many-to-many"
+  ) |>
+  filter(
+    season > trade_season |
+      (season == trade_season & week > trade_week) |
+      (season == trade_season &
+        week == trade_week &
+        (va_roster_id == roster_id) == (type == "add"))
+  ) |>
+  select(asset, season, week, value_added)
+
+trade_grades_time <- value_over_time(
+  trade_assets_time,
+  trade_counted_va,
+  sort(unique(future_value_time$date)),
+  future_value_time,
+  week_end_dates(value_added, season_dates),
+  pick_values_time
+) |>
+  left_join(
+    trade_assets_time |> select(asset, trade_id, trade_date, team_name),
+    by = join_by(asset)
+  ) |>
+  summarize(
+    realized_value = sum(realized_value),
+    future_value = sum(future_value),
+    .by = c(trade_id, trade_date, team_name, date)
+  ) |>
+  mutate(total_value = realized_value + future_value)
+
+# a date without pick values (Future Standings hasn't been run for it) can't value an
+# unused pick, so it is left out
+n_missing <- sum(is.na(trade_grades_time$future_value))
+if (n_missing > 0) {
+  message(n_missing, " trade grade(s) over time left out: no pick values that date")
+}
+
+trade_grades_time |>
+  filter(!is.na(future_value)) |>
+  arrange(as.numeric(trade_id), date, team_name) |>
+  write_csv(here("Shiny/Saved Files/trade_grades_time.csv"))
 
 rm(value_added)
 
