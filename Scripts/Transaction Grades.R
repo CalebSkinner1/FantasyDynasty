@@ -223,8 +223,8 @@ overall_transaction_winners <- transaction_comparison |>
 # each transaction's grade on every KTC date from the first one on or after it went
 # through: realized value from the transaction through the weeks finished by that date,
 # plus future value that date (see Scripts/Over Time Support.R). The latest date equals
-# today's grade. Written to transaction_grades_time.csv, one row per transaction, team,
-# and date.
+# today's grade. Written to Data/model_output/transaction_grades_time.csv, one row per
+# transaction, team, and date, and rounded for the app (Shiny/Saved Files).
 
 future_value_time <- read_csv(
   here("Shiny/Saved Files/future_value_time.csv"),
@@ -281,8 +281,20 @@ transaction_grades_time <- value_over_time(
 
 write_csv(
   transaction_grades_time,
-  here("Shiny/Saved Files/transaction_grades_time.csv")
+  here("Data/model_output/transaction_grades_time.csv")
 )
+
+# the app's copy: one team per transaction (top_transactions.csv names it), and the total
+# is realized + future
+transaction_grades_time |>
+  transmute(
+    transaction_id,
+    transaction_date,
+    date,
+    realized_value = round(realized_value, 1),
+    future_value = round(future_value, 1)
+  ) |>
+  write_csv(here("Shiny/Saved Files/transaction_grades_time.csv"))
 
 # dfs to save -------------------------------------------------------------
 

@@ -269,11 +269,13 @@ player_moves <- bind_rows(
   select(player_id, date, label, tab, target_id)
 
 # Team value over time ----------------------------------------------------------
-# each team's future value on every date with pick values (Pick Values.R): the future
-# value of its players that date (future_value_time.csv, rosters from Scraping.R's
-# rosters_time.csv) plus the value of its unused picks that date. A year of new picks
+# each team's future value on every date with pick values (Pick Values.R), by position and
+# picks: the future value of its players that date (future_value_time.csv, rosters from
+# Scraping.R's rosters_time.csv) and of its unused picks that date. A year of new picks
 # joins every team's assets when each rookie draft finishes, which is when Sleeper adds
-# them. The latest date equals today's total future assets (Team Rankings).
+# them. Kickers and defenses have no future value. The latest date's total equals today's
+# total future assets (Team Rankings). Written for the app as team_value_time.csv: date,
+# roster_id, team, asset (QB, RB, WR, TE, Picks), and future_value.
 
 pick_values_time_path <- here("Data/model_output/pick_values_time.csv")
 
@@ -291,27 +293,34 @@ if (file.exists(pick_values_time_path)) {
 
   value_dates <- intersect(unique(pick_values_time$date), unique(future_value_time$date)) |>
     as_date()
+  asset_levels <- c("QB", "RB", "WR", "TE", "Picks")
 
-  team_value_time <- full_join(
+  team_value_time <- bind_rows(
     rosters_time |>
       filter(date %in% value_dates) |>
+      left_join(player_info |> select(player_id, asset = position), by = join_by(player_id)) |>
+      filter(asset %in% asset_levels) |>
       left_join(
         future_value_time |> select(player_id, date, future_value),
         by = join_by(player_id, date)
       ) |>
-      summarize(player_value = sum(future_value, na.rm = TRUE), .by = c(date, roster_id)),
+      summarize(future_value = sum(future_value, na.rm = TRUE), .by = c(date, roster_id, asset)),
     pick_values_time |>
       filter(date %in% value_dates) |>
-      summarize(pick_value = sum(future_value), .by = c(date, roster_id)),
-    by = join_by(date, roster_id)
+      summarize(future_value = sum(future_value), .by = c(date, roster_id)) |>
+      mutate(asset = "Picks")
   ) |>
-    mutate(
-      across(c(player_value, pick_value), ~ replace_na(.x, 0)),
-      total_value = player_value + pick_value
-    ) |>
+    # every team and asset on every date, so the app's stacked areas line up
+    complete(date, roster_id, asset = asset_levels, fill = list(future_value = 0)) |>
     left_join(users, by = join_by(roster_id)) |>
-    select(date, roster_id, team = display_name, player_value, pick_value, total_value) |>
-    arrange(date, roster_id)
+    transmute(
+      date,
+      roster_id,
+      team = display_name,
+      asset = factor(asset, asset_levels),
+      future_value = round(future_value, 1)
+    ) |>
+    arrange(date, roster_id, asset)
 
   write_csv(team_value_time, here("Shiny/Saved Files/team_value_time.csv"))
 }

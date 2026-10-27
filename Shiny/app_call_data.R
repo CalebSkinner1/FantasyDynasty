@@ -184,6 +184,40 @@ player_moves <- if (file.exists(moves_path)) {
   )
 }
 
+# values and grades over time (Fantasy Teams, Draft Grades, Transaction Grades, and
+# Trade Grades scripts): empty until those scripts have run once with this version
+read_over_time <- function(file, col_types = cols(), empty = tibble()) {
+  path <- str_c(script_data_path, file)
+  if (file.exists(path)) {
+    read_csv(path, show_col_types = FALSE, col_types = col_types)
+  } else {
+    empty
+  }
+}
+
+team_value_time <- read_over_time(
+  "team_value_time.csv",
+  empty = tibble(date = as.Date(character()), roster_id = integer(), team = character(),
+                 asset = character(), future_value = double())
+)
+draft_grades_time <- read_over_time(
+  "draft_grades_time.csv",
+  empty = tibble(draft = character(), roster_id = integer(), date = as.Date(character()),
+                 value_over_expected = double())
+)
+transaction_grades_time <- read_over_time(
+  "transaction_grades_time.csv",
+  col_types = cols(transaction_id = col_character()),
+  empty = tibble(transaction_id = character(), transaction_date = as.Date(character()),
+                 date = as.Date(character()), realized_value = double(), future_value = double())
+)
+trade_grades_time <- read_over_time(
+  "trade_grades_time.csv",
+  col_types = cols(trade_id = col_character()),
+  empty = tibble(trade_id = character(), trade_date = as.Date(character()), team_name = character(),
+                 date = as.Date(character()), realized_value = double(), future_value = double())
+)
+
 # player rankings
 future_value_time <- read_csv(
   str_c(script_data_path, "future_value_time.csv"),

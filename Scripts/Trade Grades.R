@@ -465,7 +465,8 @@ overall_trade_winners <- comparison |>
 # future value. An unused pick is worth that date's pick value (Pick Values.R) and, once
 # drafted, its pick number's value; roster spots and the startup swap's picks keep their
 # value (see Scripts/Over Time Support.R). The latest date equals today's grade. Written
-# to trade_grades_time.csv, one row per trade, team, and date, with the trade's date.
+# to Data/model_output/trade_grades_time.csv, one row per trade, team, and date, with the
+# trade's date, and rounded for the app (Shiny/Saved Files).
 
 future_value_time <- read_csv(
   here("Shiny/Saved Files/future_value_time.csv"),
@@ -544,9 +545,22 @@ if (n_missing > 0) {
   message(n_missing, " trade grade(s) over time left out: no pick values that date")
 }
 
-trade_grades_time |>
+trade_grades_time <- trade_grades_time |>
   filter(!is.na(future_value)) |>
-  arrange(as.numeric(trade_id), date, team_name) |>
+  arrange(as.numeric(trade_id), date, team_name)
+
+write_csv(trade_grades_time, here("Data/model_output/trade_grades_time.csv"))
+
+# the app's copy (the total is realized + future)
+trade_grades_time |>
+  transmute(
+    trade_id,
+    trade_date,
+    team_name,
+    date,
+    realized_value = round(realized_value, 1),
+    future_value = round(future_value, 1)
+  ) |>
   write_csv(here("Shiny/Saved Files/trade_grades_time.csv"))
 
 rm(value_added)

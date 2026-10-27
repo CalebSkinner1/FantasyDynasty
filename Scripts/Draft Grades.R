@@ -8,7 +8,8 @@
 #   Data/derived/draft_grades_by_team.csv   each team's grade in each draft (Fantasy Teams)
 #   Data/derived/draft_selections.csv       who drafted each player (Fantasy Teams)
 #   Data/derived/startup_draft_day_trades.csv  the startup draft-day pick swap (Trade Grades)
-#   Shiny/Saved Files/draft_grades_time.csv  every pick's grade on every past date (app)
+#   Data/model_output/draft_grades_time.csv  every pick's grade on every past date, and
+#     Shiny/Saved Files/draft_grades_time.csv each team's total by draft and date (app)
 
 suppressPackageStartupMessages({
   library("here")
@@ -265,8 +266,9 @@ write_csv(draft_selections, here("Data/derived/draft_selections.csv"))
 # the drafted player's realized value through the weeks finished by that date (on any
 # roster, as above) plus his future value that date, minus the pick's expected value. A
 # startup kicker pick's rookie draft slot keeps its value (see Scripts/Over Time
-# Support.R). The latest date equals today's grade. Written to draft_grades_time.csv, one
-# row per pick and date (picks_df.csv has each pick's player).
+# Support.R). The latest date equals today's grade. Written to
+# Data/model_output/draft_grades_time.csv, one row per pick and date (picks_df.csv has
+# each pick's player), and for the app as each team's total in each draft by date.
 
 future_value_time <- read_csv(
   here("Shiny/Saved Files/future_value_time.csv"),
@@ -343,7 +345,14 @@ draft_grades_time <- value_over_time(
   ) |>
   arrange(season, desc(draft == "initial draft"), pick_no, date)
 
-write_csv(draft_grades_time, here("Shiny/Saved Files/draft_grades_time.csv"))
+write_csv(draft_grades_time, here("Data/model_output/draft_grades_time.csv"))
+
+draft_grades_time |>
+  summarize(
+    value_over_expected = round(sum(value_over_expected), 1),
+    .by = c(draft, roster_id, date)
+  ) |>
+  write_csv(here("Shiny/Saved Files/draft_grades_time.csv"))
 
 # Examples (app functions in Shiny/Script Support.R) ------------------------------
 # draft_rankings("2025 rookie draft", shiny = TRUE)

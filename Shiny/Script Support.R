@@ -1540,3 +1540,140 @@ graph_trade <- function(
     labs(x = "", y = "") +
     theme(legend.title = element_blank())
 }
+
+# Over time charts ----------------------------------------------------------
+# values and grades on every KTC date (the scripts' *_time.csv files). Points mark the
+# dates values were computed, which were sparse in 2024.
+
+# asset colors: the first five categorical slots in fixed order (validated with the
+# dataviz palette checks; QB to TE match position order, picks last)
+asset_colors <- c(QB = "#2a78d6", RB = "#eb6834", WR = "#1baf7a", TE = "#eda100", Picks = "#e87ba4")
+
+# a dashed line marking when a trade or transaction went through, labeled just above the
+# plot. Added after the chart is built, since ggplotly replaces the shapes it builds with
+# its own (and it draws dates as days since 1970 on a numeric axis)
+mark_move <- function(chart, date, label) {
+  x <- as.numeric(date)
+  chart <- plotly::plotly_build(chart)
+  chart$x$layout$shapes <- c(chart$x$layout$shapes, list(list(
+    type = "line", xref = "x", x0 = x, x1 = x, yref = "paper", y0 = 0, y1 = 1,
+    line = list(color = "#8a8980", dash = "dash", width = 1)
+  )))
+  chart$x$layout$annotations <- c(chart$x$layout$annotations, list(list(
+    x = x, xref = "x", y = 1, yref = "paper", text = label, showarrow = FALSE,
+    xanchor = "center", yanchor = "bottom", font = list(color = "#52514e")
+  )))
+  chart
+}
+
+# a team's future value by date, stacked by position and picks
+plot_team_value_time <- function(team_value_time, enter_team) {
+  df <- team_value_time |>
+    filter(team == enter_team) |>
+    mutate(
+      asset = factor(asset, names(asset_colors)),
+      total = sum(future_value),
+      .by = date
+    )
+  shiny::validate(shiny::need(nrow(df) > 0, "No values over time yet (Fantasy Teams.R)."))
+
+  df <- df |>
+    mutate(
+      text = str_c(
+        format(date, "%b %e, %Y"), "<br>", asset, ": ", round(future_value),
+        "<br>Team total: ", round(total)
+      )
+    )
+
+  p <- ggplot(df, aes(x = date, y = future_value, fill = asset, group = asset, text = text)) +
+    geom_area(position = position_stack(reverse = TRUE), color = "white", linewidth = .4) +
+    scale_fill_manual(values = asset_colors) +
+    labs(x = NULL, y = "Future value", fill = NULL) +
+    theme(panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text") |>
+    plotly::layout(legend = list(orientation = "h", x = 0, y = 1.08))
+}
+
+# each team's draft grade (value over expected) by date, in one draft or all of them
+plot_draft_grades_time <- function(draft_grades_time, enter_draft) {
+  df <- draft_grades_time |>
+    filter(enter_draft == "All" | draft == enter_draft) |>
+    summarize(value = sum(value_over_expected), .by = c(roster_id, date)) |>
+    left_join(users |> select(roster_id, team = display_name), by = join_by(roster_id))
+  shiny::validate(shiny::need(nrow(df) > 0, "No grades over time yet (Draft Grades.R)."))
+
+  df <- df |>
+    mutate(text = str_c(team, "<br>", format(date, "%b %e, %Y"), "<br>Value over expected: ", round(value, 1)))
+
+  p <- ggplot(df, aes(x = date, y = value, color = team, group = team, text = text)) +
+    geom_hline(yintercept = 0, color = "grey60") +
+    geom_line() +
+    geom_point(size = .8) +
+    scale_color_team() +
+    labs(x = NULL, y = "Value over expected", color = NULL) +
+    theme(panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text")
+}
+
+# each team's value gained in a trade by date, from the first date after the trade
+plot_trade_grade_time <- function(trade_grades_time, enter_trade) {
+  df <- trade_grades_time |>
+    filter(trade_id == enter_trade)
+  shiny::validate(shiny::need(nrow(df) > 0, "No grade over time for this trade yet."))
+
+  df <- df |>
+    mutate(
+      total = realized_value + future_value,
+      text = str_c(
+        team_name, "<br>", format(date, "%b %e, %Y"),
+        "<br>Total: ", round(total, 1),
+        "<br>Realized: ", round(realized_value, 1),
+        "<br>Future: ", round(future_value, 1)
+      )
+    )
+
+  p <- ggplot(df, aes(x = date, y = total, color = team_name, group = team_name, text = text)) +
+    geom_hline(yintercept = 0, color = "grey60") +
+    geom_line() +
+    geom_point(size = 1.2) +
+    scale_color_team() +
+    scale_x_date(limits = c(min(df$trade_date, df$date), max(df$date))) +
+    labs(x = NULL, y = "Value gained", color = NULL) +
+    theme(panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text") |>
+    plotly::layout(legend = list(orientation = "h", x = 0, y = -0.12)) |>
+    mark_move(df$trade_date[1], "Trade")
+}
+
+# a transaction's value gained by date, from the first date after it
+plot_transaction_grade_time <- function(transaction_grades_time, enter_transaction, team) {
+  df <- transaction_grades_time |>
+    filter(transaction_id == enter_transaction)
+  shiny::validate(shiny::need(nrow(df) > 0, "No grade over time for this transaction yet."))
+
+  df <- df |>
+    mutate(
+      total = realized_value + future_value,
+      text = str_c(
+        format(date, "%b %e, %Y"),
+        "<br>Total: ", round(total, 1),
+        "<br>Realized: ", round(realized_value, 1),
+        "<br>Future: ", round(future_value, 1)
+      )
+    )
+  color <- coalesce(unname(team_colors()[team]), "#2a78d6")
+
+  p <- ggplot(df, aes(x = date, y = total, group = 1, text = text)) +
+    geom_hline(yintercept = 0, color = "grey60") +
+    geom_line(color = color) +
+    geom_point(color = color, size = 1.2) +
+    scale_x_date(limits = c(min(df$transaction_date, df$date), max(df$date))) +
+    labs(x = NULL, y = "Value gained") +
+    theme(panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text") |>
+    mark_move(df$transaction_date[1], "Transaction")
+}

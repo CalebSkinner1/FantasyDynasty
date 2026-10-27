@@ -378,6 +378,17 @@ ui <- dashboardPage(
             DTOutput("position_outlook")
           )
         ),
+        panel(
+          title = uiOutput("team_value_time_title", inline = TRUE),
+          p(
+            "The team's future value on each date, by position and draft picks: the future value of
+            the players on its roster that day plus the value of its unused picks. A new year of picks
+            joins every team's assets when each rookie draft finishes, and future value falls through
+            each season as it is realized. Points are computed on each date with KeepTradeCut values,
+            which were sparse in 2024. Hover over an area for the numbers."
+          ),
+          plotlyOutput("team_value_time", height = "380px")
+        ),
         fluidRow(
           panel(
             width = 6,
@@ -498,6 +509,15 @@ ui <- dashboardPage(
           title = uiOutput("draft_ranking_title", inline = TRUE),
           DTOutput("draft_ranking")
         ),
+        panel(
+          title = uiOutput("draft_grades_time_title", inline = TRUE),
+          p(
+            "Each team's draft grade (value over expected) on each date since the draft, graded the same
+            way as the table above. Hover over a line for the numbers, and click a team in the legend to
+            hide it."
+          ),
+          plotlyOutput("draft_grades_time", height = "400px")
+        ),
         fluidRow(
           panel(
             width = 6,
@@ -548,10 +568,19 @@ ui <- dashboardPage(
           ),
           panel(
             width = 6,
-            title = "Transaction Winners",
-            p("The total value gained or lost from all transactions."),
-            DTOutput("transaction_winners")
+            title = "Grade over Time",
+            p(
+              "The value the transaction gained on each date since it went through: realized value from
+              the transaction through that date plus future value that date. The dashed line marks the
+              transaction."
+            ),
+            plotlyOutput("transaction_grade_time", height = "320px")
           )
+        ),
+        panel(
+          title = "Transaction Winners",
+          p("The total value gained or lost from all transactions."),
+          DTOutput("transaction_winners")
         )
       ),
 
@@ -578,10 +607,19 @@ ui <- dashboardPage(
           ),
           panel(
             width = 6,
-            title = "Trade Winners",
-            p("The total value gained or lost from all trades."),
-            DTOutput("trade_winners")
+            title = "Grade over Time",
+            p(
+              "Each team's value gained on each date since the trade: realized value from the trade
+              through that date plus future value that date. The dashed line marks the trade; KeepTradeCut
+              values were sparse in 2024, so an early trade's first point can come months later."
+            ),
+            plotlyOutput("trade_grade_time", height = "320px")
           )
+        ),
+        panel(
+          title = "Trade Winners",
+          p("The total value gained or lost from all trades."),
+          DTOutput("trade_winners")
         )
       ),
 
@@ -1318,25 +1356,34 @@ server <- function(input, output, session) {
   move_click <- reactive(suppressWarnings(
     event_data("plotly_click", source = "player_moves", priority = "event")
   ))
+  # an error in an observer ends the session (the page then offers to reload), so a click
+  # that can't be read is logged and ignored instead. The key can arrive as a list.
   observeEvent(move_click(), {
-    key <- move_click()$key
-    req(length(key) == 1, str_detect(key, "\\|"))
-    target <- str_split_1(key, "\\|")
-    if (target[1] == "trade") {
-      selected_trade(target[2])
-      row <- match(target[2], as.character(lopsided_trades$trade_id))
-      if (!is.na(row)) {
-        dataTableProxy("trade_lopsided") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
-      }
-      updateTabItems(session, "sidebar", selected = "trade")
-    } else {
-      selected_transaction(target[2])
-      row <- match(target[2], as.character(top_transactions$transaction_id))
-      if (!is.na(row)) {
-        dataTableProxy("top_transaction") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
-      }
-      updateTabItems(session, "sidebar", selected = "transaction")
-    }
+    tryCatch(
+      {
+        key <- as.character(unlist(move_click()$key))
+        if (length(key) != 1 || !grepl("|", key, fixed = TRUE)) {
+          return()
+        }
+        target <- strsplit(key, "|", fixed = TRUE)[[1]]
+        if (target[1] == "trade") {
+          selected_trade(target[2])
+          row <- match(target[2], as.character(lopsided_trades$trade_id))
+          if (!is.na(row)) {
+            dataTableProxy("trade_lopsided") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
+          }
+          updateTabItems(session, "sidebar", selected = "trade")
+        } else {
+          selected_transaction(target[2])
+          row <- match(target[2], as.character(top_transactions$transaction_id))
+          if (!is.na(row)) {
+            dataTableProxy("top_transaction") |> selectRows(row) |> selectPage((row - 1) %/% 5 + 1)
+          }
+          updateTabItems(session, "sidebar", selected = "transaction")
+        }
+      },
+      error = function(e) message("team-change click failed: ", conditionMessage(e))
+    )
   })
 
   output$tabulate_realized_value_title <- renderUI({
@@ -1438,6 +1485,16 @@ server <- function(input, output, session) {
       pull() |>
       position_outlook(shiny = TRUE) |>
       dt(paging = FALSE) # all six positions
+  })
+
+  output$team_value_time_title <- renderUI({
+    req(input$team_name)
+    h3(str_c(input$team_name, " Asset Value over Time"))
+  })
+
+  output$team_value_time <- renderPlotly({
+    req(input$team_name)
+    plot_team_value_time(team_value_time, input$team_name)
   })
 
   output$team_contributors_title <- renderUI({
@@ -1558,10 +1615,15 @@ server <- function(input, output, session) {
 
   # Reactivity for Page 3
 
+  # "Initial Draft", "2025 Rookie Draft", or "All Draft" for titles
+  draft_label <- function(draft) {
+    if (draft == "All") "All Draft" else str_to_title(draft)
+  }
+
   output$draft_ranking_title <- renderUI({
     #title
     req(input$draft_selection) #require input
-    h3(str_c(str_to_title(input$draft_selection), " Draft Grades"))
+    h3(str_c(draft_label(input$draft_selection), " Grades"))
   })
 
   output$draft_ranking <- renderDT({
@@ -1569,6 +1631,16 @@ server <- function(input, output, session) {
     req(input$draft_selection) # require input
     draft_rankings(input$draft_selection, shiny = TRUE) |>
       dt(page = 12)
+  })
+
+  output$draft_grades_time_title <- renderUI({
+    req(input$draft_selection)
+    h3(str_c(draft_label(input$draft_selection), " Grades over Time"))
+  })
+
+  output$draft_grades_time <- renderPlotly({
+    req(input$draft_selection)
+    plot_draft_grades_time(draft_grades_time, input$draft_selection)
   })
 
   output$best_picks_title <- renderUI({
@@ -1647,6 +1719,11 @@ server <- function(input, output, session) {
       dt(page = 12)
   })
 
+  output$transaction_grade_time <- renderPlotly({
+    team <- total_transaction_value[[selected_transaction()]]$team_name[1]
+    plot_transaction_grade_time(transaction_grades_time, selected_transaction(), team)
+  })
+
   # Reactivity for Page 5
 
   output$trade_winners <- renderDT({
@@ -1692,6 +1769,10 @@ server <- function(input, output, session) {
     #table 3
     inspect_individual_trade(selected_trade(), shiny = TRUE) |>
       dt(page = 12)
+  })
+
+  output$trade_grade_time <- renderPlotly({
+    plot_trade_grade_time(trade_grades_time, selected_trade())
   })
 
   # Reactivity for Page 6
