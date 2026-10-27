@@ -529,8 +529,8 @@ ui <- dashboardPage(
           selectizeInput(
               inputId = "draft_highlight",
               label = "Highlight a Team",
-              choices = c("None" = "", users$display_name),
-              selected = ""
+              choices = c("None" = "none", users$display_name),
+              selected = "none"
             ),
           plotlyOutput("draft_grades_time", height = "400px")
         ),
@@ -784,8 +784,8 @@ ui <- dashboardPage(
               selectizeInput(
               inputId = "odds_highlight",
               label = "Highlight a Team",
-              choices = c("None" = "", users$display_name),
-              selected = ""
+              choices = c("None" = "none", users$display_name),
+              selected = "none"
             )
             )
           ),
@@ -911,8 +911,8 @@ ui <- dashboardPage(
           selectizeInput(
               inputId = "elo_highlight",
               label = "Highlight a Team",
-              choices = c("None" = "", users$display_name),
-              selected = ""
+              choices = c("None" = "none", users$display_name),
+              selected = "none"
             ),
           plotlyOutput("elo_rankings", height = "400px", width = "100%")
         ),

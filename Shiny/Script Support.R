@@ -165,7 +165,8 @@ scale_fill_team <- function(...) {
 
 # lines for a chart with one line per team (team in the data's team column, the color
 # and group mapped to it). With a team to highlight, it is drawn on top in its color and
-# a little thicker, and every other team is a thin gray line behind it.
+# a little thicker, and every other team is a thin gray line behind it. Anything that
+# isn't a team (the pickers' "none") shows every team in color.
 team_lines <- function(data, highlight = NULL) {
   if (is.null(highlight) || !highlight %in% data$team) {
     return(list(geom_line(data = data), scale_color_team()))
@@ -196,11 +197,7 @@ plot_future_value <- function(enter_id) {
   df <- plot_future_value_df |>
     filter(player_id == enter_id) |>
     mutate(
-      text = str_c(
-        season, "<br>Expected value added: ", round(expected_tva, 1),
-        "<br>80% interval: ", round(proj_tva_10, 1), " to ", round(proj_tva_90, 1),
-        "<br>95% interval: ", round(proj_tva_2.5, 1), " to ", round(proj_tva_97.5, 1)
-      )
+      text = str_c(season, "<br>Expected value added: ", round(expected_tva, 1))
     )
   shiny::validate(shiny::need(nrow(df) > 0, "No projections for this player."))
 
