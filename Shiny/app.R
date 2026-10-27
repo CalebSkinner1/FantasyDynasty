@@ -305,9 +305,10 @@ ui <- dashboardPage(
             p(
               "The line is his expected value added each season, the average of his simulated outcomes with below-replacement
               seasons set to zero. The shaded regions are the 80% and 95% credible intervals. The current season combines value
-              added so far with the projection for the rest of the season."
+              added so far with the projection for the rest of the season. Dots are seasons already played. Hover for
+              the numbers."
             ),
-            plotOutput("plot_future_value", height = "400px", width = "100%")
+            plotlyOutput("plot_future_value", height = "400px", width = "100%")
           ),
           panel(
             width = 5,
@@ -525,6 +526,12 @@ ui <- dashboardPage(
             way as the table above. Hover over a line for the numbers, and click a team in the legend to
             hide it."
           ),
+          selectizeInput(
+              inputId = "draft_highlight",
+              label = "Highlight a Team",
+              choices = c("None" = "", users$display_name),
+              selected = ""
+            ),
           plotlyOutput("draft_grades_time", height = "400px")
         ),
         fluidRow(
@@ -721,7 +728,11 @@ ui <- dashboardPage(
         ),
         panel(
           title = "Value Exchanged",
-          plotOutput("plot_trade_assets", height = "300px", width = "100%")
+          p(
+            "The total value each team would receive, for the rest of the current season and in future value.
+            Hover over a bar for the numbers."
+          ),
+          plotlyOutput("plot_trade_assets", height = "320px", width = "100%")
         ),
         fluidRow(
           panel(
@@ -752,7 +763,7 @@ ui <- dashboardPage(
           title = uiOutput("odds_title", inline = TRUE),
           fluidRow(
             column(
-              6,
+              4,
               selectizeInput(
                 inputId = "odds_type",
                 label = "Select Odds",
@@ -761,12 +772,21 @@ ui <- dashboardPage(
               )
             ),
             column(
-              6,
+              4,
               selectizeInput(
                 inputId = "odds_season",
                 label = "Select a Season",
                 choices = setdiff(names(champion_odds), "team")
               )
+            ),
+            column(
+              4,
+              selectizeInput(
+              inputId = "odds_highlight",
+              label = "Highlight a Team",
+              choices = c("None" = "", users$display_name),
+              selected = ""
+            )
             )
           ),
           fluidRow(
@@ -835,6 +855,7 @@ ui <- dashboardPage(
               inputId = "enter_players",
               label = "Select Players",
               choices = player_choices,
+              selected = top_players, # the top three by future value
               multiple = TRUE, #enable multiple selections
               options = list(
                 placeholder = "Start typing...",
@@ -887,6 +908,12 @@ ui <- dashboardPage(
             all other teams in the league, and I average the adjustments together. This removes any scheduling
             bias from the rating. Elo is not a forward facing predictive metric, but it is useful to understand team strength over time."
           ),
+          selectizeInput(
+              inputId = "elo_highlight",
+              label = "Highlight a Team",
+              choices = c("None" = "", users$display_name),
+              selected = ""
+            ),
           plotlyOutput("elo_rankings", height = "400px", width = "100%")
         ),
         fluidRow(
@@ -929,7 +956,11 @@ ui <- dashboardPage(
           panel(
             width = 6,
             title = "Total Future Assets",
-            DTOutput("future_assets")
+            p(
+              "Each team's total future value today, by position and draft picks (the colors on Fantasy Teams).
+              Hover over a bar for the numbers."
+            ),
+            plotlyOutput("future_assets", height = "440px")
           )
         ),
         panel(
@@ -1187,7 +1218,8 @@ ui <- dashboardPage(
         represents the player's pre-season KeepTradeCut value, and the color indicates the player's position. The stepwise behavior
         observed along the x-axis is characteristic of the BART framework. Notably, uncertainty is substantially larger for younger players."
         ),
-        plotOutput("sva_fit", height = "400px", width = "100%"),
+        p("Hover over a line for the age, position, and values."),
+        plotlyOutput("sva_fit", height = "560px", width = "100%"),
         p(
           "To model a player's entire career, seasonal value added is predicted iteratively over multiple years.
         Age and position naturally carry forward from one season to the next, but the KeepTradeCut value requires additional modeling.
@@ -1204,7 +1236,8 @@ ui <- dashboardPage(
         is the total seasonal value added. Interestingly, the greatest uncertainty is observed among
         underperforming players, particularly at older ages."
         ),
-        plotOutput("ktc_fit", height = "400px", width = "100%"),
+        p("Hover over a line for the age, position, and values."),
+        plotlyOutput("ktc_fit", height = "560px", width = "100%"),
         p(
           "By iterating these two models, a player's entire career trajectory can be simulated year by year. Posterior samples are generated
         at each season and propagated forward through subsequent models, with downsampling used to mitigate computational cost.
@@ -1357,11 +1390,9 @@ server <- function(input, output, session) {
     basic_info(input$player_name) |> dt(page = 1)
   })
 
-  output$plot_future_value <- renderPlot({
-    #first plot
+  output$plot_future_value <- renderPlotly({
     req(input$player_name)
-    p <- plot_future_value(input$player_name)
-    plot(p)
+    plot_future_value(input$player_name)
   })
 
   output$player_value_over_time <- renderPlotly({
@@ -1665,7 +1696,7 @@ server <- function(input, output, session) {
 
   output$draft_grades_time <- renderPlotly({
     req(input$draft_selection)
-    plot_draft_grades_time(draft_grades_time, input$draft_selection)
+    plot_draft_grades_time(draft_grades_time, input$draft_selection, input$draft_highlight)
   })
 
   output$best_picks_title <- renderUI({
@@ -1884,14 +1915,12 @@ server <- function(input, output, session) {
     )
   })
 
-  output$plot_trade_assets <- renderPlot({
-    #first plot
-    p <- graph_trade(
+  output$plot_trade_assets <- renderPlotly({
+    graph_trade(
       trade_valuation()$team1,
       trade_valuation()$team2,
       trade_valuation()$upcoming_label
     )
-    plot(p)
   })
 
   output$team1_trade_outlook_title <- renderUI({
@@ -1901,12 +1930,18 @@ server <- function(input, output, session) {
     h3(str_c(input$trade_machine_team1, "'s Assets Received"))
   })
 
-  output$team1_trade_outlook <- renderDT({
-    #table 1
-    trade_valuation()$team1 |>
+  # the assets a team receives, with the upcoming season's value named as in the tiles
+  # ("Current Season Value", or "Next Season Value" in the offseason)
+  trade_outlook_table <- function(assets) {
+    assets |>
       select(-team) |>
+      rename(!!str_c(trade_valuation()$upcoming_label, " value") := upcoming_year) |>
       shiny_edit_tables() |>
       dt(page = 5)
+  }
+
+  output$team1_trade_outlook <- renderDT({
+    trade_outlook_table(trade_valuation()$team1)
   })
 
   output$team2_trade_outlook_title <- renderUI({
@@ -1917,11 +1952,7 @@ server <- function(input, output, session) {
   })
 
   output$team2_trade_outlook <- renderDT({
-    #table 2
-    trade_valuation()$team2 |>
-      select(-team) |>
-      shiny_edit_tables() |>
-      dt(page = 5)
+    trade_outlook_table(trade_valuation()$team2)
   })
 
   # Reactivity for Page 7
@@ -1979,7 +2010,7 @@ server <- function(input, output, session) {
 
   output$odds_time <- renderPlotly({
     req(input$odds_type, input$odds_season)
-    plot_odds_time(odds_time, input$odds_type, as.numeric(input$odds_season))
+    plot_odds_time(odds_time, input$odds_type, as.numeric(input$odds_season), input$odds_highlight)
   })
 
   output$finish_odds_title <- renderUI({
@@ -2019,7 +2050,7 @@ server <- function(input, output, session) {
 
   output$elo_rankings <- renderPlotly({
     #first plot
-    graph_elo(weekly_elo)
+    graph_elo(weekly_elo, input$elo_highlight)
   })
 
   output$elo_win_prob <- renderDT({
@@ -2035,17 +2066,26 @@ server <- function(input, output, session) {
   })
 
   output$total_success <- renderDT({
-    #table 2
-    total_success |>
-      shiny_edit_tables() |>
-      dt(page = 12)
+    table <- total_success |>
+      shiny_edit_tables()
+    # the week columns sort by when they happened (Team Rankings.R's hidden order columns)
+    week_cols <- match(c("Peak Week", "Low Week", "Peak Order", "Low Order"), names(table)) - 1
+    if (anyNA(week_cols)) {
+      return(dt(table, page = 12))
+    }
+    dt(
+      table,
+      page = 12,
+      options = list(columnDefs = list(
+        list(targets = week_cols[1], orderData = week_cols[3]),
+        list(targets = week_cols[2], orderData = week_cols[4]),
+        list(targets = week_cols[3:4], visible = FALSE)
+      ))
+    )
   })
 
-  output$future_assets <- renderDT({
-    #table 2
-    all_assets_summary_df |>
-      shiny_edit_tables() |>
-      dt(page = 12)
+  output$future_assets <- renderPlotly({
+    plot_future_assets(grab_team_assets_df)
   })
 
   # Reactivity for Page 10
@@ -2075,21 +2115,21 @@ server <- function(input, output, session) {
     # table 1
     championships_df |>
       shiny_edit_tables() |>
-      dt(page = 5)
+      dt(page = 12)
   })
 
   output$finalists <- renderDT({
     # table 2
     finals_df |>
       shiny_edit_tables() |>
-      dt(page = 5)
+      dt(page = 12)
   })
 
   output$playoffs <- renderDT({
     # table 3
     playoffs_df |>
       shiny_edit_tables() |>
-      dt(page = 6)
+      dt(page = 12)
   })
 
   output$most_wins <- renderDT({
@@ -2178,40 +2218,12 @@ server <- function(input, output, session) {
 
   # Reactivity for Page 12
 
-  output$sva_fit <- renderPlot({
-    #first plot
-    p <- toy_tva_plot_data |>
-      ggplot() +
-      geom_line(aes(x = historical_value, y = median_tva, color = position)) +
-      geom_ribbon(
-        aes(x = historical_value, ymin = q10, ymax = q90, fill = position),
-        alpha = 0.2
-      ) +
-      facet_wrap(~age, nrow = 3) +
-      labs(x = "KeepTradeCut", y = "Season Value Added") +
-      theme(
-        axis.text.x = element_text(angle = 30, vjust = 1.25, hjust = 1),
-        legend.title = element_blank()
-      )
-
-    plot(p)
+  output$sva_fit <- renderPlotly({
+    plot_sva_fit(toy_tva_plot_data)
   })
 
-  output$ktc_fit <- renderPlot({
-    #first plot
-    p <- toy_ktc_plot_data |>
-      ggplot() +
-      geom_line(aes(x = tva_adj, y = median_ktc, color = position)) +
-      geom_ribbon(
-        aes(x = tva_adj, ymin = q10, ymax = q90, fill = position),
-        alpha = 0.2
-      ) +
-      facet_wrap(~age, nrow = 3) +
-      labs(x = "Total Value Added", y = "Post-season KeepTradeCut") +
-      coord_cartesian(ylim = c(0, 10000)) +
-      theme(legend.title = element_blank())
-
-    plot(p)
+  output$ktc_fit <- renderPlotly({
+    plot_ktc_fit(toy_ktc_plot_data)
   })
 
   # rookie pick model fit, on the Modeling and Draft Grades pages

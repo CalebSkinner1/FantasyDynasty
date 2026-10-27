@@ -163,6 +163,20 @@ scale_fill_team <- function(...) {
   scale_fill_manual(values = team_colors(), ...)
 }
 
+# lines for a chart with one line per team (team in the data's team column, the color
+# and group mapped to it). With a team to highlight, it is drawn on top in its color and
+# a little thicker, and every other team is a thin gray line behind it.
+team_lines <- function(data, highlight = NULL) {
+  if (is.null(highlight) || !highlight %in% data$team) {
+    return(list(geom_line(data = data), scale_color_team()))
+  }
+  list(
+    geom_line(data = filter(data, team != highlight), color = "#d3d2cb", linewidth = .4),
+    geom_line(data = filter(data, team == highlight), linewidth = 1),
+    scale_color_team()
+  )
+}
+
 # Individual Players ------------------------------------------------------
 
 basic_info <- function(enter_id) {
@@ -172,48 +186,45 @@ basic_info <- function(enter_id) {
     shiny_edit_tables()
 }
 
-# plots a player's expected value added by season (the mean used in future value),
-# with 80% and 95% credible regions
+# a player's expected value added by season (the mean used in future value), with 80% and
+# 95% credible regions (darker and lighter blue), seasons already played as dots, and a
+# dashed line at the first projected season. Hover for the numbers.
 plot_future_value <- function(enter_id) {
-  enter_name <- plot_future_value_df$name[match(enter_id, plot_future_value_df$player_id)]
   first_season <- min(plot_future_value_df$season)
   season_label <- if (exists("upcoming_season_label")) upcoming_season_label else "Current Season"
 
-  plot_future_value_df |>
+  df <- plot_future_value_df |>
     filter(player_id == enter_id) |>
-    ggplot(aes(x = season)) +
-    geom_ribbon(
-      aes(ymin = proj_tva_10, ymax = proj_tva_90),
-      fill = "cadetblue4",
-      alpha = .5
-    ) +
-    geom_ribbon(
-      aes(ymin = proj_tva_2.5, ymax = proj_tva_97.5),
-      fill = "cadetblue1",
-      alpha = .5
-    ) +
-    geom_line(aes(y = expected_tva), color = "indianred3") +
-    # the first projected season (the current season in season, the next one in the offseason)
-    geom_vline(xintercept = first_season, linetype = "dashed", color = "grey40") +
-    annotate(
-      "text",
-      x = first_season,
-      y = Inf,
-      label = season_label,
-      hjust = -.05,
-      vjust = 1.5,
-      color = "grey30"
-    ) +
-    labs(
-      title = str_c(enter_name, " Projected Total Value Added"),
-      x = "Season",
-      y = "Value added"
+    mutate(
+      text = str_c(
+        season, "<br>Expected value added: ", round(expected_tva, 1),
+        "<br>80% interval: ", round(proj_tva_10, 1), " to ", round(proj_tva_90, 1),
+        "<br>95% interval: ", round(proj_tva_2.5, 1), " to ", round(proj_tva_97.5, 1)
+      )
+    )
+  shiny::validate(shiny::need(nrow(df) > 0, "No projections for this player."))
+
+  realized <- season_value_added |>
+    filter(player_id == enter_id) |>
+    mutate(text = str_c(season, "<br>Value added: ", round(total_value_added, 1)))
+
+  p <- ggplot(df, aes(x = season)) +
+    geom_ribbon(aes(ymin = proj_tva_2.5, ymax = proj_tva_97.5), fill = "#cde2fb") +
+    geom_ribbon(aes(ymin = proj_tva_10, ymax = proj_tva_90), fill = "#86b6ef") +
+    geom_line(aes(y = expected_tva, text = text, group = 1), color = "#104281", linewidth = .8) +
+    geom_point(aes(y = expected_tva, text = text), color = "#104281", size = 1.2) +
+    geom_point(
+      data = realized,
+      aes(y = total_value_added, text = text),
+      color = "#212529",
+      size = 2
     ) +
     scale_x_continuous(breaks = scales::breaks_width(1)) +
-    geom_point(
-      data = season_value_added |> filter(player_id == enter_id),
-      aes(x = season, y = total_value_added)
-    )
+    labs(x = "Season", y = "Value added") +
+    theme(panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text") |>
+    mark_move(first_season, season_label)
 }
 
 tabulate_realized_value <- function(
@@ -691,10 +702,10 @@ best_picks <- function(enter_draft, shiny) {
       display_name,
       pick_no,
       name,
+      value_over_expected,
       position,
       realized_value,
-      future_value,
-      value_over_expected
+      future_value
     ) |>
     arrange(desc(value_over_expected))
 
@@ -735,10 +746,10 @@ worst_picks <- function(enter_draft, shiny) {
       display_name,
       pick_no,
       name,
+      value_over_expected,
       position,
       realized_value,
-      future_value,
-      value_over_expected
+      future_value
     ) |>
     arrange(value_over_expected)
 
@@ -1194,7 +1205,7 @@ comparable_players <- function(
 
 # Team Rankings -----------------------------------------------------------
 
-graph_elo <- function(weekly_elo) {
+graph_elo <- function(weekly_elo, highlight = NULL) {
   elo <- weekly_elo |>
     mutate(
       season = 2000 + as.numeric(str_extract(date, "^\\d+")),
@@ -1214,12 +1225,11 @@ graph_elo <- function(weekly_elo) {
       linetype = "dashed",
       color = "grey70"
     ) +
-    geom_line() +
+    team_lines(elo, highlight) +
     scale_x_continuous(
       breaks = season_starts$date_hide,
       labels = season_starts$season
     ) +
-    scale_color_team() +
     labs(x = "", y = "Elo", title = "Team Elo") +
     theme(legend.position = "none", panel.grid.minor = element_blank())
 
@@ -1518,7 +1528,7 @@ graph_trade <- function(
   team2_assets_received,
   upcoming_label = "Current Season"
 ) {
-  bind_rows(team1_assets_received, team2_assets_received) |>
+  df <- bind_rows(team1_assets_received, team2_assets_received) |>
     filter(name == "Total") |>
     select(team, future_value, upcoming_year) |>
     pivot_longer(
@@ -1527,18 +1537,20 @@ graph_trade <- function(
       values_to = "value"
     ) |>
     mutate(
-      type = if_else(type == "future_value", "Future Value", upcoming_label)
-    ) |>
-    ggplot() +
-    geom_bar(
-      aes(x = type, y = value, fill = team),
-      stat = "identity",
-      position = position_dodge(width = 1),
-      width = 1
-    ) +
+      type = factor(
+        if_else(type == "future_value", "Future Value", str_c(upcoming_label, " Value")),
+        c(str_c(upcoming_label, " Value"), "Future Value")
+      ),
+      text = str_c(team, " receives<br>", type, ": ", round(value, 1))
+    )
+
+  p <- ggplot(df, aes(x = type, y = value, fill = team, text = text)) +
+    geom_col(position = position_dodge(width = .8), width = .75) +
     scale_fill_team() +
-    labs(x = "", y = "") +
-    theme(legend.title = element_blank())
+    labs(x = NULL, y = "Value received", fill = NULL)
+
+  as_plotly(p, tooltip = "text") |>
+    plotly::layout(legend = list(orientation = "h", x = 0, y = 1.1))
 }
 
 # Over time charts ----------------------------------------------------------
@@ -1595,7 +1607,7 @@ plot_team_value_time <- function(team_value_time, enter_team) {
 }
 
 # each team's draft grade (value over expected) by date, in one draft or all of them
-plot_draft_grades_time <- function(draft_grades_time, enter_draft) {
+plot_draft_grades_time <- function(draft_grades_time, enter_draft, highlight = NULL) {
   df <- draft_grades_time |>
     filter(enter_draft == "All" | draft == enter_draft) |>
     summarize(value = sum(value_over_expected), .by = c(roster_id, date)) |>
@@ -1607,8 +1619,7 @@ plot_draft_grades_time <- function(draft_grades_time, enter_draft) {
 
   p <- ggplot(df, aes(x = date, y = value, color = team, group = team, text = text)) +
     geom_hline(yintercept = 0, color = "grey60") +
-    geom_line() +
-    scale_color_team() +
+    team_lines(df, highlight) +
     labs(x = NULL, y = "Value over expected") +
     theme(legend.position = "none", panel.grid.minor = element_blank())
 
@@ -1685,7 +1696,7 @@ odds_choices <- c(
 )
 
 # each team's odds (percent) on every date for one season (a draft season for #1 pick)
-plot_odds_time <- function(odds_time, enter_odds, enter_season) {
+plot_odds_time <- function(odds_time, enter_odds, enter_season, highlight = NULL) {
   label <- names(odds_choices)[odds_choices == enter_odds]
   df <- odds_time |>
     filter(odds == enter_odds, season == enter_season)
@@ -1695,8 +1706,7 @@ plot_odds_time <- function(odds_time, enter_odds, enter_season) {
     mutate(text = str_c(team, "<br>", format(date, "%b %e, %Y"), "<br>", label, " odds: ", perc, "%"))
 
   p <- ggplot(df, aes(x = date, y = perc, color = team, group = team, text = text)) +
-    geom_line() +
-    scale_color_team() +
+    team_lines(df, highlight) +
     scale_y_continuous(labels = \(x) str_c(x, "%"), limits = c(0, NA)) +
     labs(x = NULL, y = NULL) +
     theme(legend.position = "none", panel.grid.minor = element_blank())
@@ -1744,4 +1754,138 @@ finish_grid <- function(finish_odds, enter_season) {
       color = styleInterval(55, c("#212529", "#ffffff")),
       textAlign = "center"
     )
+}
+
+# Team Rankings: total future assets ------------------------------------------------
+
+# each team's future value today as a horizontal bar, stacked by position and picks in
+# the Fantasy Teams colors (a thin white gap between pieces), teams sorted by total with
+# the total at the end of each bar. Kickers and defenses have no future value.
+plot_future_assets <- function(grab_team_assets_df) {
+  df <- grab_team_assets_df |>
+    mutate(
+      asset = case_when(
+        str_detect(name, "Draft Pick") ~ "Picks",
+        position %in% names(asset_colors) ~ position
+      )
+    ) |>
+    filter(!is.na(asset)) |>
+    summarize(value = sum(future_value), .by = c(roster_id, asset)) |>
+    left_join(users |> select(roster_id, team = display_name), by = join_by(roster_id)) |>
+    mutate(total = sum(value), .by = team) |>
+    mutate(
+      team = fct_reorder(team, total),
+      asset = factor(asset, names(asset_colors)),
+      text = str_c(team, "<br>", asset, ": ", round(value), "<br>Total: ", round(total))
+    )
+  totals <- df |> distinct(team, total)
+
+  p <- ggplot(df, aes(x = team, y = value, fill = asset, text = text)) +
+    geom_col(position = position_stack(reverse = TRUE), color = "white", linewidth = .4, width = .75) +
+    geom_text(
+      data = totals,
+      aes(x = team, y = total, label = round(total)),
+      inherit.aes = FALSE,
+      hjust = -.15,
+      size = 3,
+      color = "#52514e"
+    ) +
+    scale_fill_manual(values = asset_colors) +
+    scale_y_continuous(expand = expansion(mult = c(0, .12))) +
+    coord_flip() +
+    labs(x = NULL, y = "Future value", fill = NULL) +
+    theme(panel.grid.major.y = element_blank(), panel.grid.minor = element_blank())
+
+  chart <- as_plotly(p, tooltip = "text") |>
+    plotly::layout(legend = list(orientation = "h", x = 0, y = 1.08)) |>
+    plotly::plotly_build()
+  # totals just past the end of each bar (plotly centers text on its point otherwise)
+  chart$x$data <- map(chart$x$data, \(trace) {
+    if (identical(trace$mode, "text")) {
+      trace$textposition <- "middle right"
+      trace$hoverinfo <- "skip"
+    }
+    trace
+  })
+  chart
+}
+
+# Modeling: the future value models' fits ---------------------------------------------
+
+# one legend entry per position for faceted charts: ggplotly makes an entry for every
+# panel's shading and line, so the shading is left out and each position's line is listed
+# once (clicking it still hides that position in every panel)
+facet_position_legend <- function(chart) {
+  chart <- plotly::plotly_build(chart)
+  seen <- character()
+  chart$x$data <- map(chart$x$data, \(trace) {
+    position <- str_extract(trace$name %||% "", "QB|RB|WR|TE")
+    if (is.na(position)) {
+      return(trace)
+    }
+    trace$legendgroup <- position
+    if (!is.null(trace$fill) && trace$fill != "none") {
+      trace$showlegend <- FALSE
+      trace$hoverinfo <- "skip"
+    } else {
+      trace$name <- position
+      trace$showlegend <- !position %in% seen
+      seen <<- c(seen, position)
+    }
+    trace
+  })
+  chart
+}
+
+# projected season value added by preseason KeepTradeCut value, one panel per age, colored
+# by position (the Fantasy Teams colors); shading is the 80% credible region
+plot_sva_fit <- function(toy_tva_plot_data) {
+  df <- toy_tva_plot_data |>
+    mutate(
+      position = factor(position, c("QB", "RB", "WR", "TE")),
+      text = str_c(
+        position, ", age ", age, "<br>KeepTradeCut: ", round(historical_value),
+        "<br>Median value added: ", round(median_tva, 1),
+        "<br>80% interval: ", round(q10, 1), " to ", round(q90, 1)
+      )
+    )
+
+  p <- ggplot(df, aes(x = historical_value)) +
+    geom_ribbon(aes(ymin = q10, ymax = q90, fill = position), alpha = .15) +
+    geom_line(aes(y = median_tva, color = position, text = text, group = position)) +
+    facet_wrap(~age, nrow = 3, labeller = labeller(age = \(a) str_c("Age ", a))) +
+    scale_color_manual(values = asset_colors) +
+    scale_fill_manual(values = asset_colors, guide = "none") +
+    labs(x = "Preseason KeepTradeCut", y = "Season value added", color = NULL) +
+    theme(panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text") |>
+    facet_position_legend()
+}
+
+# projected post-season KeepTradeCut value by season value added, for a player with a
+# preseason value of 5,000, one panel per age; shading is the 80% credible region
+plot_ktc_fit <- function(toy_ktc_plot_data) {
+  df <- toy_ktc_plot_data |>
+    mutate(
+      position = factor(position, c("QB", "RB", "WR", "TE")),
+      text = str_c(
+        position, ", age ", age, "<br>Season value added: ", round(tva_adj),
+        "<br>Median KeepTradeCut: ", round(median_ktc),
+        "<br>80% interval: ", round(q10), " to ", round(q90)
+      )
+    )
+
+  p <- ggplot(df, aes(x = tva_adj)) +
+    geom_ribbon(aes(ymin = q10, ymax = q90, fill = position), alpha = .15) +
+    geom_line(aes(y = median_ktc, color = position, text = text, group = position)) +
+    facet_wrap(~age, nrow = 3, labeller = labeller(age = \(a) str_c("Age ", a))) +
+    scale_color_manual(values = asset_colors) +
+    scale_fill_manual(values = asset_colors, guide = "none") +
+    coord_cartesian(ylim = c(0, 10000)) +
+    labs(x = "Season value added", y = "Post-season KeepTradeCut", color = NULL) +
+    theme(panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text") |>
+    facet_position_legend()
 }

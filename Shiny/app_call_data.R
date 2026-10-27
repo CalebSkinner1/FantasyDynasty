@@ -284,6 +284,12 @@ player_choices <- player_total_value |>
   select(name, player_id) |>
   deframe()
 
+# the three players with the most future value (Player Rankings starts with them)
+top_players <- player_total_value |>
+  filter(position %in% c("QB", "WR", "RB", "TE")) |>
+  slice_max(future_value, n = 3, with_ties = FALSE) |>
+  pull(player_id)
+
 # the upcoming season's name for charts: "Current Season" in season, "Next Season" in the
 # offseason (Trade Machine.R)
 upcoming_season_label <- first(assets_df$upcoming_label, default = "Current Season")

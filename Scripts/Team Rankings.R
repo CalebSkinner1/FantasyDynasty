@@ -101,8 +101,10 @@ weekly_elo <- compute_elo(team_records_df, elo_init) |>
 # example
 # graph_elo(weekly_elo)
 
-# peak and low ratings (with when they happened), and the composite rating: the average
-# distance from 1500 after each played week (the week 0 starting ratings are left out)
+# peak and low ratings and the week each happened, and the composite rating: the average
+# distance from 1500 after each played week (the week 0 starting ratings are left out).
+# peak_order and low_order (the week's position on the Elo chart) let the app sort the
+# week columns by when they happened; the app hides them.
 when <- function(date) {
   str_c("20", str_sub(date, 1, 2), " week ", str_remove(date, "^\\d+w"))
 }
@@ -110,8 +112,12 @@ when <- function(date) {
 total_success <- weekly_elo |>
   summarize(
     composite_rating = round(mean(elo[!str_detect(date, "w0$")] - 1500), digits = 2),
-    peak = str_c(round(max(elo), 2), " in ", when(date[which.max(elo)])),
-    low = str_c(round(min(elo), 2), " in ", when(date[which.min(elo)])),
+    peak = round(max(elo), 1),
+    peak_week = when(date[which.max(elo)]),
+    low = round(min(elo), 1),
+    low_week = when(date[which.min(elo)]),
+    peak_order = date_hide[which.max(elo)],
+    low_order = date_hide[which.min(elo)],
     .by = team
   ) |>
   arrange(desc(composite_rating))
