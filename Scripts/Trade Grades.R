@@ -8,6 +8,10 @@
 #            Like the Trade Machine, a team's grade is what it received minus what its
 #            partners received, so a partner's roster spot counts against the team and
 #            every trade sums to zero.
+#   the startup draft-day trade: a swap of startup picks that Sleeper recorded as the
+#            players the picks became. It is graded as the picks, each at its expected value
+#            from the startup draft's curve (Draft Grades), like a used rookie pick. Draft
+#            Grades credits the players themselves, so they aren't counted twice.
 # Runs after Transaction Grades and Pick Values. Writes the app's trade tables and
 # Data/derived/individual_trades.csv, trade_adds.csv, and trade_moves.csv (used by Fantasy
 # Teams).
@@ -57,6 +61,47 @@ player_info <- read_csv(
 
 users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(roster_id, display_name)
+
+# the startup draft-day pick swap: each player and the startup pick he was taken with
+# (position is the team that held the pick), valued at that pick's expected total value
+startup_draft <- read_csv(
+  here("Data/derived/drafts.csv"),
+  show_col_types = FALSE,
+  col_types = cols(draft_id = col_character())
+) |>
+  filter(type == "veteran")
+
+startup_pick_values <- read_csv(
+  here("Shiny/Saved Files/picks_df.csv"),
+  show_col_types = FALSE
+) |>
+  filter(draft == "initial draft") |>
+  distinct(pick_no, exp_total_value)
+
+swap_picks <- read_csv(
+  here("Data/derived/startup_draft_day_trades.csv"),
+  col_types = cols(player_id = col_character(), roster_id = col_integer())
+) |>
+  select(player_id) |>
+  left_join(
+    readRDS(here("Data/derived/draft_picks.rds")) |>
+      bind_rows() |>
+      filter(draft_id == startup_draft$draft_id) |>
+      select(player_id, pick_no, roster_id),
+    by = join_by(player_id)
+  ) |>
+  left_join(startup_pick_values, by = join_by(pick_no)) |>
+  left_join(users, by = join_by(roster_id)) |>
+  transmute(
+    player_id,
+    pick_name = str_c(startup_draft$season, " Initial Draft Pick ", pick_no),
+    pick_team = display_name,
+    pick_value = exp_total_value
+  )
+
+if (anyNA(swap_picks$pick_value)) {
+  stop("a startup draft-day trade player has no startup pick value (picks_df.csv)")
+}
 
 # Grade each trade ------------------------------------------------------------
 
@@ -133,6 +178,24 @@ compute_trade_value <- function(trade) {
     player_values(adds, this_season, this_week, "add"),
     player_values(drops, this_season, this_week, "drop")
   )
+
+  # the startup draft-day trade: each player becomes the pick he was taken with (no
+  # realized value), and picks take no roster spot
+  if (identical(trade$transaction_id, swap_transaction_id)) {
+    players <- players |>
+      left_join(swap_picks, by = join_by(player_id)) |>
+      mutate(
+        swapped = !is.na(pick_name),
+        name = if_else(swapped, pick_name, name),
+        position = if_else(swapped, pick_team, position),
+        future_value = if_else(swapped, pick_value, future_value),
+        realized_value = if_else(swapped, 0, realized_value),
+        player_id = if_else(swapped, NA_character_, player_id)
+      ) |>
+      select(-swapped, -pick_name, -pick_team, -pick_value)
+    adds <- adds |> filter(!player_id %in% swap_picks$player_id)
+    drops <- drops |> filter(!player_id %in% swap_picks$player_id)
+  }
 
   # picks: the new owner gains the pick and the previous owner loses it. position is the
   # team the pick originally belonged to
@@ -223,6 +286,19 @@ compute_trade_value <- function(trade) {
 
 trades <- transactions |>
   filter(type == "trade")
+
+# the startup draft-day trade: the first trade that moved every player in the swap
+swap_transaction_id <- trades |>
+  filter(map_lgl(
+    split(adds, seq_len(n())),
+    \(a) all(swap_picks$player_id %in% trade_players(a)$player_id)
+  )) |>
+  slice_min(created, n = 1, with_ties = FALSE) |>
+  pull(transaction_id)
+
+if (length(swap_transaction_id) != 1) {
+  stop("can't find the startup draft-day trade")
+}
 
 # named by trade number; trades that moved no players or picks (e.g. FAAB only) are dropped
 total_trade_value <- trades |>

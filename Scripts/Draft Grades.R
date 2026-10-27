@@ -7,6 +7,7 @@
 #   Shiny/Saved Files/picks_df.csv          every graded pick (app)
 #   Data/derived/draft_grades_by_team.csv   each team's grade in each draft (Fantasy Teams)
 #   Data/derived/draft_selections.csv       who drafted each player (Fantasy Teams)
+#   Data/derived/startup_draft_day_trades.csv  the startup draft-day pick swap (Trade Grades)
 
 suppressPackageStartupMessages({
   library("here")
@@ -20,11 +21,13 @@ message("begin computing Draft Grades...")
 mcmc_seed <- 2024 # seed for the startup draft's expected-value sampler
 
 # trades made right after the startup draft: these players are graded for the team that
-# traded for them
+# traded for them. The trade was a swap of startup picks that Sleeper recorded as the
+# players the picks became, so Trade Grades grades it as the picks (it reads this list)
 startup_draft_day_trades <- tibble(
   player_id = c("8138", "8228", "10236", "5857"), # James Cook, Jaylen Warren, Dalton Kincaid, Noah Fant
   roster_id = c(4L, 4L, 7L, 7L)
 )
+write_csv(startup_draft_day_trades, here("Data/derived/startup_draft_day_trades.csv"))
 
 # load data
 users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
