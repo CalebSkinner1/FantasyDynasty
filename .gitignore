@@ -6,3 +6,6 @@ Modeling/Deprecated Modeling
 .Rhistory
 Workflow/logs/
 Rplots.pdf
+
+# the app's bundled data, rebuilt before every deploy (Workflow/Build App Data.R)
+Shiny/app_data.rds

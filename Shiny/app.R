@@ -89,6 +89,12 @@ explore_row <- function(group, icon_name, tagline, ...) {
 
 pct <- function(x) str_c(round(x), "%")
 
+# second and third place for a headline tile, one per line
+runners_up <- function(teams, values) {
+  lines <- str_c(2:3, ". ", teams[2:3], " ", values[2:3])
+  tagList(lines[1], tags$br(), lines[2])
+}
+
 ui <- dashboardPage(
   title = "Baylor Seniors Dynasty League",
   freshTheme = app_theme,
@@ -272,26 +278,20 @@ ui <- dashboardPage(
         p(em(str_c("Data updated ", data_updated_label, "."))),
         div(
           class = "home-tiles",
-          if (nrow(home_playoffs) > 0) {
+          if (nrow(home_champion) > 0) {
             home_tile(
-              "Playoff Odds",
-              str_c(home_playoffs$team[1], " ", pct(home_playoffs$perc[1])),
-              str_c(
-                "best odds to make the ", home_playoffs$season[1], " playoffs; next: ",
-                str_flatten_comma(str_c(home_playoffs$team[2:3], " ", pct(home_playoffs$perc[2:3])))
-              ),
+              str_c(home_champion$season[1], " Championship Odds"),
+              str_c("1. ", home_champion$team[1], " ", pct(home_champion$perc[1])),
+              runners_up(home_champion$team, pct(home_champion$perc)),
               "tab-link",
               "future_standings"
             )
           },
           if (nrow(home_elo) > 0) {
             home_tile(
-              "Top Elo Team",
-              home_elo$team[1],
-              str_c(
-                "Elo ", round(home_elo$elo[1]), "; next: ",
-                home_elo$team[2], " ", round(home_elo$elo[2])
-              ),
+              "Top Elo Teams",
+              str_c("1. ", home_elo$team[1], " ", round(home_elo$elo[1])),
+              runners_up(home_elo$team, round(home_elo$elo)),
               "tab-link",
               "team_rankings"
             )
@@ -1549,6 +1549,9 @@ ui <- dashboardPage(
 
 # Define Server
 server <- function(input, output, session) {
+  # Every chart is cached with bindCache(): it is drawn once for each set of the inputs
+  # it is keyed on and then reused for every visitor until the app restarts. The data
+  # changes only when the app is redeployed, so each chart is drawn about once per deploy.
   # Links between pages --------------------------------------------------------
   # a player or team name clicked in any table opens its page (see the script in the
   # page head)
@@ -1626,7 +1629,8 @@ server <- function(input, output, session) {
   output$plot_future_value <- renderPlotly({
     req(input$player_name)
     plot_future_value(input$player_name)
-  })
+  }) |>
+    bindCache(input$player_name)
 
   output$player_value_over_time <- renderPlotly({
     req(input$player_name)
@@ -1637,7 +1641,8 @@ server <- function(input, output, session) {
       source = "player_moves"
     ) |>
       event_register("plotly_click")
-  })
+  }) |>
+    bindCache(input$player_name)
 
   # a click on a team-change marker opens that trade or transaction (priority "event" so
   # clicking the same marker again still opens it; event_data warns until the chart has
@@ -1711,7 +1716,8 @@ server <- function(input, output, session) {
     #second plot
     req(input$player_name, input$player_season) #require input
     weekly_results(value_added, input$player_name, input$player_season)
-  })
+  }) |>
+    bindCache(input$player_name, input$player_season)
 
   # Reactivity for Page 2
 
@@ -1798,7 +1804,8 @@ server <- function(input, output, session) {
   output$team_value_time <- renderPlotly({
     req(input$team_name)
     plot_team_value_time(team_value_time, input$team_name)
-  })
+  }) |>
+    bindCache(input$team_name)
 
   output$team_contributors_title <- renderUI({
     #title
@@ -1948,7 +1955,8 @@ server <- function(input, output, session) {
       input$draft_selection,
       input$draft_highlight
     )
-  })
+  }) |>
+    bindCache(input$draft_selection, input$draft_highlight)
 
   output$best_picks_title <- renderUI({
     #title
@@ -1987,7 +1995,8 @@ server <- function(input, output, session) {
 
   output$transaction_winners_time <- renderPlotly({
     plot_winners_time(transaction_winners_time, input$transaction_highlight)
-  })
+  }) |>
+    bindCache(input$transaction_highlight)
 
   output$top_transaction <- renderDT({
     #table 2: click a row to see its breakdown below (the first row to start)
@@ -2045,7 +2054,8 @@ server <- function(input, output, session) {
       selected_transaction(),
       team
     )
-  })
+  }) |>
+    bindCache(selected_transaction())
 
   # Reactivity for Page 5
 
@@ -2058,7 +2068,8 @@ server <- function(input, output, session) {
 
   output$trade_winners_time <- renderPlotly({
     plot_winners_time(trade_winners_time, input$trade_highlight)
-  })
+  }) |>
+    bindCache(input$trade_highlight)
 
   output$trade_lopsided <- renderDT({
     #table 2: click a row to see its breakdown below (the first row to start)
@@ -2105,7 +2116,8 @@ server <- function(input, output, session) {
 
   output$trade_grade_time <- renderPlotly({
     plot_trade_grade_time(trade_grades_time, selected_trade())
-  })
+  }) |>
+    bindCache(selected_trade())
 
   # Reactivity for Page 6
 
@@ -2206,7 +2218,8 @@ server <- function(input, output, session) {
       trade_valuation()$team2,
       trade_valuation()$upcoming_label
     )
-  })
+  }) |>
+    bindCache(trade_valuation())
 
   output$team1_trade_outlook_title <- renderUI({
     #table 1 title
@@ -2307,7 +2320,8 @@ server <- function(input, output, session) {
       as.numeric(input$odds_season),
       input$odds_highlight
     )
-  })
+  }) |>
+    bindCache(input$odds_type, input$odds_season, input$odds_highlight)
 
   output$finish_odds_title <- renderUI({
     req(input$standings_season)
@@ -2333,21 +2347,24 @@ server <- function(input, output, session) {
     # first plot
     req(input$enter_players) #require input
     future_value_time |> plot_over_time(input$enter_players)
-  })
+  }) |>
+    bindCache(input$enter_players)
 
   output$comparable_future_value <- renderPlotly({
     # first plot
     req(input$enter_player) #require input
     future_value_time |>
       comparable_players(player_total_value, input$enter_player)
-  })
+  }) |>
+    bindCache(input$enter_player)
 
   # Reactivity for Page 9
 
   output$elo_rankings <- renderPlotly({
     #first plot
     graph_elo(weekly_elo, input$elo_highlight)
-  })
+  }) |>
+    bindCache(input$elo_highlight)
 
   output$elo_win_prob <- renderDT({
     # text 1
@@ -2388,7 +2405,8 @@ server <- function(input, output, session) {
 
   output$future_assets <- renderPlotly({
     plot_future_assets(grab_team_assets_df)
-  })
+  }) |>
+    bindCache("future_assets")
 
   # Reactivity for Page 10
 
@@ -2522,11 +2540,13 @@ server <- function(input, output, session) {
 
   output$sva_fit <- renderPlotly({
     plot_sva_fit(toy_tva_plot_data)
-  })
+  }) |>
+    bindCache("sva_fit")
 
   output$ktc_fit <- renderPlotly({
     plot_ktc_fit(toy_ktc_plot_data)
-  })
+  }) |>
+    bindCache("ktc_fit")
 
   # rookie pick model fit, on the Modeling and Draft Grades pages
   draft_fit_chart <- function() {
@@ -2544,8 +2564,8 @@ server <- function(input, output, session) {
     as_plotly(p, tooltip = c("y", "text"))
   }
 
-  output$draft_fit <- renderPlotly(draft_fit_chart())
-  output$draft_fit_grades <- renderPlotly(draft_fit_chart())
+  output$draft_fit <- renderPlotly(draft_fit_chart()) |> bindCache("draft_fit")
+  output$draft_fit_grades <- renderPlotly(draft_fit_chart()) |> bindCache("draft_fit")
 }
 
 # Run the App

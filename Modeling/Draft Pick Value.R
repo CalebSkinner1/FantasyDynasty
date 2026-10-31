@@ -59,7 +59,7 @@ player_info <- read_csv(
   distinct(player_id, .keep_all = TRUE)
 
 season_dates <- read_csv(
-  here("Shiny/Saved Files/season_dates.csv"),
+  here("Data/derived/season_dates.csv"),
   show_col_types = FALSE
 )
 

@@ -1027,10 +1027,10 @@ season_dates <- tryCatch(
       "NFL schedule unavailable, keeping saved season dates: ",
       conditionMessage(e)
     )
-    read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+    read_csv(here("Data/derived/season_dates.csv"), show_col_types = FALSE)
   }
 )
-write_csv(season_dates, here("Shiny/Saved Files/season_dates.csv"))
+write_csv(season_dates, here("Data/derived/season_dates.csv"))
 
 # Rosters and picks over time -----------------------------------------------
 # every team's roster and draft picks on each KTC date (as of the end of that day, Central

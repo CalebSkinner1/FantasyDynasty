@@ -21,8 +21,8 @@ shiny_edit_tables <- function(df) {
 
 # player and team names in a table become links: a team name opens Fantasy Teams and a
 # player name opens Individual Players (app.R listens for these clicks). A column is
-# linked when its values are names; player_choices maps names to player_id (set in
-# app_call_data.R). Returns the table and which columns were linked.
+# linked when its values are names; player_choices maps names to player_id (from the app
+# data, Workflow/Build App Data.R). Returns the table and which columns were linked.
 link_names <- function(df) {
   linked <- character()
   link <- function(class, id, label) {
@@ -1071,26 +1071,6 @@ team_matchup_record <- function(
   }
 }
 
-# Future Standings Script -------------------------------------------------
-
-most_common_finish <- function(
-  most_common_finish_df,
-  enter_season,
-  shiny = TRUE
-) {
-  df <- most_common_finish_df |>
-    filter(season == enter_season) |>
-    select(team, finish, probability)
-
-  if (shiny) {
-    df |> shiny_edit_tables()
-  } else {
-    df |>
-      gt::gt() |>
-      gtExtras::gt_theme_538(quiet = TRUE)
-  }
-}
-
 # Player Rankings -----------------------------------------------------------
 
 top_future_value_player <- function(player_total_value, enter_position) {
@@ -1100,15 +1080,13 @@ top_future_value_player <- function(player_total_value, enter_position) {
 
   player_total_value |>
     filter(position %in% enter_position) |>
-    rowwise() |>
     mutate(
-      realized_value = sum(c_across(contains("sva_"))),
+      realized_value = rowSums(pick(contains("sva_"))),
       age = lubridate::time_length(
         lubridate::interval(birth_date, today()),
         unit = "years"
       )
     ) |>
-    ungroup() |>
     select(name, position, age, realized_value, future_value) |>
     arrange(desc(future_value)) |>
     shiny_edit_tables()
@@ -1674,7 +1652,8 @@ plot_trade_grade_time <- function(trade_grades_time, enter_trade) {
 }
 
 # each team's total value gained from all its trades (or all its transactions) by date,
-# one line per team (trade_winners_time or transaction_winners_time, app_call_data.R)
+# one line per team (trade_winners_time or transaction_winners_time, from Trade Grades.R
+# and Transaction Grades.R)
 plot_winners_time <- function(winners_time, highlight = NULL) {
   shiny::validate(shiny::need(nrow(winners_time) > 0, "No grades over time yet."))
 

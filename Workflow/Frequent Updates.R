@@ -21,7 +21,7 @@ run_step("Modeling/Player Total Value.R")
 # Future Standings: 50,000 simulations of the next three seasons (~15 seconds)
 run_step("Modeling/Future Standings.R")
 
-# App tables (written to Shiny/Saved Files) ----------------------------------
+# App tables (written to Shiny/Saved Files, then bundled for the app) ---------------
 
 # Individual Players
 run_step("Scripts/Individual Players.R")
@@ -58,12 +58,8 @@ run_step("Scripts/History.R")
 
 # Deploy -------------------------------------------------------------------
 
-# the date shown on the app's home page
-write.csv(
-  data.frame(updated = as.character(Sys.Date())),
-  here::here("Shiny/Saved Files/last_updated.csv"),
-  row.names = FALSE
-)
+# bundle the app's tables into Shiny/app_data.rds, all the app loads at startup (~5 seconds)
+run_step("Workflow/Build App Data.R")
 
 message("\n== deploying the app")
 rsconnect::deployApp(
@@ -72,6 +68,7 @@ rsconnect::deployApp(
   account = "calebskinner",
   forceUpdate = TRUE,
   appPrimaryDoc = "app.R",
-  appFiles = NULL,
+  # only what the app runs on: its code and the bundled data (not Saved Files)
+  appFiles = c("app.R", "Script Support.R", "app_call_data.R", "app_data.rds"),
   launch.browser = FALSE
 )

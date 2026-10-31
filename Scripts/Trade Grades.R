@@ -22,7 +22,7 @@ suppressPackageStartupMessages({
   library("tidyverse")
 })
 
-source(here("Scripts/Over Time Support.R")) # value_over_time()
+source(here("Scripts/Over Time Support.R")) # value_over_time(), team_totals_time()
 
 message("begin computing Trade Grades...")
 
@@ -50,7 +50,7 @@ value_added <- read_csv(
   select(player_id, roster_id, season, week, value_added)
 
 marginal_transaction_value <- read_csv(
-  here("Shiny/Saved Files/marginal_transaction_value.csv"),
+  here("Data/model_output/marginal_transaction_value.csv"),
   show_col_types = FALSE
 )
 
@@ -426,7 +426,7 @@ overall_trade_winners <- comparison |>
 # load(here("Modeling/team_tva_ranking.RData"))
 # matchup_fit_coef <- read_csv(here("Modeling/matchup_fit_coef.csv"))
 # matchups_table <- read_csv(here("Data/derived/matchups_table.csv"))
-# season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"))
+# season_dates <- read_csv(here("Data/derived/season_dates.csv"))
 #
 # season_end <- season_dates$season_end[season_dates$season_end > today()] |> min()
 # season_start <- season_dates$season_start[season_dates$season_start < season_end] |> max()
@@ -473,7 +473,7 @@ future_value_time <- read_csv(
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 )
-season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Data/derived/season_dates.csv"), show_col_types = FALSE)
 pick_values_time_path <- here("Data/model_output/pick_values_time.csv")
 pick_values_time <- if (file.exists(pick_values_time_path)) {
   read_csv(pick_values_time_path, show_col_types = FALSE)
@@ -563,6 +563,11 @@ trade_grades_time |>
   ) |>
   write_csv(here("Shiny/Saved Files/trade_grades_time.csv"))
 
+# each team's total from all its trades on every date (Trade Winners over Time)
+trade_grades_time |>
+  team_totals_time() |>
+  write_csv(here("Shiny/Saved Files/trade_winners_time.csv"))
+
 rm(value_added)
 
 # dfs to save -------------------------------------------------------------
@@ -573,8 +578,6 @@ write_csv(
 )
 
 write_csv(lopsided_trades, here("Shiny/Saved Files/lopsided_trades.csv"))
-
-write_csv(comparison, here("Shiny/Saved Files/comparison.csv"))
 
 save(
   total_trade_value,

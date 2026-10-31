@@ -67,15 +67,6 @@ n1_pick_odds <- final_standings_odds |>
   mutate(season = season + 1) |>
   odds_table()
 
-# most common finish
-most_common_finish_df <- final_standings_odds |>
-  filter(type == "rank") |>
-  slice_max(perc, n = 1, with_ties = FALSE, by = c(team, season)) |>
-  arrange(result, desc(perc)) |>
-  mutate(probability = 100 * perc) |>
-  rename(finish = result) |>
-  select(season, finish, perc, team, probability)
-
 # chance of every final position (the Future Standings page's grid): finish 1 is the
 # champion, then the runner-up, then everyone else by regular-season record
 finish_odds <- final_standings_odds |>
@@ -114,10 +105,6 @@ if (file.exists(standings_time_path)) {
 
 # dfs to save -------------------------------------------------------------
 
-write_csv(
-  most_common_finish_df,
-  here("Shiny/Saved Files/most_common_finish_df.csv")
-)
 write_csv(champion_odds, here("Shiny/Saved Files/champion_odds.csv"))
 write_csv(playoff_odds, here("Shiny/Saved Files/playoff_odds.csv"))
 write_csv(bye_odds, here("Shiny/Saved Files/bye_odds.csv"))

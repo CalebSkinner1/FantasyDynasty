@@ -33,6 +33,27 @@ draft_finished_dates <- function() {
     )
 }
 
+# each team's total value gained from all its graded moves on every date (the Winners
+# over Time charts): grades_time has team_name, date, realized_value, and future_value,
+# one row per move and team. Before a team's first move it has gained 0, and the latest
+# date equals the Winners table. Rounded for the app.
+team_totals_time <- function(grades_time) {
+  grades_time |>
+    summarize(
+      realized_value = sum(realized_value),
+      future_value = sum(future_value),
+      .by = c(team_name, date)
+    ) |>
+    complete(team_name, date, fill = list(realized_value = 0, future_value = 0)) |>
+    transmute(
+      team = team_name,
+      date,
+      realized_value = round(realized_value, 1),
+      future_value = round(future_value, 1)
+    ) |>
+    arrange(team, date)
+}
+
 # a Sleeper time (milliseconds) as a date in Central time
 sleeper_date <- function(ms) {
   as_date(as_datetime(ms / 1000, tz = "America/Chicago"))

@@ -1,18 +1,20 @@
 # Transaction Grades
 # grades each waiver and free agent transaction by the value the team gained and lost,
 # assessed today: realized value added since the transaction plus current future value.
-# Writes the app's transaction tables, marginal_transaction_value.csv (the value of a
-# roster spot, used by Trade Grades and Trade Machine), roster_spot_share.csv (the share of
-# a roster spot's value realized in a season of games, used by Trade Machine), and Data/derived/individual_transactions.csv,
+# Writes the app's transaction tables; to Data/model_output, marginal_transaction_value.csv
+# (the value of a roster spot, used by Trade Grades and Trade Machine) and
+# roster_spot_share.csv (the share of a roster spot's value realized in a season of
+# games, used by Trade Machine); and Data/derived/individual_transactions.csv,
 # transaction_adds.csv, and transaction_moves.csv (used by Fantasy Teams). Also grades
-# each transaction on every past date (transaction_grades_time.csv).
+# each transaction on every past date (transaction_grades_time.csv) and totals each
+# team's transactions on every date (transaction_winners_time.csv).
 
 suppressPackageStartupMessages({
   library("here")
   library("tidyverse")
 })
 
-source(here("Scripts/Over Time Support.R")) # value_over_time()
+source(here("Scripts/Over Time Support.R")) # value_over_time(), team_totals_time()
 
 message("begin computing Transaction Grades...")
 
@@ -278,7 +280,7 @@ future_value_time <- read_csv(
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 )
-season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Data/derived/season_dates.csv"), show_col_types = FALSE)
 
 transaction_dates <- completed_transactions |>
   transmute(transaction_id, transaction_date = sleeper_date(status_updated))
@@ -343,6 +345,11 @@ transaction_grades_time |>
   ) |>
   write_csv(here("Shiny/Saved Files/transaction_grades_time.csv"))
 
+# each team's total from all its transactions on every date (Transaction Winners over Time)
+transaction_grades_time |>
+  team_totals_time() |>
+  write_csv(here("Shiny/Saved Files/transaction_winners_time.csv"))
+
 # dfs to save -------------------------------------------------------------
 
 write_csv(
@@ -353,13 +360,8 @@ write_csv(
 write_csv(top_transactions, here("Shiny/Saved Files/top_transactions.csv"))
 
 write_csv(
-  transaction_comparison,
-  here("Shiny/Saved Files/transaction_comparison.csv")
-)
-
-write_csv(
   marginal_transaction_value,
-  here("Shiny/Saved Files/marginal_transaction_value.csv")
+  here("Data/model_output/marginal_transaction_value.csv")
 )
 
 write_csv(

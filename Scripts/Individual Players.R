@@ -1,7 +1,7 @@
 # Individual Players
 # tables behind the Individual Players page: each valued player's basic info and value to
 # date, his projected value added by season (for the future value chart), and the weekly
-# value added table used across the app
+# value added table used across the app, and the players the app's selectors offer
 suppressPackageStartupMessages({
   library("here")
   library("tidyverse")
@@ -68,9 +68,10 @@ basic_info_df <- player_total_value |>
 write_csv(basic_info_df, here("Shiny/Saved Files/basic_info_df.csv"))
 
 # Projected value added by season ----------------------------------------------
-# one row per player and season with the projection quantiles (sorted, so credible
-# intervals are never inverted) and expected_tva, the mean of the quantiles floored at
-# 0 (a player below replacement would be benched), as future value uses. During the
+# one row per player and season with expected_tva, the mean of the projection quantiles
+# floored at 0 (a player below replacement would be benched), as future value uses, and
+# the quantiles the app's chart shades (2.5, 10, 90, and 97.5; sorted, so the intervals
+# are never inverted). During the
 # season the current season is the realized value added so far plus the projection
 # scaled by the share left (1 - p), the same split future value uses.
 
@@ -102,7 +103,17 @@ plot_future_value_df <- player_simulations |>
       bind_cols(as_tibble(q)) |>
       mutate(expected_tva = expected, season = season)
   }) |>
-  list_rbind()
+  list_rbind() |>
+  select(
+    name,
+    player_id,
+    proj_tva_2.5,
+    proj_tva_10,
+    proj_tva_90,
+    proj_tva_97.5,
+    expected_tva,
+    season
+  )
 
 write_csv(
   plot_future_value_df,
@@ -110,6 +121,16 @@ write_csv(
 )
 
 write_csv(value_added, here("Shiny/Saved Files/value_added.csv"))
+
+# Player selectors --------------------------------------------------------------
+# the players the app's selectors offer (QB, RB, WR, and TE with a future value), by
+# future value, so the first three are where Player Rankings starts
+
+player_total_value |>
+  filter(position %in% c("QB", "WR", "RB", "TE")) |>
+  arrange(desc(future_value)) |>
+  transmute(name, player_id = as.character(player_id)) |>
+  write_csv(here("Shiny/Saved Files/player_choices.csv"))
 
 # Examples (app functions in Shiny/Script Support.R) -----------------------------
 # plot_future_value("4984") # Josh Allen (functions take player_ids)

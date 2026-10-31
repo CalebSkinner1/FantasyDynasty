@@ -34,7 +34,7 @@ grab_team_assets_df <- read_csv(
 users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |>
   select(roster_id, display_name)
 marginal_transaction_value <- read_csv(
-  here("Shiny/Saved Files/marginal_transaction_value.csv"),
+  here("Data/model_output/marginal_transaction_value.csv"),
   show_col_types = FALSE
 )
 # share of a roster spot's value realized in its first 17 weeks (Transaction Grades.R)

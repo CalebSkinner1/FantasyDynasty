@@ -25,7 +25,7 @@ player_info <- read_csv(
   show_col_types = FALSE,
   col_types = cols(player_id = col_character())
 )
-season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Data/derived/season_dates.csv"), show_col_types = FALSE)
 
 ktc_list <- list.files(
   path = here("Data/raw/ktc"),

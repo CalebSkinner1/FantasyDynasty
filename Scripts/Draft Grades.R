@@ -281,7 +281,7 @@ value_added <- read_csv(
   col_types = cols(player_id = col_character())
 ) |>
   select(player_id, season, week, value_added)
-season_dates <- read_csv(here("Shiny/Saved Files/season_dates.csv"), show_col_types = FALSE)
+season_dates <- read_csv(here("Data/derived/season_dates.csv"), show_col_types = FALSE)
 
 drafts_finished <- draft_finished_dates() |>
   transmute(season, draft = if_else(type == "veteran", "initial draft", str_c(season, " rookie draft")), finished)
