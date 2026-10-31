@@ -30,8 +30,8 @@ Puka Nacua,9493
 Malik Nabers,11632
 Tetairoa McMillan,12526
 C.J. Stroud,9758
-Bryce Young,9228
 Jadarian Price,13286
+Bryce Young,9228
 CeeDee Lamb,6786
 Drake London,8112
 Patrick Mahomes,4046
@@ -44,15 +44,15 @@ Jordan Love,6804
 Amon-Ra St. Brown,7547
 Derrick Henry,3198
 Christian McCaffrey,4034
-Chris Olave,8144
 Chase Brown,9224
-Fernando Mendoza,13269
-Parker Washington,9487
+Chris Olave,8144
 Dak Prescott,3294
-Tyler Shough,12545
 Zay Flowers,9997
+Tyler Shough,12545
+Parker Washington,9487
 Jared Goff,3163
 Matthew Golden,12501
+Fernando Mendoza,13269
 Chuba Hubbard,7594
 Luther Burden,12519
 Justin Jefferson,6794
@@ -76,24 +76,24 @@ George Kittle,4217
 Saquon Barkley,4866
 KC Concepcion,13298
 Braelon Allen,11576
-Matthew Stafford,421
 Christian Watson,8167
 Jordyn Tyson,13281
-Omar Cooper Jr.,13276
-Nico Collins,7569
-Blake Corum,11586
+Matthew Stafford,421
 Tee Higgins,6801
+Blake Corum,11586
+Nico Collins,7569
+Omar Cooper Jr.,13276
 Denzel Boston,13346
 Carnell Tate,13279
 Emeka Egbuka,12514
 Josh Jacobs,5850
-Sam Darnold,4943
 Rome Odunze,11620
 Germie Bernard,13274
+Sam Darnold,4943
 Mike Washington Jr.,13305
+Ty Simpson,13275
 J.J. McCarthy,11565
 DeVonta Smith,7525
-Ty Simpson,13275
 Emmett Johnson,13337
 Makai Lemon,13294
 Ladd McConkey,11635
@@ -114,8 +114,8 @@ Kaelon Black,13414
 Terrance Ferguson,12487
 Carson Beck,13272
 Travis Etienne,7543
-Dalton Kincaid,10236
 Jacory Croskey-Merritt,12533
+Dalton Kincaid,10236
 Drew Allar,13289
 Eli Stowers,13349
 Kirk Cousins,1166
@@ -130,8 +130,8 @@ Shedeur Sanders,12524
 Rhamondre Stevenson,7611
 Brenton Strange,9480
 Travis Kelce,1466
-Kyler Murray,5849
 Tank Bigsby,9225
+Kyler Murray,5849
 Kyle Pitts,7553
 A.J. Brown,5859
 Michael Mayer,9482
@@ -142,8 +142,8 @@ Jalen Milroe,12510
 Jordan James,12467
 Tanner McKee,9230
 Geno Smith,1373
-Tyler Allgeier,8132
 Tyjae Spears,9508
+Tyler Allgeier,8132
 Kaytron Allen,13405
 Kimani Vidal,11647
 Gunnar Helm,12502
@@ -157,24 +157,24 @@ Cade Klubnik,13303
 Trevor Etienne,12531
 Antonio Williams,13301
 Elijah Arroyo,12521
-Max Klare,13278
-Rachaad White,8136
 Tony Pollard,5967
 J.K. Dobbins,6806
+Max Klare,13278
+Rachaad White,8136
 Kaleb Johnson,12504
 Darnell Washington,9479
 Oscar Delp,13319
 Raheim Sanders,12472
-DJ Giddens,12471
-Isaiah Davis,11571
-Daniel Jones,5870
 De'Zhaun Stribling,13417
+Isaiah Davis,11571
+DJ Giddens,12471
 Quinn Ewers,12500
 Keon Coleman,11637
 Eli Heidenreich,13423
 Brashard Smith,12455
-Jaydon Blue,12457
+Daniel Jones,5870
 Will Shipley,11577
+Jaydon Blue,12457
 Mac Jones,7527
 Rico Dowdle,7021
 Brian Robinson Jr.,8154
@@ -199,14 +199,13 @@ Jake Ferguson,8110
 Jack Endries,13282
 Zachariah Branch,13320
 Kenny Gainwell,7567
-David Montgomery,5892
 Pat Bryant,12492
+David Montgomery,5892
 Devin Neal,12476
 Audric Estime,11579
-Tyson Bagent,11256
 Will Howard,12511
-Cyrus Allen,13413
 Matt Hibner,13324
+Cyrus Allen,13413
 Chris Rodriguez Jr.,10219
 Malachi Fields,13285
 Chris Bell,13311
@@ -214,6 +213,7 @@ Jack Strand,13602
 Brian Thomas Jr.,11631
 Sean Tucker,9506
 Ted Hurst,13317
+Tyson Bagent,11256
 Sam Roush,13322
 Taylen Green,13306
 Riley Leonard,12470
@@ -224,10 +224,11 @@ Will Kacmarek,13434
 Elijah Sarratt,13268
 Josh Downs,9500
 Tre Harris,12509
+Tre Tucker,10213
 Jaylin Noel,12536
 Adonai Mitchell,11625
 Ben Sinnott,11596
-Tre Tucker,10213
+Troy Franklin,11627
 Elic Ayomanor,12499
 Alec Pierce,8142
 Mitchell Evans,12473
@@ -237,16 +238,17 @@ Theo Johnson,11597
 Mike Evans,2216
 Jalen McMillan,11618
 Bam Knight,8122
+Isaac TeSlaa,12535
 Tanner Koziol,13408
 Malik Washington,11610
 Tory Horton,12497
 Dameon Pierce,8129
 Aaron Jones,4199
-Kayshon Boutte,9504
 Kevin Coleman,13338
-Pat Freiermuth,7600
+Kayshon Boutte,9504
 D.J. Moore,4983
 Marlin Klein,13307
+Pat Freiermuth,7600
 Roman Wilson,11630
 Wan'Dale Robinson,8126
 Davante Adams,2133
@@ -254,11 +256,9 @@ Kyle Williams,12547
 Tyler Huntley,7083
 Dontayvion Wicks,9486
 Chris Brazzell II,13353
-Isaac TeSlaa,12535
 Zavion Thomas,13411
 Tez Johnson,12485
 George Holani,12048
-Troy Franklin,11627
 Justin Fields,7591
 Tyler Goodson,8207
 Dillon Gabriel,12486
@@ -270,14 +270,14 @@ Greg Dulcich,8172
 J'Mari Taylor,13348
 Jalen Royals,12505
 Romeo Doubs,8121
-Khalil Shakir,8134
 Sione Vaki,11729
 Tommy Tremble,7694
+Khalil Shakir,8134
 DeMario Douglas,9501
 Jaleel McLaughlin,11439
 Darius Cooper,13150
-Dallas Goedert,5022
 Jack Bech,12483
+Dallas Goedert,5022
 DK Metcalf,5846
 Corey Kiner,12491
 Dont'e Thornton,12541
@@ -287,8 +287,8 @@ Barion Brown,13533
 Jaylin Lane,12641
 Colby Parkinson,6865
 Ricky Pearsall,11638
-Hunter Henry,3214
 Cole Kmet,6826
+Hunter Henry,3214
 Skyler Bell,13402
 Tua Tagovailoa,6768
 Michael Trigg,13401
@@ -304,7 +304,6 @@ Isiah Pacheco,8205
 Alvin Kamara,4035
 Jam Miller,13403
 Deion Burks,13333
-Tank Dell,9502
 Jake Tonges,8698
 Marvin Mims Jr.,9494
 Cade Stover,11599
@@ -312,6 +311,7 @@ Ryan Flournoy,11783
 Jordan Watkins,12634
 Rashod Bateman,7571
 Brenen Thompson,13380
+Tank Dell,9502
 Spencer Rattler,11562
 Noah Gray,7828
 Chimere Dike,12540
@@ -330,8 +330,8 @@ Devaughn Vele,11834
 Devin Singletary,6130
 Rashid Shaheed,8676
 Cole Payton,13335
-Kyle McCord,12494
 Marcus Mariota,2307
+Kyle McCord,12494
 Jahdae Walker,13079
 Xavier Hutchinson,10218
 Ty Johnson,6039
@@ -344,21 +344,21 @@ Trey Lance,7610
 Charlie Kolar,8127
 Jacob Saylors,11237
 Kendall Milton,11649
-Stefon Diggs,2449
-Luke Altmyer,13314
 Samaje Perine,4147
+Luke Altmyer,13314
+Stefon Diggs,2449
 Devontez Walker,11629
 Colbie Young,13477
 Kalel Mullings,12516
 Phil Mafah,12738
 Frank Gore Jr.,11573
 Treylon Burks,8135
-Kameron Johnson,11994
-Davis Mills,7585
 Jakobi Meyers,5947
+Davis Mills,7585
+Kameron Johnson,11994
 CJ Daniels,13270
-Isaiah Williams,11608
 Dohnte Meyers,13264
+Isaiah Williams,11608
 Jahan Dotson,8119
 Stetson Bennett,10857
 Kenny Pickett,8160
@@ -371,26 +371,26 @@ Sam Howell,8162
 Emari Demercado,11199
 Aaron Rodgers,96
 Malachi Corley,11617
+Deuce Vaughn,9505
 Michael Pittman Jr.,6819
 Luke McCaffrey,11650
 Zach Wilson,7538
 A.J. Dillon,6828
 Dawson Knox,5906
-Deuce Vaughn,9505
 Noah Fant,5857
 Mike Gesicki,4993
-Najee Harris,7528
-Tyler Higbee,3271
 KeAndre Lambert-Smith,12670
+Tyler Higbee,3271
 Jalen Nailor,8180
 Deebo Samuel Sr.,5872
+Najee Harris,7528
 Elijah Mitchell,7561
 John Metchie III,8147
 Zach Ertz,1339
 Daniel Bellinger,8225
 Trey Palmer,9492
-Khalil Herbert,7608
 Darren Waller,2505
+Khalil Herbert,7608
 Terry McLaurin,5927
 Javon Baker,11645
 Chris Godwin,4037
@@ -398,11 +398,11 @@ Evan Engram,4066
 Dylan Laube,11574
 James Conner,4137
 Joshua Palmer,7670
-Austin Ekeler,4663
 Gardner Minshew,6011
+Austin Ekeler,4663
 Jordan Whittington,11623
-Dyami Brown,7587
 Michael Carter,7607
+Dyami Brown,7587
 David Njoku,4033
 Jonathan Mingo,10225
 Courtland Sutton,5045
@@ -415,8 +415,8 @@ Jauan Jennings,7049
 Andrei Iosivas,10226
 Brevin Jordan,7568
 Tutu Atwell,7562
-Elijah Moore,7596
 Xavier Restrepo,12520
+Elijah Moore,7596
 Jerome Ford,8143
 Jeremy Ruckert,8145
 Jalen Tolbert,8117
@@ -449,8 +449,8 @@ Tyler Johnson,6960
 Jake Bobo,10867
 Mack Hollins,4177
 Tyreek Hill,3321
-Gabe Davis,6943
 Lil'Jordan Humphrey,5938
+Gabe Davis,6943
 KaVontae Turpin,8917
 Tyrell Shavers,11377
 Demarcus Robinson,3286
@@ -459,9 +459,9 @@ Calvin Ridley,4981
 Isaiah Hodgins,6920
 Darius Slayton,6149
 Jalen Reagor,6798
-Derius Davis,10234
 Devin Duvernay,6847
 Mason Tipton,11895
+Derius Davis,10234
 Brandin Cooks,2197
 Salvon Ahmed,6918
 Michael Gallup,5038
