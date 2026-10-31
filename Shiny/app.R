@@ -95,6 +95,96 @@ runners_up <- function(teams, values) {
   tagList(lines[1], tags$br(), lines[2])
 }
 
+# Current Matchups pieces ---------------------------------------------------------
+
+# a percent on a matchup card: a dash when no simulation had the result, and odds that
+# round to 0 or 100 but aren't are shown as <1% or >99%
+pct_or_dash <- function(x) {
+  case_when(
+    is.na(x) ~ "–",
+    x > 0 & x < 1 ~ "<1%",
+    x > 99 & x < 100 ~ ">99%",
+    .default = pct(x)
+  )
+}
+
+# a team name that opens its Fantasy Teams page (see the script in the page head)
+team_link <- function(team) {
+  tags$a(class = "team-link", href = "#", `data-id` = team, team)
+}
+
+# one game (its two rows of current_matchups): each team's chance to win from the model
+# (the numbers and the bar, in the teams' colors) and from Elo, and its playoff odds with
+# a win, now, and with a loss
+matchup_card <- function(game) {
+  ta <- game[game$side == "a", ]
+  tb <- game[game$side == "b", ]
+  colors <- team_colors()
+  odds_row <- function(t) {
+    tags$tr(
+      tags$td(team_link(t$team)),
+      tags$td(pct_or_dash(t$playoffs_win)),
+      tags$td(pct_or_dash(t$playoffs_now)),
+      tags$td(pct_or_dash(t$playoffs_loss))
+    )
+  }
+
+  div(
+    class = "matchup-card",
+    div(
+      class = "matchup-teams",
+      div(team_link(ta$team), span(class = "matchup-pct", pct(ta$model_win))),
+      div(span(class = "matchup-pct", pct(tb$model_win)), team_link(tb$team))
+    ),
+    div(
+      class = "matchup-bar",
+      div(
+        style = str_c(
+          "width: ",
+          ta$model_win,
+          "%; background: ",
+          colors[[ta$team]],
+          ";"
+        )
+      ),
+      div(style = str_c("flex: 1; background: ", colors[[tb$team]], ";"))
+    ),
+    div(
+      class = "matchup-elo",
+      str_c("Elo: ", pct(ta$elo_win), " to ", pct(tb$elo_win))
+    ),
+    tags$table(
+      class = "matchup-odds",
+      tags$thead(tags$tr(
+        tags$th("Playoff odds"),
+        tags$th("With a win"),
+        tags$th("Now"),
+        tags$th("With a loss")
+      )),
+      tags$tbody(odds_row(ta), odds_row(tb))
+    )
+  )
+}
+
+# a game's Playoff Machine pick: either team, or undecided
+whatif_picker <- function(game) {
+  div(
+    class = "whatif-game",
+    radioButtons(
+      inputId = str_c("whatif_", game$game[1]),
+      label = NULL,
+      choiceNames = list(
+        game$team[game$side == "a"],
+        "Undecided",
+        game$team[game$side == "b"]
+      ),
+      choiceValues = list("a", "either", "b"),
+      selected = "either",
+      inline = TRUE
+    )
+  )
+}
+
 ui <- dashboardPage(
   title = "Baylor Seniors Dynasty League",
   freshTheme = app_theme,
@@ -120,7 +210,8 @@ ui <- dashboardPage(
         startExpanded = TRUE,
         menuSubItem("Individual Players", tabName = "players"),
         menuSubItem("Fantasy Teams", tabName = "teams"),
-        menuSubItem("Team Rankings", tabName = "team_rankings")
+        menuSubItem("Team Rankings", tabName = "team_rankings"),
+        menuSubItem("Current Matchups", tabName = "current_matchups")
       ),
 
       menuItem(
@@ -192,12 +283,9 @@ ui <- dashboardPage(
         /* home page: headline tiles and Explore the League */
         .home-tiles {
           display: grid;
-          grid-template-columns: repeat(5, minmax(0, 1fr));
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 0.75rem;
           margin: 0.75rem 0 1.5rem;
-        }
-        @media (max-width: 1200px) {
-          .home-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
         @media (max-width: 768px) {
           .home-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -211,7 +299,7 @@ ui <- dashboardPage(
         .explore-tagline { color: #6c757d; margin-bottom: 0.5rem; }
         .explore-grid {
           display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 0.75rem;
         }
         @media (max-width: 768px) {
@@ -241,6 +329,59 @@ ui <- dashboardPage(
           justify-content: center;
         }
         .explore-title { font-weight: 600; color: #212529; }
+
+        /* Current Matchups: game cards and Playoff Machine picks */
+        .matchup-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+          gap: 0.75rem;
+        }
+        .matchup-card {
+          background: #ffffff;
+          border: 1px solid #e3e6ea;
+          border-radius: 0.35rem;
+          padding: 0.75rem 0.9rem;
+        }
+        .matchup-teams {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 0.5rem;
+          font-weight: 600;
+        }
+        .matchup-teams > div { display: flex; align-items: baseline; min-width: 0; }
+        .matchup-teams a {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .matchup-pct { font-size: 1.25rem; margin: 0 0.4rem; color: #212529; }
+        .matchup-bar {
+          display: flex;
+          gap: 2px;
+          height: 8px;
+          border-radius: 4px;
+          overflow: hidden;
+          margin: 0.35rem 0;
+        }
+        .matchup-elo { font-size: 0.8rem; color: #6c757d; margin-bottom: 0.5rem; }
+        table.matchup-odds { width: 100%; font-size: 0.85rem; }
+        table.matchup-odds th { font-weight: 600; color: #6c757d; text-align: right; }
+        table.matchup-odds td { text-align: right; padding-top: 0.15rem; }
+        table.matchup-odds th:first-child, table.matchup-odds td:first-child { text-align: left; }
+        .whatif-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(390px, 100%), 1fr));
+          gap: 0.5rem 0.75rem;
+          margin-bottom: 0.75rem;
+        }
+        .whatif-game {
+          background: #ffffff;
+          border: 1px solid #e3e6ea;
+          border-radius: 0.35rem;
+          padding: 0.4rem 0.7rem 0;
+        }
+        .whatif-game .form-group { margin-bottom: 0.4rem; }
         .explore-text { font-size: 0.9rem; color: #6c757d; }
         "
       )),
@@ -254,6 +395,18 @@ ui <- dashboardPage(
         $(document).on('shown.bs.tab collapsed.lte.pushmenu shown.lte.pushmenu', function() {
           // DataTables loads with the first table, so it may not exist yet
           if ($.fn.dataTable) $.fn.dataTable.tables({visible: true, api: true}).columns.adjust();
+        });
+        // an output in a .keep-height box keeps its height while it redraws, so the page
+        // doesn't shrink for a moment and scroll up (the Playoff Machine grid)
+        $(document).on('shiny:recalculating', '.keep-height .shiny-bound-output', function() {
+          var box = this.parentElement;
+          clearTimeout(box.keepTimer);
+          if (!box.style.minHeight) box.style.minHeight = box.offsetHeight + 'px';
+        });
+        $(document).on('shiny:value', '.keep-height .shiny-bound-output', function() {
+          var box = this.parentElement;
+          clearTimeout(box.keepTimer);
+          box.keepTimer = setTimeout(function() { box.style.minHeight = ''; }, 1000);
         });
         $(document).on('init.dt', function(e, settings) {
           setTimeout(function() { new $.fn.dataTable.Api(settings).columns.adjust(); }, 0);
@@ -292,6 +445,25 @@ ui <- dashboardPage(
               "future_standings"
             )
           },
+          # this week's game with the most at stake in the playoff race, and each team's
+          # chance to win (the model's)
+          if (nrow(home_matchup) > 0) {
+            home_tile(
+              str_c("Matchup of the Week"),
+              str_c(home_matchup$team[1], " vs. ", home_matchup$team[2]),
+              tagList(
+                str_c(
+                  home_matchup$team[1],
+                  " ",
+                  pct(home_matchup$model_win[1])
+                ),
+                tags$br(),
+                str_c(home_matchup$team[2], " ", pct(home_matchup$model_win[2]))
+              ),
+              "tab-link",
+              "current_matchups"
+            )
+          },
           if (nrow(home_elo) > 0) {
             home_tile(
               "Top Elo Teams",
@@ -299,6 +471,20 @@ ui <- dashboardPage(
               runners_up(home_elo$team, round(home_elo$elo)),
               "tab-link",
               "team_rankings"
+            )
+          },
+          if (nrow(home_trade) > 0) {
+            home_tile(
+              "Latest Trade",
+              str_c(
+                home_trade$team_name[1],
+                " ",
+                if_else(home_trade$total_value[1] >= 0, "+", ""),
+                round(home_trade$total_value[1])
+              ),
+              str_c("winning the ", home_trade$trade_details[1], " so far"),
+              "trade-link",
+              home_trade$trade_id[1]
             )
           },
           if (nrow(home_player) > 0) {
@@ -318,20 +504,6 @@ ui <- dashboardPage(
               home_player$player_id[1]
             )
           },
-          if (nrow(home_trade) > 0) {
-            home_tile(
-              "Latest Trade",
-              str_c(
-                home_trade$team_name[1],
-                " ",
-                if_else(home_trade$total_value[1] >= 0, "+", ""),
-                round(home_trade$total_value[1])
-              ),
-              str_c("winning the ", home_trade$trade_details[1], " so far"),
-              "trade-link",
-              home_trade$trade_id[1]
-            )
-          },
           home_tile(
             "Trade Machine",
             "Build a Trade",
@@ -348,7 +520,7 @@ ui <- dashboardPage(
         explore_row(
           "Lookup",
           "magnifying-glass",
-          "One player, one roster, or the whole league at a glance.",
+          "One player, one roster, this week's games, or the whole league at a glance.",
           explore_card(
             "players",
             "Individual Players",
@@ -366,6 +538,12 @@ ui <- dashboardPage(
             "Team Rankings",
             "ranking-star",
             "The league ordered by Elo rating and by the total future value of each team's assets."
+          ),
+          explore_card(
+            "current_matchups",
+            "Current Matchups",
+            "calendar-week",
+            "This week's games, each team's chances, and what a win or loss means for the playoffs."
           )
         ),
         explore_row(
@@ -1153,6 +1331,62 @@ ui <- dashboardPage(
             plotlyOutput("comparable_future_value")
           )
         )
+      ),
+
+      tabItem(
+        tabName = "current_matchups",
+        h2("Current Matchups"),
+        if (nrow(current_matchups) == 0) {
+          panel(
+            title = "No Games This Week",
+            p(
+              "There are no regular-season games left this season. Future Standings has the
+              championship odds, and the matchups return with Week 1."
+            )
+          )
+        } else {
+          tagList(
+            panel(
+              title = str_c(
+                "Week ",
+                current_matchups$week[1],
+                " Matchups"
+              ),
+              p(
+                "This week's games, ordered by impact on the playoff race. Win probabilities come
+                from the Future Standings and Elo models. Playoff odds are derived from ",
+                format(
+                  sum(matchup_scenarios$n) / nrow(users),
+                  big.mark = ",",
+                  scientific = FALSE
+                ),
+                " simulations. This does not update as games are played and players accrue points."
+              ),
+              div(
+                class = "matchup-grid",
+                map(unique(current_matchups$game), \(g) {
+                  matchup_card(current_matchups[current_matchups$game == g, ])
+                })
+              )
+            ),
+            panel(
+              title = "Playoff Machine",
+              p(
+                "Pick winners for this week's games to see how the season may finish."
+              ),
+              div(
+                class = "whatif-grid",
+                map(unique(current_matchups$game), \(g) {
+                  whatif_picker(current_matchups[current_matchups$game == g, ])
+                })
+              ),
+              actionButton("whatif_clear", "Clear picks", class = "btn-sm"),
+              uiOutput("whatif_note"),
+              # keeps its height while it redraws (see the script in the page head)
+              div(class = "keep-height", DTOutput("whatif_finish"))
+            )
+          )
+        }
       ),
 
       tabItem(
@@ -2395,6 +2629,72 @@ server <- function(input, output, session) {
       comparable_players(player_total_value, input$enter_player)
   }) |>
     bindCache(input$enter_player)
+
+  # Reactivity for Current Matchups
+
+  # the simulations matching the Playoff Machine picks (each simulation has a row per team)
+  whatif_scenarios <- reactive({
+    keep <- rep(TRUE, nrow(matchup_scenarios))
+    for (g in unique(current_matchups$game)) {
+      pick <- input[[str_c("whatif_", g)]]
+      if (is.null(pick) || pick == "either") {
+        next
+      }
+      a_won <- bitwAnd(matchup_scenarios$scenario, 2L^(g - 1)) > 0
+      keep <- keep & (if (pick == "a") a_won else !a_won)
+    }
+    matchup_scenarios[keep, ]
+  })
+
+  output$whatif_note <- renderUI({
+    n_total <- sum(matchup_scenarios$n) / nrow(users)
+    n_match <- sum(whatif_scenarios()$n) / nrow(users)
+    p(
+      style = "margin-top: 0.75rem;",
+      str_c(
+        "Based on ",
+        format(n_match, big.mark = ",", scientific = FALSE),
+        " of ",
+        format(n_total, big.mark = ",", scientific = FALSE),
+        " simulations (",
+        round(100 * n_match / n_total, 1),
+        "%)."
+      ),
+      if (n_match > 0 && n_match < 2000) {
+        " Few simulations have all of these results, so treat these odds as rough."
+      }
+    )
+  })
+
+  output$whatif_finish <- renderDT({
+    df <- whatif_scenarios()
+    n_match <- sum(df$n) / nrow(users)
+    shiny::validate(shiny::need(
+      n_match > 0,
+      "No simulation had all of these results."
+    ))
+
+    df |>
+      summarize(n = sum(n), .by = c(team, finish)) |>
+      complete(
+        team = users$display_name,
+        finish = seq_len(nrow(users)),
+        fill = list(n = 0)
+      ) |>
+      transmute(
+        season = current_matchups$season[1],
+        team,
+        finish,
+        probability = round(100 * n / n_match, 1)
+      ) |>
+      finish_grid(current_matchups$season[1])
+  })
+
+  observeEvent(input$whatif_clear, {
+    for (g in unique(current_matchups$game)) {
+      updateRadioButtons(session, str_c("whatif_", g), selected = "either")
+    }
+  })
 
   # Reactivity for Page 9
 

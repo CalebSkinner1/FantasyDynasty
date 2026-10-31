@@ -17,28 +17,13 @@ users <- read_csv(here("Shiny/Saved Files/users.csv"), show_col_types = FALSE) |
   select(roster_id, display_name)
 
 # Completed weeks ---------------------------------------------------------------
-# a fantasy week is complete once every NFL game of that week has a final score, so a run
-# in the middle of a week never scores games still in progress. If the NFL schedule
-# can't be loaded, every week with points counts as complete.
+# a fantasy week is complete once every NFL game of that week has a final score
+# (Scraping.R decides), so a run in the middle of a week never scores games in progress
 
-nfl_weeks <- tryCatch(
-  nflreadr::load_schedules(unique(matchups_table$season)) |>
-    filter(game_type == "REG") |>
-    summarize(complete = all(!is.na(home_score)), .by = c(season, week)),
-  error = function(e) {
-    warning(
-      "NFL schedule unavailable, so every week with points counts as complete: ",
-      conditionMessage(e)
-    )
-    NULL
-  }
+complete_weeks <- read_csv(
+  here("Data/derived/completed_weeks.csv"),
+  show_col_types = FALSE
 )
-
-complete_weeks <- if (is.null(nfl_weeks)) {
-  matchups_table |> distinct(season, week)
-} else {
-  nfl_weeks |> filter(complete) |> select(season, week)
-}
 
 # Records -----------------------------------------------------------------------
 

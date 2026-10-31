@@ -11039,7 +11039,7 @@ roster_id,name,player_id,position,week,sleeper_points,value_added,type,season,pr
 2,Bam Knight,8122,RB,7,9.3,-1.3315476190476154,starter,2026,7.67,SFOControl
 2,Isaiah Likely,8131,TE,7,3.2,-0.5251190476190475,starter,2026,12.87,SFOControl
 2,Brock Purdy,8183,QB,7,14.02,1.4598968253968252,starter,2026,20.33,SFOControl
-2,San Francisco 49ers,SF,DST,7,-1,-5.407936507936508,starter,2026,6.37,SFOControl
+2,San Francisco 49ers,SF,DST,7,0,-4.407936507936508,starter,2026,6.37,SFOControl
 12,MarShawn Lloyd,11581,RB,7,5.5,-5.131547619047616,starter,2026,5.02,TheJandyStock
 12,Harold Fannin,12506,TE,7,13.1,9.374880952380952,starter,2026,11,TheJandyStock
 12,Tyler Shough,12545,QB,7,14.82,2.259896825396826,starter,2026,15.85,TheJandyStock
@@ -11112,7 +11112,7 @@ roster_id,name,player_id,position,week,sleeper_points,value_added,type,season,pr
 5,New Orleans Saints,NO,DST,7,4,-0.40793650793650826,starter,2026,6.19,ngernenz
 8,Michael Wilson,10232,WR,7,10.6,0.28777777777777835,starter,2026,12.58,obiwanginobiIi
 8,Jake Bates,11539,K,7,9,3.3285714285714283,starter,2026,8.56,obiwanginobiIi
-8,Bo Nix,11563,QB,7,26.28,13.719896825396829,starter,2026,19.38,obiwanginobiIi
+8,Bo Nix,11563,QB,7,26.18,13.619896825396824,starter,2026,19.38,obiwanginobiIi
 8,Luther Burden,12519,WR,7,23.7,13.387777777777778,starter,2026,12.53,obiwanginobiIi
 8,Carnell Tate,13279,WR,7,9.9,-0.41222222222222094,starter,2026,12.41,obiwanginobiIi
 8,Jacoby Brissett,3257,QB,7,16.48,3.919896825396826,starter,2026,14.04,obiwanginobiIi

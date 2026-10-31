@@ -208,6 +208,69 @@ nfl_weeks_with_stats <- if (nrow(box_score_off_current) > 0) {
   numeric()
 }
 
+# Season dates and completed weeks --------------------------------------------
+# season dates: the first game of week 1 to the last game of the final fantasy week.
+# completed weeks: a fantasy week counts once every NFL game in it is final, so a run in
+# the middle of a week (or of a game) never counts a week in progress. A week also counts
+# a week after its Tuesday even if a game is still unscored (a canceled game). Without the
+# NFL schedule, a week counts from the Tuesday after it, when its Monday game is over.
+# Earlier seasons are complete. Written to Data/derived/completed_weeks.csv (season, week)
+# for the projections below, Player Value Added.R, and Matchups.R.
+
+nfl_schedule <- tryCatch(
+  nflreadr::load_schedules(league_seasons) |>
+    filter(game_type == "REG") |>
+    mutate(gameday = as.Date(gameday)),
+  error = function(e) {
+    warning(
+      "NFL schedule unavailable, keeping saved season dates and counting weeks as ",
+      "complete from the Tuesday after them: ",
+      conditionMessage(e)
+    )
+    NULL
+  }
+)
+
+season_dates <- if (is.null(nfl_schedule)) {
+  read_csv(here("Data/derived/season_dates.csv"), show_col_types = FALSE)
+} else {
+  nfl_schedule |>
+    summarize(
+      season_start = min(gameday),
+      season_end = max(gameday[week == max(league_weeks)]),
+      .by = season
+    ) |>
+    arrange(season) |>
+    select(season_start, season_end)
+}
+write_csv(season_dates, here("Data/derived/season_dates.csv"))
+
+# the Tuesday after each fantasy week this season (week 1's is the first Tuesday after
+# the opener, season_start)
+current_start <- season_dates$season_start[year(season_dates$season_start) == current_season]
+current_completed <- if (length(current_start) == 1) {
+  week_tuesday <- current_start + (2 - wday(current_start)) %% 7 + 1 + 7 * (league_weeks - 1)
+  final_weeks <- if (is.null(nfl_schedule)) {
+    numeric()
+  } else {
+    nfl_schedule |>
+      filter(season == current_season) |>
+      summarize(final = all(!is.na(result)), .by = week) |>
+      filter(final) |>
+      pull(week)
+  }
+  grace <- if (is.null(nfl_schedule)) 0 else 7
+  league_weeks[league_weeks %in% final_weeks | today() >= week_tuesday + grace]
+} else {
+  numeric() # this season's schedule isn't out yet
+}
+
+completed_weeks <- bind_rows(
+  expand_grid(season = league_seasons[league_seasons < current_season], week = league_weeks),
+  tibble(season = current_season, week = current_completed)
+)
+write_csv(completed_weeks, here("Data/derived/completed_weeks.csv"))
+
 # Sleeper API ----------------------------------------------------
 # https://docs.sleeper.com
 
@@ -746,8 +809,9 @@ write_csv(future_draft_picks, here("Data/derived/future_draft_picks.csv"))
 # have projected points. (Through week 5 of 2026 the files hold FFToday projections,
 # which have no player_id and rank K/DST; source = NA or "fftoday".)
 
-# only fantasy weeks with box scores that are not already saved (past projections
-# don't change). Nothing is scraped before week 1.
+# only completed fantasy weeks that are not already saved (past projections don't
+# change), so a week's projections are saved after its last game, with every injury
+# update in them. Nothing is scraped before week 1.
 proj_path <- here(str_c(
   "Data/raw/projections/projections",
   current_season %% 100,
@@ -765,7 +829,7 @@ existing <- if (file.exists(proj_path)) {
   )
 }
 
-weeks_needed <- intersect(nfl_weeks_with_stats, league_weeks) |>
+weeks_needed <- intersect(nfl_weeks_with_stats, current_completed) |>
   setdiff(existing$week)
 
 # minimum players per position for a scraped week to be saved (bye weeks included)
@@ -1007,30 +1071,6 @@ if (ktc_players >= 0.99 * ktc_expected) {
     col_types = cols(player_id = col_character())
   )
 }
-
-# Season dates --------------------------------------------------------------
-# first game of week 1 to the last game of the final fantasy week
-
-season_dates <- tryCatch(
-  nflreadr::load_schedules(league_seasons) |>
-    filter(game_type == "REG") |>
-    mutate(gameday = as.Date(gameday)) |>
-    summarize(
-      season_start = min(gameday),
-      season_end = max(gameday[week == max(league_weeks)]),
-      .by = season
-    ) |>
-    arrange(season) |>
-    select(season_start, season_end),
-  error = function(e) {
-    warning(
-      "NFL schedule unavailable, keeping saved season dates: ",
-      conditionMessage(e)
-    )
-    read_csv(here("Data/derived/season_dates.csv"), show_col_types = FALSE)
-  }
-)
-write_csv(season_dates, here("Data/derived/season_dates.csv"))
 
 # Rosters and picks over time -----------------------------------------------
 # every team's roster and draft picks on each KTC date (as of the end of that day, Central

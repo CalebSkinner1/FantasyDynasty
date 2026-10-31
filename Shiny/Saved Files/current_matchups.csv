@@ -1,0 +1,13 @@
+season,week,game,side,team,opponent,model_win,elo_win,playoffs_now,playoffs_win,playoffs_loss,stakes
+2026,8,3,a,joeburrowmvp,obiwanginobiIi,61.2,66.1,76.4,87.8,58.4,53.8
+2026,8,3,b,obiwanginobiIi,joeburrowmvp,38.8,33.9,19.3,34.2,9.8,53.8
+2026,8,5,a,Arvs,akondratieff,55.4,77.5,57.9,71.1,41.6,34.7
+2026,8,5,b,akondratieff,Arvs,44.6,22.5,2.7,5.5,0.3,34.7
+2026,8,4,a,SFOControl,Gretsch0401,54.8,41.2,29.6,41.1,15.8,33.3
+2026,8,4,b,Gretsch0401,SFOControl,45.2,58.8,4.8,9.2,1.2,33.3
+2026,8,6,a,jzeigboi,TheJandyStock,53,76.2,95.3,98.8,91.4,25.6
+2026,8,6,b,TheJandyStock,jzeigboi,47,23.8,16.4,26,7.8,25.6
+2026,8,1,a,caskinner,ngernenz,76.9,86.8,99.3,99.8,97.7,6.1
+2026,8,1,b,ngernenz,caskinner,23.1,13.2,1.7,4.8,0.8,6.1
+2026,8,2,a,lukestip,ElatedBroncosFan,46.9,29.1,97.9,99.6,96.4,5.7
+2026,8,2,b,ElatedBroncosFan,lukestip,53.1,70.9,98.6,99.8,97.3,5.7

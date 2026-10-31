@@ -15,7 +15,7 @@
 # with FLEX replacement.
 #
 # Inputs (written by Data Manipulation/Scraping.R, which must run first):
-#   Data/raw/sleeper/{matchups,league,stats_points}_<season>.rds
+#   Data/raw/sleeper/{matchups,league,stats_points}_<season>.rds, Data/derived/completed_weeks.csv
 #   Data/raw/projections/projections<yy>.csv, Data/raw/player_info.csv
 #   Data/raw/box_scores/box_score_off<yy>.csv, Data/raw/box_scores/box_score_def<yy>.csv (fallback scoring only)
 # Outputs:
@@ -164,36 +164,26 @@ rostered <- map(
 ) |>
   bind_rows()
 
-# only count weeks in which every NFL game is final (guards against a mid-week run)
-completed_weeks <- tryCatch(
-  nflreadr::load_schedules(current_season) |>
-    filter(game_type == "REG") |>
-    summarize(done = all(!is.na(result)), .by = week) |>
-    filter(done) |>
-    pull(week),
-  error = function(e) {
-    warning(
-      "Could not load the NFL schedule, so every week with fantasy points ",
-      "is treated as complete: ",
-      conditionMessage(e)
-    )
-    NULL
-  }
-)
+# only count completed weeks, when every NFL game is final (Scraping.R decides, so a run in
+# the middle of a week or a game never counts that week)
+completed_weeks <- read_csv(
+  here("Data/derived/completed_weeks.csv"),
+  show_col_types = FALSE
+) |>
+  filter(season == current_season) |>
+  pull(week)
 
-if (!is.null(completed_weeks)) {
-  in_progress <- rostered |>
-    filter(season == current_season, week %!in% completed_weeks) |>
-    distinct(week) |>
-    pull(week)
+in_progress <- rostered |>
+  filter(season == current_season, week %!in% completed_weeks) |>
+  distinct(week) |>
+  pull(week)
 
-  if (length(in_progress) > 0) {
-    message("skipping week(s) still in progress: ", str_flatten_comma(in_progress))
-  }
-
-  rostered <- rostered |>
-    filter(season < current_season | week %in% completed_weeks)
+if (length(in_progress) > 0) {
+  message("skipping week(s) not complete: ", str_flatten_comma(in_progress))
 }
+
+rostered <- rostered |>
+  filter(season < current_season | week %in% completed_weeks)
 
 rostered <- rostered |>
   left_join(player_lookup, by = join_by(player_id))

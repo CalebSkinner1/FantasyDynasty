@@ -75,12 +75,18 @@ compile_training_data <- function(
 # Future value blends two simulations so it never jumps at a season boundary:
 #   current path: starts at the current season s
 #   next path:    starts at season s + 1
-# with p = share of season s elapsed (p = 1 throughout the offseason),
+# with p = share of season s played (p = 1 throughout the offseason),
 #   FV = (1 - p) * sum_{j=0..7} d^(j - p) * current_{s+j}
 #        + p     * sum_{j=1..8} d^(j - p) * next_{s+j}
 # Each season uses a player's age at that season's start, so nobody ages within a
 # year. At p = 1 the value equals the offseason value, which has no time terms, and
 # the next season's current path at p = 0 is exactly this season's next path.
+#
+# p counts whole weeks: the share of the season's fantasy weeks completed by date, where a
+# week (Thursday to Monday) counts from the Tuesday after it. That is when its value added
+# is realized (Player Value Added.R counts only complete weeks), so realized plus future
+# value doesn't dip in the middle of a week, and a week's value moves from future to
+# realized at once.
 
 season_context <- function(date, season_dates) {
   sd <- season_dates |>
@@ -108,8 +114,13 @@ season_context <- function(date, season_dates) {
 
   if (nrow(in_season) > 0) {
     season <- in_season$season[[1]]
-    p <- as.numeric(date - in_season$season_start[[1]]) /
-      as.numeric(in_season$season_end[[1]] - in_season$season_start[[1]])
+    start <- in_season$season_start[[1]]
+    # weeks in the season: season_end is the last game of the final fantasy week
+    n_weeks <- floor(as.numeric(in_season$season_end[[1]] - start) / 7) + 1
+    # weeks whose Tuesday has come (week 1's is the first Tuesday after the opener)
+    first_tuesday <- start + (2 - wday(start)) %% 7 + 1
+    weeks_done <- max(floor(as.numeric(date - first_tuesday) / 7) + 1, 0)
+    p <- weeks_done / n_weeks
   } else {
     # offseason (or preseason): the last finished season is fully elapsed
     finished <- sd |> filter(season_end < date)

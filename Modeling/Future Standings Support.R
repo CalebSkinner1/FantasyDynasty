@@ -78,8 +78,11 @@ fit_points_model <- function(matchups_table, replacement_levels, fmt) {
     summarize(base = mean(lineup_replacement), .by = season) |>
     arrange(season)
 
-  # sigma: pooled within team-season standard deviation of regular-season scores
+  # sigma: pooled within team-season standard deviation of regular-season scores, over
+  # completed weeks only (the weeks with replacement levels), so a run in the middle of a
+  # week leaves out its partial scores
   sigma <- matchups_table |>
+    semi_join(distinct(replacement_levels, season, week), by = join_by(season, week)) |>
     filter(week < fmt$playoff_week_start, points != 0) |>
     mutate(dev = points - mean(points), .by = c(season, roster_id)) |>
     summarize(
@@ -114,6 +117,7 @@ report_points_model <- function(model, matchups_table, va, fmt, n_top = 12) {
     count(season, name = "weeks")
 
   check <- matchups_table |>
+    semi_join(distinct(va, season, week), by = join_by(season, week)) |>
     filter(week < fmt$playoff_week_start, points != 0) |>
     summarize(points = mean(points), .by = c(season, roster_id)) |>
     inner_join(team_va, by = join_by(season, roster_id)) |>
@@ -172,8 +176,10 @@ unplayed_schedule <- function(schedule) {
 }
 
 # weeks of a season finished by the end of date: Player Value Added.R counted the week
-# (which guards against a mid-week run) and its last game, on Monday, was by then (the NFL
-# week runs Thursday to Monday, and season_start is the Thursday of week 1)
+# (only complete weeks) and the Tuesday after it, when its Monday game is over, had come
+# (week 1's Tuesday is the first after the opener, season_start). The same rule sets the
+# share of the season played (season_context()) and the realized value over time
+# (Scripts/Over Time Support.R).
 completed_weeks_on <- function(va, season_dates, yr, date) {
   start <- season_dates$season_start[year(season_dates$season_start) == yr]
   if (length(start) != 1) {
@@ -182,7 +188,7 @@ completed_weeks_on <- function(va, season_dates, yr, date) {
   va |>
     filter(season == yr) |>
     distinct(week) |>
-    filter(start + 7 * (week - 1) + 4 <= date) |>
+    filter(start + (2 - wday(start)) %% 7 + 1 + 7 * (week - 1) <= date) |>
     pull(week)
 }
 
@@ -274,8 +280,9 @@ sample_team_va <- function(values, owners, num_teams, n_top = 12) {
 
 # season simulation --------------------------------------------------------
 
-# plays the unplayed games of one season; returns final rank and bye by roster_id
-simulate_season <- function(schedule, team_va, base, sigma, weeks, fmt) {
+# plays the unplayed games of one season; returns final rank and bye by roster_id, and
+# with watch_week, whether team a won each regular-season game that week (in schedule order)
+simulate_season <- function(schedule, team_va, base, sigma, weeks, fmt, watch_week = NULL) {
   n <- fmt$num_teams
   mu <- base + team_va / weeks
 
@@ -329,7 +336,11 @@ simulate_season <- function(schedule, team_va, base, sigma, weeks, fmt) {
   rank[final_order] <- seq_len(n)
   bye <- logical(n)
   bye[seed[1:2]] <- TRUE
-  list(rank = rank, bye = bye)
+  out <- list(rank = rank, bye = bye)
+  if (!is.null(watch_week)) {
+    out$a_won <- (a_points > b_points)[reg$week == watch_week]
+  }
+  out
 }
 
 # draft order (indexed by the original team) from a season's final ranks
@@ -359,7 +370,8 @@ simulate_future <- function(inputs) {
       inputs$base[i],
       model$sigma,
       model$weeks,
-      fmt
+      fmt,
+      watch_week = if (i == 1) inputs$watch_week
     )
     orders[[as.character(seasons[i] + 1)]] <- draft_order_from_rank(results[[i]]$rank, fmt)
   }
@@ -411,6 +423,20 @@ future_standings_at <- function(
   n_years = 3,
   n_top = 12
 ) {
+  inputs <- standings_inputs(date, state, sims, league, n_years, n_top)
+
+  results <- future_map(
+    seq_len(n_sims),
+    \(i) simulate_future(inputs),
+    .options = furrr_options(seed = seed)
+  )
+
+  summarize_standings(results, inputs$seasons, inputs$fmt)
+}
+
+# everything simulate_future() needs for the league as it stood at the end of date (see
+# future_standings_at())
+standings_inputs <- function(date, state, sims, league, n_years, n_top) {
   seasons <- as.numeric(names(sims))[seq_len(n_years)]
   fmt <- league_format_for(seasons[1])
 
@@ -435,7 +461,7 @@ future_standings_at <- function(
 
   completed_weeks <- completed_weeks_on(league$va, league$season_dates, seasons[1], date)
 
-  inputs <- list(
+  list(
     seasons = seasons,
     fmt = fmt,
     model = league$model,
@@ -447,14 +473,113 @@ future_standings_at <- function(
     rookie = league$rookie,
     orders = orders
   )
+}
 
-  results <- future_map(
-    seq_len(n_sims),
-    \(i) simulate_future(inputs),
+# the first simulated season ---------------------------------------------------
+
+# the first simulated season alone (the season under way, or the next one in the
+# offseason), simulated n_sims times as the league stood at the end of date: its odds
+# (more precise than future_standings_at()'s, which Future Standings.R keeps for the later
+# seasons) and, for the Current Matchups page, the week being played and how the season
+# finishes after each combination of that week's results. The week is the first
+# regular-season week not finished by date; there is none in the playoffs or the
+# offseason. The simulations run in chunks that each return counts, so memory stays small.
+# A scenario numbers a combination of results: bit j (from 0) is 1 when team a won game
+# j + 1 (with no week, there is one scenario, 0). Returns
+#   standings  as future_standings_at() returns, for the first season only
+#   games      season, week, game, a, b (roster_ids), a_win (share of simulations a won);
+#              NULL with no week
+#   scenarios  scenario, roster_id, finish, n (simulations with that result and finish);
+#              NULL with no week
+first_season_at <- function(
+  date,
+  state,
+  sims,
+  league,
+  n_sims = 500000,
+  seed = 123,
+  n_top = 12,
+  chunk = 10000
+) {
+  inputs <- standings_inputs(date, state, sims, league, n_years = 1, n_top = n_top)
+  season <- inputs$seasons[1]
+  n_teams <- inputs$fmt$num_teams
+  reg <- inputs$schedules[[1]]$regular
+
+  has_week <- season %in% league$matchups_table$season && !all(reg$played)
+  games <- NULL
+  if (has_week) {
+    inputs$watch_week <- min(reg$week[!reg$played])
+    games <- reg |>
+      filter(week == inputs$watch_week) |>
+      transmute(season = season, week, game = row_number(), a, b)
+  }
+  n_games <- NROW(games)
+
+  # per chunk: simulations by scenario, team, and finish, and byes by team
+  sizes <- diff(c(seq(0, n_sims, by = chunk), n_sims)) |> discard(\(x) x == 0)
+  counts <- future_map(
+    sizes,
+    \(size) {
+      tally <- array(0L, c(2^n_games, n_teams, n_teams))
+      byes <- integer(n_teams)
+      teams <- seq_len(n_teams)
+      for (i in seq_len(size)) {
+        result <- simulate_future(inputs)[[1]]
+        scenario <- sum(result$a_won * 2^(seq_len(n_games) - 1)) + 1
+        cells <- cbind(scenario, teams, result$rank)
+        tally[cells] <- tally[cells] + 1L
+        byes <- byes + result$bye
+      }
+      list(tally = tally, byes = byes)
+    },
     .options = furrr_options(seed = seed)
   )
+  tally <- map(counts, "tally") |> reduce(`+`)
+  byes <- map(counts, "byes") |> reduce(`+`)
 
-  summarize_standings(results, seasons, fmt)
+  # odds in summarize_standings()'s form (a row for each result some simulation had)
+  rank_counts <- apply(tally, c(2, 3), sum)
+  ranks <- which(rank_counts > 0, arr.ind = TRUE)
+  standings <- bind_rows(
+    tibble(
+      roster_id = ranks[, 1],
+      result = ranks[, 2],
+      n = rank_counts[ranks],
+      type = "rank"
+    ),
+    tibble(
+      roster_id = rep(seq_len(n_teams), 2),
+      result = rep(c(0, 1), each = n_teams),
+      n = c(n_sims - byes, byes),
+      type = "bye"
+    ) |>
+      filter(n > 0)
+  ) |>
+    arrange(type != "rank", roster_id, result) |>
+    transmute(season = season, roster_id, result, perc = n / n_sims, type)
+
+  if (!has_week) {
+    return(list(standings = standings, games = NULL, scenarios = NULL))
+  }
+
+  cells <- which(tally > 0, arr.ind = TRUE)
+  scenarios <- tibble(
+    scenario = cells[, 1] - 1L,
+    roster_id = cells[, 2],
+    finish = cells[, 3],
+    n = tally[cells]
+  )
+
+  # share of simulations team a won each game: scenarios with that game's bit set
+  per_scenario <- scenarios |>
+    filter(roster_id == 1) |>
+    summarize(n = sum(n), .by = scenario)
+  games$a_win <- map_dbl(seq_len(n_games), \(j) {
+    sum(per_scenario$n[bitwAnd(per_scenario$scenario, 2L^(j - 1)) > 0]) / n_sims
+  })
+
+  list(standings = standings, games = games, scenarios = scenarios)
 }
 
 # share of simulations with each final rank and with a bye, by season and roster

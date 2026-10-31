@@ -4,7 +4,8 @@
 # a fixed value such as a roster spot) is valued on every KTC date from the first one on or
 # after its move through today:
 #   realized value  the value added that counts for the grade, in the weeks finished by
-#                   that date (a week finishes with its Monday game)
+#                   that date (a week counts from the Tuesday after it, once its Monday
+#                   game is over, as in the share of the season played)
 #   future value    a player's future value that date (future_value_time.csv); an unused
 #                   pick's value that date (pick_values_time.csv), and after its draft the
 #                   fixed value of its pick number; anything else keeps its value
@@ -59,8 +60,8 @@ sleeper_date <- function(ms) {
   as_date(as_datetime(ms / 1000, tz = "America/Chicago"))
 }
 
-# the date each week with value added finished: its Monday game (season_start is the
-# Thursday of week 1)
+# the date each week with value added counts from: the Tuesday after it, once its Monday
+# game is over (week 1's is the first Tuesday after the opener, season_start)
 week_end_dates <- function(value_added, season_dates) {
   value_added |>
     distinct(season, week) |>
@@ -68,7 +69,11 @@ week_end_dates <- function(value_added, season_dates) {
       season_dates |> transmute(season = year(season_start), season_start),
       by = join_by(season)
     ) |>
-    transmute(season, week, week_end = season_start + 7 * (week - 1) + 4)
+    transmute(
+      season,
+      week,
+      week_end = season_start + (2 - wday(season_start)) %% 7 + 1 + 7 * (week - 1)
+    )
 }
 
 # each asset's realized and future value on every date on or after its start

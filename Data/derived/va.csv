@@ -11019,7 +11019,7 @@ roster_id,name,player_id,position,week,sleeper_points,value_added,type,season,pr
 2,Bam Knight,8122,RB,7,9.3,-1.3315476190476154,starter,2026,7.67
 2,Isaiah Likely,8131,TE,7,3.2,-0.5251190476190475,starter,2026,12.87
 2,Brock Purdy,8183,QB,7,14.02,1.4598968253968252,starter,2026,20.33
-2,San Francisco 49ers,SF,DST,7,-1,-5.407936507936508,starter,2026,6.37
+2,San Francisco 49ers,SF,DST,7,0,-4.407936507936508,starter,2026,6.37
 3,Brock Bowers,11604,TE,7,13.3,9.574880952380953,starter,2026,17.21
 3,Jalen Coker,11646,WR,7,1.9,-8.412222222222221,starter,2026,15.65
 3,Matthew Golden,12501,WR,7,9.9,-0.41222222222222094,starter,2026,15.53
@@ -11072,7 +11072,7 @@ roster_id,name,player_id,position,week,sleeper_points,value_added,type,season,pr
 7,Cleveland Browns,CLE,DST,7,6,1.5920634920634917,starter,2026,8.53
 8,Michael Wilson,10232,WR,7,10.6,0.28777777777777835,starter,2026,12.58
 8,Jake Bates,11539,K,7,9,3.3285714285714283,starter,2026,8.56
-8,Bo Nix,11563,QB,7,26.28,13.719896825396827,starter,2026,19.38
+8,Bo Nix,11563,QB,7,26.18,13.619896825396825,starter,2026,19.38
 8,Luther Burden,12519,WR,7,23.7,13.387777777777778,starter,2026,12.53
 8,Carnell Tate,13279,WR,7,9.9,-0.41222222222222094,starter,2026,12.41
 8,Jacoby Brissett,3257,QB,7,16.48,3.919896825396826,starter,2026,14.04

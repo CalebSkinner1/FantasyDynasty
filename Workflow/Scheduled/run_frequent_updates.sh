@@ -1,5 +1,5 @@
 #!/bin/bash
-# Runs Workflow/Frequent Updates.R and logs it. launchd starts this every Tuesday at 10:00
+# Runs Workflow/Frequent Updates.R and logs it. launchd starts this every day at 10:00
 # (see com.fantasydynasty.frequent-updates.plist and install_schedule.sh in this folder).
 # Nothing is committed or pushed to GitHub; review the changes yourself.
 #

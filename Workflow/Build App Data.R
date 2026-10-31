@@ -100,6 +100,16 @@ app_data <- list(
   odds_time = read_saved("odds_time.csv"),
   finish_odds = read_saved("finish_odds.csv"),
 
+  # current matchups
+  current_matchups = read_saved(
+    "current_matchups.csv",
+    col_types = cols(side = "c", team = "c", opponent = "c", .default = "d")
+  ),
+  matchup_scenarios = read_saved(
+    "matchup_scenarios.csv",
+    col_types = cols(team = "c", .default = "i")
+  ),
+
   # team rankings
   weekly_elo = read_saved("weekly_elo.csv"),
   all_assets_summary_df = read_saved("all_assets_summary_df.csv"),
@@ -157,6 +167,11 @@ app_data$home_trade <- app_data$trade_grades_time |>
     app_data$lopsided_trades |> mutate(trade_id = as.character(trade_id)),
     by = join_by(trade_id)
   )
+
+# this week's game with the most at stake in the playoff race (current_matchups is in
+# that order; none when no regular-season week is left)
+app_data$home_matchup <- app_data$current_matchups |>
+  filter(game == first(game))
 
 # the player with the most future value, and his team
 app_data$home_player <- app_data$player_total_value |>

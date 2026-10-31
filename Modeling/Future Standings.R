@@ -14,6 +14,11 @@
 # stood on any date. It runs for today (final_standings_odds.csv, used by Pick Values and the app)
 # and for each past date with saved rosters and picks (Scraping.R) and player simulations
 # (Player Total Value.R), in final_standings_odds_time.csv (the same columns plus the date).
+# Today's first season (the season under way, or the next one in the offseason) comes instead
+# from first_season_at(), which simulates that season alone ten times as often; it also gives
+# this week's games for the Current Matchups page. So every odds for the first season (the app's
+# pages, Pick Values, #1 pick odds for the next draft, and today's point over time) come from
+# those simulations, and the later seasons from future_standings_at().
 
 suppressPackageStartupMessages(library("here"))
 
@@ -27,6 +32,11 @@ seed <- 123
 n_sims <- 50000
 n_years <- 3
 n_top <- 12 # players counted per team (starting lineup plus depth for byes, injuries, and trades)
+# today's first season: simulations of that season alone. Each of the 64 combinations of
+# this week's six results gets about n_sims_first / 64 of them on average (fewer for
+# unlikely ones), so the Playoff Machine needs many (about 2 minutes of computing, spread over
+# the cores). Past dates keep n_sims for every season.
+n_sims_first <- 500000
 
 # past dates: FALSE adds only the dates missing from final_standings_odds_time.csv (normally
 # just the latest); TRUE recomputes every date (about 15 seconds each), e.g. after changing
@@ -87,12 +97,17 @@ league <- list(
 plan(multisession, workers = max(1, parallelly::availableCores(omit = 1)))
 
 # Today --------------------------------------------------------------------
+# the next n_years seasons from future_standings_at(), with the first season replaced by
+# first_season_at()'s (the later seasons still follow each simulation's first season, for
+# its draft order)
+
+today_state <- list(roster = current_roster, picks = future_draft_picks)
 
 message("begin ", n_sims, " future standings simulations...")
 
-final_standings_odds <- future_standings_at(
+all_seasons <- future_standings_at(
   today(),
-  list(roster = current_roster, picks = future_draft_picks),
+  today_state,
   player_simulations,
   league,
   n_sims = n_sims,
@@ -101,7 +116,45 @@ final_standings_odds <- future_standings_at(
   n_top = n_top
 )
 
+message("begin ", n_sims_first, " simulations of the first season...")
+
+first_season <- first_season_at(
+  today(),
+  today_state,
+  player_simulations,
+  league,
+  n_sims = n_sims_first,
+  seed = seed,
+  n_top = n_top
+)
+
+final_standings_odds <- bind_rows(
+  first_season$standings,
+  all_seasons |> filter(season != min(first_season$standings$season))
+)
+
 write_csv(final_standings_odds, here("Data/model_output/final_standings_odds.csv"))
+
+# This week -----------------------------------------------------------------
+# the week being played and how the first season finishes after each combination of its
+# results (see first_season_at()). Written empty when no regular-season week is left (the
+# playoffs and the offseason), and the Current Matchups page says so.
+#   week_games.csv      season, week, game, a, b (roster_ids), a_win (model's share of wins for a)
+#   week_scenarios.csv  scenario, roster_id, finish, n
+
+write_csv(
+  first_season$games %||%
+    tibble(
+      season = double(), week = double(), game = integer(), a = integer(), b = integer(),
+      a_win = double()
+    ),
+  here("Data/model_output/week_games.csv")
+)
+write_csv(
+  first_season$scenarios %||%
+    tibble(scenario = integer(), roster_id = integer(), finish = integer(), n = integer()),
+  here("Data/model_output/week_scenarios.csv")
+)
 
 # Over Time ----------------------------------------------------------------
 # every date with both its rosters and picks and its player simulations. Saved dates are
@@ -144,7 +197,7 @@ for (i in seq_along(new_dates)) {
   message("standings on ", date, " (", i, " of ", length(new_dates), ")")
 
   odds <- if (date == today()) {
-    final_standings_odds # same rosters, picks, and simulations as today's run above
+    final_standings_odds # today's run above (its first season from first_season_at())
   } else {
     future_standings_at(
       date,

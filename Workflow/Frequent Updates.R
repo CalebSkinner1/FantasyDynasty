@@ -1,6 +1,6 @@
 # Frequent Updates
-# Weekly refresh: scrape, update the models, rebuild the app's tables, and deploy.
-# Every Tuesday at 10:00 this runs unattended (Workflow/Scheduled/run_frequent_updates.sh),
+# Daily refresh: scrape, update the models, rebuild the app's tables, and deploy.
+# Every day at 10:00 this runs unattended (Workflow/Scheduled/run_frequent_updates.sh),
 # and it can still be run by hand. Each step runs in its own R process (see run_step() in
 # Workflow Support.R) and the run stops at the first failure, so a broken step is never deployed.
 # Times below are rough; each step's time is printed in the log.
@@ -18,7 +18,8 @@ run_step("Modeling/Player Value Added.R")
 # Player Total Value: today's future values from the saved models (~20 seconds)
 run_step("Modeling/Player Total Value.R")
 
-# Future Standings: 50,000 simulations of the next three seasons (~15 seconds)
+# Future Standings: 50,000 simulations of the next three seasons, and 500,000 of this
+# season for this week's games (~1 minute)
 run_step("Modeling/Future Standings.R")
 
 # App tables (written to Shiny/Saved Files, then bundled for the app) ---------------
@@ -52,6 +53,9 @@ run_step("Scripts/Future Standings Script.R")
 
 # Team Rankings
 run_step("Scripts/Team Rankings.R")
+
+# Current Matchups (needs Future Standings and Team Rankings)
+run_step("Scripts/Current Matchups.R")
 
 # History
 run_step("Scripts/History.R")
