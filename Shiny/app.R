@@ -281,7 +281,12 @@ ui <- dashboardPage(
           if (nrow(home_champion) > 0) {
             home_tile(
               str_c(home_champion$season[1], " Championship Odds"),
-              str_c("1. ", home_champion$team[1], " ", pct(home_champion$perc[1])),
+              str_c(
+                "1. ",
+                home_champion$team[1],
+                " ",
+                pct(home_champion$perc[1])
+              ),
               runners_up(home_champion$team, pct(home_champion$perc)),
               "tab-link",
               "future_standings"
@@ -296,12 +301,31 @@ ui <- dashboardPage(
               "team_rankings"
             )
           },
+          if (nrow(home_player) > 0) {
+            home_tile(
+              "Most Valuable Player",
+              home_player$name[1],
+              str_c(
+                "future value ",
+                round(home_player$future_value[1]),
+                if_else(
+                  is.na(home_player$team[1]),
+                  "",
+                  str_c("; ", home_player$team[1])
+                )
+              ),
+              "player-link",
+              home_player$player_id[1]
+            )
+          },
           if (nrow(home_trade) > 0) {
             home_tile(
               "Latest Trade",
               str_c(
-                home_trade$team_name[1], " ",
-                if_else(home_trade$total_value[1] >= 0, "+", ""), round(home_trade$total_value[1])
+                home_trade$team_name[1],
+                " ",
+                if_else(home_trade$total_value[1] >= 0, "+", ""),
+                round(home_trade$total_value[1])
               ),
               str_c("winning the ", home_trade$trade_details[1], " so far"),
               "trade-link",
@@ -311,22 +335,14 @@ ui <- dashboardPage(
           home_tile(
             "Trade Machine",
             "Build a Trade",
-            str_c("weigh any deal's future and ", str_to_lower(upcoming_season_label), " value"),
+            str_c(
+              "weigh any deal's future and ",
+              str_to_lower(upcoming_season_label),
+              " value"
+            ),
             "tab-link",
             "trade_machine"
-          ),
-          if (nrow(home_player) > 0) {
-            home_tile(
-              "Most Valuable Player",
-              home_player$name[1],
-              str_c(
-                "future value ", round(home_player$future_value[1]),
-                if_else(is.na(home_player$team[1]), "", str_c("; ", home_player$team[1]))
-              ),
-              "player-link",
-              home_player$player_id[1]
-            )
-          }
+          )
         ),
         h3("Explore the League"),
         explore_row(
@@ -334,15 +350,21 @@ ui <- dashboardPage(
           "magnifying-glass",
           "One player, one roster, or the whole league at a glance.",
           explore_card(
-            "players", "Individual Players", "user",
+            "players",
+            "Individual Players",
+            "user",
             "A player's value added to date alongside his projected value going forward."
           ),
           explore_card(
-            "teams", "Fantasy Teams", "people-group",
+            "teams",
+            "Fantasy Teams",
+            "people-group",
             "A roster's record, assets, and future value by position."
           ),
           explore_card(
-            "team_rankings", "Team Rankings", "ranking-star",
+            "team_rankings",
+            "Team Rankings",
+            "ranking-star",
             "The league ordered by Elo rating and by the total future value of each team's assets."
           )
         ),
@@ -351,15 +373,21 @@ ui <- dashboardPage(
           "clock-rotate-left",
           "Present-day value assigned to completed decisions. This is useful for identifying championship patterns.",
           explore_card(
-            "draft", "Draft Grades", "clipboard-list",
+            "draft",
+            "Draft Grades",
+            "clipboard-list",
             "Every startup and rookie pick graded against the value expected at its slot."
           ),
           explore_card(
-            "transaction", "Transaction Grades", "user-plus",
+            "transaction",
+            "Transaction Grades",
+            "user-plus",
             "Waiver and free agent moves graded by the value gained and lost."
           ),
           explore_card(
-            "trade", "Trade Grades", "right-left",
+            "trade",
+            "Trade Grades",
+            "right-left",
             "Every trade graded by the value each team has gained or lost."
           )
         ),
@@ -368,15 +396,21 @@ ui <- dashboardPage(
           "arrow-trend-up",
           "Forecasts of future output and results. Start here if you're weighing a move.",
           explore_card(
-            "trade_machine", "Trade Machine", "scale-balanced",
+            "trade_machine",
+            "Trade Machine",
+            "scale-balanced",
             "Compare the future and current season value of any trade."
           ),
           explore_card(
-            "future_standings", "Future Standings", "trophy",
+            "future_standings",
+            "Future Standings",
+            "trophy",
             "Each team's odds of a championship, playoffs, a bye, and the first pick."
           ),
           explore_card(
-            "rankings", "Player Rankings", "list-ol",
+            "rankings",
+            "Player Rankings",
+            "list-ol",
             "Players ranked by future value, with comparisons to similar players."
           )
         ),
@@ -385,11 +419,15 @@ ui <- dashboardPage(
           "box-archive",
           "Past results, so managers can recall their exploits.",
           explore_card(
-            "matchups", "Matchups", "football",
+            "matchups",
+            "Matchups",
+            "football",
             "Each team's historical record against every opponent."
           ),
           explore_card(
-            "history", "History", "landmark",
+            "history",
+            "History",
+            "landmark",
             "Championships, playoff appearances, and league records."
           )
         ),
@@ -2565,7 +2603,8 @@ server <- function(input, output, session) {
   }
 
   output$draft_fit <- renderPlotly(draft_fit_chart()) |> bindCache("draft_fit")
-  output$draft_fit_grades <- renderPlotly(draft_fit_chart()) |> bindCache("draft_fit")
+  output$draft_fit_grades <- renderPlotly(draft_fit_chart()) |>
+    bindCache("draft_fit")
 }
 
 # Run the App
