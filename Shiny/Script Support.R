@@ -134,8 +134,9 @@ page_start <- function(id, ids, page = 5) {
 position_levels <- c("QB", "RB", "WR", "TE", "K", "DST")
 
 # plotly charts in the page's sans-serif font (thematic otherwise leaves them in serif)
+font_stack <- "'Source Sans Pro', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+
 as_plotly <- function(p, ...) {
-  font_stack <- "'Source Sans Pro', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
   ggplotly(p + theme(text = element_text(family = font_stack)), ...) |>
     layout(font = list(family = font_stack))
 }
@@ -1574,33 +1575,52 @@ mark_move <- function(chart, date, label) {
   chart
 }
 
-# a team's future value by date, stacked by position and picks
+# a team's future value by date, stacked by position and picks. Built directly in plotly
+# (not ggplotly, whose stacked areas carry one tooltip per area): hovering anywhere shows
+# every asset's value and the team total on that date.
 plot_team_value_time <- function(team_value_time, enter_team) {
   df <- team_value_time |>
-    filter(team == enter_team) |>
-    mutate(
-      asset = factor(asset, names(asset_colors)),
-      total = sum(future_value),
-      .by = date
-    )
+    filter(team == enter_team)
   shiny::validate(shiny::need(nrow(df) > 0, "No values over time yet (Fantasy Teams.R)."))
 
-  df <- df |>
-    mutate(
-      text = str_c(
-        format(date, "%b %e, %Y"), "<br>", asset, ": ", round(future_value),
-        "<br>Team total: ", round(total)
+  chart <- plotly::plot_ly()
+  for (a in names(asset_colors)) {
+    chart <- chart |>
+      plotly::add_trace(
+        data = filter(df, asset == a) |> arrange(date),
+        x = ~date,
+        y = ~future_value,
+        name = a,
+        type = "scatter",
+        mode = "lines",
+        stackgroup = "assets",
+        fillcolor = asset_colors[[a]],
+        line = list(color = asset_colors[[a]], width = .5),
+        hovertemplate = str_c(a, ": %{y:.0f}<extra></extra>")
       )
+  }
+
+  # the total: an invisible line along the top of the stack, for the hover only
+  chart |>
+    plotly::add_trace(
+      data = summarize(df, total = sum(future_value), .by = date) |> arrange(date),
+      x = ~date,
+      y = ~total,
+      name = "Total",
+      type = "scatter",
+      mode = "lines",
+      line = list(color = "rgba(0,0,0,0)"),
+      showlegend = FALSE,
+      hovertemplate = "<b>Total: %{y:.0f}</b><extra></extra>"
+    ) |>
+    plotly::layout(
+      font = list(family = font_stack),
+      hovermode = "x unified",
+      hoverdistance = -1, # the nearest date wherever the mouse is (dates were sparse in 2024)
+      xaxis = list(title = "", hoverformat = "%b %e, %Y", showgrid = TRUE, gridcolor = "#ebebeb"),
+      yaxis = list(title = "Future value", gridcolor = "#ebebeb", zeroline = FALSE),
+      legend = list(orientation = "h", x = 0, y = 1.08, traceorder = "normal")
     )
-
-  p <- ggplot(df, aes(x = date, y = future_value, fill = asset, group = asset, text = text)) +
-    geom_area(position = position_stack(reverse = TRUE), color = "white", linewidth = .4) +
-    scale_fill_manual(values = asset_colors) +
-    labs(x = NULL, y = "Future value", fill = NULL) +
-    theme(panel.grid.minor = element_blank())
-
-  as_plotly(p, tooltip = "text") |>
-    plotly::layout(legend = list(orientation = "h", x = 0, y = 1.08))
 }
 
 # each team's draft grade (value over expected) by date, in one draft or all of them
@@ -1651,6 +1671,31 @@ plot_trade_grade_time <- function(trade_grades_time, enter_trade) {
   as_plotly(p, tooltip = "text") |>
     plotly::layout(legend = list(orientation = "h", x = 0, y = -0.12)) |>
     mark_move(df$trade_date[1], "Trade")
+}
+
+# each team's total value gained from all its trades (or all its transactions) by date,
+# one line per team (trade_winners_time or transaction_winners_time, app_call_data.R)
+plot_winners_time <- function(winners_time, highlight = NULL) {
+  shiny::validate(shiny::need(nrow(winners_time) > 0, "No grades over time yet."))
+
+  df <- winners_time |>
+    mutate(
+      total = realized_value + future_value,
+      text = str_c(
+        team, "<br>", format(date, "%b %e, %Y"),
+        "<br>Total: ", round(total, 1),
+        "<br>Realized: ", round(realized_value, 1),
+        "<br>Future: ", round(future_value, 1)
+      )
+    )
+
+  p <- ggplot(df, aes(x = date, y = total, color = team, group = team, text = text)) +
+    geom_hline(yintercept = 0, color = "grey60") +
+    team_lines(df, highlight) +
+    labs(x = NULL, y = "Value gained") +
+    theme(legend.position = "none", panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text")
 }
 
 # a transaction's value gained by date, from the first date after it

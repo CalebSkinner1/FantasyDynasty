@@ -37,6 +37,11 @@ marginal_transaction_value <- read_csv(
   here("Shiny/Saved Files/marginal_transaction_value.csv"),
   show_col_types = FALSE
 )
+# share of a roster spot's value realized in its first 17 weeks (Transaction Grades.R)
+roster_spot_share <- read_csv(
+  here("Data/model_output/roster_spot_share.csv"),
+  show_col_types = FALSE
+)
 
 # Upcoming season value -----------------------------------------------------------
 # The first simulated season is the current season while one is under way, and the next
@@ -90,14 +95,18 @@ assets_df <- grab_team_assets_df |>
 # Roster spot value ---------------------------------------------------------------
 # A team that receives more players than it sends must drop players, and a team that
 # sends more can add free agents. A spot is worth the average add (gained) or drop (lost,
-# negative) in the latest season, and half of that in the upcoming season.
+# negative) in the latest season. Its upcoming season value is the share of that realized
+# in the first 17 weeks of games, times the share of the season left (all of it in the
+# offseason).
+
+season_left <- if (upcoming_season == season_context$season) 1 - season_context$p else 1
 
 roster_spot_value <- marginal_transaction_value |>
   filter(season == max(season)) |>
   transmute(
     type,
     future_value = total_value_added,
-    upcoming_year = .5 * future_value
+    upcoming_year = roster_spot_share$share * season_left * future_value
   )
 
 # dfs to save -------------------------------------------------------------

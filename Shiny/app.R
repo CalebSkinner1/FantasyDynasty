@@ -48,6 +48,47 @@ panel <- function(..., title = NULL, width = 12) {
   )
 }
 
+# Home page pieces ----------------------------------------------------------------
+# A tile or card opens a page when clicked (see the script in the page head): a.tab-link
+# opens the tab named in data-id, a.player-link a player's page, a.trade-link a trade's
+# breakdown on Trade Grades.
+
+# a headline tile at the top of the home page
+home_tile <- function(label, value, detail, link_class, id) {
+  a(
+    class = str_c("stat-tile home-tile ", link_class),
+    href = "#",
+    `data-id` = id,
+    div(class = "stat-label", label),
+    div(class = "stat-value", value),
+    div(class = "stat-detail", detail)
+  )
+}
+
+# one tab in Explore the League: its icon and name, with a description beneath
+explore_card <- function(tab, title, icon_name, description) {
+  a(
+    class = "explore-card tab-link",
+    href = "#",
+    `data-id` = tab,
+    div(class = "explore-icon", icon(icon_name)),
+    div(class = "explore-title", title),
+    div(class = "explore-text", description)
+  )
+}
+
+# one group of tabs (a row of cards), named as in the sidebar
+explore_row <- function(group, icon_name, tagline, ...) {
+  div(
+    class = "explore-row",
+    h4(icon(icon_name), group),
+    p(class = "explore-tagline", tagline),
+    div(class = "explore-grid", ...)
+  )
+}
+
+pct <- function(x) str_c(round(x), "%")
+
 ui <- dashboardPage(
   title = "Baylor Seniors Dynasty League",
   freshTheme = app_theme,
@@ -141,10 +182,65 @@ ui <- dashboardPage(
         /* player and team names in tables */
         a.player-link, a.team-link { color: #1c5fae; }
         a.player-link:hover, a.team-link:hover { text-decoration: underline; }
+
+        /* home page: headline tiles and Explore the League */
+        .home-tiles {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 0.75rem;
+          margin: 0.75rem 0 1.5rem;
+        }
+        @media (max-width: 1200px) {
+          .home-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 768px) {
+          .home-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        a.stat-tile.home-tile { display: block; color: inherit; text-decoration: none; }
+        a.stat-tile.home-tile:hover { border-color: #00a65a; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); }
+        .home-tile .stat-value { font-size: 1.25rem; overflow-wrap: anywhere; }
+        .explore-row { margin-bottom: 1.25rem; }
+        .explore-row h4 { margin: 0.75rem 0 0.1rem; }
+        .explore-row h4 .fa, .explore-row h4 .fas { color: #00a65a; margin-right: 0.4rem; }
+        .explore-tagline { color: #6c757d; margin-bottom: 0.5rem; }
+        .explore-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 0.75rem;
+        }
+        @media (max-width: 768px) {
+          .explore-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+        a.explore-card {
+          display: block;
+          background: #ffffff;
+          border: 1px solid #e3e6ea;
+          border-radius: 0.35rem;
+          padding: 0.9rem 1rem;
+          text-align: center;
+          color: inherit;
+          text-decoration: none;
+        }
+        a.explore-card:hover { border-color: #00a65a; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); }
+        .explore-icon {
+          width: 3rem;
+          height: 3rem;
+          margin: 0 auto 0.5rem;
+          border-radius: 50%;
+          background: #e6f6ee;
+          color: #00a65a;
+          font-size: 1.3rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .explore-title { font-weight: 600; color: #212529; }
+        .explore-text { font-size: 0.9rem; color: #6c757d; }
         "
       )),
-      # a click on a player or team name opens that player's or team's page (app.R
-      # server: goto_player, goto_team)
+      # a click on a player or team name opens that player's or team's page, and a home
+      # page tile or card opens its page (app.R server: goto_player, goto_team, goto_tab,
+      # goto_trade)
       tags$script(HTML(
         "
         // realign table headers when a page or the sidebar is shown (tables drawn while
@@ -156,10 +252,13 @@ ui <- dashboardPage(
         $(document).on('init.dt', function(e, settings) {
           setTimeout(function() { new $.fn.dataTable.Api(settings).columns.adjust(); }, 0);
         });
-        $(document).on('click', 'a.player-link, a.team-link', function(e) {
+        $(document).on('click', 'a.player-link, a.team-link, a.tab-link, a.trade-link', function(e) {
           e.preventDefault();
-          var input = $(this).hasClass('player-link') ? 'goto_player' : 'goto_team';
-          Shiny.setInputValue(input, String($(this).data('id')), {priority: 'event'});
+          var link = $(this);
+          var input = link.hasClass('player-link') ? 'goto_player' :
+            link.hasClass('team-link') ? 'goto_team' :
+            link.hasClass('tab-link') ? 'goto_tab' : 'goto_trade';
+          Shiny.setInputValue(input, String(link.data('id')), {priority: 'event'});
           window.scrollTo(0, 0);
         });
         "
@@ -171,6 +270,129 @@ ui <- dashboardPage(
         tabName = "home",
         h2("Fantasy Football Dynasty League"),
         p(em(str_c("Data updated ", data_updated_label, "."))),
+        div(
+          class = "home-tiles",
+          if (nrow(home_playoffs) > 0) {
+            home_tile(
+              "Playoff Odds",
+              str_c(home_playoffs$team[1], " ", pct(home_playoffs$perc[1])),
+              str_c(
+                "best odds to make the ", home_playoffs$season[1], " playoffs; next: ",
+                str_flatten_comma(str_c(home_playoffs$team[2:3], " ", pct(home_playoffs$perc[2:3])))
+              ),
+              "tab-link",
+              "future_standings"
+            )
+          },
+          if (nrow(home_elo) > 0) {
+            home_tile(
+              "Top Elo Team",
+              home_elo$team[1],
+              str_c(
+                "Elo ", round(home_elo$elo[1]), "; next: ",
+                home_elo$team[2], " ", round(home_elo$elo[2])
+              ),
+              "tab-link",
+              "team_rankings"
+            )
+          },
+          if (nrow(home_trade) > 0) {
+            home_tile(
+              "Latest Trade",
+              str_c(
+                home_trade$team_name[1], " ",
+                if_else(home_trade$total_value[1] >= 0, "+", ""), round(home_trade$total_value[1])
+              ),
+              str_c("winning the ", home_trade$trade_details[1], " so far"),
+              "trade-link",
+              home_trade$trade_id[1]
+            )
+          },
+          home_tile(
+            "Trade Machine",
+            "Build a Trade",
+            str_c("weigh any deal's future and ", str_to_lower(upcoming_season_label), " value"),
+            "tab-link",
+            "trade_machine"
+          ),
+          if (nrow(home_player) > 0) {
+            home_tile(
+              "Most Valuable Player",
+              home_player$name[1],
+              str_c(
+                "future value ", round(home_player$future_value[1]),
+                if_else(is.na(home_player$team[1]), "", str_c("; ", home_player$team[1]))
+              ),
+              "player-link",
+              home_player$player_id[1]
+            )
+          }
+        ),
+        h3("Explore the League"),
+        explore_row(
+          "Lookup",
+          "magnifying-glass",
+          "One player, one roster, or the whole league at a glance.",
+          explore_card(
+            "players", "Individual Players", "user",
+            "A player's value added to date alongside his projected value going forward."
+          ),
+          explore_card(
+            "teams", "Fantasy Teams", "people-group",
+            "A roster's record, assets, and future value by position."
+          ),
+          explore_card(
+            "team_rankings", "Team Rankings", "ranking-star",
+            "The league ordered by Elo rating and by the total future value of each team's assets."
+          )
+        ),
+        explore_row(
+          "Retrospective",
+          "clock-rotate-left",
+          "Present-day value assigned to completed decisions. This is useful for identifying championship patterns.",
+          explore_card(
+            "draft", "Draft Grades", "clipboard-list",
+            "Every startup and rookie pick graded against the value expected at its slot."
+          ),
+          explore_card(
+            "transaction", "Transaction Grades", "user-plus",
+            "Waiver and free agent moves graded by the value gained and lost."
+          ),
+          explore_card(
+            "trade", "Trade Grades", "right-left",
+            "Every trade graded by the value each team has gained or lost."
+          )
+        ),
+        explore_row(
+          "Projections",
+          "arrow-trend-up",
+          "Forecasts of future output and results. Start here if you're weighing a move.",
+          explore_card(
+            "trade_machine", "Trade Machine", "scale-balanced",
+            "Compare the future and current season value of any trade."
+          ),
+          explore_card(
+            "future_standings", "Future Standings", "trophy",
+            "Each team's odds of a championship, playoffs, a bye, and the first pick."
+          ),
+          explore_card(
+            "rankings", "Player Rankings", "list-ol",
+            "Players ranked by future value, with comparisons to similar players."
+          )
+        ),
+        explore_row(
+          "Archives",
+          "box-archive",
+          "Past results, so managers can recall their exploits.",
+          explore_card(
+            "matchups", "Matchups", "football",
+            "Each team's historical record against every opponent."
+          ),
+          explore_card(
+            "history", "History", "landmark",
+            "Championships, playoff appearances, and league records."
+          )
+        ),
         p(
           "Hello! This site hosts results and analysis for the Baylor Seniors Fantasy Football Superflex Dynasty League. The analysis
         is built on the",
@@ -190,31 +412,6 @@ ui <- dashboardPage(
           ),
           "Several of my models lean on these ratings. Even so, you'll find insights unique to this website, and I take
           full credit for any success or newfound knowledge they produce. :)"
-        ),
-        h3("Where should I start?"),
-        p("The tabs fall into four groups."),
-
-        p(
-          strong("Lookup."),
-          "Individual Players and Fantasy Teams are the lookup tabs, one player or one roster at a time.
-        Each shows value added to date alongside projected value going forward. Team Rankings orders the league
-        by Elo rating and by the total future value of their assets."
-        ),
-
-        p(
-          strong("Retrospective."),
-          "Draft Grades, Transaction Grades, and Trade Grades assign present-day
-        value to completed decisions. This is useful for identifying championship patterns."
-        ),
-
-        p(
-          strong("Projections."),
-          "Trade Machine, Future Standings, and Player Rankings forecast future output
-        and results. Start here if you're weighing a move."
-        ),
-        p(
-          strong("Archives."),
-          "Matchups and History chronicle past results so managers can recall their exploits."
         ),
         h3("How does this all work?"),
         h4("Value Added"),
@@ -523,8 +720,7 @@ ui <- dashboardPage(
           title = uiOutput("draft_grades_time_title", inline = TRUE),
           p(
             "Each team's draft grade (value over expected) on each date since the draft, graded the same
-            way as the table above. Hover over a line for the numbers, and click a team in the legend to
-            hide it."
+            way as the table above. Hover over a line for the numbers."
           ),
           selectizeInput(
             inputId = "draft_highlight",
@@ -597,6 +793,20 @@ ui <- dashboardPage(
           title = "Transaction Winners",
           p("The total value gained or lost from all transactions."),
           DTOutput("transaction_winners")
+        ),
+        panel(
+          title = "Transaction Winners over Time",
+          p(
+            "Each team's total value gained or lost from all its transactions on each date, graded the
+            same way as the table above: realized value through that date plus future value that date."
+          ),
+          selectizeInput(
+            inputId = "transaction_highlight",
+            label = "Highlight a Team",
+            choices = c("None" = "none", users$display_name),
+            selected = "none"
+          ),
+          plotlyOutput("transaction_winners_time", height = "400px")
         )
       ),
 
@@ -636,6 +846,20 @@ ui <- dashboardPage(
           title = "Trade Winners",
           p("The total value gained or lost from all trades."),
           DTOutput("trade_winners")
+        ),
+        panel(
+          title = "Trade Winners over Time",
+          p(
+            "Each team's total value gained or lost from all its trades on each date, graded the same
+            way as the table above: realized value through that date plus future value that date."
+          ),
+          selectizeInput(
+            inputId = "trade_highlight",
+            label = "Highlight a Team",
+            choices = c("None" = "none", users$display_name),
+            selected = "none"
+          ),
+          plotlyOutput("trade_winners_time", height = "400px")
         )
       ),
 
@@ -1338,6 +1562,11 @@ server <- function(input, output, session) {
     updateTabItems(session, "sidebar", selected = "teams")
   })
 
+  # a home page tile or card opens its tab
+  observeEvent(input$goto_tab, {
+    updateTabItems(session, "sidebar", selected = input$goto_tab)
+  })
+
   # the trade and transaction shown in the Trade Grades and Transaction Grades breakdowns:
   # set by clicking a row in their tables or a team-change marker on a player's chart
   selected_trade <- reactiveVal(as.character(lopsided_trades$trade_id[1]))
@@ -1413,6 +1642,21 @@ server <- function(input, output, session) {
   # a click on a team-change marker opens that trade or transaction (priority "event" so
   # clicking the same marker again still opens it; event_data warns until the chart has
   # been drawn once)
+  # show a trade's breakdown on Trade Grades, selecting its row in Lopsided Trades
+  open_trade <- function(id) {
+    selected_trade(id)
+    row <- match(id, as.character(lopsided_trades$trade_id))
+    if (!is.na(row)) {
+      dataTableProxy("trade_lopsided") |>
+        selectRows(row) |>
+        selectPage((row - 1) %/% 5 + 1)
+    }
+    updateTabItems(session, "sidebar", selected = "trade")
+  }
+
+  # the home page's latest trade tile
+  observeEvent(input$goto_trade, open_trade(input$goto_trade))
+
   move_click <- reactive(suppressWarnings(
     event_data("plotly_click", source = "player_moves", priority = "event")
   ))
@@ -1427,14 +1671,7 @@ server <- function(input, output, session) {
         }
         target <- strsplit(key, "|", fixed = TRUE)[[1]]
         if (target[1] == "trade") {
-          selected_trade(target[2])
-          row <- match(target[2], as.character(lopsided_trades$trade_id))
-          if (!is.na(row)) {
-            dataTableProxy("trade_lopsided") |>
-              selectRows(row) |>
-              selectPage((row - 1) %/% 5 + 1)
-          }
-          updateTabItems(session, "sidebar", selected = "trade")
+          open_trade(target[2])
         } else {
           selected_transaction(target[2])
           row <- match(target[2], as.character(top_transactions$transaction_id))
@@ -1748,6 +1985,10 @@ server <- function(input, output, session) {
       dt(page = 12)
   })
 
+  output$transaction_winners_time <- renderPlotly({
+    plot_winners_time(transaction_winners_time, input$transaction_highlight)
+  })
+
   output$top_transaction <- renderDT({
     #table 2: click a row to see its breakdown below (the first row to start)
     top_transactions |>
@@ -1813,6 +2054,10 @@ server <- function(input, output, session) {
     overall_trade_winners |>
       shiny_edit_tables() |>
       dt(page = 12)
+  })
+
+  output$trade_winners_time <- renderPlotly({
+    plot_winners_time(trade_winners_time, input$trade_highlight)
   })
 
   output$trade_lopsided <- renderDT({

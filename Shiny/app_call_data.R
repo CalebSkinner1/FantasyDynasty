@@ -218,6 +218,29 @@ trade_grades_time <- read_over_time(
                  date = as.Date(character()), realized_value = double(), future_value = double())
 )
 
+# each team's total value gained from all its trades and from all its transactions on every
+# date (Trade and Transaction Grades pages). Before a team's first one, it has gained 0. On
+# the latest date these match the Winners tables, up to rounding.
+winners_time <- function(grades_time) {
+  grades_time |>
+    summarize(
+      realized_value = sum(realized_value),
+      future_value = sum(future_value),
+      .by = c(team_name, date)
+    ) |>
+    complete(team_name, date, fill = list(realized_value = 0, future_value = 0)) |>
+    rename(team = team_name) |>
+    arrange(team, date)
+}
+trade_winners_time <- winners_time(trade_grades_time)
+transaction_winners_time <- transaction_grades_time |>
+  inner_join(
+    transaction_comparison |>
+      transmute(transaction_id = as.character(transaction_id), team_name),
+    by = join_by(transaction_id)
+  ) |>
+  winners_time()
+
 # Future Standings: the odds on every past date and each team's chance at every finish
 odds_time <- read_over_time(
   "odds_time.csv",
@@ -303,3 +326,36 @@ data_updated <- if (file.exists(updated_path)) {
   as.Date(max(file.mtime(list.files(script_data_path, full.names = TRUE))))
 }
 data_updated_label <- str_squish(format(data_updated, "%B %e, %Y"))
+
+# Home page headlines ------------------------------------------------------------
+# the tiles at the top of the home page, from data loaded above. The home page leaves out a
+# tile whose data has no rows.
+
+# playoff odds in the latest simulations, for the first season simulated
+home_playoffs <- odds_time |>
+  filter(odds == "playoffs", date == max(date)) |>
+  filter(season == min(season)) |>
+  arrange(desc(perc))
+
+# Elo ratings after the latest week
+home_elo <- weekly_elo |>
+  filter(date_hide == max(date_hide)) |>
+  arrange(desc(elo))
+
+# the most recent trade, with the team winning it so far (Lopsided Trades)
+home_trade <- trade_grades_time |>
+  distinct(trade_id, trade_date) |>
+  arrange(desc(trade_date), desc(as.numeric(trade_id))) |>
+  slice_head(n = 1) |>
+  inner_join(
+    lopsided_trades |> mutate(trade_id = as.character(trade_id)),
+    by = join_by(trade_id)
+  )
+
+# the player with the most future value, and his team
+home_player <- player_total_value |>
+  slice_max(future_value, n = 1, with_ties = FALSE) |>
+  left_join(
+    assets_df |> distinct(player_id, team = display_name),
+    by = join_by(player_id)
+  )

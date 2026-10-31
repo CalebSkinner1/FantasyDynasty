@@ -2,7 +2,8 @@
 # grades each waiver and free agent transaction by the value the team gained and lost,
 # assessed today: realized value added since the transaction plus current future value.
 # Writes the app's transaction tables, marginal_transaction_value.csv (the value of a
-# roster spot, used by Trade Grades), and Data/derived/individual_transactions.csv,
+# roster spot, used by Trade Grades and Trade Machine), roster_spot_share.csv (the share of
+# a roster spot's value realized in a season of games, used by Trade Machine), and Data/derived/individual_transactions.csv,
 # transaction_adds.csv, and transaction_moves.csv (used by Fantasy Teams). Also grades
 # each transaction on every past date (transaction_grades_time.csv).
 
@@ -200,6 +201,52 @@ marginal_transaction_value <- transaction_values |>
   ) |>
   arrange(season, type)
 
+# Roster spot share in a season of games ------------------------------------------
+# the share of a move's value (as graded: realized value since plus future value) that
+# came in the 17 weeks of games starting with the move's week, over every add and drop
+# (not K or DST) whose 17 weeks have all been played. Weeks run on across seasons, so a
+# midseason add's 17 weeks finish early the next season. Trade Machine.R scales this by
+# the share of the season left to value a roster spot in the current season.
+
+season_weeks <- 17
+week_index <- value_added |>
+  distinct(season, week) |>
+  arrange(season, week) |>
+  mutate(index = row_number())
+
+first_weeks_value <- counted_va |>
+  inner_join(
+    week_index |> select(season, week, move_index = index),
+    by = join_by(season, week)
+  ) |>
+  inner_join(
+    week_index |> select(va_season = season, va_week = week, va_index = index),
+    by = join_by(va_season, va_week)
+  ) |>
+  filter(va_index < move_index + season_weeks) |>
+  summarize(
+    first_weeks_value = sum(value_added),
+    .by = c(transaction_id, player_id, type)
+  )
+
+# drops' values are negative, so each move is signed back to positive before pooling
+roster_spot_share <- transaction_values |>
+  filter(position != "K", position != "DST") |>
+  inner_join(week_index, by = join_by(season, week)) |>
+  filter(index + season_weeks - 1 <= max(week_index$index)) |>
+  left_join(first_weeks_value, by = join_by(transaction_id, player_id, type)) |>
+  summarize(
+    weeks = season_weeks,
+    moves = n(),
+    share = sum(coalesce(first_weeks_value, 0)) /
+      sum(if_else(type == "drop", -total_value, total_value))
+  )
+
+message(
+  "roster spot value realized in its first ", season_weeks, " weeks: ",
+  round(100 * roster_spot_share$share, 1), "% (", roster_spot_share$moves, " moves)"
+)
+
 # by fantasy owner
 overall_transaction_winners <- transaction_comparison |>
   group_by(team_name) |>
@@ -313,6 +360,11 @@ write_csv(
 write_csv(
   marginal_transaction_value,
   here("Shiny/Saved Files/marginal_transaction_value.csv")
+)
+
+write_csv(
+  roster_spot_share,
+  here("Data/model_output/roster_spot_share.csv")
 )
 
 save(
