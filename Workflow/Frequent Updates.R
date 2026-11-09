@@ -65,14 +65,31 @@ run_step("Scripts/History.R")
 # bundle the app's tables into Shiny/app_data.rds, all the app loads at startup (~5 seconds)
 run_step("Workflow/Build App Data.R")
 
+deploy_app <- function() {
+  rsconnect::deployApp(
+    appDir = here::here("Shiny"),
+    appName = "fantasy-dashboard",
+    account = "calebskinner",
+    forceUpdate = TRUE,
+    appPrimaryDoc = "app.R",
+    # only what the app runs on: its code and the bundled data (not Saved Files)
+    appFiles = c("app.R", "Script Support.R", "app_call_data.R", "app_data.rds"),
+    launch.browser = FALSE
+  )
+}
+
+# a deploy that fails (most often a timeout while shinyapps.io builds the app) is tried once
+# more after two minutes, enough for a build already under way to finish; a second failure
+# stops the run
 message("\n== deploying the app")
-rsconnect::deployApp(
-  appDir = here::here("Shiny"),
-  appName = "fantasy-dashboard",
-  account = "calebskinner",
-  forceUpdate = TRUE,
-  appPrimaryDoc = "app.R",
-  # only what the app runs on: its code and the bundled data (not Saved Files)
-  appFiles = c("app.R", "Script Support.R", "app_call_data.R", "app_data.rds"),
-  launch.browser = FALSE
+tryCatch(
+  deploy_app(),
+  error = function(e) {
+    message(
+      "\n== deploy failed (", conditionMessage(e), "); ",
+      "trying once more in 2 minutes"
+    )
+    Sys.sleep(120)
+    deploy_app()
+  }
 )

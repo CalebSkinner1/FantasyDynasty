@@ -113,12 +113,16 @@ name_correction <- function(df) {
 }
 
 # Sleeper API -------------------------------------------------------------
-# GET with retries; stops with a clear message if Sleeper returns an error
+# GET with retries; stops with a clear message if Sleeper returns an error. Five tries,
+# waiting a random 2 to 4, 8, 16, then 32 seconds between them (about 30 seconds in all on
+# average), so a short drop in the connection doesn't stop the run.
 sleeper_get <- function(url) {
   response <- httr::RETRY(
     "GET",
     url,
-    times = 3,
+    times = 5,
+    pause_base = 2,
+    pause_min = 2,
     terminate_on = c(400, 403, 404),
     quiet = TRUE
   )
@@ -188,7 +192,9 @@ fetch_sleeper_stats <- function(season, week, type = c("stats", "projections")) 
         resp <- httr::RETRY(
           "GET",
           url,
-          times = 3,
+          times = 5, # as in sleeper_get()
+          pause_base = 2,
+          pause_min = 2,
           terminate_on = c(400, 403, 404),
           quiet = TRUE
         )

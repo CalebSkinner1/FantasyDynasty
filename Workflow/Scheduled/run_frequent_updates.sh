@@ -42,14 +42,41 @@ printf "status: running\nstarted: %s\nlog: %s\n" "$START" "$LOG" > "$STATUS"
 cd "$REPO" || exit 1
 echo "Frequent Updates started $START (Rscript: $RSCRIPT)" > "$LOG"
 
-# caffeinate keeps the Mac awake until the run finishes
-caffeinate -i "$RSCRIPT" "Workflow/Frequent Updates.R" >> "$LOG" 2>&1
-CODE=$?
+# keep the Mac awake until this script finishes (including the wait below)
+caffeinate -i -w $$ &
+
+# wait for the internet, up to 5 minutes: right after the Mac wakes, Wi-Fi can take a while
+# to reconnect, and a run that starts first fails at its first download. Any answer from
+# Sleeper counts as online.
+REASON=""
+WAITED=0
+until curl -sS --max-time 10 -o /dev/null "https://api.sleeper.app/v1/state/nfl" 2>/dev/null; do
+  if [ "$WAITED" -ge 300 ]; then
+    REASON="no internet connection (api.sleeper.app unreachable for 5 minutes), so nothing ran"
+    break
+  fi
+  sleep 15
+  WAITED=$((WAITED + 15))
+done
+
+if [ -n "$REASON" ]; then
+  echo "$REASON" >> "$LOG"
+  CODE=2
+else
+  if [ "$WAITED" -gt 0 ]; then
+    echo "waited $WAITED seconds for the internet" >> "$LOG"
+  fi
+  "$RSCRIPT" "Workflow/Frequent Updates.R" >> "$LOG" 2>&1
+  CODE=$?
+fi
 
 END="$(date)"
 if [ "$CODE" -eq 0 ]; then
   RESULT="success"
   MESSAGE="Frequent Updates finished and the app was deployed."
+elif [ -n "$REASON" ]; then
+  RESULT="failed"
+  MESSAGE="Frequent Updates didn't run: no internet connection."
 else
   RESULT="failed"
   MESSAGE="Frequent Updates failed (exit $CODE). Check the log."
@@ -57,6 +84,9 @@ fi
 
 {
   printf "status: %s\n" "$RESULT"
+  if [ -n "$REASON" ]; then
+    printf "reason: %s\n" "$REASON"
+  fi
   printf "exit code: %s\n" "$CODE"
   printf "started: %s\n" "$START"
   printf "finished: %s\n" "$END"
