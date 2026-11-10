@@ -78,7 +78,12 @@ deploy_app <- function() {
     forceUpdate = TRUE,
     appPrimaryDoc = "app.R",
     # only what the app runs on: its code and the bundled data (not Saved Files)
-    appFiles = c("app.R", "Script Support.R", "app_call_data.R", "app_data.rds"),
+    appFiles = c(
+      "app.R",
+      "Script Support.R",
+      "app_call_data.R",
+      "app_data.rds"
+    ),
     launch.browser = FALSE
   )
 }
@@ -91,7 +96,9 @@ tryCatch(
   deploy_app(),
   error = function(e) {
     message(
-      "\n== deploy failed (", conditionMessage(e), "); ",
+      "\n== deploy failed (",
+      conditionMessage(e),
+      "); ",
       "trying once more in 2 minutes"
     )
     Sys.sleep(120)
