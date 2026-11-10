@@ -804,11 +804,9 @@ ui <- dashboardPage(
         panel(
           title = uiOutput("team_value_time_title", inline = TRUE),
           p(
-            "The team's future value on each date, by position and draft picks: the future value of
-            the players on its roster that day plus the value of its unused picks. A new year of picks
+            "The team's future value on each date, by asset type. A new year of picks
             joins every team's assets when each rookie draft finishes, and future value falls through
-            each season as it is realized. Points are computed on each date with KeepTradeCut values,
-            which were sparse in 2024. Hover over an area for the numbers."
+            each season as it is realized. Hover over a dat for more information."
           ),
           plotlyOutput("team_value_time", height = "380px")
         ),
@@ -1455,8 +1453,7 @@ ui <- dashboardPage(
             width = 6,
             title = "Total Future Assets",
             p(
-              "Each team's total future value today, by position and draft picks (the colors on Fantasy Teams).
-              Hover over a bar for the numbers."
+              "Each team's total future value today, by position and draft picks. Hover over a bar for more information."
             ),
             plotlyOutput("future_assets", height = "440px")
           )
