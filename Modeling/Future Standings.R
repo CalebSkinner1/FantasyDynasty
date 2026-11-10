@@ -60,46 +60,30 @@ future_draft_picks <- read_csv(
   here("Data/derived/future_draft_picks.csv"),
   show_col_types = FALSE
 )
-rookie_draft_values <- read_csv(
-  here("Data/model_output/rookie_draft_values.csv"),
-  show_col_types = FALSE
-)
-va <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE)
-matchups_table <- read_csv(
-  here("Data/derived/matchups_table.csv"),
-  show_col_types = FALSE
-)
-replacement_levels <- read_csv(
-  here("Data/derived/replacement_levels.csv"),
-  show_col_types = FALSE
-)
-season_dates <- read_csv(
-  here("Data/derived/season_dates.csv"),
-  show_col_types = FALSE
-)
+
+# Elo ratings (Matchups.R) and the weight on this model in this week's win probability: an
+# even split for now. Win Probability Blend.R fits w (win_prob_blend.csv), but with only
+# two seasons of games the fit isn't stable yet
+weekly_elo <- read_csv(here("Shiny/Saved Files/weekly_elo.csv"), show_col_types = FALSE)
+blend_w <- 0.5
 
 # Points Model -------------------------------------------------------------
-# fit on every game played so far and used for every date
+# fit on every game played so far and used for every date, with the other inputs shared
+# by every date
 
-fmt <- league_format_for(as.numeric(names(player_simulations))[1])
-points_model <- fit_points_model(matchups_table, replacement_levels, fmt)
-report_points_model(points_model, matchups_table, va, fmt, n_top)
-
-# inputs shared by every date
-league <- list(
-  model = points_model,
-  rookie = rookie_matrices(rookie_draft_values),
-  matchups_table = matchups_table,
-  va = va,
-  season_dates = season_dates
-)
+league <- standings_league(as.numeric(names(player_simulations))[1])
+fmt <- league$fmt
+report_points_model(league$model, league$matchups_table, league$va, fmt, n_top)
 
 plan(multisession, workers = max(1, parallelly::availableCores(omit = 1)))
 
 # Today --------------------------------------------------------------------
 # the next n_years seasons from future_standings_at(), with the first season replaced by
 # first_season_at()'s (the later seasons still follow each simulation's first season, for
-# its draft order)
+# its draft order). This week's games are won at the blended chance shown in the app (w *
+# this model + (1 - w) * Elo): the first season's simulations are reweighted to match
+# (scenario_weights()), so its odds follow; later weeks use this model alone, since Elo
+# isn't known for them.
 
 today_state <- list(roster = current_roster, picks = future_draft_picks)
 
@@ -118,7 +102,7 @@ all_seasons <- future_standings_at(
 
 message("begin ", n_sims_first, " simulations of the first season...")
 
-first_season <- first_season_at(
+first_counts <- first_season_at(
   today(),
   today_state,
   player_simulations,
@@ -128,9 +112,17 @@ first_season <- first_season_at(
   n_top = n_top
 )
 
+this_week <- NULL
+weights <- NULL
+if (!is.null(first_counts$games)) {
+  this_week <- blend_games(first_counts$games, weekly_elo, blend_w)
+  weights <- scenario_weights(first_counts, this_week$blend_a_win)
+}
+first_season <- first_season_results(first_counts, weights)
+
 final_standings_odds <- bind_rows(
   first_season$standings,
-  all_seasons |> filter(season != min(first_season$standings$season))
+  all_seasons |> filter(season != first_counts$season)
 )
 
 write_csv(final_standings_odds, here("Data/model_output/final_standings_odds.csv"))
@@ -139,26 +131,56 @@ write_csv(final_standings_odds, here("Data/model_output/final_standings_odds.csv
 # the week being played and how the first season finishes after each combination of its
 # results (see first_season_at()). Written empty when no regular-season week is left (the
 # playoffs and the offseason), and the Current Matchups page says so.
-#   week_games.csv      season, week, game, a, b (roster_ids), a_win (model's share of wins for a)
-#   week_scenarios.csv  scenario, roster_id, finish, n
+#   week_games.csv      season, week, game, a, b (roster_ids), and the chance team a wins:
+#                       model_a_win (this model), elo_a_win, a_win (the blend shown)
+#   week_scenarios.csv  scenario, roster_id, finish, n (simulations), weight (the
+#                       scenario's, so the weighted simulations follow a_win)
 
-write_csv(
-  first_season$games %||%
-    tibble(
-      season = double(), week = double(), game = integer(), a = integer(), b = integer(),
-      a_win = double()
-    ),
-  here("Data/model_output/week_games.csv")
-)
+week_games <- if (is.null(this_week)) {
+  tibble(
+    season = double(), week = double(), game = integer(), a = integer(), b = integer(),
+    model_a_win = double(), elo_a_win = double(), a_win = double()
+  )
+} else {
+  this_week |>
+    transmute(season, week, game, a, b, model_a_win, elo_a_win, a_win = blend_a_win)
+}
+write_csv(week_games, here("Data/model_output/week_games.csv"))
 write_csv(
   first_season$scenarios %||%
-    tibble(scenario = integer(), roster_id = integer(), finish = integer(), n = integer()),
+    tibble(
+      scenario = integer(), roster_id = integer(), finish = integer(), n = integer(),
+      weight = double()
+    ),
   here("Data/model_output/week_scenarios.csv")
 )
 
+# the predictions as made before kickoff, for Win Probability Blend.R (a run on or after
+# the week's first game day leaves them as they were)
+before_kickoff <- nrow(week_games) > 0 &&
+  today() < week_kickoff(league$season_dates, week_games$season[1], week_games$week[1])
+if (before_kickoff) {
+  live_path <- here("Data/model_output/win_prob_live.csv")
+  live <- if (file.exists(live_path)) {
+    read_csv(live_path, col_types = cols(date = col_date(), .default = col_double()))
+  } else {
+    tibble(
+      season = double(), week = double(), a = double(), b = double(),
+      model_a_win = double(), elo_a_win = double(), date = as_date(character())
+    )
+  }
+  live |>
+    filter(!(season == week_games$season[1] & week == week_games$week[1])) |>
+    bind_rows(week_games |> transmute(season, week, a, b, model_a_win, elo_a_win, date = today())) |>
+    arrange(season, week, a) |>
+    write_csv(live_path)
+}
+
 # Over Time ----------------------------------------------------------------
 # every date with both its rosters and picks and its player simulations. Saved dates are
-# kept unless recompute_standings_time is TRUE (today's is always redone).
+# kept unless recompute_standings_time is TRUE (today's is always redone), and dropped once
+# Scraping.R and Player Total Value.R thin theirs (every date of the last 30 days and one a
+# week before that).
 
 rosters_time <- read_csv(
   here("Data/derived/rosters_time.csv"),
@@ -221,6 +243,7 @@ plan(sequential)
 
 if (!is.null(standings_time)) {
   standings_time |>
+    filter(date %in% dates) |>
     arrange(date, season, type, roster_id, result) |>
     write_csv(odds_time_path)
 }

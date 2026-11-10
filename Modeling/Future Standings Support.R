@@ -485,12 +485,15 @@ standings_inputs <- function(date, state, sims, league, n_years, n_top) {
 # regular-season week not finished by date; there is none in the playoffs or the
 # offseason. The simulations run in chunks that each return counts, so memory stays small.
 # A scenario numbers a combination of results: bit j (from 0) is 1 when team a won game
-# j + 1 (with no week, there is one scenario, 0). Returns
-#   standings  as future_standings_at() returns, for the first season only
-#   games      season, week, game, a, b (roster_ids), a_win (share of simulations a won);
-#              NULL with no week
-#   scenarios  scenario, roster_id, finish, n (simulations with that result and finish);
-#              NULL with no week
+# j + 1 (with no week, there is one scenario, 0). Returns the counts, which
+# first_season_results() turns into odds (optionally reweighting this week's results,
+# scenario_weights()):
+#   season   the season simulated
+#   n_sims   the number of simulations
+#   games    season, week, game, a, b (roster_ids), model_a_win (share of simulations a
+#            won); NULL with no week
+#   tally    simulations by scenario, team (roster_id), and final rank
+#   byes     simulations by scenario and team with a first-round bye
 first_season_at <- function(
   date,
   state,
@@ -516,30 +519,96 @@ first_season_at <- function(
   }
   n_games <- NROW(games)
 
-  # per chunk: simulations by scenario, team, and finish, and byes by team
   sizes <- diff(c(seq(0, n_sims, by = chunk), n_sims)) |> discard(\(x) x == 0)
   counts <- future_map(
     sizes,
     \(size) {
       tally <- array(0L, c(2^n_games, n_teams, n_teams))
-      byes <- integer(n_teams)
+      byes <- matrix(0L, 2^n_games, n_teams)
       teams <- seq_len(n_teams)
       for (i in seq_len(size)) {
         result <- simulate_future(inputs)[[1]]
         scenario <- sum(result$a_won * 2^(seq_len(n_games) - 1)) + 1
         cells <- cbind(scenario, teams, result$rank)
         tally[cells] <- tally[cells] + 1L
-        byes <- byes + result$bye
+        byes[scenario, ] <- byes[scenario, ] + result$bye
       }
       list(tally = tally, byes = byes)
     },
     .options = furrr_options(seed = seed)
   )
-  tally <- map(counts, "tally") |> reduce(`+`)
-  byes <- map(counts, "byes") |> reduce(`+`)
 
-  # odds in summarize_standings()'s form (a row for each result some simulation had)
-  rank_counts <- apply(tally, c(2, 3), sum)
+  first <- list(
+    season = season,
+    n_sims = n_sims,
+    games = games,
+    tally = map(counts, "tally") |> reduce(`+`),
+    byes = map(counts, "byes") |> reduce(`+`)
+  )
+  if (has_week) {
+    first$games$model_a_win <- game_shares(first, rep(1, 2^n_games))
+  }
+  first
+}
+
+# simulations in each scenario (each simulation has one final rank for team 1)
+scenario_counts <- function(first) {
+  apply(first$tally[, 1, , drop = FALSE], 1, sum)
+}
+
+# which scenarios have team a winning each game: a scenario by game matrix
+scenario_bits <- function(first) {
+  n_games <- NROW(first$games)
+  vapply(
+    seq_len(n_games),
+    \(j) bitwAnd(seq_len(2^n_games) - 1L, 2L^(j - 1)) > 0,
+    logical(2^n_games)
+  ) |>
+    matrix(ncol = n_games)
+}
+
+# share of the (weighted) simulations in which team a won each game
+game_shares <- function(first, weights) {
+  mass <- weights * scenario_counts(first)
+  colSums(scenario_bits(first) * mass) / sum(mass)
+}
+
+# a weight for each scenario so that team a wins game j in a share target[j] of the
+# weighted simulations, changing the simulated chances as little as possible otherwise
+# (iterative proportional fitting over the games). Each scenario's simulations keep their
+# finishes, so the season's odds follow the new chances for this week's games. The weights
+# average 1 over the simulations.
+scenario_weights <- function(first, target) {
+  counts <- scenario_counts(first)
+  bits <- scenario_bits(first)
+  target <- pmin(pmax(target, 1e-6), 1 - 1e-6)
+  weights <- rep(1, length(counts))
+
+  for (iteration in 1:500) {
+    for (j in seq_along(target)) {
+      share <- sum((weights * counts)[bits[, j]]) / sum(weights * counts)
+      weights[bits[, j]] <- weights[bits[, j]] * target[j] / share
+      weights[!bits[, j]] <- weights[!bits[, j]] * (1 - target[j]) / (1 - share)
+    }
+    if (max(abs(game_shares(first, weights) - target)) < 1e-10) {
+      break
+    }
+  }
+  weights * sum(counts) / sum(weights * counts)
+}
+
+# first_season_at()'s counts as odds, with each scenario's simulations weighted (all 1, the
+# model's own chances, by default):
+#   standings  as future_standings_at() returns, for the first season only
+#   games      first_season_at()'s, with a_win, the weighted share of simulations a won
+#   scenarios  scenario, roster_id, finish, n (simulations), weight (the scenario's)
+first_season_results <- function(first, weights = NULL) {
+  weights <- weights %||% rep(1, dim(first$tally)[1])
+  n_teams <- dim(first$tally)[2]
+  n_sims <- first$n_sims
+
+  rank_counts <- apply(first$tally * weights, c(2, 3), sum)
+  bye_counts <- colSums(first$byes * weights)
   ranks <- which(rank_counts > 0, arr.ind = TRUE)
   standings <- bind_rows(
     tibble(
@@ -551,35 +620,102 @@ first_season_at <- function(
     tibble(
       roster_id = rep(seq_len(n_teams), 2),
       result = rep(c(0, 1), each = n_teams),
-      n = c(n_sims - byes, byes),
+      n = c(n_sims - bye_counts, bye_counts),
       type = "bye"
     ) |>
-      filter(n > 0)
+      filter(n > 1e-9)
   ) |>
     arrange(type != "rank", roster_id, result) |>
-    transmute(season = season, roster_id, result, perc = n / n_sims, type)
+    transmute(season = first$season, roster_id, result, perc = n / n_sims, type)
 
-  if (!has_week) {
+  if (is.null(first$games)) {
     return(list(standings = standings, games = NULL, scenarios = NULL))
   }
 
-  cells <- which(tally > 0, arr.ind = TRUE)
+  games <- first$games
+  games$a_win <- game_shares(first, weights)
+
+  cells <- which(first$tally > 0, arr.ind = TRUE)
   scenarios <- tibble(
     scenario = cells[, 1] - 1L,
     roster_id = cells[, 2],
     finish = cells[, 3],
-    n = tally[cells]
+    n = first$tally[cells],
+    weight = weights[cells[, 1]]
   )
 
-  # share of simulations team a won each game: scenarios with that game's bit set
-  per_scenario <- scenarios |>
-    filter(roster_id == 1) |>
-    summarize(n = sum(n), .by = scenario)
-  games$a_win <- map_dbl(seq_len(n_games), \(j) {
-    sum(per_scenario$n[bitwAnd(per_scenario$scenario, 2L^(j - 1)) > 0]) / n_sims
-  })
-
   list(standings = standings, games = games, scenarios = scenarios)
+}
+
+# Elo and the blend -------------------------------------------------------------
+
+# each team's Elo rating going into a week: its rating after the latest earlier week of
+# that season (week 0 is the rating entering the season), from weekly_elo.csv (Matchups.R)
+pregame_elo <- function(weekly_elo, season, week) {
+  weekly_elo |>
+    filter(season == !!season, week < !!week) |>
+    slice_max(week, n = 1, with_ties = TRUE) |>
+    select(roster_id, elo)
+}
+
+# the chance team a beats team b from their Elo ratings (as in Matchups.R)
+elo_win_chance <- function(elo_a, elo_b) {
+  1 / (1 + 10^((elo_b - elo_a) / 400))
+}
+
+# this week's games with each model's chance that team a wins and the blend shown in the
+# app: w * the Future Standings model + (1 - w) * Elo (w from Win Probability Blend.R)
+blend_games <- function(games, weekly_elo, w) {
+  elo <- pregame_elo(weekly_elo, games$season[1], games$week[1])
+  games |>
+    left_join(elo |> rename(a = roster_id, elo_a = elo), by = join_by(a)) |>
+    left_join(elo |> rename(b = roster_id, elo_b = elo), by = join_by(b)) |>
+    mutate(
+      elo_a_win = coalesce(elo_win_chance(elo_a, elo_b), model_a_win),
+      blend_a_win = w * model_a_win + (1 - w) * elo_a_win
+    ) |>
+    select(-elo_a, -elo_b)
+}
+
+# the first day of a week's games, or earlier: the opener's weekday, a week per week
+# (games are Thursday to Monday; the opener is a Wednesday or Thursday)
+week_kickoff <- function(season_dates, season, week) {
+  start <- season_dates$season_start[year(season_dates$season_start) == season]
+  start + 7 * (week - 1)
+}
+
+# Inputs ------------------------------------------------------------------------------
+
+# the inputs shared by every date (Future Standings.R and Win Probability Blend.R): the
+# points model, fit on every game played so far, and the tables the simulations read
+standings_league <- function(first_season) {
+  rookie_draft_values <- read_csv(
+    here("Data/model_output/rookie_draft_values.csv"),
+    show_col_types = FALSE
+  )
+  va <- read_csv(here("Data/derived/va.csv"), show_col_types = FALSE)
+  matchups_table <- read_csv(
+    here("Data/derived/matchups_table.csv"),
+    show_col_types = FALSE
+  )
+  replacement_levels <- read_csv(
+    here("Data/derived/replacement_levels.csv"),
+    show_col_types = FALSE
+  )
+  season_dates <- read_csv(
+    here("Data/derived/season_dates.csv"),
+    show_col_types = FALSE
+  )
+
+  fmt <- league_format_for(first_season)
+  list(
+    fmt = fmt,
+    model = fit_points_model(matchups_table, replacement_levels, fmt),
+    rookie = rookie_matrices(rookie_draft_values),
+    matchups_table = matchups_table,
+    va = va,
+    season_dates = season_dates
+  )
 }
 
 # share of simulations with each final rank and with a bye, by season and roster

@@ -50,8 +50,9 @@ app_data <- list(
   value_added = read_saved("value_added.csv", col_types = ids) |>
     mutate(across(c(sleeper_points, value_added, projection), \(x) round(x, 2))),
   player_headshot = read_saved("player_headshot.csv", col_types = ids),
+  # the smoothed values, which the app's over-time charts show
   future_value_time = read_saved("future_value_time.csv", col_types = ids) |>
-    mutate(future_value = round(future_value, 1)),
+    transmute(name, player_id, future_value = round(future_value_smooth, 1), date),
   player_moves = read_saved(
     "player_moves.csv",
     col_types = cols(player_id = col_character(), target_id = col_character())
@@ -107,7 +108,7 @@ app_data <- list(
   ),
   matchup_scenarios = read_saved(
     "matchup_scenarios.csv",
-    col_types = cols(team = "c", .default = "i")
+    col_types = cols(team = "c", weight = "d", .default = "i")
   ),
 
   # team rankings

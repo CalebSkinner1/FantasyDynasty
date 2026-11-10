@@ -15,6 +15,7 @@ set.seed(model_seed)
 
 source(here("Data Manipulation/Scrape Support.R")) # grab functions
 source(here("Modeling/Player Total Value Functions.R")) # grab functions
+source(here("Scripts/Over Time Support.R")) # kept_dates(), smooth_future_value()
 season_value_added <- read_csv(
   here("Shiny/Saved Files/season_value_added.csv"),
   show_col_types = FALSE,
@@ -238,6 +239,11 @@ saveRDS(player_simulations, here("Modeling/models/player_simulations.rds"))
 # goal is to only run one at a time, while keeping the previous models.
 # Set recompute_future_value_time to TRUE to recompute every KTC date with the
 # current models (e.g. after retraining)
+# Each date also gets future_value_smooth, the smoothed value every over-time chart and
+# grade uses (smooth_future_value(), Scripts/Over Time Support.R). It is redone for the
+# dates within a week of the newest, whose windows gain dates, and kept after that. Only
+# the dates kept_dates() keeps are saved (every date of the last 30 days and one a week
+# before that), and the player simulations of the dates dropped are deleted.
 
 recompute_future_value_time <- getOption("fantasy.recompute_future_value_time", FALSE)
 
@@ -308,7 +314,26 @@ while (last_date_fvt < max(ktc_tibble$date)) {
   last_date_fvt <- max(future_value_time$date)
 }
 
+# smoothed: new dates, and those within a week of the newest
 future_value_time <- future_value_time |>
+  mutate(future_value_smooth = if ("future_value_smooth" %in% names(future_value_time)) {
+    future_value_smooth
+  } else {
+    NA_real_
+  })
+smooth_dates <- future_value_time |>
+  filter(date >= max(date) - 7 | is.na(future_value_smooth)) |>
+  pull(date) |>
+  unique()
+future_value_time <- smooth_future_value(future_value_time, smooth_dates)
+
+# thinned, with the simulations of the dates dropped
+fvt_dates <- unique(future_value_time$date)
+fvt_kept <- kept_dates(fvt_dates)
+unlink(file.path(simulations_dir, str_c(setdiff(fvt_dates, fvt_kept) |> as_date(), ".rds")))
+
+future_value_time <- future_value_time |>
+  filter(date %in% fvt_kept) |>
   arrange(desc(date), desc(future_value))
 
 write_csv(future_value_time, here("Shiny/Saved Files/future_value_time.csv"))

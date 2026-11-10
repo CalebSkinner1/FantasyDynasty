@@ -301,7 +301,7 @@ if (file.exists(pick_values_time_path)) {
       left_join(player_info |> select(player_id, asset = position), by = join_by(player_id)) |>
       filter(asset %in% asset_levels) |>
       left_join(
-        future_value_time |> select(player_id, date, future_value),
+        future_value_time |> select(player_id, date, future_value = future_value_smooth),
         by = join_by(player_id, date)
       ) |>
       summarize(future_value = sum(future_value, na.rm = TRUE), .by = c(date, roster_id, asset)),

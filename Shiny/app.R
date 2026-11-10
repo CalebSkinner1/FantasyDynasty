@@ -113,9 +113,9 @@ team_link <- function(team) {
   tags$a(class = "team-link", href = "#", `data-id` = team, team)
 }
 
-# one game (its two rows of current_matchups): each team's chance to win from the model
-# (the numbers and the bar, in the teams' colors) and from Elo, and its playoff odds with
-# a win, now, and with a loss
+# one game (its two rows of current_matchups): each team's chance to win (the blend of the
+# Future Standings model and Elo: the numbers and the bar, in the teams' colors) and its
+# playoff odds with a win, now, and with a loss
 matchup_card <- function(game) {
   ta <- game[game$side == "a", ]
   tb <- game[game$side == "b", ]
@@ -133,25 +133,21 @@ matchup_card <- function(game) {
     class = "matchup-card",
     div(
       class = "matchup-teams",
-      div(team_link(ta$team), span(class = "matchup-pct", pct(ta$model_win))),
-      div(span(class = "matchup-pct", pct(tb$model_win)), team_link(tb$team))
+      div(team_link(ta$team), span(class = "matchup-pct", pct(ta$win))),
+      div(span(class = "matchup-pct", pct(tb$win)), team_link(tb$team))
     ),
     div(
       class = "matchup-bar",
       div(
         style = str_c(
           "width: ",
-          ta$model_win,
+          ta$win,
           "%; background: ",
           colors[[ta$team]],
           ";"
         )
       ),
       div(style = str_c("flex: 1; background: ", colors[[tb$team]], ";"))
-    ),
-    div(
-      class = "matchup-elo",
-      str_c("Elo: ", pct(ta$elo_win), " to ", pct(tb$elo_win))
     ),
     tags$table(
       class = "matchup-odds",
@@ -362,9 +358,8 @@ ui <- dashboardPage(
           height: 8px;
           border-radius: 4px;
           overflow: hidden;
-          margin: 0.35rem 0;
+          margin: 0.35rem 0 0.6rem;
         }
-        .matchup-elo { font-size: 0.8rem; color: #6c757d; margin-bottom: 0.5rem; }
         table.matchup-odds { width: 100%; font-size: 0.85rem; }
         table.matchup-odds th { font-weight: 600; color: #6c757d; text-align: right; }
         table.matchup-odds td { text-align: right; padding-top: 0.15rem; }
@@ -455,10 +450,10 @@ ui <- dashboardPage(
                 str_c(
                   home_matchup$team[1],
                   " ",
-                  pct(home_matchup$model_win[1])
+                  pct(home_matchup$win[1])
                 ),
                 tags$br(),
-                str_c(home_matchup$team[2], " ", pct(home_matchup$model_win[2]))
+                str_c(home_matchup$team[2], " ", pct(home_matchup$win[2]))
               ),
               "tab-link",
               "current_matchups"
@@ -845,6 +840,15 @@ ui <- dashboardPage(
             ),
             DTOutput("team_contributors_weekly")
           )
+        ),
+        panel(
+          title = uiOutput("team_realized_time_title", inline = TRUE),
+          p(
+            "The running total of realized value for the team's ten most valuable players in the
+            seasons selected above. A player's line ends when he leaves the team. Hover over a line
+            for the numbers, and click a name in the legend to hide it."
+          ),
+          plotlyOutput("team_realized_time", height = "420px")
         ),
         fluidRow(
           panel(
@@ -2097,6 +2101,20 @@ server <- function(input, output, session) {
       dt(page = 5)
   })
 
+  output$team_realized_time_title <- renderUI({
+    req(input$team_name, input$team_season)
+    h3(str_c(input$team_name, ": Realized Value over Time"))
+  })
+
+  output$team_realized_time <- renderPlotly({
+    req(input$team_name, input$team_season)
+    users |>
+      filter(display_name == input$team_name) |>
+      pull(roster_id) |>
+      plot_realized_value_time(input$team_season)
+  }) |>
+    bindCache(input$team_name, input$team_season)
+
   output$team_contributors_weekly_title <- renderUI({
     #title
     req(input$team_name, input$team_season) #require input
@@ -2671,19 +2689,17 @@ server <- function(input, output, session) {
       "No simulation had all of these results."
     ))
 
+    # each scenario's simulations count with its weight, so this week's games are won at
+    # the chances shown on the cards (Future Standings.R)
     df |>
-      summarize(n = sum(n), .by = c(team, finish)) |>
+      summarize(mass = sum(n * weight), .by = c(team, finish)) |>
       complete(
         team = users$display_name,
         finish = seq_len(nrow(users)),
-        fill = list(n = 0)
+        fill = list(mass = 0)
       ) |>
-      transmute(
-        season = current_matchups$season[1],
-        team,
-        finish,
-        probability = round(100 * n / n_match, 1)
-      ) |>
+      mutate(probability = round(100 * mass / sum(mass) * nrow(users), 1)) |>
+      transmute(season = current_matchups$season[1], team, finish, probability) |>
       finish_grid(current_matchups$season[1])
   })
 

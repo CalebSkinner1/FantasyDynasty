@@ -1553,6 +1553,90 @@ mark_move <- function(chart, date, label) {
   chart
 }
 
+# a team's most valuable players in the selected seasons (n_top by realized value: value
+# added while on the team, as in the Season table), each a line of his running total by
+# week. A line breaks while the player is off the team and ends when he leaves.
+plot_realized_value_time <- function(enter_roster_id, enter_season, n_top = 10) {
+  df <- value_added |>
+    filter(roster_id == enter_roster_id, season %in% enter_season)
+  shiny::validate(shiny::need(nrow(df) > 0, "No realized value in these seasons yet."))
+
+  # every week played in the selected seasons, in order
+  weeks <- value_added |>
+    filter(season %in% enter_season) |>
+    distinct(season, week) |>
+    arrange(season, week) |>
+    mutate(
+      index = row_number(),
+      label = if (n_distinct(season) > 1) str_c(season, " W", week) else str_c("Week ", week)
+    )
+
+  top <- df |>
+    summarize(total = sum(value_added), .by = c(player_id, name, position)) |>
+    slice_max(total, n = n_top, with_ties = FALSE)
+
+  # each player's running total on every week he was on the team, blank otherwise
+  lines <- df |>
+    semi_join(top, by = join_by(player_id)) |>
+    summarize(week_value = sum(value_added), .by = c(player_id, season, week)) |>
+    right_join(
+      expand_grid(player_id = top$player_id, weeks),
+      by = join_by(player_id, season, week)
+    ) |>
+    arrange(player_id, index) |>
+    mutate(
+      realized = cumsum(coalesce(week_value, 0)),
+      realized = if_else(is.na(week_value), NA, realized),
+      .by = player_id
+    ) |>
+    left_join(top, by = join_by(player_id)) |>
+    mutate(
+      text = str_c(
+        "<b>", name, "</b> (", position, ")<br>",
+        if_else(str_detect(label, "^Week"), str_c(enter_season[1], " ", label), label),
+        "<br>Realized value: ", round(realized, 1),
+        "<br>That week: ", if_else(week_value >= 0, "+", ""), round(week_value, 1)
+      )
+    )
+
+  # label every week, or every few weeks when there are many
+  every <- ceiling(nrow(weeks) / 18)
+  ticks <- weeks |> filter((index - 1) %% every == 0)
+
+  chart <- plotly::plot_ly()
+  for (i in seq_len(nrow(top))) {
+    chart <- chart |>
+      plotly::add_trace(
+        data = filter(lines, player_id == top$player_id[i]),
+        x = ~index,
+        y = ~realized,
+        name = top$name[i],
+        type = "scatter",
+        mode = "lines",
+        connectgaps = FALSE,
+        line = list(color = team_palette[i], width = 2),
+        text = ~text,
+        hovertemplate = "%{text}<extra></extra>"
+      )
+  }
+
+  chart |>
+    plotly::layout(
+      font = list(family = font_stack),
+      hovermode = "closest",
+      xaxis = list(
+        title = "",
+        tickmode = "array",
+        tickvals = ticks$index,
+        ticktext = ticks$label,
+        showgrid = FALSE,
+        zeroline = FALSE
+      ),
+      yaxis = list(title = "Realized value", gridcolor = "#ebebeb", zeroline = TRUE, zerolinecolor = "#c8c8c8"),
+      legend = list(traceorder = "normal")
+    )
+}
+
 # a team's future value by date, stacked by position and picks. Built directly in plotly
 # (not ggplotly, whose stacked areas carry one tooltip per area): hovering anywhere shows
 # every asset's value and the team total on that date.

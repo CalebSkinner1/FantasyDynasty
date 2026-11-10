@@ -1339,7 +1339,10 @@ rosters_on <- function(date) {
     arrange(roster_id, player_id)
 }
 
-# every KTC date since the startup draft; saved dates are kept (today's is redone)
+# every KTC date since the startup draft; saved dates are kept (today's is redone). Only the
+# dates kept_dates() keeps are saved: every date of the last 30 days and one a week before
+# that, as in future_value_time.csv (Scripts/Over Time Support.R)
+source(here("Scripts/Over Time Support.R"))
 startup_done <- completed_drafts |>
   filter(type == "veteran") |>
   pull(time) |>
@@ -1356,7 +1359,9 @@ update_over_time <- function(path, build, col_types) {
   } else {
     NULL
   }
-  new_dates <- ktc_dates[!ktc_dates %in% saved$date]
+  dates <- kept_dates(c(saved$date, ktc_dates))
+  saved <- saved[saved$date %in% dates, ]
+  new_dates <- dates[!dates %in% saved$date & dates %in% ktc_dates]
   bind_rows(saved, map(new_dates, build)) |>
     arrange(date) |>
     write_csv(path)

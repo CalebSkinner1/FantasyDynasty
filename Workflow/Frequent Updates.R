@@ -15,8 +15,16 @@ run_step("Data Manipulation/Scraping.R")
 # Player Value Added (reads the files Scraping.R writes) (~5 seconds)
 run_step("Modeling/Player Value Added.R")
 
+# Matchups: records and Elo ratings (Elo is needed by the Win Probability Blend and
+# Future Standings)
+run_step("Scripts/Matchups.R")
+
 # Player Total Value: today's future values from the saved models (~20 seconds)
 run_step("Modeling/Player Total Value.R")
+
+# Win Probability Blend: the weight on the model vs. Elo in this week's win probabilities
+# (seconds; a minute or two the first time)
+run_step("Modeling/Win Probability Blend.R")
 
 # Future Standings: 50,000 simulations of the next three seasons, and 500,000 of this
 # season for this week's games (~1 minute)
@@ -45,16 +53,13 @@ run_step("Scripts/Fantasy Teams.R")
 # Trade Machine
 run_step("Scripts/Trade Machine.R")
 
-# Matchups
-run_step("Scripts/Matchups.R")
-
 # Future Standings Script
 run_step("Scripts/Future Standings Script.R")
 
 # Team Rankings
 run_step("Scripts/Team Rankings.R")
 
-# Current Matchups (needs Future Standings and Team Rankings)
+# Current Matchups (needs Future Standings)
 run_step("Scripts/Current Matchups.R")
 
 # History

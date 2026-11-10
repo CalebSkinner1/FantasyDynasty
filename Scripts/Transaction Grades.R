@@ -192,14 +192,21 @@ top_transactions <- individual_transactions |>
   relocate(c(team_name, transaction_details))
 
 # mean add/drop value (mean value gained from adding/dropping a player), with its realized
-# and future parts (total_value_added = realized_value + future_value)
+# and future parts (total_value_added = realized_value + future_value). This is the value of
+# a roster spot in Trade Grades and Trade Machine, so a gained spot (add) never has negative
+# realized value and a lost one (drop) never positive: the realized part is floored at 0
+# for adds and capped at 0 for drops, and the future part takes the difference, keeping
+# the total (and so every grade) as the plain averages give it.
 marginal_transaction_value <- transaction_values |>
   filter(position != "K", position != "DST") |>
   summarize(
     total_value_added = mean(total_value),
     realized_value = mean(realized_value),
-    future_value = mean(future_value),
     .by = c(season, type)
+  ) |>
+  mutate(
+    realized_value = if_else(type == "add", pmax(realized_value, 0), pmin(realized_value, 0)),
+    future_value = total_value_added - realized_value
   ) |>
   arrange(season, type)
 
