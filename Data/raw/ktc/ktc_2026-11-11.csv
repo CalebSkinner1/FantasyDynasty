@@ -1,0 +1,501 @@
+name,position,ktc_value,player_id
+Josh Allen,QB,9999,4984
+Jaxon Smith-Njigba,WR,9998,9488
+Jahmyr Gibbs,RB,9997,9221
+Bijan Robinson,RB,9406,9509
+Ja'Marr Chase,WR,8660,7564
+Brock Bowers,TE,8317,11604
+Caleb Williams,QB,8240,11560
+Puka Nacua,WR,7897,9493
+Drake Maye,QB,7573,11564
+Amon-Ra St. Brown,WR,7492,7547
+Joe Burrow,QB,7484,6770
+Malik Nabers,WR,7373,11632
+Trey McBride,TE,7371,8130
+Kenneth Walker III,RB,7366,8151
+CeeDee Lamb,WR,7356,6786
+Brock Purdy,QB,7073,8183
+Trevor Lawrence,QB,6881,7523
+2027 Early 1st,PICK,6690,NA
+Justin Jefferson,WR,6629,6794
+Matthew Golden,WR,6578,12501
+Drake London,WR,6472,8112
+Jordan Love,QB,6384,6804
+James Cook,RB,6342,8138
+Luther Burden,WR,6306,12519
+Chris Olave,WR,6274,8144
+Tetairoa McMillan,WR,6264,12526
+Jayden Daniels,QB,6259,11566
+Jeremiyah Love,RB,6248,13287
+Zay Flowers,WR,6230,9997
+Lamar Jackson,QB,6212,4881
+Jonathan Taylor,RB,6107,6813
+Christian Watson,WR,5940,8167
+Tee Higgins,WR,5927,6801
+Patrick Mahomes,QB,5925,4046
+Ashton Jeanty,RB,5898,12527
+Bucky Irving,RB,5882,11584
+Parker Washington,WR,5825,9487
+Bhayshul Tuten,RB,5747,12490
+Colston Loveland,TE,5738,12517
+Garrett Wilson,WR,5688,8146
+C.J. Stroud,QB,5625,9758
+Fernando Mendoza,QB,5604,13269
+De'Von Achane,RB,5592,9226
+Carnell Tate,WR,5568,13279
+2028 Early 1st,PICK,5560,NA
+2027 Mid 1st,PICK,5556,NA
+Nico Collins,WR,5545,7569
+Christian McCaffrey,RB,5451,4034
+Jaxson Dart,QB,5397,12508
+George Pickens,WR,5378,8137
+Kyren Williams,RB,5241,8150
+Bryce Young,QB,5227,9228
+Tyler Warren,TE,5206,12518
+Javonte Williams,RB,5118,7588
+Jordyn Tyson,WR,5117,13281
+Emeka Egbuka,WR,5085,12514
+Breece Hall,RB,5083,8155
+Tyler Shough,QB,5073,12545
+D'Andre Swift,RB,5056,6790
+KC Concepcion,WR,5049,13298
+Jared Goff,QB,5033,3163
+Denzel Boston,WR,5021,13346
+2027 Late 1st,PICK,5002,NA
+Dak Prescott,QB,4849,3294
+2028 Mid 1st,PICK,4836,NA
+Harold Fannin,TE,4827,12506
+2029 Early 1st,PICK,4816,NA
+Chuba Hubbard,RB,4808,7594
+Bo Nix,QB,4806,11563
+Isaiah Likely,TE,4801,8131
+Jameson Williams,WR,4763,8148
+DeVonta Smith,WR,4756,7525
+Tucker Kraft,TE,4734,9484
+Jaylen Warren,RB,4729,8228
+Jonah Coleman,RB,4720,13345
+Quinshon Judkins,RB,4706,12512
+Omar Cooper Jr.,WR,4683,13276
+Rome Odunze,WR,4627,11620
+Justin Herbert,QB,4625,6797
+Sam LaPorta,TE,4623,10859
+Chase Brown,RB,4615,9224
+Makai Lemon,WR,4550,13294
+2028 Late 1st,PICK,4519,NA
+Jadarian Price,RB,4455,13286
+Jalen Coker,WR,4428,11646
+Rashee Rice,WR,4426,10229
+2029 Mid 1st,PICK,4407,NA
+Jalen Hurts,QB,4286,6904
+Ladd McConkey,WR,4246,11635
+Braelon Allen,RB,4242,11576
+Omarion Hampton,RB,4214,12507
+Derrick Henry,RB,4163,3198
+Blake Corum,RB,4070,11586
+Kenyon Sadiq,TE,4070,13330
+Michael Wilson,WR,4045,10232
+2029 Late 1st,PICK,4012,NA
+Saquon Barkley,RB,4008,4866
+Germie Bernard,WR,3998,13274
+George Kittle,TE,3988,4217
+2027 Early 2nd,PICK,3980,NA
+Cam Skattebo,RB,3976,12481
+Kyle Monangai,RB,3650,12534
+Cameron Ward,QB,3648,12522
+Ollie Gordon,RB,3631,12495
+Sam Darnold,QB,3579,4943
+2027 Mid 2nd,PICK,3575,NA
+Dalton Kincaid,TE,3557,10236
+Antonio Williams,WR,3552,13301
+A.J. Brown,WR,3537,5859
+Michael Penix Jr.,QB,3536,11559
+Josh Downs,WR,3522,9500
+D.J. Moore,WR,3520,4983
+Caleb Douglas,WR,3489,13296
+Ty Simpson,QB,3479,13275
+2028 Early 2nd,PICK,3460,NA
+Jaylen Waddle,WR,3455,7526
+Zach Charbonnet,RB,3448,9753
+TreVeyon Henderson,RB,3440,12529
+Baker Mayfield,QB,3415,4892
+Jordan Addison,WR,3398,9756
+De'Zhaun Stribling,WR,3390,13417
+Rhamondre Stevenson,RB,3343,7611
+Matthew Stafford,QB,3338,421
+Kyle Pitts,TE,3291,7553
+J.J. McCarthy,QB,3289,11565
+Emmett Johnson,RB,3275,13337
+Josh Jacobs,RB,3256,5850
+Travis Etienne,RB,3256,7543
+Marvin Harrison Jr.,WR,3240,11628
+2027 Late 2nd,PICK,3236,NA
+Mike Washington Jr.,RB,3232,13305
+Mike Evans,WR,3223,2216
+Alec Pierce,WR,3179,8142
+Brian Thomas Jr.,WR,3179,11631
+2028 Mid 2nd,PICK,3158,NA
+Adonai Mitchell,WR,3154,11625
+Kaelon Black,RB,3151,13414
+Tony Pollard,RB,3143,5967
+Malik Willis,QB,3137,8161
+Davante Adams,WR,3133,2133
+Ja'Kobi Lane,WR,3113,13293
+RJ Harvey,RB,3109,12489
+2029 Early 2nd,PICK,3105,NA
+Terrance Ferguson,TE,3083,12487
+Chris Bell,WR,3071,13311
+Woody Marks,RB,3061,12474
+Brenton Strange,TE,3054,9480
+Carson Beck,QB,3029,13272
+Kirk Cousins,QB,3020,1166
+Malachi Fields,WR,3020,13285
+Tyler Allgeier,RB,2980,8132
+DK Metcalf,WR,2976,5846
+Jayden Higgins,WR,2971,12484
+Tre Tucker,WR,2964,10213
+2028 Late 2nd,PICK,2958,NA
+Eli Raridon,TE,2958,13421
+Malik Washington,WR,2956,11610
+Xavier Worthy,WR,2939,11624
+Keon Coleman,WR,2906,11637
+2029 Mid 2nd,PICK,2858,NA
+T.J. Hockenson,TE,2796,5844
+Wan'Dale Robinson,WR,2793,8126
+Tank Dell,WR,2790,9502
+Khalil Shakir,WR,2785,8134
+Jacory Croskey-Merritt,RB,2771,12533
+Michael Mayer,TE,2770,9482
+Seth McGowan,RB,2768,13424
+Rico Dowdle,RB,2760,7021
+Pat Bryant,WR,2755,12492
+Romeo Doubs,WR,2747,8121
+Dylan Sampson,RB,2737,12469
+Eli Stowers,TE,2735,13349
+Rachaad White,RB,2733,8136
+Jordan Mason,RB,2731,8408
+Travis Hunter,WR,2729,12530
+Jaylin Noel,WR,2727,12536
+2029 Late 2nd,PICK,2727,NA
+DeMario Douglas,WR,2726,9501
+Jayden Reed,WR,2715,10222
+Ryan Flournoy,WR,2713,11783
+Stefon Diggs,WR,2707,2449
+2027 Early 3rd,PICK,2689,NA
+Ricky Pearsall,WR,2680,11638
+Oronde Gadsden,TE,2673,12493
+Ted Hurst,WR,2671,13317
+Jakobi Meyers,WR,2669,5947
+Jonathon Brooks,RB,2659,11583
+Jake Ferguson,TE,2658,8110
+Travis Kelce,TE,2647,1466
+AJ Barner,TE,2647,11603
+Daniel Jones,QB,2644,5870
+Roman Wilson,WR,2644,11630
+David Montgomery,RB,2639,5892
+Kenny Gainwell,RB,2633,7567
+Mason Taylor,TE,2632,12498
+Chigoziem Okonkwo,TE,2630,8210
+Devaughn Vele,WR,2621,11834
+Dontayvion Wicks,WR,2614,9486
+Shedeur Sanders,QB,2594,12524
+Juwan Johnson,TE,2583,7002
+Dallas Goedert,TE,2576,5022
+Deshaun Watson,QB,2561,4017
+2027 Mid 3rd,PICK,2557,NA
+Quentin Johnston,WR,2531,9754
+Kyler Murray,QB,2530,5849
+Pat Freiermuth,TE,2522,7600
+Chris Rodriguez Jr.,RB,2521,10219
+2028 Early 3rd,PICK,2517,NA
+Tre Harris,WR,2516,12509
+Brian Robinson Jr.,RB,2514,8154
+Jalen McMillan,WR,2494,11618
+Hunter Henry,TE,2487,3214
+Zachariah Branch,WR,2486,13320
+Darnell Washington,TE,2481,9479
+Terry McLaurin,WR,2480,5927
+2027 Late 3rd,PICK,2465,NA
+Geno Smith,QB,2460,1373
+Deebo Samuel Sr.,WR,2450,5872
+Isaac TeSlaa,WR,2450,12535
+J.K. Dobbins,RB,2447,6806
+Aaron Jones,RB,2432,4199
+Michael Pittman Jr.,WR,2418,6819
+Aaron Rodgers,QB,2392,96
+Keaton Mitchell,RB,2388,9511
+Nicholas Singleton,RB,2374,13288
+Cyrus Allen,WR,2365,13413
+2028 Mid 3rd,PICK,2354,NA
+Tyjae Spears,RB,2339,9508
+Courtland Sutton,WR,2313,5045
+Rashid Shaheed,WR,2297,8676
+Jacoby Brissett,QB,2286,3257
+Kayshon Boutte,WR,2286,9504
+Elic Ayomanor,WR,2277,12499
+Mac Jones,QB,2272,7527
+2029 Early 3rd,PICK,2269,NA
+Drew Allar,QB,2257,13289
+Tank Bigsby,RB,2256,9225
+Kyle Williams,WR,2252,12547
+Kimani Vidal,RB,2247,11647
+Kevin Coleman,WR,2229,13338
+Jalon Daniels,QB,2218,13425
+Chris Godwin,WR,2203,4037
+2028 Late 3rd,PICK,2201,NA
+Tory Horton,WR,2190,12497
+Joe Milton,QB,2176,11557
+Dalton Schultz,TE,2167,5001
+Mike Gesicki,TE,2154,4993
+Gunnar Helm,TE,2143,12502
+Elijah Sarratt,WR,2108,13268
+2029 Mid 3rd,PICK,2085,NA
+Jalen Milroe,QB,2081,12510
+Darius Cooper,WR,2074,13150
+Efton Chism,WR,2073,12542
+Troy Franklin,WR,2072,11627
+Chimere Dike,WR,2072,12540
+Tez Johnson,WR,2071,12485
+Chris Brazzell II,WR,2061,13353
+Treylon Burks,WR,2059,8135
+Keenan Allen,WR,2043,1479
+Greg Dulcich,TE,2033,8172
+Jaylen Wright,RB,2032,11643
+Xavier Hutchinson,WR,2006,10218
+Anthony Richardson,QB,2003,9229
+Mark Andrews,TE,2002,5012
+Konata Mumpfield,WR,2002,12718
+Tyrone Tracy Jr.,RB,2000,11655
+Elijah Arroyo,TE,1998,12521
+Jack Bech,WR,1997,12483
+2029 Late 3rd,PICK,1996,NA
+Rashod Bateman,WR,1995,7571
+Drew Lock,QB,1994,5854
+2027 Early 4th,PICK,1988,NA
+Savion Williams,WR,1981,12482
+MarShawn Lloyd,RB,1979,11581
+Cade Otton,TE,1976,8111
+Josh Cameron,WR,1969,13394
+Emanuel Wilson,RB,1968,11435
+Alvin Kamara,RB,1958,4035
+Colby Parkinson,TE,1951,6865
+Kaleb Johnson,RB,1947,12504
+Tyquan Thornton,WR,1939,8188
+Zavion Thomas,WR,1933,13411
+Jaylin Lane,WR,1930,12641
+Marvin Mims Jr.,WR,1929,9494
+Jerry Jeudy,WR,1907,6783
+Sean Tucker,RB,1902,9506
+Max Klare,TE,1899,13278
+Bryce Lance,WR,1897,13420
+Kendre Miller,RB,1894,9757
+Roschon Johnson,RB,1893,10235
+Skyler Bell,WR,1879,13402
+Cade Klubnik,QB,1874,13303
+2027 Mid 4th,PICK,1869,NA
+Demond Claiborne,RB,1856,13347
+Cole Kmet,TE,1851,6826
+Tyler Higbee,TE,1845,3271
+Trevor Etienne,RB,1844,12531
+Jordan Watkins,WR,1824,12634
+Kaytron Allen,RB,1809,13405
+2028 Early 4th,PICK,1807,NA
+Jalen Nailor,WR,1802,8180
+Jahan Dotson,WR,1798,8119
+2027 Late 4th,PICK,1792,NA
+Bam Knight,RB,1791,8122
+Isaiah Davis,RB,1789,11571
+DJ Giddens,RB,1782,12471
+Oscar Delp,TE,1779,13319
+Adam Randall,RB,1775,13302
+Isaiah Bond,WR,1757,12503
+Devin Singletary,RB,1753,6130
+Kalif Raymond,WR,1751,3634
+Jalen Royals,WR,1751,12505
+Tyler Huntley,QB,1747,7083
+2028 Mid 4th,PICK,1746,NA
+Justice Hill,RB,1743,5995
+Ray Davis,RB,1740,11575
+Jordan James,RB,1738,12467
+Will Shipley,RB,1714,11577
+Raheim Sanders,RB,1708,12472
+Darren Waller,TE,1707,2505
+Dawson Knox,TE,1692,5906
+Dont'e Thornton,WR,1686,12541
+Dohnte Meyers,WR,1685,13264
+2029 Early 4th,PICK,1678,NA
+Tommy Tremble,TE,1672,7694
+Kendrick Bourne,WR,1620,4454
+Xavier Legette,WR,1613,11626
+Jauan Jennings,WR,1604,7049
+Theo Johnson,TE,1602,11597
+Noah Gray,TE,1585,7828
+George Holani,RB,1585,12048
+Audric Estime,RB,1581,11579
+2028 Late 4th,PICK,1562,NA
+Tyler Goodson,RB,1560,8207
+Will Howard,QB,1555,12511
+Isaiah Williams,WR,1548,11608
+Sione Vaki,RB,1548,11729
+Samaje Perine,RB,1546,4147
+Tyson Bagent,QB,1545,11256
+Evan Engram,TE,1544,4066
+Cooper Kupp,WR,1543,4039
+LeQuint Allen,RB,1538,12544
+Trey Benson,RB,1536,11589
+Deion Burks,WR,1507,13333
+Dameon Pierce,RB,1486,8129
+2029 Mid 4th,PICK,1480,NA
+Matt Hibner,TE,1472,13324
+Barion Brown,WR,1471,13533
+Eli Heidenreich,RB,1448,13423
+Ty Johnson,RB,1444,6039
+Christian Kirk,WR,1444,4950
+Mack Hollins,WR,1443,4177
+Devontez Walker,WR,1443,11629
+Corey Kiner,RB,1443,12491
+Jaydon Blue,RB,1440,12457
+Ja'Tavion Sanders,TE,1438,11600
+Jaleel McLaughlin,RB,1417,11439
+Brenen Thompson,WR,1389,13380
+David Njoku,TE,1384,4033
+Joshua Palmer,WR,1384,7670
+Tutu Atwell,WR,1374,7562
+Justin Fields,QB,1364,7591
+Malik Benson,WR,1362,13329
+Marcus Mariota,QB,1358,2307
+Jameis Winston,QB,1357,2306
+John Metchie III,WR,1357,8147
+Devin Neal,RB,1355,12476
+Jake Tonges,TE,1353,8698
+Jordan Whittington,WR,1345,11623
+Jacob Cowing,WR,1326,11616
+Luke Musgrave,TE,1322,9481
+Brashard Smith,RB,1321,12455
+Garrett Nussmeier,QB,1320,13404
+Taylen Green,QB,1315,13306
+Riley Leonard,QB,1309,12470
+Noah Fant,TE,1298,5857
+Darnell Mooney,WR,1298,7090
+Tua Tagovailoa,QB,1297,6768
+Luke McCaffrey,WR,1296,11650
+CJ Daniels,WR,1293,13270
+2029 Late 4th,PICK,1292,NA
+Sam Roush,TE,1291,13322
+Jahdae Walker,WR,1284,13079
+Isiah Pacheco,RB,1279,8205
+Ben Sinnott,TE,1269,11596
+Quinn Ewers,QB,1258,12500
+Tanner McKee,QB,1243,9230
+Justin Joly,TE,1241,13400
+Colbie Young,WR,1230,13477
+Brandon Aiyuk,WR,1220,6803
+Tahj Brooks,RB,1218,12543
+Andrei Iosivas,WR,1213,10226
+Davis Allen,TE,1208,10214
+KeAndre Lambert-Smith,WR,1199,12670
+Charlie Kolar,TE,1196,8127
+Marlin Klein,TE,1175,13307
+Tyreek Hill,WR,1171,3321
+Dyami Brown,WR,1168,7587
+Kameron Johnson,WR,1166,11994
+Elijah Higgins,TE,1163,10231
+Malachi Corley,WR,1162,11617
+Jack Endries,TE,1160,13282
+Chris Brooks,RB,1159,11370
+Kyle McCord,QB,1142,12494
+Cade Stover,TE,1142,11599
+Trey Palmer,WR,1134,9492
+Demarcus Robinson,WR,1127,3286
+Elijah Moore,WR,1116,7596
+Mitchell Evans,TE,1116,12473
+Tai Felton,WR,1108,12496
+Rasheen Ali,RB,1105,11570
+Jarquez Hunter,RB,1103,11569
+Malik Davis,RB,1097,8800
+Will Kacmarek,TE,1095,13434
+Erick All Jr.,TE,1094,11592
+Austin Ekeler,RB,1092,4663
+J'Mari Taylor,RB,1091,13348
+Cedric Tillman,WR,1090,10444
+Jalen Tolbert,WR,1089,8117
+Jack Strand,QB,1081,13602
+Jonathan Mingo,WR,1074,10225
+Calvin Austin III,WR,1054,8125
+Gardner Minshew,QB,1052,6011
+Skyy Moore,WR,1040,8168
+James Conner,RB,1038,4137
+Olamide Zaccheaus,WR,1034,6271
+Elijah Mitchell,RB,1031,7561
+Spencer Rattler,QB,1024,11562
+Josh Cuevas,TE,1013,13273
+Cody White,WR,1012,7039
+Daniel Bellinger,TE,1000,8225
+Jalin Hyatt,WR,995,9497
+Dillon Gabriel,QB,991,12486
+Jimmy Horn,WR,991,12523
+Isaac Guerendo,RB,989,11651
+Reggie Virgil,WR,984,13297
+Emari Demercado,RB,982,11199
+Tyler Badie,RB,980,8208
+KaVontae Turpin,WR,962,8917
+Greg Dortch,WR,952,5970
+Javon Baker,WR,950,11645
+Michael Trigg,TE,948,13401
+David Bell,WR,923,8118
+Hollywood Brown,WR,911,5848
+Bo Melton,WR,894,8204
+Jacob Saylors,RB,866,11237
+Xavier Restrepo,WR,857,12520
+Jonnu Smith,TE,856,4144
+Tanner Koziol,TE,855,13408
+Calvin Ridley,WR,822,4981
+Dylan Laube,RB,809,11574
+Khalil Herbert,RB,808,7608
+Carson Wentz,QB,805,3161
+Brandin Cooks,WR,792,2197
+Trey Lance,QB,792,7610
+Davis Mills,QB,792,7585
+Brock Wright,TE,792,7891
+Luke Schoonmaker,TE,791,10871
+Sam Howell,QB,790,8162
+Kalel Mullings,RB,779,12516
+Stetson Bennett,QB,750,10857
+Foster Moreau,TE,745,5985
+Joe Fagnano,QB,744,13350
+Cole Payton,QB,728,13335
+Kendall Milton,RB,727,11649
+Frank Gore Jr.,RB,705,11573
+Gabe Davis,WR,704,6943
+Michael Carter,RB,698,7607
+Arian Smith,WR,694,12539
+Israel Abanikanda,RB,678,9227
+Brevin Jordan,TE,657,7568
+Jerome Ford,RB,656,8143
+Jam Miller,RB,643,13403
+A.J. Dillon,RB,635,6828
+Nick Westbrook-Ikhine,WR,603,7496
+Jared Wiley,TE,598,11595
+Mason Tipton,WR,578,11895
+Xavier Gipson,WR,559,11306
+Tyler Johnson,WR,531,6960
+Phil Mafah,RB,529,12738
+Johnny Wilson,WR,525,11636
+Najee Harris,RB,521,7528
+Deuce Vaughn,RB,520,9505
+Lil'Jordan Humphrey,WR,516,5938
+Zach Ertz,TE,512,1339
+LaJohntay Wester,WR,512,12699
+Jawhar Jordan,RB,507,11588
+Tyrell Shavers,WR,501,11377
+Kenny Pickett,QB,500,8160
+Isaiah Hodgins,WR,491,6920
+Jeremy McNichols,RB,487,4219
+Sincere McCormick,RB,479,8220
+Josh Oliver,TE,477,5973
+Jeremy Ruckert,TE,472,8145
+Mecole Hardman,WR,462,5917
+Nate Boerkircher,TE,456,13299
+Travis Homer,RB,454,6012
+Tyler Conklin,TE,452,5133
+Adam Trautman,TE,452,6869
+Brevyn Spann-Ford,TE,13,11593
