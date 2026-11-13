@@ -1,1084 +1,1096 @@
 draft,roster_id,date,value_over_expected
-initial draft,6,2024-08-23,-596.3
-initial draft,6,2024-12-19,-297.3
-initial draft,6,2025-01-05,-305.8
-initial draft,6,2025-01-08,-305.8
-initial draft,6,2025-05-10,-366.9
-initial draft,6,2025-06-04,-362.4
-initial draft,6,2025-06-17,-405
-initial draft,6,2025-06-27,-407.3
-initial draft,6,2025-07-01,-408
-initial draft,6,2025-07-08,-415.6
-initial draft,6,2025-07-17,-398.9
-initial draft,6,2025-07-22,-398.9
-initial draft,6,2025-08-05,-389.4
-initial draft,6,2025-08-16,-356.6
-initial draft,6,2025-08-20,-356.6
-initial draft,6,2025-08-29,-353
-initial draft,6,2025-09-03,-353.4
-initial draft,6,2025-09-09,-363.7
-initial draft,6,2025-09-16,-391.6
-initial draft,6,2025-09-23,-385.4
-initial draft,6,2025-09-30,-409
-initial draft,6,2025-10-07,-404.8
-initial draft,6,2025-10-14,-395.3
-initial draft,6,2025-10-21,-334.6
-initial draft,6,2025-10-28,-292.6
-initial draft,6,2025-11-04,-300
-initial draft,6,2025-11-11,-254.6
-initial draft,6,2025-11-18,-233.8
-initial draft,6,2025-11-25,-191.9
-initial draft,6,2025-12-02,-142.4
-initial draft,6,2025-12-09,-73
-initial draft,6,2025-12-16,-36.4
-initial draft,6,2025-12-23,-4.5
-initial draft,6,2025-12-30,11.3
-initial draft,6,2026-01-06,15.5
-initial draft,6,2026-01-13,19.9
-initial draft,6,2026-01-21,20.8
-initial draft,6,2026-01-27,20.7
-initial draft,6,2026-02-03,27.6
-initial draft,6,2026-02-10,31.1
-initial draft,6,2026-02-18,43.9
-initial draft,6,2026-02-24,54.3
-initial draft,6,2026-03-03,63.4
-initial draft,6,2026-03-10,70.5
-initial draft,6,2026-03-20,63.9
-initial draft,6,2026-03-24,67.6
-initial draft,6,2026-03-31,69
-initial draft,6,2026-04-07,69.6
-initial draft,6,2026-04-14,66.3
-initial draft,6,2026-04-21,72.8
-initial draft,6,2026-05-02,86.7
-initial draft,6,2026-05-05,87.3
-initial draft,6,2026-05-12,89.4
-initial draft,6,2026-05-19,88.2
-initial draft,6,2026-05-26,86.5
-initial draft,6,2026-06-11,101.8
-initial draft,6,2026-06-16,103.1
-initial draft,6,2026-06-23,100.5
-initial draft,6,2026-07-02,89.1
-initial draft,6,2026-07-07,89.9
-initial draft,6,2026-07-14,95.1
-initial draft,6,2026-07-21,105.5
-initial draft,6,2026-07-28,106.2
-initial draft,6,2026-08-04,108.4
-initial draft,6,2026-08-11,113.8
-initial draft,6,2026-08-18,123.1
-initial draft,6,2026-08-25,129.6
-initial draft,6,2026-09-01,157.3
-initial draft,6,2026-09-08,191.1
-initial draft,6,2026-09-15,271.1
-initial draft,6,2026-09-22,334.8
-initial draft,6,2026-09-29,397.2
-initial draft,6,2026-10-06,443.4
-initial draft,6,2026-10-13,486.8
-initial draft,6,2026-10-14,487.2
-initial draft,6,2026-10-20,535.8
-initial draft,6,2026-10-26,538.6
-initial draft,6,2026-10-27,554.9
-initial draft,6,2026-10-31,548.1
-initial draft,6,2026-11-01,548.5
-initial draft,6,2026-11-02,549.6
-initial draft,6,2026-11-03,645.7
-initial draft,6,2026-11-04,648.5
-initial draft,6,2026-11-05,650.4
-initial draft,6,2026-11-06,652.1
-initial draft,6,2026-11-08,655.9
+initial draft,6,2024-08-23,-597.2
+initial draft,6,2024-12-19,-298.2
+initial draft,6,2025-01-05,-306.7
+initial draft,6,2025-01-08,-306.7
+initial draft,6,2025-05-10,-367.7
+initial draft,6,2025-06-04,-363.3
+initial draft,6,2025-06-17,-405.9
+initial draft,6,2025-06-27,-408.2
+initial draft,6,2025-07-01,-408.8
+initial draft,6,2025-07-08,-416.4
+initial draft,6,2025-07-17,-399.8
+initial draft,6,2025-07-22,-399.8
+initial draft,6,2025-08-05,-390.3
+initial draft,6,2025-08-16,-357.5
+initial draft,6,2025-08-20,-357.5
+initial draft,6,2025-08-29,-353.9
+initial draft,6,2025-09-03,-354.3
+initial draft,6,2025-09-09,-364.5
+initial draft,6,2025-09-16,-392.4
+initial draft,6,2025-09-23,-386.3
+initial draft,6,2025-09-30,-409.9
+initial draft,6,2025-10-07,-405.7
+initial draft,6,2025-10-14,-396.2
+initial draft,6,2025-10-21,-335.5
+initial draft,6,2025-10-28,-293.5
+initial draft,6,2025-11-04,-300.9
+initial draft,6,2025-11-11,-255.4
+initial draft,6,2025-11-18,-234.7
+initial draft,6,2025-11-25,-192.8
+initial draft,6,2025-12-02,-143.3
+initial draft,6,2025-12-09,-73.9
+initial draft,6,2025-12-16,-37.2
+initial draft,6,2025-12-23,-5.4
+initial draft,6,2025-12-30,10.5
+initial draft,6,2026-01-06,14.6
+initial draft,6,2026-01-13,19
+initial draft,6,2026-01-21,19.9
+initial draft,6,2026-01-27,19.8
+initial draft,6,2026-02-03,26.7
+initial draft,6,2026-02-10,30.2
+initial draft,6,2026-02-18,43.1
+initial draft,6,2026-02-24,53.4
+initial draft,6,2026-03-03,62.5
+initial draft,6,2026-03-10,69.6
+initial draft,6,2026-03-20,63
+initial draft,6,2026-03-24,66.7
+initial draft,6,2026-03-31,68.2
+initial draft,6,2026-04-07,68.7
+initial draft,6,2026-04-14,65.4
+initial draft,6,2026-04-21,71.9
+initial draft,6,2026-05-02,85.8
+initial draft,6,2026-05-05,86.4
+initial draft,6,2026-05-12,88.5
+initial draft,6,2026-05-19,87.4
+initial draft,6,2026-05-26,85.6
+initial draft,6,2026-06-11,100.9
+initial draft,6,2026-06-16,102.2
+initial draft,6,2026-06-23,99.6
+initial draft,6,2026-07-02,88.3
+initial draft,6,2026-07-07,89
+initial draft,6,2026-07-14,94.2
+initial draft,6,2026-07-21,104.6
+initial draft,6,2026-07-28,105.3
+initial draft,6,2026-08-04,107.5
+initial draft,6,2026-08-11,112.9
+initial draft,6,2026-08-18,122.2
+initial draft,6,2026-08-25,128.7
+initial draft,6,2026-09-01,156.4
+initial draft,6,2026-09-08,190.2
+initial draft,6,2026-09-15,270.2
+initial draft,6,2026-09-22,333.9
+initial draft,6,2026-09-29,396.3
+initial draft,6,2026-10-06,442.5
+initial draft,6,2026-10-13,486
+initial draft,6,2026-10-14,486.3
+initial draft,6,2026-10-20,534.9
+initial draft,6,2026-10-26,537.7
+initial draft,6,2026-10-27,554
+initial draft,6,2026-10-31,547.2
+initial draft,6,2026-11-01,547.6
+initial draft,6,2026-11-02,548.7
+initial draft,6,2026-11-03,644.8
+initial draft,6,2026-11-04,647.6
+initial draft,6,2026-11-05,649.5
+initial draft,6,2026-11-06,651.4
+initial draft,6,2026-11-08,655.4
 initial draft,6,2026-11-09,656.5
-initial draft,6,2026-11-10,663.1
-initial draft,6,2026-11-11,664.2
-initial draft,6,2026-11-12,665.2
-initial draft,1,2024-08-23,-634.4
-initial draft,1,2024-12-19,-438.2
-initial draft,1,2025-01-05,-413.3
-initial draft,1,2025-01-08,-413.3
-initial draft,1,2025-05-10,-480
-initial draft,1,2025-06-04,-520.7
-initial draft,1,2025-06-17,-548
-initial draft,1,2025-06-27,-557.7
-initial draft,1,2025-07-01,-554.4
-initial draft,1,2025-07-08,-551.9
-initial draft,1,2025-07-17,-554.8
-initial draft,1,2025-07-22,-554.8
-initial draft,1,2025-08-05,-575.2
-initial draft,1,2025-08-16,-585.3
-initial draft,1,2025-08-20,-585.3
-initial draft,1,2025-08-29,-592.7
-initial draft,1,2025-09-03,-598.7
-initial draft,1,2025-09-09,-598.8
-initial draft,1,2025-09-16,-603.2
-initial draft,1,2025-09-23,-617.8
-initial draft,1,2025-09-30,-529.6
-initial draft,1,2025-10-07,-484.5
-initial draft,1,2025-10-14,-488.8
-initial draft,1,2025-10-21,-463.3
-initial draft,1,2025-10-28,-456.4
-initial draft,1,2025-11-04,-433.7
-initial draft,1,2025-11-11,-481.9
-initial draft,1,2025-11-18,-496.8
-initial draft,1,2025-11-25,-518.5
-initial draft,1,2025-12-02,-495.8
-initial draft,1,2025-12-09,-450
-initial draft,1,2025-12-16,-436.8
-initial draft,1,2025-12-23,-410.1
-initial draft,1,2025-12-30,-436.5
-initial draft,1,2026-01-06,-467.3
-initial draft,1,2026-01-13,-471.7
-initial draft,1,2026-01-21,-485.4
-initial draft,1,2026-01-27,-484.7
-initial draft,1,2026-02-03,-475.1
-initial draft,1,2026-02-10,-468.5
-initial draft,1,2026-02-18,-454.2
-initial draft,1,2026-02-24,-447.1
-initial draft,1,2026-03-03,-416.1
-initial draft,1,2026-03-10,-392.1
-initial draft,1,2026-03-20,-346.9
-initial draft,1,2026-03-24,-344.6
-initial draft,1,2026-03-31,-347.2
-initial draft,1,2026-04-07,-347.9
-initial draft,1,2026-04-14,-349.1
-initial draft,1,2026-04-21,-349.8
-initial draft,1,2026-05-02,-399.8
-initial draft,1,2026-05-05,-399.7
-initial draft,1,2026-05-12,-397
-initial draft,1,2026-05-19,-405.4
-initial draft,1,2026-05-26,-410.8
-initial draft,1,2026-06-11,-405.5
-initial draft,1,2026-06-16,-404
-initial draft,1,2026-06-23,-402.5
-initial draft,1,2026-07-02,-407.3
-initial draft,1,2026-07-07,-409.2
-initial draft,1,2026-07-14,-413.7
-initial draft,1,2026-07-21,-422.8
-initial draft,1,2026-07-28,-420
-initial draft,1,2026-08-04,-412.4
-initial draft,1,2026-08-11,-334.4
-initial draft,1,2026-08-18,-346.1
-initial draft,1,2026-08-25,-374.2
-initial draft,1,2026-09-01,-402.1
-initial draft,1,2026-09-08,-416.9
-initial draft,1,2026-09-15,-432.5
-initial draft,1,2026-09-22,-468.3
-initial draft,1,2026-09-29,-478.1
-initial draft,1,2026-10-06,-456.5
-initial draft,1,2026-10-13,-442.3
-initial draft,1,2026-10-14,-443.2
-initial draft,1,2026-10-20,-451.5
-initial draft,1,2026-10-26,-502.9
-initial draft,1,2026-10-27,-486
-initial draft,1,2026-10-31,-495.4
-initial draft,1,2026-11-01,-496.8
-initial draft,1,2026-11-02,-497.8
-initial draft,1,2026-11-03,-427
-initial draft,1,2026-11-04,-429.3
-initial draft,1,2026-11-05,-432
-initial draft,1,2026-11-06,-434.5
-initial draft,1,2026-11-08,-441.7
-initial draft,1,2026-11-09,-446.3
-initial draft,1,2026-11-10,-424.9
-initial draft,1,2026-11-11,-428.9
-initial draft,1,2026-11-12,-433.4
-initial draft,9,2024-08-23,-801.4
-initial draft,9,2024-12-19,-703.3
-initial draft,9,2025-01-05,-619.3
-initial draft,9,2025-01-08,-619.3
-initial draft,9,2025-05-10,-666.3
-initial draft,9,2025-06-04,-695
-initial draft,9,2025-06-17,-705.8
-initial draft,9,2025-06-27,-703.3
-initial draft,9,2025-07-01,-705.4
-initial draft,9,2025-07-08,-699.4
-initial draft,9,2025-07-17,-680.5
-initial draft,9,2025-07-22,-680.5
-initial draft,9,2025-08-05,-721.2
-initial draft,9,2025-08-16,-726.9
-initial draft,9,2025-08-20,-726.9
-initial draft,9,2025-08-29,-676.1
-initial draft,9,2025-09-03,-687.4
-initial draft,9,2025-09-09,-682.5
-initial draft,9,2025-09-16,-644.5
-initial draft,9,2025-09-23,-626.6
-initial draft,9,2025-09-30,-634.5
-initial draft,9,2025-10-07,-567.5
-initial draft,9,2025-10-14,-535.5
-initial draft,9,2025-10-21,-472
-initial draft,9,2025-10-28,-457.1
-initial draft,9,2025-11-04,-408.5
-initial draft,9,2025-11-11,-363
-initial draft,9,2025-11-18,-351.2
-initial draft,9,2025-11-25,-338.2
-initial draft,9,2025-12-02,-311.8
-initial draft,9,2025-12-09,-340.6
-initial draft,9,2025-12-16,-319.6
-initial draft,9,2025-12-23,-286.2
-initial draft,9,2025-12-30,-288.7
-initial draft,9,2026-01-06,-322.8
-initial draft,9,2026-01-13,-324.7
-initial draft,9,2026-01-21,-318.8
-initial draft,9,2026-01-27,-315.6
-initial draft,9,2026-02-03,-320
-initial draft,9,2026-02-10,-320.6
-initial draft,9,2026-02-18,-319.2
-initial draft,9,2026-02-24,-310.1
-initial draft,9,2026-03-03,-310.5
-initial draft,9,2026-03-10,-295.2
-initial draft,9,2026-03-20,-238.1
-initial draft,9,2026-03-24,-241.8
-initial draft,9,2026-03-31,-251.4
-initial draft,9,2026-04-07,-252.3
-initial draft,9,2026-04-14,-248.9
-initial draft,9,2026-04-21,-254.3
-initial draft,9,2026-05-02,-299.3
-initial draft,9,2026-05-05,-300.8
-initial draft,9,2026-05-12,-305
-initial draft,9,2026-05-19,-312
-initial draft,9,2026-05-26,-308.9
-initial draft,9,2026-06-11,-311
-initial draft,9,2026-06-16,-314.5
-initial draft,9,2026-06-23,-307.4
-initial draft,9,2026-07-02,-314.3
-initial draft,9,2026-07-07,-313.6
-initial draft,9,2026-07-14,-294.4
-initial draft,9,2026-07-21,-285.4
-initial draft,9,2026-07-28,-281
-initial draft,9,2026-08-04,-283.5
-initial draft,9,2026-08-11,-268.1
-initial draft,9,2026-08-18,-269.2
-initial draft,9,2026-08-25,-272.9
-initial draft,9,2026-09-01,-265.7
-initial draft,9,2026-09-08,-281.4
-initial draft,9,2026-09-15,-258.1
-initial draft,9,2026-09-22,-172.5
-initial draft,9,2026-09-29,-101.2
-initial draft,9,2026-10-06,-71.7
-initial draft,9,2026-10-13,-45.5
-initial draft,9,2026-10-14,-46.1
-initial draft,9,2026-10-20,-36.6
-initial draft,9,2026-10-26,-91.5
-initial draft,9,2026-10-27,-87.5
-initial draft,9,2026-10-31,-96
-initial draft,9,2026-11-01,-97.9
-initial draft,9,2026-11-02,-99.8
-initial draft,9,2026-11-03,-114.9
-initial draft,9,2026-11-04,-119.1
-initial draft,9,2026-11-05,-124.6
-initial draft,9,2026-11-06,-130.4
-initial draft,9,2026-11-08,-147.7
-initial draft,9,2026-11-09,-158.5
-initial draft,9,2026-11-10,-156
-initial draft,9,2026-11-11,-164.5
-initial draft,9,2026-11-12,-170.3
-initial draft,10,2024-08-23,-846.7
-initial draft,10,2024-12-19,-512.4
-initial draft,10,2025-01-05,-553.7
-initial draft,10,2025-01-08,-553.7
-initial draft,10,2025-05-10,-601.4
-initial draft,10,2025-06-04,-604.8
-initial draft,10,2025-06-17,-548.8
-initial draft,10,2025-06-27,-572.3
-initial draft,10,2025-07-01,-570.8
-initial draft,10,2025-07-08,-572
-initial draft,10,2025-07-17,-532.5
-initial draft,10,2025-07-22,-532.5
-initial draft,10,2025-08-05,-538
-initial draft,10,2025-08-16,-542.6
-initial draft,10,2025-08-20,-542.6
-initial draft,10,2025-08-29,-561.6
-initial draft,10,2025-09-03,-566
-initial draft,10,2025-09-09,-572.5
-initial draft,10,2025-09-16,-604.1
-initial draft,10,2025-09-23,-774.1
-initial draft,10,2025-09-30,-886.1
-initial draft,10,2025-10-07,-926.3
-initial draft,10,2025-10-14,-966.2
-initial draft,10,2025-10-21,-1011.6
-initial draft,10,2025-10-28,-998.6
-initial draft,10,2025-11-04,-978.2
-initial draft,10,2025-11-11,-938
-initial draft,10,2025-11-18,-857.7
-initial draft,10,2025-11-25,-839
-initial draft,10,2025-12-02,-789.6
-initial draft,10,2025-12-09,-763.8
-initial draft,10,2025-12-16,-752.9
-initial draft,10,2025-12-23,-698.6
-initial draft,10,2025-12-30,-669.3
-initial draft,10,2026-01-06,-642.8
-initial draft,10,2026-01-13,-651.8
-initial draft,10,2026-01-21,-748
-initial draft,10,2026-01-27,-748.8
-initial draft,10,2026-02-03,-750
-initial draft,10,2026-02-10,-749.5
-initial draft,10,2026-02-18,-756.5
-initial draft,10,2026-02-24,-759.7
-initial draft,10,2026-03-03,-763.6
-initial draft,10,2026-03-10,-765.7
-initial draft,10,2026-03-20,-735.6
-initial draft,10,2026-03-24,-735.7
-initial draft,10,2026-03-31,-733.1
-initial draft,10,2026-04-07,-734.7
-initial draft,10,2026-04-14,-716.5
-initial draft,10,2026-04-21,-717.5
-initial draft,10,2026-05-02,-759.8
-initial draft,10,2026-05-05,-761.3
-initial draft,10,2026-05-12,-776
-initial draft,10,2026-05-19,-782.2
-initial draft,10,2026-05-26,-777.4
-initial draft,10,2026-06-11,-730.4
-initial draft,10,2026-06-16,-729.3
-initial draft,10,2026-06-23,-733.6
-initial draft,10,2026-07-02,-732.6
-initial draft,10,2026-07-07,-731
-initial draft,10,2026-07-14,-738.7
-initial draft,10,2026-07-21,-742.9
-initial draft,10,2026-07-28,-728.9
-initial draft,10,2026-08-04,-714.2
-initial draft,10,2026-08-11,-720.9
-initial draft,10,2026-08-18,-731.2
-initial draft,10,2026-08-25,-732.2
-initial draft,10,2026-09-01,-706.8
-initial draft,10,2026-09-08,-709.5
-initial draft,10,2026-09-15,-695.5
-initial draft,10,2026-09-22,-650.7
-initial draft,10,2026-09-29,-525.9
-initial draft,10,2026-10-06,-487.5
-initial draft,10,2026-10-13,-413
-initial draft,10,2026-10-14,-410.7
-initial draft,10,2026-10-20,-378.7
-initial draft,10,2026-10-26,-435.3
-initial draft,10,2026-10-27,-415.6
-initial draft,10,2026-10-31,-432.2
-initial draft,10,2026-11-01,-435.7
-initial draft,10,2026-11-02,-439.1
-initial draft,10,2026-11-03,-432.9
-initial draft,10,2026-11-04,-431.7
-initial draft,10,2026-11-05,-430.4
-initial draft,10,2026-11-06,-431.2
-initial draft,10,2026-11-08,-431.2
-initial draft,10,2026-11-09,-429.8
-initial draft,10,2026-11-10,-377
-initial draft,10,2026-11-11,-372
-initial draft,10,2026-11-12,-366.5
-initial draft,3,2024-08-23,-627.8
-initial draft,3,2024-12-19,-575.1
-initial draft,3,2025-01-05,-618.3
-initial draft,3,2025-01-08,-618.3
-initial draft,3,2025-05-10,-655.8
-initial draft,3,2025-06-04,-720.7
-initial draft,3,2025-06-17,-738.2
-initial draft,3,2025-06-27,-724
-initial draft,3,2025-07-01,-723
-initial draft,3,2025-07-08,-716.9
-initial draft,3,2025-07-17,-710.2
-initial draft,3,2025-07-22,-710.2
-initial draft,3,2025-08-05,-790.3
-initial draft,3,2025-08-16,-797.6
-initial draft,3,2025-08-20,-797.6
-initial draft,3,2025-08-29,-816.3
-initial draft,3,2025-09-03,-820.1
-initial draft,3,2025-09-09,-858.8
-initial draft,3,2025-09-16,-832.1
-initial draft,3,2025-09-23,-825
-initial draft,3,2025-09-30,-795.7
-initial draft,3,2025-10-07,-731.7
-initial draft,3,2025-10-14,-730.1
-initial draft,3,2025-10-21,-744.3
-initial draft,3,2025-10-28,-744.7
-initial draft,3,2025-11-04,-776.2
-initial draft,3,2025-11-11,-818.7
-initial draft,3,2025-11-18,-871.1
-initial draft,3,2025-11-25,-871.9
-initial draft,3,2025-12-02,-863.2
-initial draft,3,2025-12-09,-866.1
-initial draft,3,2025-12-16,-865.7
-initial draft,3,2025-12-23,-852.7
-initial draft,3,2025-12-30,-848.5
-initial draft,3,2026-01-06,-844.9
-initial draft,3,2026-01-13,-844.7
-initial draft,3,2026-01-21,-846.4
-initial draft,3,2026-01-27,-848.7
-initial draft,3,2026-02-03,-848.7
-initial draft,3,2026-02-10,-846
-initial draft,3,2026-02-18,-811.4
-initial draft,3,2026-02-24,-796.8
-initial draft,3,2026-03-03,-772.1
-initial draft,3,2026-03-10,-735.3
-initial draft,3,2026-03-20,-677.5
-initial draft,3,2026-03-24,-676.1
-initial draft,3,2026-03-31,-675.9
-initial draft,3,2026-04-07,-675.2
-initial draft,3,2026-04-14,-678.2
-initial draft,3,2026-04-21,-682
-initial draft,3,2026-05-02,-712
-initial draft,3,2026-05-05,-713.6
-initial draft,3,2026-05-12,-757.4
-initial draft,3,2026-05-19,-772.2
-initial draft,3,2026-05-26,-765.6
-initial draft,3,2026-06-11,-774.3
-initial draft,3,2026-06-16,-769.9
-initial draft,3,2026-06-23,-775.2
-initial draft,3,2026-07-02,-775
-initial draft,3,2026-07-07,-775.5
-initial draft,3,2026-07-14,-776.4
-initial draft,3,2026-07-21,-782.9
-initial draft,3,2026-07-28,-791.1
-initial draft,3,2026-08-04,-799.4
-initial draft,3,2026-08-11,-806.4
-initial draft,3,2026-08-18,-795.7
-initial draft,3,2026-08-25,-780.5
-initial draft,3,2026-09-01,-776.4
-initial draft,3,2026-09-08,-790.6
-initial draft,3,2026-09-15,-691.3
-initial draft,3,2026-09-22,-618.7
-initial draft,3,2026-09-29,-585.2
-initial draft,3,2026-10-06,-559.8
-initial draft,3,2026-10-13,-570.5
-initial draft,3,2026-10-14,-571.9
-initial draft,3,2026-10-20,-588.6
-initial draft,3,2026-10-26,-612.9
-initial draft,3,2026-10-27,-597.2
-initial draft,3,2026-10-31,-593.8
-initial draft,3,2026-11-01,-592.5
-initial draft,3,2026-11-02,-591.3
-initial draft,3,2026-11-03,-588.9
-initial draft,3,2026-11-04,-588.8
-initial draft,3,2026-11-05,-589.5
-initial draft,3,2026-11-06,-590.1
-initial draft,3,2026-11-08,-593
-initial draft,3,2026-11-09,-595.7
-initial draft,3,2026-11-10,-557.7
-initial draft,3,2026-11-11,-558.1
-initial draft,3,2026-11-12,-558.4
-initial draft,8,2024-08-23,-235.3
-initial draft,8,2024-12-19,-79.6
-initial draft,8,2025-01-05,-84.2
-initial draft,8,2025-01-08,-84.2
-initial draft,8,2025-05-10,-305.4
-initial draft,8,2025-06-04,-312.4
-initial draft,8,2025-06-17,-360.7
-initial draft,8,2025-06-27,-376.6
-initial draft,8,2025-07-01,-379
-initial draft,8,2025-07-08,-383.2
-initial draft,8,2025-07-17,-383.4
-initial draft,8,2025-07-22,-383.4
-initial draft,8,2025-08-05,-403
-initial draft,8,2025-08-16,-412.2
-initial draft,8,2025-08-20,-412.2
-initial draft,8,2025-08-29,-417.1
-initial draft,8,2025-09-03,-424.5
-initial draft,8,2025-09-09,-408.8
-initial draft,8,2025-09-16,-455.6
-initial draft,8,2025-09-23,-498.2
-initial draft,8,2025-09-30,-446.9
-initial draft,8,2025-10-07,-426.5
-initial draft,8,2025-10-14,-462.7
-initial draft,8,2025-10-21,-464.3
-initial draft,8,2025-10-28,-501.5
-initial draft,8,2025-11-04,-571.5
-initial draft,8,2025-11-11,-601.1
-initial draft,8,2025-11-18,-655.7
-initial draft,8,2025-11-25,-670.3
-initial draft,8,2025-12-02,-665.8
-initial draft,8,2025-12-09,-675.6
-initial draft,8,2025-12-16,-676.9
-initial draft,8,2025-12-23,-691.4
-initial draft,8,2025-12-30,-697.4
-initial draft,8,2026-01-06,-676.4
-initial draft,8,2026-01-13,-667.8
-initial draft,8,2026-01-21,-676.4
-initial draft,8,2026-01-27,-681
-initial draft,8,2026-02-03,-688.6
-initial draft,8,2026-02-10,-687.3
-initial draft,8,2026-02-18,-660.7
-initial draft,8,2026-02-24,-657.1
-initial draft,8,2026-03-03,-642.8
-initial draft,8,2026-03-10,-621.8
-initial draft,8,2026-03-20,-596.2
-initial draft,8,2026-03-24,-598.4
-initial draft,8,2026-03-31,-585.7
-initial draft,8,2026-04-07,-592.2
-initial draft,8,2026-04-14,-631.1
-initial draft,8,2026-04-21,-633.4
-initial draft,8,2026-05-02,-726.6
-initial draft,8,2026-05-05,-725
-initial draft,8,2026-05-12,-717.3
-initial draft,8,2026-05-19,-732.7
-initial draft,8,2026-05-26,-738.4
-initial draft,8,2026-06-11,-720.3
-initial draft,8,2026-06-16,-717.5
-initial draft,8,2026-06-23,-715.4
-initial draft,8,2026-07-02,-731.4
-initial draft,8,2026-07-07,-738
-initial draft,8,2026-07-14,-740
-initial draft,8,2026-07-21,-743.2
-initial draft,8,2026-07-28,-743
-initial draft,8,2026-08-04,-746.9
-initial draft,8,2026-08-11,-769.6
-initial draft,8,2026-08-18,-807.6
-initial draft,8,2026-08-25,-820
-initial draft,8,2026-09-01,-835.8
-initial draft,8,2026-09-08,-830.6
-initial draft,8,2026-09-15,-805.7
-initial draft,8,2026-09-22,-790.9
-initial draft,8,2026-09-29,-722.5
-initial draft,8,2026-10-06,-691.7
-initial draft,8,2026-10-13,-692.7
-initial draft,8,2026-10-14,-695.1
-initial draft,8,2026-10-20,-723.3
-initial draft,8,2026-10-26,-747.8
-initial draft,8,2026-10-27,-744.5
-initial draft,8,2026-10-31,-735.8
-initial draft,8,2026-11-01,-732.9
-initial draft,8,2026-11-02,-729.9
-initial draft,8,2026-11-03,-692.9
-initial draft,8,2026-11-04,-689.4
-initial draft,8,2026-11-05,-690.1
-initial draft,8,2026-11-06,-688.4
-initial draft,8,2026-11-08,-684.8
-initial draft,8,2026-11-09,-684.2
-initial draft,8,2026-11-10,-687.8
-initial draft,8,2026-11-11,-687.2
-initial draft,8,2026-11-12,-687.1
-initial draft,12,2024-08-23,-489.2
-initial draft,12,2024-12-19,388.7
-initial draft,12,2025-01-05,378.5
-initial draft,12,2025-01-08,378.5
-initial draft,12,2025-05-10,265.7
-initial draft,12,2025-06-04,240.8
-initial draft,12,2025-06-17,258
-initial draft,12,2025-06-27,257.3
-initial draft,12,2025-07-01,252.6
-initial draft,12,2025-07-08,250.9
-initial draft,12,2025-07-17,233.3
-initial draft,12,2025-07-22,233.3
-initial draft,12,2025-08-05,210.1
-initial draft,12,2025-08-16,212.2
-initial draft,12,2025-08-20,212.2
-initial draft,12,2025-08-29,270.5
-initial draft,12,2025-09-03,277.2
-initial draft,12,2025-09-09,323.6
-initial draft,12,2025-09-16,371.1
-initial draft,12,2025-09-23,350.2
-initial draft,12,2025-09-30,368
-initial draft,12,2025-10-07,357.8
-initial draft,12,2025-10-14,404.1
-initial draft,12,2025-10-21,403.3
-initial draft,12,2025-10-28,449.7
-initial draft,12,2025-11-04,434.6
-initial draft,12,2025-11-11,447.9
-initial draft,12,2025-11-18,440.7
-initial draft,12,2025-11-25,513.8
-initial draft,12,2025-12-02,583.2
-initial draft,12,2025-12-09,559
-initial draft,12,2025-12-16,535.8
-initial draft,12,2025-12-23,528.2
-initial draft,12,2025-12-30,513
-initial draft,12,2026-01-06,467.5
-initial draft,12,2026-01-13,459.8
-initial draft,12,2026-01-21,429.7
-initial draft,12,2026-01-27,425.9
-initial draft,12,2026-02-03,429.1
-initial draft,12,2026-02-10,427.1
-initial draft,12,2026-02-18,430.4
-initial draft,12,2026-02-24,431.2
-initial draft,12,2026-03-03,393.1
-initial draft,12,2026-03-10,380
-initial draft,12,2026-03-20,398.7
-initial draft,12,2026-03-24,398.5
-initial draft,12,2026-03-31,399.9
-initial draft,12,2026-04-07,392.7
-initial draft,12,2026-04-14,384.5
-initial draft,12,2026-04-21,384.9
-initial draft,12,2026-05-02,392.2
-initial draft,12,2026-05-05,393.8
-initial draft,12,2026-05-12,393.2
-initial draft,12,2026-05-19,390.9
-initial draft,12,2026-05-26,376.9
-initial draft,12,2026-06-11,343.5
-initial draft,12,2026-06-16,348.4
-initial draft,12,2026-06-23,353.6
-initial draft,12,2026-07-02,369.4
-initial draft,12,2026-07-07,370
-initial draft,12,2026-07-14,395.5
-initial draft,12,2026-07-21,399.5
-initial draft,12,2026-07-28,409.5
-initial draft,12,2026-08-04,418.5
-initial draft,12,2026-08-11,431.8
-initial draft,12,2026-08-18,426.9
-initial draft,12,2026-08-25,421.2
-initial draft,12,2026-09-01,329.3
-initial draft,12,2026-09-08,330.5
-initial draft,12,2026-09-15,367.3
-initial draft,12,2026-09-22,366
-initial draft,12,2026-09-29,297.4
-initial draft,12,2026-10-06,251.2
-initial draft,12,2026-10-13,261.2
-initial draft,12,2026-10-14,259.7
-initial draft,12,2026-10-20,279.9
-initial draft,12,2026-10-26,285.8
-initial draft,12,2026-10-27,285.1
-initial draft,12,2026-10-31,276.6
-initial draft,12,2026-11-01,274.4
-initial draft,12,2026-11-02,272.1
-initial draft,12,2026-11-03,278.2
-initial draft,12,2026-11-04,273.3
-initial draft,12,2026-11-05,267.6
-initial draft,12,2026-11-06,262.9
-initial draft,12,2026-11-08,250.9
-initial draft,12,2026-11-09,245.1
-initial draft,12,2026-11-10,239.7
-initial draft,12,2026-11-11,238.2
-initial draft,12,2026-11-12,236.3
-initial draft,4,2024-08-23,-249
-initial draft,4,2024-12-19,182
-initial draft,4,2025-01-05,270.5
-initial draft,4,2025-01-08,270.5
-initial draft,4,2025-05-10,221.9
-initial draft,4,2025-06-04,208.2
-initial draft,4,2025-06-17,222.8
-initial draft,4,2025-06-27,230.5
-initial draft,4,2025-07-01,233.9
-initial draft,4,2025-07-08,234.6
-initial draft,4,2025-07-17,215.6
-initial draft,4,2025-07-22,215.6
-initial draft,4,2025-08-05,230.8
-initial draft,4,2025-08-16,226.9
-initial draft,4,2025-08-20,226.9
-initial draft,4,2025-08-29,194.4
-initial draft,4,2025-09-03,190.8
-initial draft,4,2025-09-09,177.7
-initial draft,4,2025-09-16,169.7
-initial draft,4,2025-09-23,256.8
-initial draft,4,2025-09-30,314.6
-initial draft,4,2025-10-07,306.8
-initial draft,4,2025-10-14,324.1
-initial draft,4,2025-10-21,399.1
-initial draft,4,2025-10-28,460.1
-initial draft,4,2025-11-04,610.9
-initial draft,4,2025-11-11,728
-initial draft,4,2025-11-18,786.4
-initial draft,4,2025-11-25,929.7
-initial draft,4,2025-12-02,991.5
-initial draft,4,2025-12-09,1036
-initial draft,4,2025-12-16,1111.1
-initial draft,4,2025-12-23,1219.2
-initial draft,4,2025-12-30,1280.5
-initial draft,4,2026-01-06,1278.3
-initial draft,4,2026-01-13,1282.3
-initial draft,4,2026-01-21,1282.5
-initial draft,4,2026-01-27,1280.2
-initial draft,4,2026-02-03,1283.8
-initial draft,4,2026-02-10,1284.9
-initial draft,4,2026-02-18,1307.2
-initial draft,4,2026-02-24,1306.2
-initial draft,4,2026-03-03,1301.5
-initial draft,4,2026-03-10,1296.5
-initial draft,4,2026-03-20,1251.8
-initial draft,4,2026-03-24,1254.2
-initial draft,4,2026-03-31,1262.3
-initial draft,4,2026-04-07,1252.6
-initial draft,4,2026-04-14,1242.5
-initial draft,4,2026-04-21,1239.5
-initial draft,4,2026-05-02,1233.9
-initial draft,4,2026-05-05,1232.6
-initial draft,4,2026-05-12,1234.7
-initial draft,4,2026-05-19,1235.6
-initial draft,4,2026-05-26,1236
-initial draft,4,2026-06-11,1238.4
-initial draft,4,2026-06-16,1243.3
-initial draft,4,2026-06-23,1247.1
-initial draft,4,2026-07-02,1260.6
-initial draft,4,2026-07-07,1255.7
-initial draft,4,2026-07-14,1255.1
-initial draft,4,2026-07-21,1239.1
-initial draft,4,2026-07-28,1210.5
-initial draft,4,2026-08-04,1223.3
-initial draft,4,2026-08-11,1214.8
-initial draft,4,2026-08-18,1241.3
-initial draft,4,2026-08-25,1240.8
-initial draft,4,2026-09-01,1247.9
-initial draft,4,2026-09-08,1253.7
-initial draft,4,2026-09-15,1368.2
-initial draft,4,2026-09-22,1534.7
-initial draft,4,2026-09-29,1655.5
-initial draft,4,2026-10-06,1751.3
-initial draft,4,2026-10-13,1880.9
-initial draft,4,2026-10-14,1881.9
-initial draft,4,2026-10-20,1941.9
-initial draft,4,2026-10-26,1919
-initial draft,4,2026-10-27,1992.2
-initial draft,4,2026-10-31,1988.4
-initial draft,4,2026-11-01,1988.9
-initial draft,4,2026-11-02,1989.7
-initial draft,4,2026-11-03,2071.3
-initial draft,4,2026-11-04,2072
-initial draft,4,2026-11-05,2071.9
-initial draft,4,2026-11-06,2071.9
-initial draft,4,2026-11-08,2070.4
-initial draft,4,2026-11-09,2068.1
-initial draft,4,2026-11-10,2129.9
-initial draft,4,2026-11-11,2127.4
-initial draft,4,2026-11-12,2124.2
-initial draft,11,2024-08-23,-369.6
-initial draft,11,2024-12-19,-497.2
-initial draft,11,2025-01-05,-551.7
-initial draft,11,2025-01-08,-551.7
-initial draft,11,2025-05-10,-707.5
-initial draft,11,2025-06-04,-770
-initial draft,11,2025-06-17,-785.8
-initial draft,11,2025-06-27,-767.2
-initial draft,11,2025-07-01,-763.7
-initial draft,11,2025-07-08,-768.9
-initial draft,11,2025-07-17,-780.9
-initial draft,11,2025-07-22,-780.9
-initial draft,11,2025-08-05,-792.4
-initial draft,11,2025-08-16,-829
-initial draft,11,2025-08-20,-829
-initial draft,11,2025-08-29,-835
-initial draft,11,2025-09-03,-830.1
-initial draft,11,2025-09-09,-793.4
-initial draft,11,2025-09-16,-691.6
-initial draft,11,2025-09-23,-688.6
-initial draft,11,2025-09-30,-706
-initial draft,11,2025-10-07,-711.7
-initial draft,11,2025-10-14,-728.8
-initial draft,11,2025-10-21,-727.8
-initial draft,11,2025-10-28,-652.7
-initial draft,11,2025-11-04,-635.2
-initial draft,11,2025-11-11,-616.8
-initial draft,11,2025-11-18,-629.2
-initial draft,11,2025-11-25,-660.4
-initial draft,11,2025-12-02,-709.2
-initial draft,11,2025-12-09,-741
-initial draft,11,2025-12-16,-702.6
-initial draft,11,2025-12-23,-692.6
-initial draft,11,2025-12-30,-685.5
-initial draft,11,2026-01-06,-690.1
-initial draft,11,2026-01-13,-684.6
-initial draft,11,2026-01-21,-684
-initial draft,11,2026-01-27,-684.1
-initial draft,11,2026-02-03,-674.7
-initial draft,11,2026-02-10,-675.3
-initial draft,11,2026-02-18,-654.2
-initial draft,11,2026-02-24,-643.9
-initial draft,11,2026-03-03,-637.4
-initial draft,11,2026-03-10,-649.6
-initial draft,11,2026-03-20,-632.7
-initial draft,11,2026-03-24,-632.3
-initial draft,11,2026-03-31,-616.1
-initial draft,11,2026-04-07,-629.1
-initial draft,11,2026-04-14,-617.2
-initial draft,11,2026-04-21,-627
-initial draft,11,2026-05-02,-652.4
-initial draft,11,2026-05-05,-653.2
-initial draft,11,2026-05-12,-632
-initial draft,11,2026-05-19,-642.3
-initial draft,11,2026-05-26,-643.9
-initial draft,11,2026-06-11,-649.5
-initial draft,11,2026-06-16,-651.8
-initial draft,11,2026-06-23,-655.8
-initial draft,11,2026-07-02,-657
-initial draft,11,2026-07-07,-658.7
-initial draft,11,2026-07-14,-661.5
-initial draft,11,2026-07-21,-663.5
-initial draft,11,2026-07-28,-668.3
-initial draft,11,2026-08-04,-690.8
-initial draft,11,2026-08-11,-703.8
-initial draft,11,2026-08-18,-694
-initial draft,11,2026-08-25,-683.3
-initial draft,11,2026-09-01,-654.5
-initial draft,11,2026-09-08,-640.4
-initial draft,11,2026-09-15,-631
-initial draft,11,2026-09-22,-738.6
-initial draft,11,2026-09-29,-798.8
-initial draft,11,2026-10-06,-818.9
-initial draft,11,2026-10-13,-811.3
-initial draft,11,2026-10-14,-811.3
-initial draft,11,2026-10-20,-822.8
-initial draft,11,2026-10-26,-877.6
-initial draft,11,2026-10-27,-873.5
-initial draft,11,2026-10-31,-890.4
-initial draft,11,2026-11-01,-893.3
-initial draft,11,2026-11-02,-895.7
-initial draft,11,2026-11-03,-891.4
-initial draft,11,2026-11-04,-896.4
-initial draft,11,2026-11-05,-902.1
-initial draft,11,2026-11-06,-906
-initial draft,11,2026-11-08,-917.2
-initial draft,11,2026-11-09,-923.3
-initial draft,11,2026-11-10,-933.1
-initial draft,11,2026-11-11,-941.1
-initial draft,11,2026-11-12,-948.5
-initial draft,5,2024-08-23,-686
-initial draft,5,2024-12-19,-539.7
-initial draft,5,2025-01-05,-530.1
-initial draft,5,2025-01-08,-530.1
-initial draft,5,2025-05-10,-549.5
-initial draft,5,2025-06-04,-597.6
-initial draft,5,2025-06-17,-565.7
-initial draft,5,2025-06-27,-585.5
-initial draft,5,2025-07-01,-586
-initial draft,5,2025-07-08,-591.5
-initial draft,5,2025-07-17,-563.3
-initial draft,5,2025-07-22,-563.3
-initial draft,5,2025-08-05,-579.6
-initial draft,5,2025-08-16,-586.4
-initial draft,5,2025-08-20,-586.4
-initial draft,5,2025-08-29,-602.2
-initial draft,5,2025-09-03,-601.2
-initial draft,5,2025-09-09,-566.8
-initial draft,5,2025-09-16,-532
-initial draft,5,2025-09-23,-585.1
-initial draft,5,2025-09-30,-600.4
-initial draft,5,2025-10-07,-554.3
-initial draft,5,2025-10-14,-568.6
-initial draft,5,2025-10-21,-553.5
-initial draft,5,2025-10-28,-601.3
-initial draft,5,2025-11-04,-632.5
-initial draft,5,2025-11-11,-602.2
-initial draft,5,2025-11-18,-582.1
-initial draft,5,2025-11-25,-621.5
-initial draft,5,2025-12-02,-617.5
-initial draft,5,2025-12-09,-601.2
-initial draft,5,2025-12-16,-537.7
-initial draft,5,2025-12-23,-477.9
-initial draft,5,2025-12-30,-419.6
-initial draft,5,2026-01-06,-395.1
-initial draft,5,2026-01-13,-390.8
-initial draft,5,2026-01-21,-382.6
-initial draft,5,2026-01-27,-385.3
-initial draft,5,2026-02-03,-382
-initial draft,5,2026-02-10,-378.3
-initial draft,5,2026-02-18,-375.6
-initial draft,5,2026-02-24,-372.9
-initial draft,5,2026-03-03,-375.2
-initial draft,5,2026-03-10,-374.7
-initial draft,5,2026-03-20,-341.6
-initial draft,5,2026-03-24,-338.4
-initial draft,5,2026-03-31,-339.5
-initial draft,5,2026-04-07,-351.3
-initial draft,5,2026-04-14,-348.2
-initial draft,5,2026-04-21,-340.2
-initial draft,5,2026-05-02,-367
-initial draft,5,2026-05-05,-366.7
-initial draft,5,2026-05-12,-368.7
-initial draft,5,2026-05-19,-365.6
-initial draft,5,2026-05-26,-358.1
-initial draft,5,2026-06-11,-359.2
-initial draft,5,2026-06-16,-359.1
-initial draft,5,2026-06-23,-363
-initial draft,5,2026-07-02,-360.8
-initial draft,5,2026-07-07,-359.5
-initial draft,5,2026-07-14,-362.9
-initial draft,5,2026-07-21,-361.4
-initial draft,5,2026-07-28,-363.5
-initial draft,5,2026-08-04,-378.7
-initial draft,5,2026-08-11,-363.4
-initial draft,5,2026-08-18,-349.1
-initial draft,5,2026-08-25,-349.2
-initial draft,5,2026-09-01,-348.2
-initial draft,5,2026-09-08,-365.8
-initial draft,5,2026-09-15,-347.7
-initial draft,5,2026-09-22,-350.2
-initial draft,5,2026-09-29,-326.5
-initial draft,5,2026-10-06,-293.1
-initial draft,5,2026-10-13,-304.2
-initial draft,5,2026-10-14,-307.2
-initial draft,5,2026-10-20,-310.4
-initial draft,5,2026-10-26,-338.7
-initial draft,5,2026-10-27,-331
-initial draft,5,2026-10-31,-337.6
-initial draft,5,2026-11-01,-339.2
-initial draft,5,2026-11-02,-340.7
-initial draft,5,2026-11-03,-296.3
-initial draft,5,2026-11-04,-296.7
-initial draft,5,2026-11-05,-296
-initial draft,5,2026-11-06,-294.5
-initial draft,5,2026-11-08,-288.1
-initial draft,5,2026-11-09,-282.3
-initial draft,5,2026-11-10,-260.6
-initial draft,5,2026-11-11,-256.6
-initial draft,5,2026-11-12,-252.7
-initial draft,2,2024-08-23,-496.1
-initial draft,2,2024-12-19,-421.5
-initial draft,2,2025-01-05,-337.6
-initial draft,2,2025-01-08,-337.6
-initial draft,2,2025-05-10,-377.8
-initial draft,2,2025-06-04,-384.3
-initial draft,2,2025-06-17,-382.1
-initial draft,2,2025-06-27,-404.1
-initial draft,2,2025-07-01,-402.3
-initial draft,2,2025-07-08,-381.7
-initial draft,2,2025-07-17,-363.4
-initial draft,2,2025-07-22,-363.4
-initial draft,2,2025-08-05,-328.1
-initial draft,2,2025-08-16,-329.6
-initial draft,2,2025-08-20,-329.6
-initial draft,2,2025-08-29,-345.7
-initial draft,2,2025-09-03,-342.5
-initial draft,2,2025-09-09,-319.1
-initial draft,2,2025-09-16,-331.3
-initial draft,2,2025-09-23,-357
-initial draft,2,2025-09-30,-350.9
-initial draft,2,2025-10-07,-316.6
-initial draft,2,2025-10-14,-240.3
-initial draft,2,2025-10-21,-209.4
-initial draft,2,2025-10-28,-173
-initial draft,2,2025-11-04,-120.9
-initial draft,2,2025-11-11,-78.3
-initial draft,2,2025-11-18,-38.2
-initial draft,2,2025-11-25,-78
-initial draft,2,2025-12-02,-32.7
-initial draft,2,2025-12-09,-74.7
-initial draft,2,2025-12-16,-72.4
-initial draft,2,2025-12-23,-72.1
-initial draft,2,2025-12-30,-94.2
-initial draft,2,2026-01-06,-87.3
-initial draft,2,2026-01-13,-76.2
-initial draft,2,2026-01-21,-81.9
-initial draft,2,2026-01-27,-82.1
-initial draft,2,2026-02-03,-76
-initial draft,2,2026-02-10,-71.8
-initial draft,2,2026-02-18,-36
-initial draft,2,2026-02-24,-21.1
-initial draft,2,2026-03-03,-18.8
-initial draft,2,2026-03-10,3.3
-initial draft,2,2026-03-20,39.5
-initial draft,2,2026-03-24,42.4
-initial draft,2,2026-03-31,40.5
-initial draft,2,2026-04-07,23.4
-initial draft,2,2026-04-14,19.7
-initial draft,2,2026-04-21,13.9
-initial draft,2,2026-05-02,-23.7
-initial draft,2,2026-05-05,-22.5
-initial draft,2,2026-05-12,-23.2
-initial draft,2,2026-05-19,-40.2
-initial draft,2,2026-05-26,-34.7
-initial draft,2,2026-06-11,-41.6
-initial draft,2,2026-06-16,-42.1
-initial draft,2,2026-06-23,-42.9
-initial draft,2,2026-07-02,-34
-initial draft,2,2026-07-07,-30.9
-initial draft,2,2026-07-14,-36.3
-initial draft,2,2026-07-21,-47.4
-initial draft,2,2026-07-28,-65.4
-initial draft,2,2026-08-04,-58.7
-initial draft,2,2026-08-11,-80.8
-initial draft,2,2026-08-18,-93.2
-initial draft,2,2026-08-25,-111.1
-initial draft,2,2026-09-01,-127.1
-initial draft,2,2026-09-08,-139.5
-initial draft,2,2026-09-15,-115.1
-initial draft,2,2026-09-22,-30.9
-initial draft,2,2026-09-29,-48.6
-initial draft,2,2026-10-06,-9.9
-initial draft,2,2026-10-13,30.1
-initial draft,2,2026-10-14,30.3
-initial draft,2,2026-10-20,57.9
-initial draft,2,2026-10-26,21.2
-initial draft,2,2026-10-27,42.4
-initial draft,2,2026-10-31,30.4
-initial draft,2,2026-11-01,28.3
-initial draft,2,2026-11-02,26.6
-initial draft,2,2026-11-03,11.1
-initial draft,2,2026-11-04,11.3
-initial draft,2,2026-11-05,10.2
-initial draft,2,2026-11-06,9.7
-initial draft,2,2026-11-08,9.4
-initial draft,2,2026-11-09,9.5
-initial draft,2,2026-11-10,60.5
-initial draft,2,2026-11-11,61.3
-initial draft,2,2026-11-12,62.9
-initial draft,7,2024-08-23,-52.5
-initial draft,7,2024-12-19,273
-initial draft,7,2025-01-05,365
-initial draft,7,2025-01-08,365
-initial draft,7,2025-05-10,83.2
-initial draft,7,2025-06-04,15.4
-initial draft,7,2025-06-17,12.2
-initial draft,7,2025-06-27,45.2
-initial draft,7,2025-07-01,46.1
-initial draft,7,2025-07-08,52.4
-initial draft,7,2025-07-17,113.6
-initial draft,7,2025-07-22,113.6
-initial draft,7,2025-08-05,142.7
-initial draft,7,2025-08-16,145.3
-initial draft,7,2025-08-20,145.3
-initial draft,7,2025-08-29,126.5
-initial draft,7,2025-09-03,125.9
-initial draft,7,2025-09-09,106.8
-initial draft,7,2025-09-16,101.6
-initial draft,7,2025-09-23,120.2
-initial draft,7,2025-09-30,135.7
-initial draft,7,2025-10-07,142.9
-initial draft,7,2025-10-14,226.8
-initial draft,7,2025-10-21,302.3
-initial draft,7,2025-10-28,326.1
-initial draft,7,2025-11-04,448.5
-initial draft,7,2025-11-11,477.5
-initial draft,7,2025-11-18,465.7
-initial draft,7,2025-11-25,429.7
-initial draft,7,2025-12-02,419.3
-initial draft,7,2025-12-09,430
-initial draft,7,2025-12-16,436.7
-initial draft,7,2025-12-23,486.5
-initial draft,7,2025-12-30,472.8
-initial draft,7,2026-01-06,453.3
-initial draft,7,2026-01-13,435.4
-initial draft,7,2026-01-21,416.9
-initial draft,7,2026-01-27,411.3
-initial draft,7,2026-02-03,420
-initial draft,7,2026-02-10,424.1
-initial draft,7,2026-02-18,461.5
-initial draft,7,2026-02-24,462
-initial draft,7,2026-03-03,461.3
-initial draft,7,2026-03-10,450.1
-initial draft,7,2026-03-20,471.9
-initial draft,7,2026-03-24,474.9
-initial draft,7,2026-03-31,469.1
-initial draft,7,2026-04-07,459.3
-initial draft,7,2026-04-14,438.9
-initial draft,7,2026-04-21,439.9
-initial draft,7,2026-05-02,420.9
-initial draft,7,2026-05-05,421.9
-initial draft,7,2026-05-12,426.7
-initial draft,7,2026-05-19,411.4
-initial draft,7,2026-05-26,411.4
-initial draft,7,2026-06-11,397.5
-initial draft,7,2026-06-16,393.4
-initial draft,7,2026-06-23,391.4
-initial draft,7,2026-07-02,395.9
-initial draft,7,2026-07-07,396.4
-initial draft,7,2026-07-14,395
-initial draft,7,2026-07-21,388.4
-initial draft,7,2026-07-28,390.8
-initial draft,7,2026-08-04,397.1
-initial draft,7,2026-08-11,412.5
-initial draft,7,2026-08-18,405.7
-initial draft,7,2026-08-25,402.9
-initial draft,7,2026-09-01,395.2
-initial draft,7,2026-09-08,398.8
-initial draft,7,2026-09-15,456.1
-initial draft,7,2026-09-22,475.1
-initial draft,7,2026-09-29,504.5
-initial draft,7,2026-10-06,563
-initial draft,7,2026-10-13,504.7
-initial draft,7,2026-10-14,500.3
-initial draft,7,2026-10-20,481.6
-initial draft,7,2026-10-26,448.5
-initial draft,7,2026-10-27,460.9
-initial draft,7,2026-10-31,447
-initial draft,7,2026-11-01,443.9
-initial draft,7,2026-11-02,440.8
-initial draft,7,2026-11-03,419.8
-initial draft,7,2026-11-04,415.3
-initial draft,7,2026-11-05,411
-initial draft,7,2026-11-06,406.5
-initial draft,7,2026-11-08,395
-initial draft,7,2026-11-09,389.3
-initial draft,7,2026-11-10,402
-initial draft,7,2026-11-11,398.9
-initial draft,7,2026-11-12,397.1
+initial draft,6,2026-11-10,663.8
+initial draft,6,2026-11-11,665.2
+initial draft,6,2026-11-12,665.9
+initial draft,6,2026-11-13,666.2
+initial draft,1,2024-08-23,-635.3
+initial draft,1,2024-12-19,-439.1
+initial draft,1,2025-01-05,-414.2
+initial draft,1,2025-01-08,-414.2
+initial draft,1,2025-05-10,-480.9
+initial draft,1,2025-06-04,-521.6
+initial draft,1,2025-06-17,-548.8
+initial draft,1,2025-06-27,-558.5
+initial draft,1,2025-07-01,-555.3
+initial draft,1,2025-07-08,-552.8
+initial draft,1,2025-07-17,-555.7
+initial draft,1,2025-07-22,-555.7
+initial draft,1,2025-08-05,-576.1
+initial draft,1,2025-08-16,-586.2
+initial draft,1,2025-08-20,-586.2
+initial draft,1,2025-08-29,-593.5
+initial draft,1,2025-09-03,-599.5
+initial draft,1,2025-09-09,-599.7
+initial draft,1,2025-09-16,-604.1
+initial draft,1,2025-09-23,-618.7
+initial draft,1,2025-09-30,-530.5
+initial draft,1,2025-10-07,-485.3
+initial draft,1,2025-10-14,-489.6
+initial draft,1,2025-10-21,-464.2
+initial draft,1,2025-10-28,-457.3
+initial draft,1,2025-11-04,-434.6
+initial draft,1,2025-11-11,-482.8
+initial draft,1,2025-11-18,-497.7
+initial draft,1,2025-11-25,-519.4
+initial draft,1,2025-12-02,-496.6
+initial draft,1,2025-12-09,-450.9
+initial draft,1,2025-12-16,-437.7
+initial draft,1,2025-12-23,-411
+initial draft,1,2025-12-30,-437.4
+initial draft,1,2026-01-06,-468.1
+initial draft,1,2026-01-13,-472.6
+initial draft,1,2026-01-21,-486.3
+initial draft,1,2026-01-27,-485.5
+initial draft,1,2026-02-03,-476
+initial draft,1,2026-02-10,-469.4
+initial draft,1,2026-02-18,-455.1
+initial draft,1,2026-02-24,-447.9
+initial draft,1,2026-03-03,-417
+initial draft,1,2026-03-10,-392.9
+initial draft,1,2026-03-20,-347.8
+initial draft,1,2026-03-24,-345.5
+initial draft,1,2026-03-31,-348
+initial draft,1,2026-04-07,-348.8
+initial draft,1,2026-04-14,-349.9
+initial draft,1,2026-04-21,-350.7
+initial draft,1,2026-05-02,-400.7
+initial draft,1,2026-05-05,-400.6
+initial draft,1,2026-05-12,-397.8
+initial draft,1,2026-05-19,-406.3
+initial draft,1,2026-05-26,-411.6
+initial draft,1,2026-06-11,-406.4
+initial draft,1,2026-06-16,-404.9
+initial draft,1,2026-06-23,-403.3
+initial draft,1,2026-07-02,-408.2
+initial draft,1,2026-07-07,-410.1
+initial draft,1,2026-07-14,-414.6
+initial draft,1,2026-07-21,-423.7
+initial draft,1,2026-07-28,-420.9
+initial draft,1,2026-08-04,-413.3
+initial draft,1,2026-08-11,-335.3
+initial draft,1,2026-08-18,-346.9
+initial draft,1,2026-08-25,-375.1
+initial draft,1,2026-09-01,-403
+initial draft,1,2026-09-08,-417.8
+initial draft,1,2026-09-15,-433.4
+initial draft,1,2026-09-22,-469.2
+initial draft,1,2026-09-29,-479
+initial draft,1,2026-10-06,-457.3
+initial draft,1,2026-10-13,-443.2
+initial draft,1,2026-10-14,-444.1
+initial draft,1,2026-10-20,-452.4
+initial draft,1,2026-10-26,-503.8
+initial draft,1,2026-10-27,-486.8
+initial draft,1,2026-10-31,-496.3
+initial draft,1,2026-11-01,-497.7
+initial draft,1,2026-11-02,-498.7
+initial draft,1,2026-11-03,-427.9
+initial draft,1,2026-11-04,-430.1
+initial draft,1,2026-11-05,-432.9
+initial draft,1,2026-11-06,-436.7
+initial draft,1,2026-11-08,-445.1
+initial draft,1,2026-11-09,-449.9
+initial draft,1,2026-11-10,-430.5
+initial draft,1,2026-11-11,-434.8
+initial draft,1,2026-11-12,-438.3
+initial draft,1,2026-11-13,-439.6
+initial draft,9,2024-08-23,-802.3
+initial draft,9,2024-12-19,-704.1
+initial draft,9,2025-01-05,-620.1
+initial draft,9,2025-01-08,-620.1
+initial draft,9,2025-05-10,-667.1
+initial draft,9,2025-06-04,-695.9
+initial draft,9,2025-06-17,-706.6
+initial draft,9,2025-06-27,-704.2
+initial draft,9,2025-07-01,-706.3
+initial draft,9,2025-07-08,-700.3
+initial draft,9,2025-07-17,-681.4
+initial draft,9,2025-07-22,-681.4
+initial draft,9,2025-08-05,-722.1
+initial draft,9,2025-08-16,-727.8
+initial draft,9,2025-08-20,-727.8
+initial draft,9,2025-08-29,-677
+initial draft,9,2025-09-03,-688.2
+initial draft,9,2025-09-09,-683.4
+initial draft,9,2025-09-16,-645.4
+initial draft,9,2025-09-23,-627.4
+initial draft,9,2025-09-30,-635.3
+initial draft,9,2025-10-07,-568.4
+initial draft,9,2025-10-14,-536.4
+initial draft,9,2025-10-21,-472.9
+initial draft,9,2025-10-28,-457.9
+initial draft,9,2025-11-04,-409.4
+initial draft,9,2025-11-11,-363.9
+initial draft,9,2025-11-18,-352.1
+initial draft,9,2025-11-25,-339.1
+initial draft,9,2025-12-02,-312.7
+initial draft,9,2025-12-09,-341.5
+initial draft,9,2025-12-16,-320.4
+initial draft,9,2025-12-23,-287.1
+initial draft,9,2025-12-30,-289.6
+initial draft,9,2026-01-06,-323.7
+initial draft,9,2026-01-13,-325.5
+initial draft,9,2026-01-21,-319.6
+initial draft,9,2026-01-27,-316.4
+initial draft,9,2026-02-03,-320.9
+initial draft,9,2026-02-10,-321.5
+initial draft,9,2026-02-18,-320.1
+initial draft,9,2026-02-24,-310.9
+initial draft,9,2026-03-03,-311.4
+initial draft,9,2026-03-10,-296.1
+initial draft,9,2026-03-20,-239
+initial draft,9,2026-03-24,-242.7
+initial draft,9,2026-03-31,-252.3
+initial draft,9,2026-04-07,-253.1
+initial draft,9,2026-04-14,-249.8
+initial draft,9,2026-04-21,-255.2
+initial draft,9,2026-05-02,-300.2
+initial draft,9,2026-05-05,-301.7
+initial draft,9,2026-05-12,-305.9
+initial draft,9,2026-05-19,-312.9
+initial draft,9,2026-05-26,-309.8
+initial draft,9,2026-06-11,-311.9
+initial draft,9,2026-06-16,-315.4
+initial draft,9,2026-06-23,-308.3
+initial draft,9,2026-07-02,-315.2
+initial draft,9,2026-07-07,-314.5
+initial draft,9,2026-07-14,-295.3
+initial draft,9,2026-07-21,-286.2
+initial draft,9,2026-07-28,-281.9
+initial draft,9,2026-08-04,-284.3
+initial draft,9,2026-08-11,-269
+initial draft,9,2026-08-18,-270.1
+initial draft,9,2026-08-25,-273.7
+initial draft,9,2026-09-01,-266.5
+initial draft,9,2026-09-08,-282.3
+initial draft,9,2026-09-15,-258.9
+initial draft,9,2026-09-22,-173.4
+initial draft,9,2026-09-29,-102.1
+initial draft,9,2026-10-06,-72.6
+initial draft,9,2026-10-13,-46.4
+initial draft,9,2026-10-14,-47
+initial draft,9,2026-10-20,-37.4
+initial draft,9,2026-10-26,-92.4
+initial draft,9,2026-10-27,-88.3
+initial draft,9,2026-10-31,-96.8
+initial draft,9,2026-11-01,-98.7
+initial draft,9,2026-11-02,-100.6
+initial draft,9,2026-11-03,-115.8
+initial draft,9,2026-11-04,-119.9
+initial draft,9,2026-11-05,-125.5
+initial draft,9,2026-11-06,-132.2
+initial draft,9,2026-11-08,-149.4
+initial draft,9,2026-11-09,-159.4
+initial draft,9,2026-11-10,-160.2
+initial draft,9,2026-11-11,-168.9
+initial draft,9,2026-11-12,-174.6
+initial draft,9,2026-11-13,-176.3
+initial draft,10,2024-08-23,-847.5
+initial draft,10,2024-12-19,-513.3
+initial draft,10,2025-01-05,-554.5
+initial draft,10,2025-01-08,-554.5
+initial draft,10,2025-05-10,-602.3
+initial draft,10,2025-06-04,-605.6
+initial draft,10,2025-06-17,-549.6
+initial draft,10,2025-06-27,-573.2
+initial draft,10,2025-07-01,-571.7
+initial draft,10,2025-07-08,-572.9
+initial draft,10,2025-07-17,-533.4
+initial draft,10,2025-07-22,-533.4
+initial draft,10,2025-08-05,-538.9
+initial draft,10,2025-08-16,-543.5
+initial draft,10,2025-08-20,-543.5
+initial draft,10,2025-08-29,-562.5
+initial draft,10,2025-09-03,-566.9
+initial draft,10,2025-09-09,-573.4
+initial draft,10,2025-09-16,-605
+initial draft,10,2025-09-23,-774.9
+initial draft,10,2025-09-30,-886.9
+initial draft,10,2025-10-07,-927.1
+initial draft,10,2025-10-14,-967.1
+initial draft,10,2025-10-21,-1012.4
+initial draft,10,2025-10-28,-999.5
+initial draft,10,2025-11-04,-979
+initial draft,10,2025-11-11,-938.8
+initial draft,10,2025-11-18,-858.6
+initial draft,10,2025-11-25,-839.9
+initial draft,10,2025-12-02,-790.4
+initial draft,10,2025-12-09,-764.7
+initial draft,10,2025-12-16,-753.8
+initial draft,10,2025-12-23,-699.5
+initial draft,10,2025-12-30,-670.2
+initial draft,10,2026-01-06,-643.7
+initial draft,10,2026-01-13,-652.7
+initial draft,10,2026-01-21,-748.9
+initial draft,10,2026-01-27,-749.6
+initial draft,10,2026-02-03,-750.9
+initial draft,10,2026-02-10,-750.4
+initial draft,10,2026-02-18,-757.3
+initial draft,10,2026-02-24,-760.6
+initial draft,10,2026-03-03,-764.5
+initial draft,10,2026-03-10,-766.5
+initial draft,10,2026-03-20,-736.5
+initial draft,10,2026-03-24,-736.6
+initial draft,10,2026-03-31,-734
+initial draft,10,2026-04-07,-735.6
+initial draft,10,2026-04-14,-717.4
+initial draft,10,2026-04-21,-718.3
+initial draft,10,2026-05-02,-760.6
+initial draft,10,2026-05-05,-762.2
+initial draft,10,2026-05-12,-776.9
+initial draft,10,2026-05-19,-783.1
+initial draft,10,2026-05-26,-778.2
+initial draft,10,2026-06-11,-731.3
+initial draft,10,2026-06-16,-730.1
+initial draft,10,2026-06-23,-734.4
+initial draft,10,2026-07-02,-733.5
+initial draft,10,2026-07-07,-731.9
+initial draft,10,2026-07-14,-739.6
+initial draft,10,2026-07-21,-743.8
+initial draft,10,2026-07-28,-729.7
+initial draft,10,2026-08-04,-715.1
+initial draft,10,2026-08-11,-721.8
+initial draft,10,2026-08-18,-732
+initial draft,10,2026-08-25,-733.1
+initial draft,10,2026-09-01,-707.7
+initial draft,10,2026-09-08,-710.3
+initial draft,10,2026-09-15,-696.4
+initial draft,10,2026-09-22,-651.5
+initial draft,10,2026-09-29,-526.7
+initial draft,10,2026-10-06,-488.3
+initial draft,10,2026-10-13,-413.8
+initial draft,10,2026-10-14,-411.5
+initial draft,10,2026-10-20,-379.5
+initial draft,10,2026-10-26,-436.2
+initial draft,10,2026-10-27,-416.5
+initial draft,10,2026-10-31,-433.1
+initial draft,10,2026-11-01,-436.6
+initial draft,10,2026-11-02,-439.9
+initial draft,10,2026-11-03,-433.7
+initial draft,10,2026-11-04,-432.6
+initial draft,10,2026-11-05,-431.2
+initial draft,10,2026-11-06,-430.2
+initial draft,10,2026-11-08,-427.8
+initial draft,10,2026-11-09,-424.7
+initial draft,10,2026-11-10,-369.8
+initial draft,10,2026-11-11,-363.6
+initial draft,10,2026-11-12,-356.9
+initial draft,10,2026-11-13,-353.2
+initial draft,3,2024-08-23,-628.7
+initial draft,3,2024-12-19,-576
+initial draft,3,2025-01-05,-619.2
+initial draft,3,2025-01-08,-619.2
+initial draft,3,2025-05-10,-656.7
+initial draft,3,2025-06-04,-721.6
+initial draft,3,2025-06-17,-739
+initial draft,3,2025-06-27,-724.9
+initial draft,3,2025-07-01,-723.8
+initial draft,3,2025-07-08,-717.7
+initial draft,3,2025-07-17,-711
+initial draft,3,2025-07-22,-711
+initial draft,3,2025-08-05,-791.1
+initial draft,3,2025-08-16,-798.5
+initial draft,3,2025-08-20,-798.5
+initial draft,3,2025-08-29,-817.1
+initial draft,3,2025-09-03,-821
+initial draft,3,2025-09-09,-859.7
+initial draft,3,2025-09-16,-832.9
+initial draft,3,2025-09-23,-825.8
+initial draft,3,2025-09-30,-796.6
+initial draft,3,2025-10-07,-732.5
+initial draft,3,2025-10-14,-731
+initial draft,3,2025-10-21,-745.2
+initial draft,3,2025-10-28,-745.6
+initial draft,3,2025-11-04,-777.1
+initial draft,3,2025-11-11,-819.6
+initial draft,3,2025-11-18,-872
+initial draft,3,2025-11-25,-872.7
+initial draft,3,2025-12-02,-864.1
+initial draft,3,2025-12-09,-867
+initial draft,3,2025-12-16,-866.6
+initial draft,3,2025-12-23,-853.5
+initial draft,3,2025-12-30,-849.4
+initial draft,3,2026-01-06,-845.8
+initial draft,3,2026-01-13,-845.5
+initial draft,3,2026-01-21,-847.3
+initial draft,3,2026-01-27,-849.5
+initial draft,3,2026-02-03,-849.6
+initial draft,3,2026-02-10,-846.8
+initial draft,3,2026-02-18,-812.2
+initial draft,3,2026-02-24,-797.7
+initial draft,3,2026-03-03,-773
+initial draft,3,2026-03-10,-736.2
+initial draft,3,2026-03-20,-678.4
+initial draft,3,2026-03-24,-676.9
+initial draft,3,2026-03-31,-676.7
+initial draft,3,2026-04-07,-676.1
+initial draft,3,2026-04-14,-679.1
+initial draft,3,2026-04-21,-682.8
+initial draft,3,2026-05-02,-712.8
+initial draft,3,2026-05-05,-714.5
+initial draft,3,2026-05-12,-758.2
+initial draft,3,2026-05-19,-773.1
+initial draft,3,2026-05-26,-766.5
+initial draft,3,2026-06-11,-775.1
+initial draft,3,2026-06-16,-770.8
+initial draft,3,2026-06-23,-776
+initial draft,3,2026-07-02,-775.9
+initial draft,3,2026-07-07,-776.3
+initial draft,3,2026-07-14,-777.2
+initial draft,3,2026-07-21,-783.8
+initial draft,3,2026-07-28,-792
+initial draft,3,2026-08-04,-800.3
+initial draft,3,2026-08-11,-807.3
+initial draft,3,2026-08-18,-796.6
+initial draft,3,2026-08-25,-781.4
+initial draft,3,2026-09-01,-777.3
+initial draft,3,2026-09-08,-791.5
+initial draft,3,2026-09-15,-692.2
+initial draft,3,2026-09-22,-619.6
+initial draft,3,2026-09-29,-586.1
+initial draft,3,2026-10-06,-560.6
+initial draft,3,2026-10-13,-571.4
+initial draft,3,2026-10-14,-572.7
+initial draft,3,2026-10-20,-589.4
+initial draft,3,2026-10-26,-613.7
+initial draft,3,2026-10-27,-598.1
+initial draft,3,2026-10-31,-594.6
+initial draft,3,2026-11-01,-593.4
+initial draft,3,2026-11-02,-592.1
+initial draft,3,2026-11-03,-589.7
+initial draft,3,2026-11-04,-589.7
+initial draft,3,2026-11-05,-590.3
+initial draft,3,2026-11-06,-591.3
+initial draft,3,2026-11-08,-594.1
+initial draft,3,2026-11-09,-596.5
+initial draft,3,2026-11-10,-559.3
+initial draft,3,2026-11-11,-559.7
+initial draft,3,2026-11-12,-560.2
+initial draft,3,2026-11-13,-560.4
+initial draft,8,2024-08-23,-236.2
+initial draft,8,2024-12-19,-80.5
+initial draft,8,2025-01-05,-85.1
+initial draft,8,2025-01-08,-85.1
+initial draft,8,2025-05-10,-306.3
+initial draft,8,2025-06-04,-313.2
+initial draft,8,2025-06-17,-361.6
+initial draft,8,2025-06-27,-377.4
+initial draft,8,2025-07-01,-379.9
+initial draft,8,2025-07-08,-384
+initial draft,8,2025-07-17,-384.3
+initial draft,8,2025-07-22,-384.3
+initial draft,8,2025-08-05,-403.9
+initial draft,8,2025-08-16,-413.1
+initial draft,8,2025-08-20,-413.1
+initial draft,8,2025-08-29,-418
+initial draft,8,2025-09-03,-425.3
+initial draft,8,2025-09-09,-409.6
+initial draft,8,2025-09-16,-456.4
+initial draft,8,2025-09-23,-499.1
+initial draft,8,2025-09-30,-447.7
+initial draft,8,2025-10-07,-427.4
+initial draft,8,2025-10-14,-463.6
+initial draft,8,2025-10-21,-465.2
+initial draft,8,2025-10-28,-502.3
+initial draft,8,2025-11-04,-572.4
+initial draft,8,2025-11-11,-602
+initial draft,8,2025-11-18,-656.5
+initial draft,8,2025-11-25,-671.1
+initial draft,8,2025-12-02,-666.6
+initial draft,8,2025-12-09,-676.4
+initial draft,8,2025-12-16,-677.8
+initial draft,8,2025-12-23,-692.3
+initial draft,8,2025-12-30,-698.3
+initial draft,8,2026-01-06,-677.2
+initial draft,8,2026-01-13,-668.6
+initial draft,8,2026-01-21,-677.2
+initial draft,8,2026-01-27,-681.9
+initial draft,8,2026-02-03,-689.5
+initial draft,8,2026-02-10,-688.2
+initial draft,8,2026-02-18,-661.5
+initial draft,8,2026-02-24,-658
+initial draft,8,2026-03-03,-643.6
+initial draft,8,2026-03-10,-622.7
+initial draft,8,2026-03-20,-597.1
+initial draft,8,2026-03-24,-599.3
+initial draft,8,2026-03-31,-586.6
+initial draft,8,2026-04-07,-593
+initial draft,8,2026-04-14,-632
+initial draft,8,2026-04-21,-634.3
+initial draft,8,2026-05-02,-727.5
+initial draft,8,2026-05-05,-725.9
+initial draft,8,2026-05-12,-718.1
+initial draft,8,2026-05-19,-733.6
+initial draft,8,2026-05-26,-739.2
+initial draft,8,2026-06-11,-721.1
+initial draft,8,2026-06-16,-718.4
+initial draft,8,2026-06-23,-716.2
+initial draft,8,2026-07-02,-732.3
+initial draft,8,2026-07-07,-738.9
+initial draft,8,2026-07-14,-740.9
+initial draft,8,2026-07-21,-744
+initial draft,8,2026-07-28,-743.8
+initial draft,8,2026-08-04,-747.7
+initial draft,8,2026-08-11,-770.4
+initial draft,8,2026-08-18,-808.5
+initial draft,8,2026-08-25,-820.9
+initial draft,8,2026-09-01,-836.6
+initial draft,8,2026-09-08,-831.5
+initial draft,8,2026-09-15,-806.5
+initial draft,8,2026-09-22,-791.7
+initial draft,8,2026-09-29,-723.3
+initial draft,8,2026-10-06,-692.6
+initial draft,8,2026-10-13,-693.6
+initial draft,8,2026-10-14,-696
+initial draft,8,2026-10-20,-724.1
+initial draft,8,2026-10-26,-748.6
+initial draft,8,2026-10-27,-745.3
+initial draft,8,2026-10-31,-736.6
+initial draft,8,2026-11-01,-733.8
+initial draft,8,2026-11-02,-730.7
+initial draft,8,2026-11-03,-693.7
+initial draft,8,2026-11-04,-690.3
+initial draft,8,2026-11-05,-691
+initial draft,8,2026-11-06,-691.3
+initial draft,8,2026-11-08,-689.1
+initial draft,8,2026-11-09,-689.1
+initial draft,8,2026-11-10,-692.7
+initial draft,8,2026-11-11,-692.5
+initial draft,8,2026-11-12,-692.3
+initial draft,8,2026-11-13,-692.7
+initial draft,12,2024-08-23,-490
+initial draft,12,2024-12-19,387.9
+initial draft,12,2025-01-05,377.7
+initial draft,12,2025-01-08,377.7
+initial draft,12,2025-05-10,264.8
+initial draft,12,2025-06-04,239.9
+initial draft,12,2025-06-17,257.1
+initial draft,12,2025-06-27,256.5
+initial draft,12,2025-07-01,251.7
+initial draft,12,2025-07-08,250.1
+initial draft,12,2025-07-17,232.5
+initial draft,12,2025-07-22,232.5
+initial draft,12,2025-08-05,209.3
+initial draft,12,2025-08-16,211.3
+initial draft,12,2025-08-20,211.3
+initial draft,12,2025-08-29,269.7
+initial draft,12,2025-09-03,276.4
+initial draft,12,2025-09-09,322.7
+initial draft,12,2025-09-16,370.3
+initial draft,12,2025-09-23,349.3
+initial draft,12,2025-09-30,367.1
+initial draft,12,2025-10-07,357
+initial draft,12,2025-10-14,403.2
+initial draft,12,2025-10-21,402.4
+initial draft,12,2025-10-28,448.9
+initial draft,12,2025-11-04,433.8
+initial draft,12,2025-11-11,447
+initial draft,12,2025-11-18,439.8
+initial draft,12,2025-11-25,512.9
+initial draft,12,2025-12-02,582.3
+initial draft,12,2025-12-09,558.1
+initial draft,12,2025-12-16,534.9
+initial draft,12,2025-12-23,527.3
+initial draft,12,2025-12-30,512.1
+initial draft,12,2026-01-06,466.6
+initial draft,12,2026-01-13,458.9
+initial draft,12,2026-01-21,428.9
+initial draft,12,2026-01-27,425
+initial draft,12,2026-02-03,428.3
+initial draft,12,2026-02-10,426.2
+initial draft,12,2026-02-18,429.5
+initial draft,12,2026-02-24,430.4
+initial draft,12,2026-03-03,392.2
+initial draft,12,2026-03-10,379.1
+initial draft,12,2026-03-20,397.9
+initial draft,12,2026-03-24,397.6
+initial draft,12,2026-03-31,399
+initial draft,12,2026-04-07,391.8
+initial draft,12,2026-04-14,383.7
+initial draft,12,2026-04-21,384
+initial draft,12,2026-05-02,391.4
+initial draft,12,2026-05-05,392.9
+initial draft,12,2026-05-12,392.3
+initial draft,12,2026-05-19,390
+initial draft,12,2026-05-26,376.1
+initial draft,12,2026-06-11,342.6
+initial draft,12,2026-06-16,347.5
+initial draft,12,2026-06-23,352.8
+initial draft,12,2026-07-02,368.6
+initial draft,12,2026-07-07,369.2
+initial draft,12,2026-07-14,394.7
+initial draft,12,2026-07-21,398.7
+initial draft,12,2026-07-28,408.7
+initial draft,12,2026-08-04,417.6
+initial draft,12,2026-08-11,431
+initial draft,12,2026-08-18,426
+initial draft,12,2026-08-25,420.4
+initial draft,12,2026-09-01,328.5
+initial draft,12,2026-09-08,329.6
+initial draft,12,2026-09-15,366.5
+initial draft,12,2026-09-22,365.2
+initial draft,12,2026-09-29,296.5
+initial draft,12,2026-10-06,250.3
+initial draft,12,2026-10-13,260.4
+initial draft,12,2026-10-14,258.8
+initial draft,12,2026-10-20,279.1
+initial draft,12,2026-10-26,285
+initial draft,12,2026-10-27,284.2
+initial draft,12,2026-10-31,275.7
+initial draft,12,2026-11-01,273.5
+initial draft,12,2026-11-02,271.3
+initial draft,12,2026-11-03,277.4
+initial draft,12,2026-11-04,272.4
+initial draft,12,2026-11-05,266.8
+initial draft,12,2026-11-06,260
+initial draft,12,2026-11-08,246.5
+initial draft,12,2026-11-09,239.3
+initial draft,12,2026-11-10,230.1
+initial draft,12,2026-11-11,225.7
+initial draft,12,2026-11-12,220.5
+initial draft,12,2026-11-13,215.1
+initial draft,4,2024-08-23,-250.2
+initial draft,4,2024-12-19,180.8
+initial draft,4,2025-01-05,269.3
+initial draft,4,2025-01-08,269.3
+initial draft,4,2025-05-10,220.8
+initial draft,4,2025-06-04,207
+initial draft,4,2025-06-17,221.7
+initial draft,4,2025-06-27,229.4
+initial draft,4,2025-07-01,232.8
+initial draft,4,2025-07-08,233.4
+initial draft,4,2025-07-17,214.5
+initial draft,4,2025-07-22,214.5
+initial draft,4,2025-08-05,229.7
+initial draft,4,2025-08-16,225.8
+initial draft,4,2025-08-20,225.8
+initial draft,4,2025-08-29,193.3
+initial draft,4,2025-09-03,189.6
+initial draft,4,2025-09-09,176.5
+initial draft,4,2025-09-16,168.5
+initial draft,4,2025-09-23,255.7
+initial draft,4,2025-09-30,313.4
+initial draft,4,2025-10-07,305.7
+initial draft,4,2025-10-14,323
+initial draft,4,2025-10-21,398
+initial draft,4,2025-10-28,458.9
+initial draft,4,2025-11-04,609.8
+initial draft,4,2025-11-11,726.9
+initial draft,4,2025-11-18,785.2
+initial draft,4,2025-11-25,928.5
+initial draft,4,2025-12-02,990.3
+initial draft,4,2025-12-09,1034.9
+initial draft,4,2025-12-16,1109.9
+initial draft,4,2025-12-23,1218
+initial draft,4,2025-12-30,1279.4
+initial draft,4,2026-01-06,1277.1
+initial draft,4,2026-01-13,1281.2
+initial draft,4,2026-01-21,1281.3
+initial draft,4,2026-01-27,1279.1
+initial draft,4,2026-02-03,1282.7
+initial draft,4,2026-02-10,1283.8
+initial draft,4,2026-02-18,1306.1
+initial draft,4,2026-02-24,1305
+initial draft,4,2026-03-03,1300.3
+initial draft,4,2026-03-10,1295.4
+initial draft,4,2026-03-20,1250.7
+initial draft,4,2026-03-24,1253.1
+initial draft,4,2026-03-31,1261.1
+initial draft,4,2026-04-07,1251.4
+initial draft,4,2026-04-14,1241.3
+initial draft,4,2026-04-21,1238.4
+initial draft,4,2026-05-02,1232.7
+initial draft,4,2026-05-05,1231.5
+initial draft,4,2026-05-12,1233.6
+initial draft,4,2026-05-19,1234.5
+initial draft,4,2026-05-26,1234.9
+initial draft,4,2026-06-11,1237.3
+initial draft,4,2026-06-16,1242.1
+initial draft,4,2026-06-23,1245.9
+initial draft,4,2026-07-02,1259.4
+initial draft,4,2026-07-07,1254.5
+initial draft,4,2026-07-14,1253.9
+initial draft,4,2026-07-21,1237.9
+initial draft,4,2026-07-28,1209.3
+initial draft,4,2026-08-04,1222.2
+initial draft,4,2026-08-11,1213.7
+initial draft,4,2026-08-18,1240.1
+initial draft,4,2026-08-25,1239.7
+initial draft,4,2026-09-01,1246.8
+initial draft,4,2026-09-08,1252.5
+initial draft,4,2026-09-15,1367.1
+initial draft,4,2026-09-22,1533.6
+initial draft,4,2026-09-29,1654.4
+initial draft,4,2026-10-06,1750.1
+initial draft,4,2026-10-13,1879.7
+initial draft,4,2026-10-14,1880.7
+initial draft,4,2026-10-20,1940.7
+initial draft,4,2026-10-26,1917.8
+initial draft,4,2026-10-27,1991.1
+initial draft,4,2026-10-31,1987.3
+initial draft,4,2026-11-01,1987.7
+initial draft,4,2026-11-02,1988.6
+initial draft,4,2026-11-03,2070.1
+initial draft,4,2026-11-04,2070.8
+initial draft,4,2026-11-05,2070.7
+initial draft,4,2026-11-06,2069.8
+initial draft,4,2026-11-08,2066.7
+initial draft,4,2026-11-09,2063.7
+initial draft,4,2026-11-10,2123.6
+initial draft,4,2026-11-11,2120.1
+initial draft,4,2026-11-12,2116.6
+initial draft,4,2026-11-13,2114.4
+initial draft,11,2024-08-23,-370.4
+initial draft,11,2024-12-19,-498.1
+initial draft,11,2025-01-05,-552.6
+initial draft,11,2025-01-08,-552.6
+initial draft,11,2025-05-10,-708.3
+initial draft,11,2025-06-04,-770.8
+initial draft,11,2025-06-17,-786.7
+initial draft,11,2025-06-27,-768
+initial draft,11,2025-07-01,-764.6
+initial draft,11,2025-07-08,-769.7
+initial draft,11,2025-07-17,-781.8
+initial draft,11,2025-07-22,-781.8
+initial draft,11,2025-08-05,-793.2
+initial draft,11,2025-08-16,-829.8
+initial draft,11,2025-08-20,-829.8
+initial draft,11,2025-08-29,-835.9
+initial draft,11,2025-09-03,-830.9
+initial draft,11,2025-09-09,-794.2
+initial draft,11,2025-09-16,-692.4
+initial draft,11,2025-09-23,-689.4
+initial draft,11,2025-09-30,-706.8
+initial draft,11,2025-10-07,-712.6
+initial draft,11,2025-10-14,-729.7
+initial draft,11,2025-10-21,-728.7
+initial draft,11,2025-10-28,-653.5
+initial draft,11,2025-11-04,-636.1
+initial draft,11,2025-11-11,-617.7
+initial draft,11,2025-11-18,-630.1
+initial draft,11,2025-11-25,-661.2
+initial draft,11,2025-12-02,-710
+initial draft,11,2025-12-09,-741.8
+initial draft,11,2025-12-16,-703.4
+initial draft,11,2025-12-23,-693.4
+initial draft,11,2025-12-30,-686.3
+initial draft,11,2026-01-06,-690.9
+initial draft,11,2026-01-13,-685.4
+initial draft,11,2026-01-21,-684.9
+initial draft,11,2026-01-27,-684.9
+initial draft,11,2026-02-03,-675.5
+initial draft,11,2026-02-10,-676.1
+initial draft,11,2026-02-18,-655
+initial draft,11,2026-02-24,-644.8
+initial draft,11,2026-03-03,-638.2
+initial draft,11,2026-03-10,-650.5
+initial draft,11,2026-03-20,-633.6
+initial draft,11,2026-03-24,-633.1
+initial draft,11,2026-03-31,-617
+initial draft,11,2026-04-07,-630
+initial draft,11,2026-04-14,-618
+initial draft,11,2026-04-21,-627.8
+initial draft,11,2026-05-02,-653.2
+initial draft,11,2026-05-05,-654
+initial draft,11,2026-05-12,-632.9
+initial draft,11,2026-05-19,-643.1
+initial draft,11,2026-05-26,-644.8
+initial draft,11,2026-06-11,-650.3
+initial draft,11,2026-06-16,-652.7
+initial draft,11,2026-06-23,-656.6
+initial draft,11,2026-07-02,-657.8
+initial draft,11,2026-07-07,-659.6
+initial draft,11,2026-07-14,-662.3
+initial draft,11,2026-07-21,-664.3
+initial draft,11,2026-07-28,-669.1
+initial draft,11,2026-08-04,-691.6
+initial draft,11,2026-08-11,-704.6
+initial draft,11,2026-08-18,-694.8
+initial draft,11,2026-08-25,-684.1
+initial draft,11,2026-09-01,-655.3
+initial draft,11,2026-09-08,-641.2
+initial draft,11,2026-09-15,-631.8
+initial draft,11,2026-09-22,-739.4
+initial draft,11,2026-09-29,-799.6
+initial draft,11,2026-10-06,-819.8
+initial draft,11,2026-10-13,-812.1
+initial draft,11,2026-10-14,-812.1
+initial draft,11,2026-10-20,-823.7
+initial draft,11,2026-10-26,-878.5
+initial draft,11,2026-10-27,-874.3
+initial draft,11,2026-10-31,-891.2
+initial draft,11,2026-11-01,-894.2
+initial draft,11,2026-11-02,-896.5
+initial draft,11,2026-11-03,-892.2
+initial draft,11,2026-11-04,-897.3
+initial draft,11,2026-11-05,-903
+initial draft,11,2026-11-06,-910.1
+initial draft,11,2026-11-08,-923.5
+initial draft,11,2026-11-09,-931
+initial draft,11,2026-11-10,-943.9
+initial draft,11,2026-11-11,-952
+initial draft,11,2026-11-12,-960.7
+initial draft,11,2026-11-13,-965
+initial draft,5,2024-08-23,-686.8
+initial draft,5,2024-12-19,-540.6
+initial draft,5,2025-01-05,-530.9
+initial draft,5,2025-01-08,-530.9
+initial draft,5,2025-05-10,-550.4
+initial draft,5,2025-06-04,-598.4
+initial draft,5,2025-06-17,-566.6
+initial draft,5,2025-06-27,-586.4
+initial draft,5,2025-07-01,-586.8
+initial draft,5,2025-07-08,-592.4
+initial draft,5,2025-07-17,-564.1
+initial draft,5,2025-07-22,-564.1
+initial draft,5,2025-08-05,-580.4
+initial draft,5,2025-08-16,-587.3
+initial draft,5,2025-08-20,-587.3
+initial draft,5,2025-08-29,-603
+initial draft,5,2025-09-03,-602
+initial draft,5,2025-09-09,-567.6
+initial draft,5,2025-09-16,-532.8
+initial draft,5,2025-09-23,-585.9
+initial draft,5,2025-09-30,-601.2
+initial draft,5,2025-10-07,-555.1
+initial draft,5,2025-10-14,-569.5
+initial draft,5,2025-10-21,-554.3
+initial draft,5,2025-10-28,-602.2
+initial draft,5,2025-11-04,-633.3
+initial draft,5,2025-11-11,-603
+initial draft,5,2025-11-18,-583
+initial draft,5,2025-11-25,-622.3
+initial draft,5,2025-12-02,-618.4
+initial draft,5,2025-12-09,-602
+initial draft,5,2025-12-16,-538.6
+initial draft,5,2025-12-23,-478.7
+initial draft,5,2025-12-30,-420.5
+initial draft,5,2026-01-06,-396
+initial draft,5,2026-01-13,-391.6
+initial draft,5,2026-01-21,-383.4
+initial draft,5,2026-01-27,-386.2
+initial draft,5,2026-02-03,-382.8
+initial draft,5,2026-02-10,-379.2
+initial draft,5,2026-02-18,-376.5
+initial draft,5,2026-02-24,-373.7
+initial draft,5,2026-03-03,-376.1
+initial draft,5,2026-03-10,-375.6
+initial draft,5,2026-03-20,-342.4
+initial draft,5,2026-03-24,-339.2
+initial draft,5,2026-03-31,-340.3
+initial draft,5,2026-04-07,-352.1
+initial draft,5,2026-04-14,-349
+initial draft,5,2026-04-21,-341
+initial draft,5,2026-05-02,-367.8
+initial draft,5,2026-05-05,-367.6
+initial draft,5,2026-05-12,-369.5
+initial draft,5,2026-05-19,-366.5
+initial draft,5,2026-05-26,-359
+initial draft,5,2026-06-11,-360.1
+initial draft,5,2026-06-16,-360
+initial draft,5,2026-06-23,-363.8
+initial draft,5,2026-07-02,-361.7
+initial draft,5,2026-07-07,-360.3
+initial draft,5,2026-07-14,-363.7
+initial draft,5,2026-07-21,-362.2
+initial draft,5,2026-07-28,-364.3
+initial draft,5,2026-08-04,-379.6
+initial draft,5,2026-08-11,-364.2
+initial draft,5,2026-08-18,-350
+initial draft,5,2026-08-25,-350
+initial draft,5,2026-09-01,-349
+initial draft,5,2026-09-08,-366.6
+initial draft,5,2026-09-15,-348.5
+initial draft,5,2026-09-22,-351.1
+initial draft,5,2026-09-29,-327.4
+initial draft,5,2026-10-06,-294
+initial draft,5,2026-10-13,-305.1
+initial draft,5,2026-10-14,-308.1
+initial draft,5,2026-10-20,-311.2
+initial draft,5,2026-10-26,-339.5
+initial draft,5,2026-10-27,-331.8
+initial draft,5,2026-10-31,-338.4
+initial draft,5,2026-11-01,-340.1
+initial draft,5,2026-11-02,-341.6
+initial draft,5,2026-11-03,-297.2
+initial draft,5,2026-11-04,-297.5
+initial draft,5,2026-11-05,-296.9
+initial draft,5,2026-11-06,-293.8
+initial draft,5,2026-11-08,-285.9
+initial draft,5,2026-11-09,-279.7
+initial draft,5,2026-11-10,-255.1
+initial draft,5,2026-11-11,-249.9
+initial draft,5,2026-11-12,-245.3
+initial draft,5,2026-11-13,-242.7
+initial draft,2,2024-08-23,-496.9
+initial draft,2,2024-12-19,-422.3
+initial draft,2,2025-01-05,-338.4
+initial draft,2,2025-01-08,-338.4
+initial draft,2,2025-05-10,-378.6
+initial draft,2,2025-06-04,-385.1
+initial draft,2,2025-06-17,-382.9
+initial draft,2,2025-06-27,-404.9
+initial draft,2,2025-07-01,-403.2
+initial draft,2,2025-07-08,-382.6
+initial draft,2,2025-07-17,-364.2
+initial draft,2,2025-07-22,-364.2
+initial draft,2,2025-08-05,-328.9
+initial draft,2,2025-08-16,-330.4
+initial draft,2,2025-08-20,-330.4
+initial draft,2,2025-08-29,-346.5
+initial draft,2,2025-09-03,-343.4
+initial draft,2,2025-09-09,-319.9
+initial draft,2,2025-09-16,-332.2
+initial draft,2,2025-09-23,-357.9
+initial draft,2,2025-09-30,-351.8
+initial draft,2,2025-10-07,-317.4
+initial draft,2,2025-10-14,-241.1
+initial draft,2,2025-10-21,-210.2
+initial draft,2,2025-10-28,-173.8
+initial draft,2,2025-11-04,-121.7
+initial draft,2,2025-11-11,-79.1
+initial draft,2,2025-11-18,-39
+initial draft,2,2025-11-25,-78.9
+initial draft,2,2025-12-02,-33.6
+initial draft,2,2025-12-09,-75.6
+initial draft,2,2025-12-16,-73.2
+initial draft,2,2025-12-23,-73
+initial draft,2,2025-12-30,-95.1
+initial draft,2,2026-01-06,-88.2
+initial draft,2,2026-01-13,-77
+initial draft,2,2026-01-21,-82.7
+initial draft,2,2026-01-27,-82.9
+initial draft,2,2026-02-03,-76.9
+initial draft,2,2026-02-10,-72.7
+initial draft,2,2026-02-18,-36.8
+initial draft,2,2026-02-24,-22
+initial draft,2,2026-03-03,-19.6
+initial draft,2,2026-03-10,2.5
+initial draft,2,2026-03-20,38.7
+initial draft,2,2026-03-24,41.5
+initial draft,2,2026-03-31,39.7
+initial draft,2,2026-04-07,22.5
+initial draft,2,2026-04-14,18.9
+initial draft,2,2026-04-21,13
+initial draft,2,2026-05-02,-24.6
+initial draft,2,2026-05-05,-23.4
+initial draft,2,2026-05-12,-24.1
+initial draft,2,2026-05-19,-41
+initial draft,2,2026-05-26,-35.5
+initial draft,2,2026-06-11,-42.5
+initial draft,2,2026-06-16,-42.9
+initial draft,2,2026-06-23,-43.7
+initial draft,2,2026-07-02,-34.9
+initial draft,2,2026-07-07,-31.7
+initial draft,2,2026-07-14,-37.1
+initial draft,2,2026-07-21,-48.2
+initial draft,2,2026-07-28,-66.3
+initial draft,2,2026-08-04,-59.6
+initial draft,2,2026-08-11,-81.7
+initial draft,2,2026-08-18,-94.1
+initial draft,2,2026-08-25,-111.9
+initial draft,2,2026-09-01,-128
+initial draft,2,2026-09-08,-140.3
+initial draft,2,2026-09-15,-115.9
+initial draft,2,2026-09-22,-31.7
+initial draft,2,2026-09-29,-49.5
+initial draft,2,2026-10-06,-10.8
+initial draft,2,2026-10-13,29.3
+initial draft,2,2026-10-14,29.4
+initial draft,2,2026-10-20,57.1
+initial draft,2,2026-10-26,20.3
+initial draft,2,2026-10-27,41.5
+initial draft,2,2026-10-31,29.5
+initial draft,2,2026-11-01,27.5
+initial draft,2,2026-11-02,25.8
+initial draft,2,2026-11-03,10.3
+initial draft,2,2026-11-04,10.5
+initial draft,2,2026-11-05,9.3
+initial draft,2,2026-11-06,8.9
+initial draft,2,2026-11-08,8.2
+initial draft,2,2026-11-09,8.2
+initial draft,2,2026-11-10,58.7
+initial draft,2,2026-11-11,58.7
+initial draft,2,2026-11-12,58.9
+initial draft,2,2026-11-13,59.5
+initial draft,7,2024-08-23,-53
+initial draft,7,2024-12-19,272.5
+initial draft,7,2025-01-05,364.5
+initial draft,7,2025-01-08,364.5
+initial draft,7,2025-05-10,82.7
+initial draft,7,2025-06-04,14.9
+initial draft,7,2025-06-17,11.7
+initial draft,7,2025-06-27,44.7
+initial draft,7,2025-07-01,45.5
+initial draft,7,2025-07-08,51.8
+initial draft,7,2025-07-17,113
+initial draft,7,2025-07-22,113
+initial draft,7,2025-08-05,142.1
+initial draft,7,2025-08-16,144.8
+initial draft,7,2025-08-20,144.8
+initial draft,7,2025-08-29,126
+initial draft,7,2025-09-03,125.4
+initial draft,7,2025-09-09,106.3
+initial draft,7,2025-09-16,101.1
+initial draft,7,2025-09-23,119.7
+initial draft,7,2025-09-30,135.1
+initial draft,7,2025-10-07,142.3
+initial draft,7,2025-10-14,226.3
+initial draft,7,2025-10-21,301.8
+initial draft,7,2025-10-28,325.5
+initial draft,7,2025-11-04,447.9
+initial draft,7,2025-11-11,477
+initial draft,7,2025-11-18,465.2
+initial draft,7,2025-11-25,429.2
+initial draft,7,2025-12-02,418.8
+initial draft,7,2025-12-09,429.5
+initial draft,7,2025-12-16,436.2
+initial draft,7,2025-12-23,486
+initial draft,7,2025-12-30,472.2
+initial draft,7,2026-01-06,452.7
+initial draft,7,2026-01-13,434.9
+initial draft,7,2026-01-21,416.3
+initial draft,7,2026-01-27,410.8
+initial draft,7,2026-02-03,419.5
+initial draft,7,2026-02-10,423.5
+initial draft,7,2026-02-18,461
+initial draft,7,2026-02-24,461.4
+initial draft,7,2026-03-03,460.7
+initial draft,7,2026-03-10,449.6
+initial draft,7,2026-03-20,471.4
+initial draft,7,2026-03-24,474.3
+initial draft,7,2026-03-31,468.6
+initial draft,7,2026-04-07,458.7
+initial draft,7,2026-04-14,438.4
+initial draft,7,2026-04-21,439.3
+initial draft,7,2026-05-02,420.4
+initial draft,7,2026-05-05,421.4
+initial draft,7,2026-05-12,426.2
+initial draft,7,2026-05-19,410.9
+initial draft,7,2026-05-26,410.8
+initial draft,7,2026-06-11,396.9
+initial draft,7,2026-06-16,392.9
+initial draft,7,2026-06-23,390.9
+initial draft,7,2026-07-02,395.4
+initial draft,7,2026-07-07,395.9
+initial draft,7,2026-07-14,394.5
+initial draft,7,2026-07-21,387.9
+initial draft,7,2026-07-28,390.3
+initial draft,7,2026-08-04,396.6
+initial draft,7,2026-08-11,412
+initial draft,7,2026-08-18,405.2
+initial draft,7,2026-08-25,402.4
+initial draft,7,2026-09-01,394.7
+initial draft,7,2026-09-08,398.2
+initial draft,7,2026-09-15,455.6
+initial draft,7,2026-09-22,474.5
+initial draft,7,2026-09-29,504
+initial draft,7,2026-10-06,562.5
+initial draft,7,2026-10-13,504.2
+initial draft,7,2026-10-14,499.8
+initial draft,7,2026-10-20,481.1
+initial draft,7,2026-10-26,448
+initial draft,7,2026-10-27,460.3
+initial draft,7,2026-10-31,446.5
+initial draft,7,2026-11-01,443.3
+initial draft,7,2026-11-02,440.3
+initial draft,7,2026-11-03,419.3
+initial draft,7,2026-11-04,414.8
+initial draft,7,2026-11-05,410.5
+initial draft,7,2026-11-06,405.5
+initial draft,7,2026-11-08,394.5
+initial draft,7,2026-11-09,389.4
+initial draft,7,2026-11-10,400.8
+initial draft,7,2026-11-11,397.9
+initial draft,7,2026-11-12,396
+initial draft,7,2026-11-13,395.5
 2024 rookie draft,1,2024-08-23,-76.8
 2024 rookie draft,1,2024-12-19,-81.4
 2024 rookie draft,1,2025-01-05,-79.5
@@ -1163,12 +1175,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,1,2026-11-03,-170.4
 2024 rookie draft,1,2026-11-04,-165
 2024 rookie draft,1,2026-11-05,-162.2
-2024 rookie draft,1,2026-11-06,-159.9
-2024 rookie draft,1,2026-11-08,-154.9
-2024 rookie draft,1,2026-11-09,-154.9
-2024 rookie draft,1,2026-11-10,-150.1
-2024 rookie draft,1,2026-11-11,-150.6
-2024 rookie draft,1,2026-11-12,-151.2
+2024 rookie draft,1,2026-11-06,-159.4
+2024 rookie draft,1,2026-11-08,-155
+2024 rookie draft,1,2026-11-09,-153.9
+2024 rookie draft,1,2026-11-10,-148.9
+2024 rookie draft,1,2026-11-11,-148.9
+2024 rookie draft,1,2026-11-12,-149
+2024 rookie draft,1,2026-11-13,-148.8
 2024 rookie draft,9,2024-08-23,172.1
 2024 rookie draft,9,2024-12-19,170.2
 2024 rookie draft,9,2025-01-05,223.4
@@ -1253,12 +1266,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,9,2026-11-03,181.4
 2024 rookie draft,9,2026-11-04,178.6
 2024 rookie draft,9,2026-11-05,176.7
-2024 rookie draft,9,2026-11-06,175
-2024 rookie draft,9,2026-11-08,172.2
+2024 rookie draft,9,2026-11-06,175.1
+2024 rookie draft,9,2026-11-08,172.3
 2024 rookie draft,9,2026-11-09,172.3
-2024 rookie draft,9,2026-11-10,171.5
-2024 rookie draft,9,2026-11-11,171.7
-2024 rookie draft,9,2026-11-12,171.8
+2024 rookie draft,9,2026-11-10,171.4
+2024 rookie draft,9,2026-11-11,171.5
+2024 rookie draft,9,2026-11-12,171.6
+2024 rookie draft,9,2026-11-13,171.6
 2024 rookie draft,10,2024-08-23,122.9
 2024 rookie draft,10,2024-12-19,408.5
 2024 rookie draft,10,2025-01-05,527.4
@@ -1343,12 +1357,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,10,2026-11-03,288.6
 2024 rookie draft,10,2026-11-04,288.6
 2024 rookie draft,10,2026-11-05,288.5
-2024 rookie draft,10,2026-11-06,288.3
-2024 rookie draft,10,2026-11-08,287.3
-2024 rookie draft,10,2026-11-09,286.3
-2024 rookie draft,10,2026-11-10,280.6
-2024 rookie draft,10,2026-11-11,279.4
-2024 rookie draft,10,2026-11-12,277.8
+2024 rookie draft,10,2026-11-06,287.7
+2024 rookie draft,10,2026-11-08,285.7
+2024 rookie draft,10,2026-11-09,284.3
+2024 rookie draft,10,2026-11-10,277.8
+2024 rookie draft,10,2026-11-11,276.1
+2024 rookie draft,10,2026-11-12,274.3
+2024 rookie draft,10,2026-11-13,273.1
 2024 rookie draft,3,2024-08-23,-22.9
 2024 rookie draft,3,2024-12-19,167
 2024 rookie draft,3,2025-01-05,175.7
@@ -1433,12 +1448,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,3,2026-11-03,302.6
 2024 rookie draft,3,2026-11-04,311
 2024 rookie draft,3,2026-11-05,315.3
-2024 rookie draft,3,2026-11-06,319.2
-2024 rookie draft,3,2026-11-08,327.8
+2024 rookie draft,3,2026-11-06,319.4
+2024 rookie draft,3,2026-11-08,326.8
 2024 rookie draft,3,2026-11-09,328.7
-2024 rookie draft,3,2026-11-10,343.4
-2024 rookie draft,3,2026-11-11,343.4
-2024 rookie draft,3,2026-11-12,343.3
+2024 rookie draft,3,2026-11-10,343.7
+2024 rookie draft,3,2026-11-11,343.8
+2024 rookie draft,3,2026-11-12,343.9
+2024 rookie draft,3,2026-11-13,344.1
 2024 rookie draft,8,2024-08-23,-72.2
 2024 rookie draft,8,2024-12-19,-114.5
 2024 rookie draft,8,2025-01-05,-118.2
@@ -1523,12 +1539,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,8,2026-11-03,-32.8
 2024 rookie draft,8,2026-11-04,-26.2
 2024 rookie draft,8,2026-11-05,-16.7
-2024 rookie draft,8,2026-11-06,-10.3
-2024 rookie draft,8,2026-11-08,5.7
-2024 rookie draft,8,2026-11-09,12.7
-2024 rookie draft,8,2026-11-10,23.9
-2024 rookie draft,8,2026-11-11,26.6
-2024 rookie draft,8,2026-11-12,28.1
+2024 rookie draft,8,2026-11-06,-6.4
+2024 rookie draft,8,2026-11-08,8
+2024 rookie draft,8,2026-11-09,14.4
+2024 rookie draft,8,2026-11-10,25
+2024 rookie draft,8,2026-11-11,26.8
+2024 rookie draft,8,2026-11-12,27.9
+2024 rookie draft,8,2026-11-13,27.8
 2024 rookie draft,5,2024-08-23,3.3
 2024 rookie draft,5,2024-12-19,269
 2024 rookie draft,5,2025-01-05,302.2
@@ -1613,12 +1630,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,5,2026-11-03,268.8
 2024 rookie draft,5,2026-11-04,271
 2024 rookie draft,5,2026-11-05,274.6
-2024 rookie draft,5,2026-11-06,277.8
-2024 rookie draft,5,2026-11-08,287.2
-2024 rookie draft,5,2026-11-09,293
-2024 rookie draft,5,2026-11-10,313.5
-2024 rookie draft,5,2026-11-11,317.6
-2024 rookie draft,5,2026-11-12,320.5
+2024 rookie draft,5,2026-11-06,279.7
+2024 rookie draft,5,2026-11-08,289.9
+2024 rookie draft,5,2026-11-09,296.2
+2024 rookie draft,5,2026-11-10,319
+2024 rookie draft,5,2026-11-11,324.4
+2024 rookie draft,5,2026-11-12,328.8
+2024 rookie draft,5,2026-11-13,331.6
 2024 rookie draft,2,2024-08-23,89.3
 2024 rookie draft,2,2024-12-19,226.8
 2024 rookie draft,2,2025-01-05,219.7
@@ -1703,12 +1721,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,2,2026-11-03,427.5
 2024 rookie draft,2,2026-11-04,440.2
 2024 rookie draft,2,2026-11-05,449.7
-2024 rookie draft,2,2026-11-06,457.6
-2024 rookie draft,2,2026-11-08,474.7
-2024 rookie draft,2,2026-11-09,478.1
-2024 rookie draft,2,2026-11-10,492
-2024 rookie draft,2,2026-11-11,491.7
-2024 rookie draft,2,2026-11-12,491.3
+2024 rookie draft,2,2026-11-06,458.9
+2024 rookie draft,2,2026-11-08,474.1
+2024 rookie draft,2,2026-11-09,478.4
+2024 rookie draft,2,2026-11-10,492.4
+2024 rookie draft,2,2026-11-11,492.5
+2024 rookie draft,2,2026-11-12,492.5
+2024 rookie draft,2,2026-11-13,492.4
 2024 rookie draft,6,2024-08-23,-45.8
 2024 rookie draft,6,2024-12-19,-140.7
 2024 rookie draft,6,2025-01-05,-77.7
@@ -1793,12 +1812,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,6,2026-11-03,-254
 2024 rookie draft,6,2026-11-04,-255.5
 2024 rookie draft,6,2026-11-05,-258.6
-2024 rookie draft,6,2026-11-06,-260.8
-2024 rookie draft,6,2026-11-08,-266.5
-2024 rookie draft,6,2026-11-09,-269.2
+2024 rookie draft,6,2026-11-06,-262.1
+2024 rookie draft,6,2026-11-08,-267.1
+2024 rookie draft,6,2026-11-09,-269.5
 2024 rookie draft,6,2026-11-10,-280.8
-2024 rookie draft,6,2026-11-11,-280.9
-2024 rookie draft,6,2026-11-12,-281
+2024 rookie draft,6,2026-11-11,-281
+2024 rookie draft,6,2026-11-12,-281.1
+2024 rookie draft,6,2026-11-13,-281.2
 2024 rookie draft,12,2024-08-23,35.2
 2024 rookie draft,12,2024-12-19,-169.4
 2024 rookie draft,12,2025-01-05,-172.3
@@ -1883,12 +1903,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,12,2026-11-03,-186.7
 2024 rookie draft,12,2026-11-04,-187.1
 2024 rookie draft,12,2026-11-05,-187.6
-2024 rookie draft,12,2026-11-06,-188
-2024 rookie draft,12,2026-11-08,-189.2
-2024 rookie draft,12,2026-11-09,-189.8
-2024 rookie draft,12,2026-11-10,-190.3
-2024 rookie draft,12,2026-11-11,-191.1
-2024 rookie draft,12,2026-11-12,-191.9
+2024 rookie draft,12,2026-11-06,-188.2
+2024 rookie draft,12,2026-11-08,-189.4
+2024 rookie draft,12,2026-11-09,-190
+2024 rookie draft,12,2026-11-10,-190.7
+2024 rookie draft,12,2026-11-11,-191.4
+2024 rookie draft,12,2026-11-12,-192.1
+2024 rookie draft,12,2026-11-13,-192.8
 2024 rookie draft,4,2024-08-23,-43.7
 2024 rookie draft,4,2024-12-19,-101.5
 2024 rookie draft,4,2025-01-05,-83.3
@@ -1973,12 +1994,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,4,2026-11-03,-219.5
 2024 rookie draft,4,2026-11-04,-219.7
 2024 rookie draft,4,2026-11-05,-220.1
-2024 rookie draft,4,2026-11-06,-220.3
-2024 rookie draft,4,2026-11-08,-221
-2024 rookie draft,4,2026-11-09,-221.4
-2024 rookie draft,4,2026-11-10,-221.6
-2024 rookie draft,4,2026-11-11,-221.9
-2024 rookie draft,4,2026-11-12,-222
+2024 rookie draft,4,2026-11-06,-220.5
+2024 rookie draft,4,2026-11-08,-221.3
+2024 rookie draft,4,2026-11-09,-221.8
+2024 rookie draft,4,2026-11-10,-222.2
+2024 rookie draft,4,2026-11-11,-222.6
+2024 rookie draft,4,2026-11-12,-223
+2024 rookie draft,4,2026-11-13,-223.3
 2024 rookie draft,11,2024-08-23,98.3
 2024 rookie draft,11,2024-12-19,241.2
 2024 rookie draft,11,2025-01-05,264.4
@@ -2063,12 +2085,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,11,2026-11-03,-117.5
 2024 rookie draft,11,2026-11-04,-117.5
 2024 rookie draft,11,2026-11-05,-117.2
-2024 rookie draft,11,2026-11-06,-116.9
-2024 rookie draft,11,2026-11-08,-115.7
-2024 rookie draft,11,2026-11-09,-114.7
-2024 rookie draft,11,2026-11-10,-113.8
-2024 rookie draft,11,2026-11-11,-112.6
-2024 rookie draft,11,2026-11-12,-111.4
+2024 rookie draft,11,2026-11-06,-116.3
+2024 rookie draft,11,2026-11-08,-114.4
+2024 rookie draft,11,2026-11-09,-113
+2024 rookie draft,11,2026-11-10,-111.3
+2024 rookie draft,11,2026-11-11,-109.6
+2024 rookie draft,11,2026-11-12,-108
+2024 rookie draft,11,2026-11-13,-107
 2024 rookie draft,7,2024-08-23,64.5
 2024 rookie draft,7,2024-12-19,234
 2024 rookie draft,7,2025-01-05,261.9
@@ -2153,12 +2176,13 @@ initial draft,7,2026-11-12,397.1
 2024 rookie draft,7,2026-11-03,157.3
 2024 rookie draft,7,2026-11-04,158.5
 2024 rookie draft,7,2026-11-05,159.6
-2024 rookie draft,7,2026-11-06,160.7
-2024 rookie draft,7,2026-11-08,163.5
-2024 rookie draft,7,2026-11-09,164.9
-2024 rookie draft,7,2026-11-10,173.6
-2024 rookie draft,7,2026-11-11,174.4
-2024 rookie draft,7,2026-11-12,175.4
+2024 rookie draft,7,2026-11-06,160.9
+2024 rookie draft,7,2026-11-08,163.9
+2024 rookie draft,7,2026-11-09,165.4
+2024 rookie draft,7,2026-11-10,174.6
+2024 rookie draft,7,2026-11-11,175.6
+2024 rookie draft,7,2026-11-12,176.5
+2024 rookie draft,7,2026-11-13,177.1
 2025 rookie draft,9,2025-06-04,-243
 2025 rookie draft,9,2025-06-17,-241.7
 2025 rookie draft,9,2025-06-27,-8.9
@@ -2239,11 +2263,12 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,9,2026-11-04,-51.8
 2025 rookie draft,9,2026-11-05,-51.4
 2025 rookie draft,9,2026-11-06,-51.2
-2025 rookie draft,9,2026-11-08,-51.8
-2025 rookie draft,9,2026-11-09,-53.8
-2025 rookie draft,9,2026-11-10,-55.4
-2025 rookie draft,9,2026-11-11,-57.2
-2025 rookie draft,9,2026-11-12,-58.6
+2025 rookie draft,9,2026-11-08,-51.5
+2025 rookie draft,9,2026-11-09,-52.9
+2025 rookie draft,9,2026-11-10,-54.5
+2025 rookie draft,9,2026-11-11,-55.6
+2025 rookie draft,9,2026-11-12,-56.1
+2025 rookie draft,9,2026-11-13,-55.8
 2025 rookie draft,11,2025-06-04,-48.4
 2025 rookie draft,11,2025-06-17,-93.4
 2025 rookie draft,11,2025-06-27,-92.9
@@ -2323,12 +2348,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,11,2026-11-03,44.1
 2025 rookie draft,11,2026-11-04,46.5
 2025 rookie draft,11,2026-11-05,47.6
-2025 rookie draft,11,2026-11-06,48.9
-2025 rookie draft,11,2026-11-08,51.3
-2025 rookie draft,11,2026-11-09,52
-2025 rookie draft,11,2026-11-10,51.3
-2025 rookie draft,11,2026-11-11,51.4
-2025 rookie draft,11,2026-11-12,51.7
+2025 rookie draft,11,2026-11-06,48.1
+2025 rookie draft,11,2026-11-08,49.8
+2025 rookie draft,11,2026-11-09,49.9
+2025 rookie draft,11,2026-11-10,48.8
+2025 rookie draft,11,2026-11-11,48.9
+2025 rookie draft,11,2026-11-12,48.3
+2025 rookie draft,11,2026-11-13,48.4
 2025 rookie draft,1,2025-06-04,246
 2025 rookie draft,1,2025-06-17,245.1
 2025 rookie draft,1,2025-06-27,243.3
@@ -2408,12 +2434,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,1,2026-11-03,317.9
 2025 rookie draft,1,2026-11-04,308.9
 2025 rookie draft,1,2026-11-05,300.1
-2025 rookie draft,1,2026-11-06,292.1
-2025 rookie draft,1,2026-11-08,271.9
-2025 rookie draft,1,2026-11-09,263.2
-2025 rookie draft,1,2026-11-10,254.5
-2025 rookie draft,1,2026-11-11,250.4
-2025 rookie draft,1,2026-11-12,247.5
+2025 rookie draft,1,2026-11-06,290
+2025 rookie draft,1,2026-11-08,270.8
+2025 rookie draft,1,2026-11-09,261.9
+2025 rookie draft,1,2026-11-10,251.3
+2025 rookie draft,1,2026-11-11,246.7
+2025 rookie draft,1,2026-11-12,243.1
+2025 rookie draft,1,2026-11-13,241.8
 2025 rookie draft,8,2025-06-04,281.4
 2025 rookie draft,8,2025-06-17,267.5
 2025 rookie draft,8,2025-06-27,272.8
@@ -2493,12 +2520,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,8,2026-11-03,143.7
 2025 rookie draft,8,2026-11-04,146.3
 2025 rookie draft,8,2026-11-05,149.5
-2025 rookie draft,8,2026-11-06,152.2
-2025 rookie draft,8,2026-11-08,159
-2025 rookie draft,8,2026-11-09,161.6
-2025 rookie draft,8,2026-11-10,175.1
-2025 rookie draft,8,2026-11-11,176.9
-2025 rookie draft,8,2026-11-12,178.5
+2025 rookie draft,8,2026-11-06,153.4
+2025 rookie draft,8,2026-11-08,160.1
+2025 rookie draft,8,2026-11-09,163
+2025 rookie draft,8,2026-11-10,176.9
+2025 rookie draft,8,2026-11-11,179.1
+2025 rookie draft,8,2026-11-12,180.7
+2025 rookie draft,8,2026-11-13,181.3
 2025 rookie draft,4,2025-06-04,82.9
 2025 rookie draft,4,2025-06-17,105.4
 2025 rookie draft,4,2025-06-27,98.7
@@ -2578,12 +2606,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,4,2026-11-03,35.5
 2025 rookie draft,4,2026-11-04,35
 2025 rookie draft,4,2026-11-05,34.3
-2025 rookie draft,4,2026-11-06,33.5
-2025 rookie draft,4,2026-11-08,30.8
-2025 rookie draft,4,2026-11-09,29
-2025 rookie draft,4,2026-11-10,34.1
-2025 rookie draft,4,2026-11-11,32.6
-2025 rookie draft,4,2026-11-12,30.8
+2025 rookie draft,4,2026-11-06,32.7
+2025 rookie draft,4,2026-11-08,29.1
+2025 rookie draft,4,2026-11-09,26.9
+2025 rookie draft,4,2026-11-10,30.7
+2025 rookie draft,4,2026-11-11,28.6
+2025 rookie draft,4,2026-11-12,26.4
+2025 rookie draft,4,2026-11-13,25.1
 2025 rookie draft,5,2025-06-04,-79.3
 2025 rookie draft,5,2025-06-17,-89.4
 2025 rookie draft,5,2025-06-27,-83.5
@@ -2663,12 +2692,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,5,2026-11-03,-199.1
 2025 rookie draft,5,2026-11-04,-198.6
 2025 rookie draft,5,2026-11-05,-197.7
-2025 rookie draft,5,2026-11-06,-196.6
+2025 rookie draft,5,2026-11-06,-196.5
 2025 rookie draft,5,2026-11-08,-193.9
-2025 rookie draft,5,2026-11-09,-192.5
-2025 rookie draft,5,2026-11-10,-191.7
-2025 rookie draft,5,2026-11-11,-192.5
-2025 rookie draft,5,2026-11-12,-193.2
+2025 rookie draft,5,2026-11-09,-192.7
+2025 rookie draft,5,2026-11-10,-191.4
+2025 rookie draft,5,2026-11-11,-192
+2025 rookie draft,5,2026-11-12,-192.5
+2025 rookie draft,5,2026-11-13,-192.8
 2025 rookie draft,3,2025-06-04,-68.9
 2025 rookie draft,3,2025-06-17,-67.7
 2025 rookie draft,3,2025-06-27,-70.2
@@ -2748,12 +2778,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,3,2026-11-03,-33.4
 2025 rookie draft,3,2026-11-04,-30.5
 2025 rookie draft,3,2026-11-05,-28.8
-2025 rookie draft,3,2026-11-06,-25.7
-2025 rookie draft,3,2026-11-08,-16.8
-2025 rookie draft,3,2026-11-09,-11.4
-2025 rookie draft,3,2026-11-10,15.8
-2025 rookie draft,3,2026-11-11,19.4
-2025 rookie draft,3,2026-11-12,20.6
+2025 rookie draft,3,2026-11-06,-26.5
+2025 rookie draft,3,2026-11-08,-18.4
+2025 rookie draft,3,2026-11-09,-14.2
+2025 rookie draft,3,2026-11-10,14.3
+2025 rookie draft,3,2026-11-11,17.1
+2025 rookie draft,3,2026-11-12,17.6
+2025 rookie draft,3,2026-11-13,16.5
 2025 rookie draft,12,2025-06-04,146.2
 2025 rookie draft,12,2025-06-17,144.8
 2025 rookie draft,12,2025-06-27,145.4
@@ -2833,12 +2864,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,12,2026-11-03,314.3
 2025 rookie draft,12,2026-11-04,314.6
 2025 rookie draft,12,2026-11-05,314.9
-2025 rookie draft,12,2026-11-06,315.7
-2025 rookie draft,12,2026-11-08,318.6
-2025 rookie draft,12,2026-11-09,320.6
-2025 rookie draft,12,2026-11-10,326.1
-2025 rookie draft,12,2026-11-11,326.8
-2025 rookie draft,12,2026-11-12,327.3
+2025 rookie draft,12,2026-11-06,315.4
+2025 rookie draft,12,2026-11-08,317.3
+2025 rookie draft,12,2026-11-09,318.4
+2025 rookie draft,12,2026-11-10,323.5
+2025 rookie draft,12,2026-11-11,322.9
+2025 rookie draft,12,2026-11-12,321.9
+2025 rookie draft,12,2026-11-13,319.9
 2025 rookie draft,10,2025-06-04,152.5
 2025 rookie draft,10,2025-06-17,151.9
 2025 rookie draft,10,2025-06-27,153.4
@@ -2918,12 +2950,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,10,2026-11-03,145.6
 2025 rookie draft,10,2026-11-04,145.2
 2025 rookie draft,10,2026-11-05,144.8
-2025 rookie draft,10,2026-11-06,144.4
-2025 rookie draft,10,2026-11-08,143
-2025 rookie draft,10,2026-11-09,142
-2025 rookie draft,10,2026-11-10,136.6
-2025 rookie draft,10,2026-11-11,135.6
+2025 rookie draft,10,2026-11-06,144
+2025 rookie draft,10,2026-11-08,142.5
+2025 rookie draft,10,2026-11-09,141.7
+2025 rookie draft,10,2026-11-10,136
+2025 rookie draft,10,2026-11-11,135.5
 2025 rookie draft,10,2026-11-12,135
+2025 rookie draft,10,2026-11-13,135
 2025 rookie draft,6,2025-06-04,29.7
 2025 rookie draft,6,2025-06-17,27.7
 2025 rookie draft,6,2025-06-27,28.6
@@ -3003,12 +3036,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,6,2026-11-03,46.8
 2025 rookie draft,6,2026-11-04,47.6
 2025 rookie draft,6,2026-11-05,47.5
-2025 rookie draft,6,2026-11-06,47.7
-2025 rookie draft,6,2026-11-08,48.4
-2025 rookie draft,6,2026-11-09,48.5
-2025 rookie draft,6,2026-11-10,50
-2025 rookie draft,6,2026-11-11,50
-2025 rookie draft,6,2026-11-12,50.1
+2025 rookie draft,6,2026-11-06,47.4
+2025 rookie draft,6,2026-11-08,47.7
+2025 rookie draft,6,2026-11-09,47.6
+2025 rookie draft,6,2026-11-10,48.9
+2025 rookie draft,6,2026-11-11,48.6
+2025 rookie draft,6,2026-11-12,48.2
+2025 rookie draft,6,2026-11-13,47.7
 2025 rookie draft,2,2025-06-04,102.5
 2025 rookie draft,2,2025-06-17,103.4
 2025 rookie draft,2,2025-06-27,102.9
@@ -3089,11 +3123,12 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,2,2026-11-04,147.4
 2025 rookie draft,2,2026-11-05,147.5
 2025 rookie draft,2,2026-11-06,147.5
-2025 rookie draft,2,2026-11-08,147.6
-2025 rookie draft,2,2026-11-09,147.6
-2025 rookie draft,2,2026-11-10,147.6
-2025 rookie draft,2,2026-11-11,147.6
-2025 rookie draft,2,2026-11-12,147.5
+2025 rookie draft,2,2026-11-08,147.4
+2025 rookie draft,2,2026-11-09,147.4
+2025 rookie draft,2,2026-11-10,147.3
+2025 rookie draft,2,2026-11-11,147.3
+2025 rookie draft,2,2026-11-12,147.1
+2025 rookie draft,2,2026-11-13,146.9
 2025 rookie draft,7,2025-06-04,96
 2025 rookie draft,7,2025-06-17,83.4
 2025 rookie draft,7,2025-06-27,83.4
@@ -3173,12 +3208,13 @@ initial draft,7,2026-11-12,397.1
 2025 rookie draft,7,2026-11-03,-25.9
 2025 rookie draft,7,2026-11-04,-25.4
 2025 rookie draft,7,2026-11-05,-24.9
-2025 rookie draft,7,2026-11-06,-24.5
-2025 rookie draft,7,2026-11-08,-23.4
-2025 rookie draft,7,2026-11-09,-22.9
-2025 rookie draft,7,2026-11-10,-28.6
-2025 rookie draft,7,2026-11-11,-28.4
-2025 rookie draft,7,2026-11-12,-28.1
+2025 rookie draft,7,2026-11-06,-24.3
+2025 rookie draft,7,2026-11-08,-23.2
+2025 rookie draft,7,2026-11-09,-22.8
+2025 rookie draft,7,2026-11-10,-28.5
+2025 rookie draft,7,2026-11-11,-28.3
+2025 rookie draft,7,2026-11-12,-28.3
+2025 rookie draft,7,2026-11-13,-28.5
 2026 rookie draft,11,2026-07-21,112.7
 2026 rookie draft,11,2026-07-28,110.7
 2026 rookie draft,11,2026-08-04,125.1
@@ -3202,12 +3238,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,11,2026-11-03,95.4
 2026 rookie draft,11,2026-11-04,92.3
 2026 rookie draft,11,2026-11-05,88.4
-2026 rookie draft,11,2026-11-06,84.8
-2026 rookie draft,11,2026-11-08,75.7
-2026 rookie draft,11,2026-11-09,71.4
-2026 rookie draft,11,2026-11-10,75.7
-2026 rookie draft,11,2026-11-11,75.7
-2026 rookie draft,11,2026-11-12,75.5
+2026 rookie draft,11,2026-11-06,84.7
+2026 rookie draft,11,2026-11-08,77.3
+2026 rookie draft,11,2026-11-09,73.9
+2026 rookie draft,11,2026-11-10,78.1
+2026 rookie draft,11,2026-11-11,78.3
+2026 rookie draft,11,2026-11-12,77.7
+2026 rookie draft,11,2026-11-13,76.6
 2026 rookie draft,3,2026-07-21,-122.6
 2026 rookie draft,3,2026-07-28,-127
 2026 rookie draft,3,2026-08-04,-138.4
@@ -3231,12 +3268,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,3,2026-11-03,-10.3
 2026 rookie draft,3,2026-11-04,-0.1
 2026 rookie draft,3,2026-11-05,8.2
-2026 rookie draft,3,2026-11-06,15.7
-2026 rookie draft,3,2026-11-08,33.1
-2026 rookie draft,3,2026-11-09,39.4
-2026 rookie draft,3,2026-11-10,43.6
-2026 rookie draft,3,2026-11-11,46.2
-2026 rookie draft,3,2026-11-12,47.3
+2026 rookie draft,3,2026-11-06,17.4
+2026 rookie draft,3,2026-11-08,34.8
+2026 rookie draft,3,2026-11-09,42.1
+2026 rookie draft,3,2026-11-10,49.2
+2026 rookie draft,3,2026-11-11,53.5
+2026 rookie draft,3,2026-11-12,56.9
+2026 rookie draft,3,2026-11-13,60.2
 2026 rookie draft,8,2026-07-21,-234.4
 2026 rookie draft,8,2026-07-28,-259.7
 2026 rookie draft,8,2026-08-04,-263
@@ -3260,12 +3298,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,8,2026-11-03,-237.3
 2026 rookie draft,8,2026-11-04,-237
 2026 rookie draft,8,2026-11-05,-237
-2026 rookie draft,8,2026-11-06,-236.8
-2026 rookie draft,8,2026-11-08,-235.7
-2026 rookie draft,8,2026-11-09,-234.9
-2026 rookie draft,8,2026-11-10,-234.1
-2026 rookie draft,8,2026-11-11,-232.8
-2026 rookie draft,8,2026-11-12,-231.8
+2026 rookie draft,8,2026-11-06,-236.7
+2026 rookie draft,8,2026-11-08,-235
+2026 rookie draft,8,2026-11-09,-233.9
+2026 rookie draft,8,2026-11-10,-231.9
+2026 rookie draft,8,2026-11-11,-230.2
+2026 rookie draft,8,2026-11-12,-228.6
+2026 rookie draft,8,2026-11-13,-227.3
 2026 rookie draft,9,2026-07-21,-123.4
 2026 rookie draft,9,2026-07-28,-122.4
 2026 rookie draft,9,2026-08-04,-120.6
@@ -3289,12 +3328,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,9,2026-11-03,-126.7
 2026 rookie draft,9,2026-11-04,-126.9
 2026 rookie draft,9,2026-11-05,-126.8
-2026 rookie draft,9,2026-11-06,-126.8
-2026 rookie draft,9,2026-11-08,-126.7
-2026 rookie draft,9,2026-11-09,-126.6
-2026 rookie draft,9,2026-11-10,-126.6
-2026 rookie draft,9,2026-11-11,-126.8
-2026 rookie draft,9,2026-11-12,-127
+2026 rookie draft,9,2026-11-06,-126.5
+2026 rookie draft,9,2026-11-08,-125.8
+2026 rookie draft,9,2026-11-09,-125.1
+2026 rookie draft,9,2026-11-10,-124.2
+2026 rookie draft,9,2026-11-11,-123.3
+2026 rookie draft,9,2026-11-12,-122.2
+2026 rookie draft,9,2026-11-13,-120.6
 2026 rookie draft,12,2026-07-21,-259.8
 2026 rookie draft,12,2026-07-28,-259.8
 2026 rookie draft,12,2026-08-04,-259.8
@@ -3318,12 +3358,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,12,2026-11-03,-201.7
 2026 rookie draft,12,2026-11-04,-201.7
 2026 rookie draft,12,2026-11-05,-202.8
-2026 rookie draft,12,2026-11-06,-203.4
-2026 rookie draft,12,2026-11-08,-205.8
-2026 rookie draft,12,2026-11-09,-207.6
-2026 rookie draft,12,2026-11-10,-209.1
-2026 rookie draft,12,2026-11-11,-211.1
-2026 rookie draft,12,2026-11-12,-212.6
+2026 rookie draft,12,2026-11-06,-204.1
+2026 rookie draft,12,2026-11-08,-206.7
+2026 rookie draft,12,2026-11-09,-208.7
+2026 rookie draft,12,2026-11-10,-210.7
+2026 rookie draft,12,2026-11-11,-212.9
+2026 rookie draft,12,2026-11-12,-214.4
+2026 rookie draft,12,2026-11-13,-215
 2026 rookie draft,7,2026-07-21,-85.8
 2026 rookie draft,7,2026-07-28,-72.3
 2026 rookie draft,7,2026-08-04,-72
@@ -3347,12 +3388,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,7,2026-11-03,-100.7
 2026 rookie draft,7,2026-11-04,-101.4
 2026 rookie draft,7,2026-11-05,-102
-2026 rookie draft,7,2026-11-06,-102.6
-2026 rookie draft,7,2026-11-08,-104.1
-2026 rookie draft,7,2026-11-09,-104.8
-2026 rookie draft,7,2026-11-10,-105.2
-2026 rookie draft,7,2026-11-11,-105.7
-2026 rookie draft,7,2026-11-12,-106.1
+2026 rookie draft,7,2026-11-06,-102.5
+2026 rookie draft,7,2026-11-08,-103.5
+2026 rookie draft,7,2026-11-09,-104
+2026 rookie draft,7,2026-11-10,-104.4
+2026 rookie draft,7,2026-11-11,-104.6
+2026 rookie draft,7,2026-11-12,-104.8
+2026 rookie draft,7,2026-11-13,-105.1
 2026 rookie draft,10,2026-07-21,-12
 2026 rookie draft,10,2026-07-28,-8.6
 2026 rookie draft,10,2026-08-04,-9.1
@@ -3376,12 +3418,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,10,2026-11-03,-23
 2026 rookie draft,10,2026-11-04,-23.2
 2026 rookie draft,10,2026-11-05,-23.1
-2026 rookie draft,10,2026-11-06,-23.3
-2026 rookie draft,10,2026-11-08,-23.9
-2026 rookie draft,10,2026-11-09,-24.1
-2026 rookie draft,10,2026-11-10,-15.6
-2026 rookie draft,10,2026-11-11,-15.8
-2026 rookie draft,10,2026-11-12,-15.5
+2026 rookie draft,10,2026-11-06,-22.8
+2026 rookie draft,10,2026-11-08,-22.9
+2026 rookie draft,10,2026-11-09,-22.9
+2026 rookie draft,10,2026-11-10,-14.2
+2026 rookie draft,10,2026-11-11,-14.2
+2026 rookie draft,10,2026-11-12,-14.1
+2026 rookie draft,10,2026-11-13,-13.6
 2026 rookie draft,1,2026-07-21,-69.7
 2026 rookie draft,1,2026-07-28,-69.9
 2026 rookie draft,1,2026-08-04,-72.4
@@ -3405,12 +3448,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,1,2026-11-03,-62.9
 2026 rookie draft,1,2026-11-04,-62.3
 2026 rookie draft,1,2026-11-05,-61.3
-2026 rookie draft,1,2026-11-06,-60.4
-2026 rookie draft,1,2026-11-08,-57.8
-2026 rookie draft,1,2026-11-09,-56.1
-2026 rookie draft,1,2026-11-10,-59.3
-2026 rookie draft,1,2026-11-11,-57.4
-2026 rookie draft,1,2026-11-12,-55
+2026 rookie draft,1,2026-11-06,-60.7
+2026 rookie draft,1,2026-11-08,-58.6
+2026 rookie draft,1,2026-11-09,-57.4
+2026 rookie draft,1,2026-11-10,-60.6
+2026 rookie draft,1,2026-11-11,-59
+2026 rookie draft,1,2026-11-12,-57.1
+2026 rookie draft,1,2026-11-13,-54.7
 2026 rookie draft,4,2026-07-21,12.1
 2026 rookie draft,4,2026-07-28,7.6
 2026 rookie draft,4,2026-08-04,7.8
@@ -3438,8 +3482,9 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,4,2026-11-08,-67.4
 2026 rookie draft,4,2026-11-09,-67.4
 2026 rookie draft,4,2026-11-10,-67.4
-2026 rookie draft,4,2026-11-11,-67.4
-2026 rookie draft,4,2026-11-12,-67.4
+2026 rookie draft,4,2026-11-11,-67.3
+2026 rookie draft,4,2026-11-12,-67.3
+2026 rookie draft,4,2026-11-13,-67.2
 2026 rookie draft,6,2026-07-21,-117.5
 2026 rookie draft,6,2026-07-28,-118.2
 2026 rookie draft,6,2026-08-04,-116.7
@@ -3463,12 +3508,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,6,2026-11-03,-126.3
 2026 rookie draft,6,2026-11-04,-126
 2026 rookie draft,6,2026-11-05,-125.4
-2026 rookie draft,6,2026-11-06,-124.9
-2026 rookie draft,6,2026-11-08,-123
-2026 rookie draft,6,2026-11-09,-121.5
-2026 rookie draft,6,2026-11-10,-120.4
-2026 rookie draft,6,2026-11-11,-118.8
-2026 rookie draft,6,2026-11-12,-117.8
+2026 rookie draft,6,2026-11-06,-124.7
+2026 rookie draft,6,2026-11-08,-122.4
+2026 rookie draft,6,2026-11-09,-120.9
+2026 rookie draft,6,2026-11-10,-119
+2026 rookie draft,6,2026-11-11,-117.3
+2026 rookie draft,6,2026-11-12,-116
+2026 rookie draft,6,2026-11-13,-115.4
 2026 rookie draft,5,2026-07-21,-113.2
 2026 rookie draft,5,2026-07-28,-113.9
 2026 rookie draft,5,2026-08-04,-114.4
@@ -3492,12 +3538,13 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,5,2026-11-03,-117.8
 2026 rookie draft,5,2026-11-04,-117.8
 2026 rookie draft,5,2026-11-05,-117.7
-2026 rookie draft,5,2026-11-06,-117.7
-2026 rookie draft,5,2026-11-08,-117.6
-2026 rookie draft,5,2026-11-09,-117.6
-2026 rookie draft,5,2026-11-10,-117.6
-2026 rookie draft,5,2026-11-11,-117.5
-2026 rookie draft,5,2026-11-12,-117.5
+2026 rookie draft,5,2026-11-06,-118.3
+2026 rookie draft,5,2026-11-08,-118.7
+2026 rookie draft,5,2026-11-09,-119.1
+2026 rookie draft,5,2026-11-10,-119.5
+2026 rookie draft,5,2026-11-11,-119.5
+2026 rookie draft,5,2026-11-12,-120.3
+2026 rookie draft,5,2026-11-13,-121.2
 2026 rookie draft,2,2026-07-21,-45.8
 2026 rookie draft,2,2026-07-28,-46.1
 2026 rookie draft,2,2026-08-04,-32.1
@@ -3521,9 +3568,10 @@ initial draft,7,2026-11-12,397.1
 2026 rookie draft,2,2026-11-03,49.9
 2026 rookie draft,2,2026-11-04,48.4
 2026 rookie draft,2,2026-11-05,47
-2026 rookie draft,2,2026-11-06,45.4
-2026 rookie draft,2,2026-11-08,41.1
-2026 rookie draft,2,2026-11-09,38.9
-2026 rookie draft,2,2026-11-10,37.6
-2026 rookie draft,2,2026-11-11,37.5
-2026 rookie draft,2,2026-11-12,37.6
+2026 rookie draft,2,2026-11-06,46
+2026 rookie draft,2,2026-11-08,42.5
+2026 rookie draft,2,2026-11-09,40.8
+2026 rookie draft,2,2026-11-10,39
+2026 rookie draft,2,2026-11-11,38.2
+2026 rookie draft,2,2026-11-12,38.3
+2026 rookie draft,2,2026-11-13,38.5
