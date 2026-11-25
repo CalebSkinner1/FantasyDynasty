@@ -44,6 +44,7 @@ app_data <- list(
   # individual players and player rankings
   player_total_value = read_saved("player_total_value.csv", col_types = ids),
   basic_info_df = read_saved("basic_info_df.csv", col_types = ids),
+  player_production = read_saved("player_production.csv", col_types = ids),
   plot_future_value_df = read_saved("plot_future_value_df.csv", col_types = ids) |>
     mutate(across(c(starts_with("proj_tva_"), expected_tva), \(x) round(x, 1))),
   season_value_added = read_saved("season_value_added.csv", col_types = ids),

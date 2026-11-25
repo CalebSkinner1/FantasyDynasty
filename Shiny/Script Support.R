@@ -181,11 +181,108 @@ team_lines <- function(data, highlight = NULL) {
 
 # Individual Players ------------------------------------------------------
 
-basic_info <- function(enter_id) {
-  basic_info_df |>
+# 1st, 2nd, 3rd, ...
+ordinal <- function(n) {
+  suffix <- case_when(
+    n %% 100 %in% 11:13 ~ "th",
+    n %% 10 == 1 ~ "st",
+    n %% 10 == 2 ~ "nd",
+    n %% 10 == 3 ~ "rd",
+    TRUE ~ "th"
+  )
+  str_c(n, suffix)
+}
+
+# a player's bio for the Individual Players page, one row per stat (label, value, and a
+# detail line) in display order, four to a row: position (and fantasy team), experience,
+# future value, points per game, then age, games missed, realized value, volatility. Points
+# per game, games missed, and volatility are his weekly production (player_production,
+# Individual Players.R), each weighted toward recent games.
+player_bio <- function(enter_id) {
+  info <- basic_info_df |>
     filter(player_id == enter_id) |>
-    select(-name, -player_id) |>
-    shiny_edit_tables()
+    slice(1)
+  production <- player_production |>
+    filter(player_id == enter_id)
+  team <- assets_df |>
+    filter(player_id == enter_id) |>
+    pull(display_name) |>
+    first(default = NA)
+  position_rank <- player_total_value |>
+    filter(position == info$position, !is.na(future_value)) |>
+    mutate(rank = min_rank(desc(future_value))) |>
+    filter(player_id == enter_id) |>
+    pull(rank) |>
+    first(default = NA)
+
+  sva_cols <- sort(str_subset(names(info), "^total value added \\d{4}$"))
+  latest_col <- last(sva_cols)
+  realized <- sum(unlist(info[sva_cols]), na.rm = TRUE)
+
+  has_games <- nrow(production) == 1
+  positions_label <- str_c(info$position, "s")
+  # e.g. "3rd of 138 RBs" (1st is the most points, or the most volatile)
+  rank_detail <- function(rank) {
+    if (!has_games || is.na(rank)) {
+      "too few games to rank"
+    } else {
+      str_c(ordinal(rank), " of ", production$ranked, " ", positions_label)
+    }
+  }
+  one_decimal <- function(x) if (is.na(x)) "–" else format(round(x, 1), nsmall = 1)
+
+  experience <- info$years_exp + 1 # Sleeper counts the seasons before this one
+
+  tibble(
+    label = c(
+      "Position",
+      "Experience",
+      "Future value",
+      "Points per game",
+      "Age",
+      "Games missed",
+      "Realized value",
+      "Volatility"
+    ),
+    value = c(
+      info$position,
+      case_when(
+        is.na(experience) ~ "–",
+        experience == 1 ~ "1 season",
+        .default = str_c(experience, " seasons")
+      ),
+      scales::comma(info$future_value, accuracy = .1),
+      if (has_games) one_decimal(production$points_mean) else "–",
+      format(round(info$age, 1), nsmall = 1),
+      if (has_games) str_c(round(100 * production$missed_rate), "%") else "–",
+      scales::comma(realized, accuracy = .1),
+      if (has_games) one_decimal(production$points_sd) else "–"
+    ),
+    detail = c(
+      if (is.na(team)) "not on a roster" else str_c("on ", team),
+      "including this season",
+      if (is.na(position_rank)) "" else str_c(info$position, position_rank),
+      if (has_games) {
+        str_c(rank_detail(production$points_rank), ", rolling average")
+      } else {
+        "no games in the box scores"
+      },
+      str_c("born ", str_squish(format(info$birth_date, "%B %e, %Y"))),
+      if (has_games) {
+        str_c(
+          production$team_games - production$games, " of ", production$team_games,
+          " team games"
+        )
+      } else {
+        ""
+      },
+      if (is.na(latest_col)) "" else str_c(
+        str_extract(latest_col, "\\d{4}$"), ": ",
+        scales::comma(coalesce(info[[latest_col]], 0), accuracy = .1)
+      ),
+      if (has_games) rank_detail(production$sd_rank) else ""
+    )
+  )
 }
 
 # a player's expected value added by season (the mean used in future value), with 80% and

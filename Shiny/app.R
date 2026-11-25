@@ -283,6 +283,7 @@ ui <- dashboardPage(
         }
         .stat-value { font-size: 1.5rem; font-weight: 600; line-height: 1.3; color: #212529; }
         .stat-detail { font-size: 0.85rem; color: #6c757d; }
+        .stat-note { font-size: 0.85rem; color: #6c757d; margin: 0.6rem 0 0; }
         .stat-tile.large .stat-value { font-size: 2rem; }
 
         /* player and team names in tables */
@@ -738,11 +739,18 @@ ui <- dashboardPage(
                 placeholder = "Start typing...",
                 maxOptions = 5 # Limit the number of suggestions shown
               )
+            ),
+            uiOutput("player_bio"),
+            p(
+              class = "stat-note",
+              "Realized value is his value added in every season so far. Points per game, volatility (the
+              standard deviation of his points), and games missed come from his NFL games since 2024, with
+              byes left out and each game counting 0.96 times as much as the one after it. A game he missed
+              is one his team played without him."
             )
           ),
           column(3, uiOutput("player_image"))
         ),
-        panel(title = "Value to Date", DTOutput("player_basic_info")),
         fluidRow(
           panel(
             width = 7,
@@ -1963,10 +1971,20 @@ server <- function(input, output, session) {
     )
   })
 
-  output$player_basic_info <- renderDT({
-    #table 1
+  output$player_bio <- renderUI({
     req(input$player_name)
-    basic_info(input$player_name) |> dt(page = 1)
+    bio <- player_bio(input$player_name)
+    div(
+      class = "stat-grid four", # two rows of four (player_bio)
+      pmap(bio, \(label, value, detail) {
+        div(
+          class = "stat-tile",
+          div(class = "stat-label", label),
+          div(class = "stat-value", value),
+          div(class = "stat-detail", detail)
+        )
+      })
+    )
   })
 
   output$plot_future_value <- renderPlotly({

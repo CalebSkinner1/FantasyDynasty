@@ -421,6 +421,9 @@ nflverse_headshots <- tryCatch(
       transmute(gsis_id, player_id = as.character(sleeper_id)) |>
       filter(!is.na(gsis_id), !is.na(player_id)) |>
       distinct(gsis_id, .keep_all = TRUE)
+    # also saved for Individual Players.R, which matches box score games to Sleeper ids
+    # (kept from the last run if the crosswalk can't be loaded)
+    write_csv(ids, here("Data/derived/player_ids.csv"))
     players <- nflreadr::load_players()
     headshot_col <- intersect(c("headshot", "headshot_url"), names(players))[[
       1
