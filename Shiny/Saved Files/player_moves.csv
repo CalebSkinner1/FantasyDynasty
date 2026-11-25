@@ -18,6 +18,8 @@ player_id,date,label,tab,target_id
 10218,2026-09-21,Dropped by obiwanginobiIi (2026 W2 transaction),transaction,1011
 10218,2026-09-26,Added by ngernenz (2026 W3 transaction),transaction,1040
 10218,2026-10-07,Dropped by ngernenz (2026 W5 transaction),transaction,1072
+10218,2026-11-19,Added by obiwanginobiIi (2026 W11 transaction),transaction,1202
+10218,2026-11-20,Dropped by obiwanginobiIi (2026 W11 transaction),transaction,1200
 10219,2024-09-12,Dropped by TheJandyStock (2024 W2 transaction),transaction,75
 10219,2024-11-09,Added by caskinner (2024 W10 transaction),transaction,281
 10219,2024-11-13,Dropped by caskinner (2024 W11 transaction),transaction,325
@@ -354,6 +356,7 @@ player_id,date,label,tab,target_id
 1166,2026-10-21,Traded from ngernenz to jzeigboi (2026 W7 trade),trade,64
 11729,2024-12-18,Added by jzeigboi (2024 W16 transaction),transaction,418
 11729,2025-05-21,Dropped by jzeigboi (2025 W1 transaction),transaction,544
+11729,2026-11-24,Added by caskinner (2026 W11 transaction),transaction,1188
 11748,2024-10-14,Added by ElatedBroncosFan (2024 W6 transaction),transaction,155
 11748,2024-11-02,Dropped by ElatedBroncosFan (2024 W9 transaction),transaction,256
 11783,2025-10-06,Added by jzeigboi (2025 W5 transaction),transaction,647
@@ -423,6 +426,7 @@ player_id,date,label,tab,target_id
 12469,2025-11-25,Added by akondratieff (2025 W12 transaction),transaction,811
 12470,2025-12-08,Added by ngernenz (2025 W14 transaction),transaction,844
 12470,2026-03-03,Dropped by ngernenz (2026 W1 transaction),transaction,1001
+12470,2026-11-20,Added by obiwanginobiIi (2026 W11 transaction),transaction,1196
 12471,2025-05-21,Added by caskinner (2025 W1 transaction),transaction,536
 12471,2026-07-07,Dropped by caskinner (2026 W1 transaction),transaction,982
 12472,2026-09-27,Added by lukestip (2026 W3 transaction),transaction,1038
@@ -530,6 +534,8 @@ player_id,date,label,tab,target_id
 12540,2026-09-10,Dropped by jzeigboi (2026 W1 transaction),transaction,902
 12540,2026-11-14,Added by jzeigboi (2026 W10 transaction),transaction,1168
 12540,2026-11-15,Dropped by jzeigboi (2026 W10 transaction),transaction,1163
+12540,2026-11-20,Added by obiwanginobiIi (2026 W11 transaction),transaction,1199
+12540,2026-11-20,Dropped by obiwanginobiIi (2026 W11 transaction),transaction,1196
 12541,2025-08-06,Added by obiwanginobiIi (2025 W1 transaction),transaction,474
 12541,2025-11-01,Dropped by obiwanginobiIi (2025 W9 transaction),transaction,743
 12542,2026-10-13,Added by akondratieff (2026 W5 transaction),transaction,1062
@@ -590,6 +596,7 @@ player_id,date,label,tab,target_id
 13333,2026-11-11,Added by ngernenz (2026 W10 transaction),transaction,1173
 13333,2026-11-15,Dropped by ngernenz (2026 W10 transaction),transaction,1165
 13333,2026-11-15,Added by jzeigboi (2026 W10 transaction),transaction,1163
+13333,2026-11-24,Dropped by jzeigboi (2026 W11 transaction),transaction,1191
 13347,2026-09-11,Added by ngernenz (2026 W1 transaction),transaction,901
 13347,2026-11-11,Dropped by ngernenz (2026 W10 transaction),transaction,1173
 13348,2026-07-20,Added by jzeigboi (2026 W1 transaction),transaction,932
@@ -623,6 +630,8 @@ player_id,date,label,tab,target_id
 13425,2026-10-25,Added by ngernenz (2026 W7 transaction),transaction,1107
 13425,2026-11-09,Dropped by ngernenz (2026 W9 transaction),transaction,1144
 13425,2026-11-17,Added by jzeigboi (2026 W10 transaction),transaction,1160
+13425,2026-11-20,Dropped by jzeigboi (2026 W11 transaction),transaction,1197
+13477,2026-11-23,Added by jzeigboi (2026 W11 transaction),transaction,1193
 13545,2026-09-20,Added by jzeigboi (2026 W2 transaction),transaction,1014
 13545,2026-09-28,Dropped by jzeigboi (2026 W3 transaction),transaction,1034
 13545,2026-10-14,Added by ElatedBroncosFan (2026 W6 transaction),transaction,1097
@@ -654,6 +663,7 @@ player_id,date,label,tab,target_id
 1479,2025-11-15,Added by jzeigboi (2025 W11 transaction),transaction,788
 1479,2026-03-24,Dropped by jzeigboi (2026 W1 transaction),transaction,995
 1479,2026-08-18,Added by jzeigboi (2026 W1 transaction),transaction,916
+1479,2026-11-24,Dropped by jzeigboi (2026 W11 transaction),transaction,1192
 167,2025-09-11,Added by SFOControl (2025 W2 transaction),transaction,599
 167,2025-10-01,Dropped by SFOControl (2025 W5 transaction),transaction,663
 1689,2025-05-21,Dropped by joeburrowmvp (2025 W1 transaction),transaction,522
@@ -734,6 +744,8 @@ player_id,date,label,tab,target_id
 2505,2026-10-18,Added by joeburrowmvp (2026 W6 transaction),transaction,1084
 2505,2026-10-20,Dropped by joeburrowmvp (2026 W6 transaction),transaction,1080
 2505,2026-10-28,Added by Gretsch0401 (2026 W8 transaction),transaction,1130
+260,2026-11-20,Added by jzeigboi (2026 W11 transaction),transaction,1197
+260,2026-11-23,Dropped by jzeigboi (2026 W11 transaction),transaction,1193
 2747,2024-09-01,Dropped by caskinner (2024 W1 transaction),transaction,22
 2747,2024-10-17,Added by ngernenz (2024 W7 transaction),transaction,199
 2747,2024-11-05,Dropped by ngernenz (2024 W9 transaction),transaction,244
@@ -760,6 +772,7 @@ player_id,date,label,tab,target_id
 3163,2024-11-14,Traded from Arvs to ElatedBroncosFan (2024 W11 trade),trade,24
 3163,2025-09-19,Traded from ElatedBroncosFan to joeburrowmvp (2025 W3 trade),trade,33
 3163,2026-07-24,Traded from joeburrowmvp to Arvs (2026 W1 trade),trade,53
+3163,2026-11-23,Traded from Arvs to jzeigboi (2026 W11 trade),trade,67
 3164,2024-10-02,Dropped by Arvs (2024 W5 transaction),transaction,149
 3164,2024-10-09,Added by SFOControl (2024 W6 transaction),transaction,168
 3164,2024-11-21,Dropped by SFOControl (2024 W12 transaction),transaction,341
@@ -783,6 +796,7 @@ player_id,date,label,tab,target_id
 3286,2024-09-02,Added by akondratieff (2024 W1 transaction),transaction,17
 3286,2025-05-23,Dropped by akondratieff (2025 W1 transaction),transaction,504
 3286,2026-11-11,Added by joeburrowmvp (2026 W10 transaction),transaction,1179
+3286,2026-11-21,Dropped by joeburrowmvp (2026 W11 transaction),transaction,1195
 331,2025-12-10,Added by Arvs (2025 W15 transaction),transaction,870
 331,2025-12-10,Dropped by Arvs (2025 W15 transaction),transaction,869
 331,2025-12-13,Added by SFOControl (2025 W15 transaction),transaction,865
@@ -858,6 +872,7 @@ player_id,date,label,tab,target_id
 4066,2025-10-29,Dropped by Gretsch0401 (2025 W9 transaction),transaction,752
 4066,2025-12-03,Added by akondratieff (2025 W14 transaction),transaction,854
 4066,2026-10-13,Dropped by akondratieff (2026 W5 transaction),transaction,1062
+4066,2026-11-25,Added by Arvs (2026 W12 transaction),transaction,1206
 4068,2024-11-03,Dropped by lukestip (2024 W9 transaction),transaction,251
 4080,2024-05-31,Dropped by joeburrowmvp (2024 W1 transaction),transaction,51
 4082,2024-10-31,Dropped by lukestip (2024 W9 transaction),transaction,262
@@ -902,6 +917,7 @@ player_id,date,label,tab,target_id
 4177,2026-09-25,Added by obiwanginobiIi (2026 W3 transaction),transaction,1042
 4177,2026-10-13,Dropped by obiwanginobiIi (2026 W5 transaction),transaction,1066
 4177,2026-11-13,Added by obiwanginobiIi (2026 W10 transaction),transaction,1170
+4177,2026-11-19,Dropped by obiwanginobiIi (2026 W11 transaction),transaction,1202
 4179,2024-10-13,Dropped by SFOControl (2024 W6 transaction),transaction,157
 4195,2026-11-11,Dropped by lukestip (2026 W10 transaction),transaction,1174
 4199,2025-09-07,Traded from TheJandyStock to ngernenz (2025 W1 trade),trade,28
@@ -971,6 +987,7 @@ player_id,date,label,tab,target_id
 4972,2024-10-09,Dropped by obiwanginobiIi (2024 W6 transaction),transaction,173
 4972,2024-10-23,Added by Gretsch0401 (2024 W8 transaction),transaction,237
 4972,2025-05-21,Dropped by Gretsch0401 (2025 W1 transaction),transaction,520
+4972,2026-11-24,Added by joeburrowmvp (2026 W11 transaction),transaction,1186
 4984,2026-10-03,Traded from jzeigboi to ElatedBroncosFan (2026 W4 trade),trade,62
 4988,2024-11-10,Dropped by ElatedBroncosFan (2024 W10 transaction),transaction,278
 4988,2024-11-12,Added by Arvs (2024 W10 transaction),transaction,271
@@ -1070,10 +1087,12 @@ player_id,date,label,tab,target_id
 5859,2025-09-29,Traded from jzeigboi to ElatedBroncosFan (2025 W4 trade),trade,35
 5870,2024-11-24,Dropped by SFOControl (2024 W12 transaction),transaction,333
 5870,2024-11-24,Added by caskinner (2024 W12 transaction),transaction,332
+5870,2026-11-24,Dropped by caskinner (2026 W11 transaction),transaction,1188
 5892,2026-07-19,Traded from joeburrowmvp to ElatedBroncosFan (2026 W1 trade),trade,56
 5906,2024-11-16,Dropped by akondratieff (2024 W11 transaction),transaction,311
 5906,2025-11-15,Added by jzeigboi (2025 W11 transaction),transaction,793
 5906,2025-11-15,Dropped by jzeigboi (2025 W11 transaction),transaction,792
+5906,2026-11-22,Added by lukestip (2026 W11 transaction),transaction,1194
 5917,2024-05-27,Dropped by ElatedBroncosFan (2024 W1 transaction),transaction,53
 5927,2024-11-08,Traded from Arvs to caskinner (2024 W10 trade),trade,20
 5937,2025-04-24,Dropped by ngernenz (2025 W1 transaction),transaction,558
@@ -1092,6 +1111,8 @@ player_id,date,label,tab,target_id
 5995,2024-08-20,Added by lukestip (2024 W1 transaction),transaction,31
 5995,2025-12-05,Dropped by lukestip (2025 W14 transaction),transaction,851
 5995,2026-11-15,Added by lukestip (2026 W10 transaction),transaction,1167
+5995,2026-11-22,Dropped by lukestip (2026 W11 transaction),transaction,1194
+5995,2026-11-25,Added by Arvs (2026 W12 transaction),transaction,1205
 6011,2024-09-07,Added by joeburrowmvp (2024 W1 transaction),transaction,7
 6011,2024-09-16,Traded from joeburrowmvp to jzeigboi (2024 W2 trade),trade,5
 6011,2024-10-21,Dropped by jzeigboi (2024 W7 transaction),transaction,187
@@ -1168,11 +1189,13 @@ player_id,date,label,tab,target_id
 6790,2024-09-24,Added by caskinner (2024 W3 transaction),transaction,85
 6790,2024-11-11,Traded from caskinner to jzeigboi (2024 W10 trade),trade,19
 6790,2026-07-24,Traded from jzeigboi to Arvs (2026 W1 trade),trade,54
+6790,2026-11-21,Traded from Arvs to caskinner (2026 W11 trade),trade,69
 6797,2024-05-27,Traded from ElatedBroncosFan to joeburrowmvp (2024 W1 trade),trade,3
 6797,2025-09-19,Traded from joeburrowmvp to ElatedBroncosFan (2025 W3 trade),trade,33
 6797,2026-09-21,Traded from ElatedBroncosFan to ngernenz (2026 W2 trade),trade,60
 6801,2024-09-16,Traded from joeburrowmvp to jzeigboi (2024 W2 trade),trade,5
 6801,2026-07-24,Traded from jzeigboi to Arvs (2026 W1 trade),trade,54
+6801,2026-11-21,Traded from Arvs to caskinner (2026 W11 trade),trade,69
 6803,2024-10-30,Traded from SFOControl to ElatedBroncosFan (2024 W8 trade),trade,9
 6803,2024-11-14,Traded from ElatedBroncosFan to Arvs (2024 W11 trade),trade,24
 6803,2025-11-04,Traded from Arvs to joeburrowmvp (2025 W9 trade),trade,41
@@ -1180,6 +1203,7 @@ player_id,date,label,tab,target_id
 6803,2026-11-05,Added by SFOControl (2026 W9 transaction),transaction,1154
 6806,2024-10-30,Traded from ElatedBroncosFan to SFOControl (2024 W8 trade),trade,9
 6813,2024-11-08,Traded from Arvs to caskinner (2024 W10 trade),trade,20
+6813,2026-11-21,Traded from caskinner to Arvs (2026 W11 trade),trade,69
 6820,2024-10-02,Added by ElatedBroncosFan (2024 W5 transaction),transaction,146
 6820,2024-10-16,Dropped by ElatedBroncosFan (2024 W7 transaction),transaction,208
 6820,2024-10-18,Added by obiwanginobiIi (2024 W7 transaction),transaction,194
@@ -1198,6 +1222,7 @@ player_id,date,label,tab,target_id
 6865,2025-11-24,Added by ngernenz (2025 W12 transaction),transaction,814
 6865,2026-07-14,Dropped by ngernenz (2026 W1 transaction),transaction,963
 6904,2025-11-15,Traded from obiwanginobiIi to jzeigboi (2025 W11 trade),trade,46
+6904,2026-11-23,Traded from jzeigboi to Arvs (2026 W11 trade),trade,67
 6938,2025-05-22,Dropped by lukestip (2025 W1 transaction),transaction,517
 6943,2025-05-21,Dropped by lukestip (2025 W1 transaction),transaction,542
 6945,2024-09-24,Dropped by caskinner (2024 W3 transaction),transaction,85
@@ -1256,6 +1281,7 @@ player_id,date,label,tab,target_id
 7527,2025-11-19,Dropped by SFOControl (2025 W12 transaction),transaction,831
 7527,2025-11-19,Added by caskinner (2025 W12 transaction),transaction,825
 7527,2026-09-18,Dropped by caskinner (2026 W2 transaction),transaction,1017
+7527,2026-11-20,Added by caskinner (2026 W11 transaction),transaction,1198
 7528,2024-11-13,Traded from akondratieff to Arvs (2024 W11 trade),trade,25
 7528,2025-11-21,Dropped by Arvs (2025 W12 transaction),transaction,818
 7528,2025-11-21,Added by jzeigboi (2025 W12 transaction),transaction,816
@@ -1271,6 +1297,7 @@ player_id,date,label,tab,target_id
 7562,2024-10-20,Added by Arvs (2024 W7 transaction),transaction,189
 7562,2024-10-25,Dropped by Arvs (2024 W8 transaction),transaction,229
 7562,2026-11-11,Added by joeburrowmvp (2026 W10 transaction),transaction,1185
+7562,2026-11-24,Dropped by joeburrowmvp (2026 W11 transaction),transaction,1186
 7564,2024-11-01,Traded from ngernenz to joeburrowmvp (2024 W9 trade),trade,14
 7567,2024-07-23,Dropped by joeburrowmvp (2024 W1 transaction),transaction,36
 7567,2024-12-03,Added by SFOControl (2024 W13 transaction),transaction,354
@@ -1502,6 +1529,7 @@ player_id,date,label,tab,target_id
 8210,2026-09-18,Dropped by jzeigboi (2026 W2 transaction),transaction,1018
 8210,2026-10-16,Added by ngernenz (2026 W6 transaction),transaction,1085
 8210,2026-11-01,Dropped by ngernenz (2026 W8 transaction),transaction,1125
+8210,2026-11-21,Added by joeburrowmvp (2026 W11 transaction),transaction,1195
 8220,2024-12-03,Added by caskinner (2024 W13 transaction),transaction,350
 8220,2024-12-04,Dropped by caskinner (2024 W14 transaction),transaction,383
 8220,2024-12-09,Added by akondratieff (2024 W14 transaction),transaction,367
@@ -1509,6 +1537,7 @@ player_id,date,label,tab,target_id
 8225,2025-12-28,Added by Gretsch0401 (2025 W17 transaction),transaction,884
 8225,2026-07-18,Dropped by Gretsch0401 (2026 W1 transaction),transaction,955
 8228,2024-11-12,Traded from caskinner to Arvs (2024 W10 trade),trade,18
+8228,2026-11-21,Traded from Arvs to jzeigboi (2026 W11 trade),trade,68
 8230,2024-12-08,Dropped by ngernenz (2024 W14 transaction),transaction,369
 8249,2024-11-17,Added by Gretsch0401 (2024 W11 transaction),transaction,306
 8249,2024-11-20,Dropped by Gretsch0401 (2024 W12 transaction),transaction,344
@@ -1625,6 +1654,7 @@ player_id,date,label,tab,target_id
 9501,2025-09-01,Added by akondratieff (2025 W1 transaction),transaction,452
 9501,2025-11-25,Dropped by akondratieff (2025 W12 transaction),transaction,813
 9501,2026-10-20,Added by caskinner (2026 W6 transaction),transaction,1077
+9501,2026-11-20,Dropped by caskinner (2026 W11 transaction),transaction,1198
 9502,2026-10-25,Dropped by jzeigboi (2026 W7 transaction),transaction,1106
 9502,2026-11-10,Added by ElatedBroncosFan (2026 W9 transaction),transaction,1140
 9504,2024-11-14,Added by ElatedBroncosFan (2024 W11 transaction),transaction,317
@@ -1672,6 +1702,7 @@ player_id,date,label,tab,target_id
 9754,2024-10-22,Dropped by caskinner (2024 W7 transaction),transaction,182
 9754,2024-10-25,Added by Arvs (2024 W8 transaction),transaction,228
 9754,2024-11-12,Traded from Arvs to caskinner (2024 W10 trade),trade,18
+9754,2026-11-21,Traded from caskinner to Arvs (2026 W11 trade),trade,69
 9757,2024-09-03,Dropped by Arvs (2024 W1 transaction),transaction,13
 9757,2024-10-05,Added by caskinner (2024 W5 transaction),transaction,136
 9757,2024-11-03,Dropped by caskinner (2024 W9 transaction),transaction,253
@@ -1727,6 +1758,7 @@ BAL,2025-12-16,Dropped by ElatedBroncosFan (2025 W15 transaction),transaction,86
 BAL,2026-07-14,Added by jzeigboi (2026 W1 transaction),transaction,964
 BAL,2026-11-05,Dropped by jzeigboi (2026 W9 transaction),transaction,1152
 BAL,2026-11-10,Added by caskinner (2026 W9 transaction),transaction,1137
+BAL,2026-11-20,Dropped by caskinner (2026 W11 transaction),transaction,1201
 BUF,2024-04-04,Added by SFOControl (2024 W1 transaction),transaction,59
 CAR,2025-09-23,Added by joeburrowmvp (2025 W3 transaction),transaction,607
 CAR,2025-10-05,Dropped by joeburrowmvp (2025 W5 transaction),transaction,650
@@ -1734,6 +1766,8 @@ CAR,2025-10-14,Added by ElatedBroncosFan (2025 W6 transaction),transaction,671
 CAR,2025-10-18,Dropped by ElatedBroncosFan (2025 W7 transaction),transaction,702
 CAR,2025-11-04,Added by ngernenz (2025 W9 transaction),transaction,739
 CAR,2025-11-12,Dropped by ngernenz (2025 W11 transaction),transaction,805
+CAR,2026-11-20,Added by caskinner (2026 W11 transaction),transaction,1201
+CAR,2026-11-24,Dropped by caskinner (2026 W11 transaction),transaction,1187
 CHI,2024-09-06,Added by TheJandyStock (2024 W1 transaction),transaction,9
 CHI,2024-09-12,Dropped by TheJandyStock (2024 W2 transaction),transaction,76
 CHI,2024-10-03,Added by ngernenz (2024 W5 transaction),transaction,140
@@ -1775,6 +1809,7 @@ CIN,2026-10-06,Added by ngernenz (2026 W4 transaction),transaction,1047
 CIN,2026-10-15,Dropped by ngernenz (2026 W6 transaction),transaction,1094
 CIN,2026-10-27,Added by ElatedBroncosFan (2026 W7 transaction),transaction,1103
 CIN,2026-11-10,Dropped by ElatedBroncosFan (2026 W9 transaction),transaction,1139
+CIN,2026-11-18,Added by Gretsch0401 (2026 W11 transaction),transaction,1203
 CLE,2024-04-04,Added by Gretsch0401 (2024 W1 transaction),transaction,57
 CLE,2024-04-04,Dropped by Gretsch0401 (2024 W1 transaction),transaction,54
 CLE,2024-09-17,Added by jzeigboi (2024 W2 transaction),transaction,65
@@ -1817,6 +1852,7 @@ GB,2026-09-23,Dropped by ngernenz (2026 W3 transaction),transaction,1046
 GB,2026-09-29,Added by caskinner (2026 W3 transaction),transaction,1031
 GB,2026-10-13,Dropped by caskinner (2026 W5 transaction),transaction,1061
 GB,2026-11-11,Added by Gretsch0401 (2026 W10 transaction),transaction,1172
+GB,2026-11-18,Dropped by Gretsch0401 (2026 W11 transaction),transaction,1203
 HOU,2024-10-08,Added by ElatedBroncosFan (2024 W5 transaction),transaction,128
 HOU,2024-10-14,Dropped by ElatedBroncosFan (2024 W6 transaction),transaction,153
 HOU,2024-11-12,Added by ngernenz (2024 W10 transaction),transaction,276
@@ -1835,7 +1871,7 @@ IND,2025-12-10,Dropped by joeburrowmvp (2025 W15 transaction),transaction,873
 IND,2026-10-13,Added by ElatedBroncosFan (2026 W5 transaction),transaction,1064
 IND,2026-10-20,Dropped by ElatedBroncosFan (2026 W6 transaction),transaction,1076
 IND,2026-11-12,Added by ElatedBroncosFan (2026 W10 transaction),transaction,1171
-IND,2026-11-18,Dropped by ElatedBroncosFan (2026 W11 transaction),transaction,1186
+IND,2026-11-18,Dropped by ElatedBroncosFan (2026 W11 transaction),transaction,1204
 JAX,2024-09-11,Added by jzeigboi (2024 W2 transaction),transaction,81
 JAX,2024-09-17,Dropped by jzeigboi (2024 W2 transaction),transaction,65
 JAX,2024-12-04,Added by obiwanginobiIi (2024 W14 transaction),transaction,387
@@ -1862,6 +1898,7 @@ KC,2026-10-20,Dropped by caskinner (2026 W6 transaction),transaction,1078
 KC,2026-10-28,Added by ngernenz (2026 W8 transaction),transaction,1134
 KC,2026-11-03,Dropped by ngernenz (2026 W8 transaction),transaction,1121
 KC,2026-11-11,Added by ngernenz (2026 W10 transaction),transaction,1175
+KC,2026-11-24,Dropped by ngernenz (2026 W11 transaction),transaction,1189
 LAC,2024-09-10,Added by ElatedBroncosFan (2024 W1 transaction),transaction,1
 LAC,2024-09-17,Dropped by ElatedBroncosFan (2024 W2 transaction),transaction,67
 LAC,2024-10-10,Added by jzeigboi (2024 W6 transaction),transaction,165
@@ -1876,7 +1913,8 @@ LAC,2025-11-25,Added by jzeigboi (2025 W12 transaction),transaction,809
 LAC,2025-12-09,Dropped by jzeigboi (2025 W14 transaction),transaction,840
 LAC,2026-07-19,Added by ElatedBroncosFan (2026 W1 transaction),transaction,933
 LAC,2026-09-16,Dropped by ElatedBroncosFan (2026 W2 transaction),transaction,1029
-LAC,2026-11-18,Added by ElatedBroncosFan (2026 W11 transaction),transaction,1186
+LAC,2026-11-18,Added by ElatedBroncosFan (2026 W11 transaction),transaction,1204
+LAC,2026-11-24,Dropped by ElatedBroncosFan (2026 W11 transaction),transaction,1190
 LAR,2024-11-13,Added by TheJandyStock (2024 W11 transaction),transaction,320
 LAR,2024-12-04,Dropped by TheJandyStock (2024 W14 transaction),transaction,377
 LAR,2025-09-05,Added by akondratieff (2025 W1 transaction),transaction,448
@@ -1948,6 +1986,7 @@ NYG,2026-09-23,Added by ngernenz (2026 W3 transaction),transaction,1046
 NYG,2026-10-06,Dropped by ngernenz (2026 W4 transaction),transaction,1047
 NYG,2026-11-08,Added by jzeigboi (2026 W9 transaction),transaction,1148
 NYG,2026-11-17,Dropped by jzeigboi (2026 W10 transaction),transaction,1159
+NYG,2026-11-24,Added by ElatedBroncosFan (2026 W11 transaction),transaction,1190
 NYJ,2024-04-04,Added by joeburrowmvp (2024 W1 transaction),transaction,60
 NYJ,2024-10-30,Dropped by joeburrowmvp (2024 W9 transaction),transaction,266
 NYJ,2024-11-06,Added by ElatedBroncosFan (2024 W10 transaction),transaction,292
@@ -2026,3 +2065,4 @@ WAS,2025-12-03,Added by ngernenz (2025 W14 transaction),transaction,856
 WAS,2025-12-05,Dropped by ngernenz (2025 W14 transaction),transaction,847
 WAS,2026-10-28,Added by joeburrowmvp (2026 W8 transaction),transaction,1135
 WAS,2026-11-11,Dropped by joeburrowmvp (2026 W10 transaction),transaction,1180
+WAS,2026-11-24,Added by caskinner (2026 W11 transaction),transaction,1187
