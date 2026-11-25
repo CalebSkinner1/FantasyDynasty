@@ -1,0 +1,217 @@
+season,week,team,penalty,slot,started,started_projection,started_points,reason,bench,bench_projection,bench_points,decided
+2026,11,Arvs,ERS,DEF,Seattle Seahawks,0,0,bye week,NA,NA,NA,FALSE
+2026,11,SFOControl,QB,RB,Devin Singletary,4.46,2,3.9 below his bench option,J.K. Dobbins,8.39,0,FALSE
+2026,11,TheJandyStock,ERS,QB,Jordan Love,0,0,bye week,Baker Mayfield,15.4,19.08,TRUE
+2026,11,TheJandyStock,ERS,RB,MarShawn Lloyd,0,0,bye week,Saquon Barkley,12.69,13.5,TRUE
+2026,11,TheJandyStock,ERS,WR,Wan'Dale Robinson,0,0,not active,Rashee Rice,15.63,11.3,TRUE
+2026,11,TheJandyStock,ERS,TE,Harold Fannin,0,0,bye week,Sam LaPorta,12.36,9.2,TRUE
+2026,11,akondratieff,ERS,QB,(empty),0,0,empty slot,Joe Milton,12.03,6.34,FALSE
+2026,11,akondratieff,ERS,TE,Tucker Kraft,0,0,bye week,Hunter Henry,0,0,FALSE
+2026,11,akondratieff,ERS,FLEX,Michael Pittman Jr.,0,0,not active,Brian Thomas Jr.,3.78,8.8,FALSE
+2026,11,akondratieff,ERS,SUPER_FLEX,Denzel Boston,0,0,bye week,Lamar Jackson,0,0,FALSE
+2026,11,joeburrowmvp,QB,TE,Mike Gesicki,9.16,12.7,1.9 below his bench option,Michael Mayer,11.05,1.4,FALSE
+2026,11,lukestip,QB,FLEX,Pat Bryant,8.44,6.2,4.5 below his bench option,Jalen Coker,12.92,8.7,FALSE
+2026,11,ngernenz,QB,TE,Greg Dulcich,6.4,3.2,1.6 below his bench option,Mason Taylor,8,4.5,FALSE
+2026,10,ElatedBroncosFan,QB,FLEX,Blake Corum,11.08,20.9,3.3 below his bench option,A.J. Brown,14.38,4.7,FALSE
+2026,10,SFOControl,QB,TE,Mark Andrews,6.97,16.2,4.1 below his bench option,Deebo Samuel Sr.,11.07,25.9,FALSE
+2026,10,TheJandyStock,QB,FLEX,Stefon Diggs,10.24,20.3,4.7 below his bench option,Rashee Rice,14.94,13.2,FALSE
+2026,10,akondratieff,ERS,WR,Jaylen Waddle,0,0,bye week,Cooper Kupp,6.82,10.4,FALSE
+2026,10,akondratieff,ERS,FLEX,Puka Nacua,0,0,not active,Hunter Henry,10.08,4.2,FALSE
+2026,10,akondratieff,ERS,K,Cairo Santos,0,0,bye week,NA,NA,NA,FALSE
+2026,10,ngernenz,QB,WR,Dohnte Meyers,6.04,10,3.2 below his bench option,Caleb Douglas,9.25,10.1,FALSE
+2026,10,obiwanginobiIi,ERS,WR,Jordan Addison,0,0,not active,Omar Cooper Jr.,8.54,0,FALSE
+2026,10,obiwanginobiIi,ERS,DEF,Denver Broncos,0,0,bye week,NA,NA,NA,FALSE
+2026,9,Arvs,QB,FLEX,Antonio Williams,9.8,5.5,4 below his bench option,Woody Marks,13.81,8.4,FALSE
+2026,9,ElatedBroncosFan,QB,FLEX,Blake Corum,7.24,11.8,3.8 below his bench option,Tre Tucker,10.99,9.5,FALSE
+2026,9,SFOControl,QB,TE,Mark Andrews,7.35,3.9,3.1 below his bench option,Juwan Johnson,10.43,11.4,FALSE
+2026,9,TheJandyStock,ERS,RB,MarShawn Lloyd,0,0,not active,Saquon Barkley,12.64,8.2,FALSE
+2026,9,TheJandyStock,ERS,WR,George Pickens,0,0,not active,Tre Harris,5.97,3.6,FALSE
+2026,9,TheJandyStock,ERS,WR,Wan'Dale Robinson,0,0,bye week,Marvin Harrison Jr.,5.03,4,FALSE
+2026,9,TheJandyStock,ERS,DEF,Pittsburgh Steelers,0,0,bye week,NA,NA,NA,FALSE
+2026,9,TheJandyStock,QB,RB,Derrick Henry,11.93,5.58,3.1 below his bench option,Josh Jacobs,15.04,0.5,FALSE
+2026,9,TheJandyStock,QB,FLEX,Stefon Diggs,12.85,8.1,2.7 below his bench option,Rashee Rice,15.58,9.9,FALSE
+2026,9,TheJandyStock,QB,TE,Harold Fannin,11.39,12.2,2.1 below his bench option,Sam LaPorta,13.45,7.2,FALSE
+2026,9,joeburrowmvp,QB,SUPER_FLEX,Michael Mayer,8,4.7,5.6 below his bench option,Shedeur Sanders,13.58,22.68,TRUE
+2026,9,obiwanginobiIi,QB,WR,Michael Wilson,0,12,13.4 below his bench option,Omar Cooper Jr.,13.39,13.8,FALSE
+2026,8,ElatedBroncosFan,QB,TE,Kyle Pitts,8.12,2.6,3.9 below his bench option,Travis Kelce,11.99,11.7,FALSE
+2026,8,SFOControl,QB,RB,Bam Knight,0,0.8,6.8 below his bench option,Hollywood Brown,6.78,3.7,FALSE
+2026,8,TheJandyStock,QB,RB,MarShawn Lloyd,6.61,2.6,9.4 below his bench option,Josh Jacobs,16.03,23.2,TRUE
+2026,8,akondratieff,ERS,RB,Breece Hall,0,0,not active,Kimani Vidal,6.97,5,FALSE
+2026,8,joeburrowmvp,ERS,WR,DeVonta Smith,0,0,not active,Savion Williams,5.58,3.3,FALSE
+2026,8,joeburrowmvp,QB,FLEX,Kendrick Bourne,0,3.9,7.9 below his bench option,Mike Gesicki,7.94,17.6,FALSE
+2026,8,jzeigboi,ERS,TE,(empty),0,0,empty slot,Colston Loveland,9.73,11.5,FALSE
+2026,8,lukestip,QB,DEF,Minnesota Vikings,6.37,7,2.5 below his bench option,New England Patriots,8.82,8,FALSE
+2026,7,TheJandyStock,ERS,FLEX,Stefon Diggs,0,0,bye week,Josh Jacobs,11.95,20.1,TRUE
+2026,7,TheJandyStock,QB,RB,MarShawn Lloyd,5.02,5.5,9.2 below his bench option,Saquon Barkley,14.21,15.1,TRUE
+2026,7,TheJandyStock,QB,WR,Wan'Dale Robinson,10.26,4.7,3.2 below his bench option,Sam LaPorta,13.49,2.8,TRUE
+2026,7,akondratieff,ERS,QB,Lamar Jackson,0,0,not active,NA,NA,NA,FALSE
+2026,7,akondratieff,ERS,RB,Breece Hall,0,0,not active,Dylan Sampson,6.71,10.7,FALSE
+2026,7,akondratieff,QB,SUPER_FLEX,Denzel Boston,10.89,5.7,3.4 below his bench option,Tyler Huntley,14.27,16.12,FALSE
+2026,7,caskinner,QB,FLEX,Dallas Goedert,11.52,9.8,4.3 below his bench option,Braelon Allen,15.8,19.4,FALSE
+2026,7,joeburrowmvp,QB,FLEX,Christian Kirk,6.99,0,2.8 below his bench option,Roschon Johnson,9.81,1.3,FALSE
+2026,7,jzeigboi,QB,FLEX,Keenan Allen,9.31,6.1,5.4 below his bench option,Tony Pollard,14.76,36.5,FALSE
+2026,7,lukestip,QB,DEF,New England Patriots,6.31,2,2.5 below his bench option,Minnesota Vikings,8.84,10,FALSE
+2026,6,Gretsch0401,QB,WR,Davante Adams,0,6.9,9.7 below his bench option,KC Concepcion,9.71,7.9,FALSE
+2026,6,obiwanginobiIi,QB,RB,RJ Harvey,10.09,14.6,3.3 below his bench option,Tyler Allgeier,13.41,5.8,FALSE
+2026,5,TheJandyStock,ERS,K,Harrison Butker,0,0,bye week,NA,NA,NA,FALSE
+2026,5,lukestip,ERS,FLEX,D.J. Moore,0,0,not active,Roman Wilson,9.02,0,FALSE
+2026,4,Gretsch0401,QB,QB,Marcus Mariota,0,5.34,9.9 below his bench option,Jakobi Meyers,9.91,6.3,FALSE
+2026,4,TheJandyStock,QB,RB,Saquon Barkley,0,2,9.6 below his bench option,TreVeyon Henderson,9.6,4.2,FALSE
+2026,4,akondratieff,QB,SUPER_FLEX,Case Keenum,0,0,12.6 below his bench option,Jaylen Waddle,12.63,14.5,FALSE
+2026,4,joeburrowmvp,QB,WR,Ja'Marr Chase,0,5.7,8.1 below his bench option,Mike Gesicki,8.1,13,TRUE
+2026,4,ngernenz,QB,WR,Ladd McConkey,0,0,8.9 below his bench option,Malik Washington,8.87,12,FALSE
+2026,3,TheJandyStock,QB,FLEX,Stefon Diggs,9.22,7.3,3.4 below his bench option,TreVeyon Henderson,12.62,3.9,FALSE
+2026,3,akondratieff,QB,SUPER_FLEX,Drew Lock,0,0,13.3 below his bench option,Jaylen Waddle,13.33,6.4,FALSE
+2026,2,Arvs,ERS,RB,(empty),0,0,empty slot,Cam Skattebo,14.57,9.5,FALSE
+2026,2,SFOControl,QB,DEF,Detroit Lions,5.21,-1,2 below his bench option,Buffalo Bills,7.17,4,FALSE
+2026,2,SFOControl,QB,TE,Juwan Johnson,9.9,10.6,1.9 below his bench option,Isaiah Likely,11.8,8.3,FALSE
+2026,2,TheJandyStock,QB,SUPER_FLEX,Tyler Shough,15.48,22.38,4.1 below his bench option,Jordan Love,19.54,13.8,TRUE
+2026,2,TheJandyStock,QB,TE,Harold Fannin,9.75,10.4,2.9 below his bench option,Stefon Diggs,12.67,21.7,TRUE
+2026,2,akondratieff,ERS,WR,Michael Pittman Jr.,0,0,not active,Jaylen Waddle,12.71,21.8,FALSE
+2026,2,jzeigboi,QB,RB,Kyle Monangai,7.05,7.8,3.1 below his bench option,Blake Corum,10.19,10.2,FALSE
+2026,1,SFOControl,ERS,K,(empty),0,0,empty slot,Eddy Pineiro,6.36,10,FALSE
+2025,14,Arvs,QB,FLEX,Xavier Worthy,9.61,8.5,2.7 below his bench option,Aaron Jones,12.31,7.6,FALSE
+2025,14,ElatedBroncosFan,QB,SUPER_FLEX,Oronde Gadsden,9.96,1.7,4.9 below his bench option,Geno Smith,14.83,9.04,FALSE
+2025,14,Gretsch0401,QB,K,Jason Myers,8.64,14,2.1 below his bench option,Brandon Aubrey,10.72,23,FALSE
+2025,14,TheJandyStock,ERS,FLEX,TreVeyon Henderson,0,0,bye week,Pat Freiermuth,5.52,2.9,TRUE
+2025,14,TheJandyStock,ERS,SUPER_FLEX,Stefon Diggs,0,0,bye week,Jordan Love,18.57,20.26,TRUE
+2025,14,TheJandyStock,QB,RB,Saquon Barkley,16.24,18.2,3.3 below his bench option,Josh Jacobs,19.5,17.2,TRUE
+2025,14,TheJandyStock,QB,DEF,Pittsburgh Steelers,6.03,4,2.4 below his bench option,Cleveland Browns,8.39,2,TRUE
+2025,14,jzeigboi,ERS,SUPER_FLEX,(empty),0,0,empty slot,Chris Rodriguez Jr.,10.65,5.2,FALSE
+2025,14,jzeigboi,ERS,K,(empty),0,0,empty slot,Chris Rodriguez Jr.,10.65,5.2,FALSE
+2025,14,jzeigboi,ERS,DEF,(empty),0,0,empty slot,Chris Rodriguez Jr.,10.65,5.2,FALSE
+2025,14,jzeigboi,QB,WR,Khalil Shakir,12.58,9.6,8.6 below his bench option,Jalen Hurts,21.16,4.4,FALSE
+2025,14,obiwanginobiIi,QB,WR,Cedric Tillman,7.98,3.3,9.2 below his bench option,Jacoby Brissett,17.17,20.04,FALSE
+2025,14,obiwanginobiIi,QB,TE,T.J. Hockenson,8.13,9.2,1.6 below his bench option,Darnell Mooney,9.71,1.6,FALSE
+2025,13,Arvs,QB,FLEX,Kyle Monangai,8.52,19,2.8 below his bench option,Jake Ferguson,11.33,8.6,FALSE
+2025,13,TheJandyStock,QB,SUPER_FLEX,Stefon Diggs,13.4,5.6,3.8 below his bench option,Jordan Love,17.18,25.76,FALSE
+2025,13,akondratieff,QB,WR,Jauan Jennings,9.5,13.9,2.9 below his bench option,Brian Thomas Jr.,12.36,4.8,FALSE
+2025,13,ngernenz,QB,SUPER_FLEX,Gunnar Helm,6.4,8.3,7.1 below his bench option,Kimani Vidal,13.46,20.7,FALSE
+2025,13,ngernenz,QB,FLEX,Jayden Higgins,9.06,11.5,3.3 below his bench option,Marvin Harrison Jr.,12.36,12.9,FALSE
+2025,13,obiwanginobiIi,ERS,TE,Dalton Kincaid,0,0,not active,T.J. Hockenson,7.18,11.9,FALSE
+2025,12,Arvs,QB,SUPER_FLEX,Mark Andrews,10,2.1,2.4 below his bench option,Cameron Ward,12.43,23.94,TRUE
+2025,12,SFOControl,QB,WR,Hollywood Brown,5.58,2,4.1 below his bench option,Darius Slayton,9.71,3.3,FALSE
+2025,12,akondratieff,QB,RB,Ty Johnson,5.22,8.2,3.2 below his bench option,Rhamondre Stevenson,8.4,2,FALSE
+2025,12,joeburrowmvp,QB,TE,Kyle Pitts,10.85,4.5,2.2 below his bench option,Kareem Hunt,13.04,20,FALSE
+2025,12,lukestip,QB,FLEX,Tyrone Tracy Jr.,10.91,16,3.7 below his bench option,Emanuel Wilson,14.56,26.5,FALSE
+2025,12,obiwanginobiIi,ERS,DEF,(empty),0,0,empty slot,Denver Broncos,0,0,FALSE
+2025,12,obiwanginobiIi,QB,RB,Tyler Allgeier,7.47,5.9,2.7 below his bench option,Rachaad White,10.2,5.2,FALSE
+2025,11,Arvs,QB,TE,Theo Johnson,8.99,6.6,2.2 below his bench option,Jake Ferguson,11.21,11.6,FALSE
+2025,11,Gretsch0401,QB,WR,Christian Watson,8.57,20.6,3.1 below his bench option,Jakobi Meyers,11.64,11.4,FALSE
+2025,11,TheJandyStock,QB,TE,Pat Freiermuth,6.62,2.9,2.2 below his bench option,Harold Fannin,8.8,4.6,FALSE
+2025,11,akondratieff,QB,DEF,Los Angeles Rams,6.61,10,1.6 below his bench option,Green Bay Packers,8.26,8,FALSE
+2025,11,obiwanginobiIi,QB,FLEX,Cedric Tillman,7.21,8.2,10.4 below his bench option,Jacoby Brissett,17.57,23.88,FALSE
+2025,10,Arvs,QB,SUPER_FLEX,Theo Johnson,9.31,14.5,4.7 below his bench option,Dillon Gabriel,14.02,20.08,FALSE
+2025,10,Arvs,QB,FLEX,Mark Andrews,9.52,10.4,3.4 below his bench option,Keenan Allen,12.9,3.9,FALSE
+2025,10,ngernenz,QB,RB,Aaron Jones,9.77,15.9,2.7 below his bench option,Kimani Vidal,12.46,17.8,FALSE
+2025,9,Arvs,QB,SUPER_FLEX,Chimere Dike,9.32,7.5,4.2 below his bench option,Keenan Allen,13.55,6.1,FALSE
+2025,9,TheJandyStock,ERS,QB,Baker Mayfield,0,0,bye week,Tyler Shough,13.28,10.24,TRUE
+2025,9,TheJandyStock,ERS,RB,Saquon Barkley,0,0,bye week,TreVeyon Henderson,12.95,12.7,TRUE
+2025,9,TheJandyStock,QB,TE,Pat Freiermuth,6.44,11.7,5.8 below his bench option,Sam LaPorta,12.28,21.7,TRUE
+2025,9,TheJandyStock,QB,WR,George Pickens,14.23,13.9,3.8 below his bench option,Derrick Henry,17.98,13.1,TRUE
+2025,9,akondratieff,ERS,RB,Rhamondre Stevenson,0,0,not active,James Conner,0,0,FALSE
+2025,9,akondratieff,ERS,K,Jake Moody,0,0,not active,NA,NA,NA,FALSE
+2025,9,akondratieff,QB,FLEX,Hunter Henry,10.78,9.1,3.1 below his bench option,Brian Thomas Jr.,13.88,8.5,FALSE
+2025,8,Arvs,QB,WR,Kayshon Boutte,8.42,16.5,4.6 below his bench option,Cameron Ward,13.04,13.76,FALSE
+2025,8,TheJandyStock,QB,FLEX,Stefon Diggs,12.91,10.4,4.8 below his bench option,Derrick Henry,17.75,19.1,FALSE
+2025,8,TheJandyStock,QB,TE,Pat Freiermuth,6.44,4.3,2.8 below his bench option,Harold Fannin,9.25,18.4,FALSE
+2025,8,akondratieff,ERS,K,(empty),0,0,empty slot,Jake Moody,0,0,FALSE
+2025,8,lukestip,QB,RB,Tyrone Tracy Jr.,4.67,7.3,2.8 below his bench option,Justice Hill,7.52,0.2,FALSE
+2025,8,ngernenz,ERS,TE,(empty),0,0,empty slot,Zach Ertz,9.67,5.6,FALSE
+2025,7,Arvs,QB,TE,Dallas Goedert,9.64,4.8,3.6 below his bench option,Cameron Ward,13.24,11.2,FALSE
+2025,7,akondratieff,QB,SUPER_FLEX,Jameson Williams,10.81,0,2.6 below his bench option,Joe Flacco,13.45,25.98,TRUE
+2025,7,jzeigboi,QB,WR,Luke McCaffrey,8.66,0,3.2 below his bench option,Tee Higgins,11.82,21.6,FALSE
+2025,7,obiwanginobiIi,QB,WR,Xavier Legette,4.54,24.2,2.8 below his bench option,Isaiah Bond,7.33,0,FALSE
+2025,6,Arvs,QB,FLEX,Darren Waller,9.88,9.2,4.8 below his bench option,Zay Flowers,14.66,8.6,FALSE
+2025,6,TheJandyStock,QB,WR,Wan'Dale Robinson,11.52,20.4,3.6 below his bench option,Derrick Henry,15.15,14,FALSE
+2025,6,caskinner,ERS,WR,Quentin Johnston,0,0,not active,Cooper Kupp,10.88,12,FALSE
+2025,6,jzeigboi,ERS,TE,Dalton Kincaid,0,0,not active,Zach Ertz,9.27,16.3,FALSE
+2025,6,lukestip,QB,FLEX,Tyrone Tracy Jr.,5.57,0.6,2.8 below his bench option,Jalen Tolbert,8.42,1.8,FALSE
+2025,6,ngernenz,QB,FLEX,Marvin Harrison Jr.,12.76,5.2,4 below his bench option,Geno Smith,16.76,9.66,FALSE
+2025,6,obiwanginobiIi,QB,WR,Dont'e Thornton,4.82,0,3 below his bench option,Isaiah Bond,7.83,2.9,FALSE
+2025,5,Arvs,QB,FLEX,Darren Waller,7.4,18.8,4.1 below his bench option,Chris Godwin,11.48,5.6,FALSE
+2025,5,ElatedBroncosFan,QB,RB,Woody Marks,10.64,2.4,3.6 below his bench option,Rico Dowdle,14.29,32.4,FALSE
+2025,5,Gretsch0401,QB,WR,Elic Ayomanor,10.43,3.8,4.5 below his bench option,Chase Brown,14.97,11.8,FALSE
+2025,5,jzeigboi,QB,SUPER_FLEX,Cooper Rush,10.42,4.16,5.6 below his bench option,Dillon Gabriel,15.98,16.1,FALSE
+2025,5,lukestip,ERS,TE,Brock Bowers,0,0,not active,Cole Kmet,0,0,FALSE
+2025,4,Arvs,QB,FLEX,Dalton Kincaid,9.8,9.8,4.9 below his bench option,Cameron Ward,14.69,5.52,FALSE
+2025,4,SFOControl,QB,FLEX,Darius Slayton,5.78,7.4,3.6 below his bench option,Hollywood Brown,9.35,12.8,FALSE
+2025,4,akondratieff,QB,WR,Tre Tucker,10.03,4.2,4.2 below his bench option,Brian Thomas Jr.,14.2,10.6,FALSE
+2025,4,akondratieff,QB,FLEX,Hunter Henry,10.08,11.9,2.7 below his bench option,Jauan Jennings,12.76,6.4,FALSE
+2025,4,akondratieff,QB,RB,Bhayshul Tuten,6.95,3.2,2.6 below his bench option,Rhamondre Stevenson,9.55,5.1,FALSE
+2025,3,Arvs,QB,TE,Zach Ertz,9.08,6.8,1.5 below his bench option,Jake Ferguson,10.61,21.2,FALSE
+2025,3,akondratieff,QB,FLEX,Travis Hunter,8.49,3.1,7.6 below his bench option,Joe Flacco,16.05,4.68,FALSE
+2025,3,akondratieff,QB,DEF,Los Angeles Rams,5.81,6,3.4 below his bench option,Green Bay Packers,9.21,8,FALSE
+2025,3,akondratieff,QB,WR,Michael Pittman Jr.,10.62,19.3,3.3 below his bench option,James Conner,13.9,6.7,FALSE
+2025,3,jzeigboi,QB,TE,Brenton Strange,7.3,12.1,2.6 below his bench option,Dallas Goedert,9.94,10.3,FALSE
+2025,3,ngernenz,QB,WR,Emeka Egbuka,11.21,14.5,4.7 below his bench option,Kyren Williams,15.94,19.2,FALSE
+2025,2,Arvs,QB,FLEX,Khalil Shakir,9.97,2.2,3.9 below his bench option,Cameron Ward,13.92,9.8,FALSE
+2025,2,ElatedBroncosFan,QB,WR,Hollywood Brown,12.52,8,4.8 below his bench option,Nico Collins,17.33,14.2,FALSE
+2025,2,SFOControl,QB,RB,Austin Ekeler,10.4,4.4,3.3 below his bench option,J.K. Dobbins,13.7,15.5,FALSE
+2025,2,jzeigboi,QB,FLEX,Rome Odunze,10.93,31.8,3.1 below his bench option,D'Andre Swift,14.03,13.9,FALSE
+2024,14,Arvs,QB,RB,Nick Chubb,10.44,4.8,3 below his bench option,Malik Nabers,13.4,14.9,TRUE
+2024,14,TheJandyStock,ERS,WR,George Pickens,0,0,not active,Brandin Cooks,8.08,7.3,FALSE
+2024,14,akondratieff,ERS,RB,Breece Hall,0,0,not active,Rhamondre Stevenson,0,0,FALSE
+2024,14,akondratieff,ERS,RB,Raheem Mostert,0,0,not active,NA,NA,NA,FALSE
+2024,13,Arvs,QB,FLEX,Taysom Hill,8.9,9.7,4.8 below his bench option,Malik Nabers,13.74,15.3,FALSE
+2024,13,Arvs,QB,WR,Marquez Valdes-Scantling,9.01,11.6,3.5 below his bench option,Khalil Shakir,12.49,7,FALSE
+2024,13,TheJandyStock,QB,TE,Pat Freiermuth,5.7,18.8,3.8 below his bench option,Sam LaPorta,9.51,15.6,FALSE
+2024,12,ElatedBroncosFan,QB,FLEX,Jalen McMillan,7.26,2.1,2.7 below his bench option,Rico Dowdle,9.98,10.8,FALSE
+2024,12,TheJandyStock,QB,TE,Pat Freiermuth,5.38,9.9,2.8 below his bench option,Sam LaPorta,8.21,4.9,FALSE
+2024,12,TheJandyStock,QB,DEF,Los Angeles Rams,6.05,-3,2.7 below his bench option,Pittsburgh Steelers,8.77,10,FALSE
+2024,12,ngernenz,ERS,QB,Trevor Lawrence,0,0,bye week,J.J. McCarthy,0,0,FALSE
+2024,12,ngernenz,QB,SUPER_FLEX,Cooper Rush,12.42,17.98,5.5 below his bench option,Geno Smith,17.92,13.36,FALSE
+2024,10,ElatedBroncosFan,QB,FLEX,Xavier Hutchinson,5.41,2.6,2.9 below his bench option,Tank Bigsby,8.34,0.4,FALSE
+2024,10,lukestip,QB,FLEX,Justice Hill,6.1,1.8,4.8 below his bench option,Javonte Williams,10.92,2.7,FALSE
+2024,9,Arvs,QB,FLEX,Zach Ertz,8.35,1.5,3.3 below his bench option,Tyler Lockett,11.65,15.3,FALSE
+2024,9,jzeigboi,QB,WR,Xavier Worthy,10.28,-1,2.9 below his bench option,Tank Dell,13.17,18.6,TRUE
+2024,8,ElatedBroncosFan,QB,FLEX,Nick Chubb,10.41,5.2,3.3 below his bench option,Zay Flowers,13.69,18.5,FALSE
+2024,8,Gretsch0401,QB,SUPER_FLEX,Mason Rudolph,12.33,21.54,7.5 below his bench option,Jayden Daniels,19.78,22.24,FALSE
+2024,8,akondratieff,QB,TE,Tucker Kraft,9.64,16.8,1.7 below his bench option,Rhamondre Stevenson,11.3,23.5,FALSE
+2024,8,jzeigboi,ERS,WR,Tee Higgins,0,0,not active,Tank Dell,12.33,13.5,TRUE
+2024,8,ngernenz,ERS,FLEX,Diontae Johnson,0,0,not active,Courtland Sutton,12.06,17.12,TRUE
+2024,7,jzeigboi,ERS,FLEX,Cooper Kupp,0,0,not active,Tank Dell,13.22,0,FALSE
+2024,7,lukestip,ERS,SUPER_FLEX,Will Levis,0,0,not active,Tyrone Tracy Jr.,8.42,6.2,FALSE
+2024,6,Gretsch0401,ERS,WR,Jakobi Meyers,0,0,not active,DeAndre Hopkins,8.6,9.4,FALSE
+2024,6,SFOControl,QB,RB,Ezekiel Elliott,6.53,1.7,5.7 below his bench option,Austin Ekeler,12.2,10.8,FALSE
+2024,6,SFOControl,QB,RB,Braelon Allen,8.01,0.8,3.4 below his bench option,Antonio Gibson,11.38,7.3,FALSE
+2024,6,SFOControl,QB,FLEX,Brandon Aiyuk,13.42,5.7,3.2 below his bench option,Daniel Jones,16.61,12.8,FALSE
+2024,6,caskinner,ERS,SUPER_FLEX,James Cook,0,0,not active,Rashid Shaheed,10.54,8.3,TRUE
+2024,6,joeburrowmvp,ERS,DEF,(empty),0,0,empty slot,New York Jets,6.55,3,FALSE
+2024,6,ngernenz,ERS,RB,Kyren Williams,0,0,bye week,Bucky Irving,13.16,18.5,FALSE
+2024,6,ngernenz,ERS,TE,Jonnu Smith,0,0,bye week,David Njoku,7.54,8.1,FALSE
+2024,6,ngernenz,ERS,K,Jake Moody,0,0,not active,NA,NA,NA,FALSE
+2024,6,obiwanginobiIi,ERS,SUPER_FLEX,Anthony Richardson,0,0,not active,Joe Flacco,13.58,14.66,TRUE
+2024,5,jzeigboi,ERS,RB,Devin Singletary,0,0,not active,Tony Pollard,0,0,FALSE
+2024,5,jzeigboi,ERS,WR,Khalil Shakir,0,0,not active,Xavier Worthy,11.17,11.8,FALSE
+2024,5,jzeigboi,ERS,TE,Dallas Goedert,0,0,bye week,NA,NA,NA,FALSE
+2024,5,ngernenz,QB,TE,Jonnu Smith,4.26,11.1,4 below his bench option,David Njoku,8.28,2.4,FALSE
+2024,5,obiwanginobiIi,ERS,TE,Evan Engram,0,0,not active,T.J. Hockenson,0,0,FALSE
+2024,4,Arvs,QB,SUPER_FLEX,Malik Willis,0,0,12.2 below his bench option,Jacoby Brissett,12.18,8.02,FALSE
+2024,4,Arvs,QB,TE,Zach Ertz,6.68,7.2,5.2 below his bench option,Travis Kelce,11.83,15.9,FALSE
+2024,4,SFOControl,ERS,RB,Austin Ekeler,0,0,not active,Braelon Allen,7.23,5.6,FALSE
+2024,4,lukestip,ERS,RB,Joe Mixon,0,0,not active,Javonte Williams,8.07,10,FALSE
+2024,4,lukestip,QB,FLEX,Allen Lazard,6.48,10.8,3.3 below his bench option,Gabe Davis,9.79,0.8,FALSE
+2024,3,Arvs,QB,RB,Samaje Perine,9.66,7,2.8 below his bench option,Jacoby Brissett,12.47,3.92,FALSE
+2024,3,joeburrowmvp,QB,FLEX,Zamir White,8.52,3.4,3.9 below his bench option,Zack Moss,12.4,20.7,FALSE
+2024,3,lukestip,ERS,RB,Joe Mixon,0,0,not active,Javonte Williams,9.91,6.1,TRUE
+2024,3,lukestip,ERS,RB,Kenneth Walker III,0,0,not active,Justice Hill,5.87,7.4,TRUE
+2024,3,lukestip,QB,FLEX,Allen Lazard,6.58,13.8,5 below his bench option,Cam Akers,11.57,9.9,TRUE
+2024,3,ngernenz,ERS,TE,David Njoku,0,0,not active,Jonnu Smith,6.07,3.8,FALSE
+2024,2,Arvs,ERS,RB,Christian McCaffrey,0,0,not active,Ezekiel Elliott,9.11,5.2,FALSE
+2024,2,Arvs,ERS,DEF,(empty),0,0,empty slot,NA,NA,NA,FALSE
+2024,2,Arvs,QB,RB,Jaylen Wright,4.47,0.4,9.1 below his bench option,Jonathan Taylor,13.56,15.5,FALSE
+2024,2,SFOControl,ERS,TE,Jake Ferguson,0,0,not active,Isaiah Likely,8.37,4.6,FALSE
+2024,2,lukestip,QB,FLEX,Allen Lazard,7.3,3.1,2.7 below his bench option,Gabe Davis,10,7.3,FALSE
+2024,2,ngernenz,ERS,TE,David Njoku,0,0,not active,Luke Musgrave,3.93,1.6,FALSE
+2024,2,ngernenz,ERS,SUPER_FLEX,Josh Downs,0,0,not active,Courtland Sutton,11.05,3.6,FALSE
+2024,2,ngernenz,QB,FLEX,Diontae Johnson,10.47,4.5,4.6 below his bench option,Geno Smith,15.06,17.88,FALSE
+2024,2,obiwanginobiIi,ERS,TE,Evan Engram,0,0,not active,Colby Parkinson,7.84,2.2,FALSE
+2024,1,Arvs,ERS,RB,Christian McCaffrey,0,0,not active,Ezekiel Elliott,8.89,12.9,FALSE
+2024,1,Arvs,ERS,DEF,(empty),0,0,empty slot,NA,NA,NA,FALSE
+2024,1,Gretsch0401,ERS,DEF,(empty),0,0,empty slot,Kansas City Chiefs,7.15,5,FALSE
+2024,1,SFOControl,ERS,DEF,(empty),0,0,empty slot,Buffalo Bills,8.51,6,FALSE
+2024,1,SFOControl,QB,WR,Brandon Aiyuk,12.2,4.8,3.5 below his bench option,Daniel Jones,15.67,6.94,FALSE
+2024,1,caskinner,QB,RB,Jaylen Warren,9.66,4,4.3 below his bench option,Jordan Mason,13.95,22.2,FALSE
+2024,1,ngernenz,ERS,SUPER_FLEX,Josh Downs,0,0,not active,Courtland Sutton,10.13,7.8,FALSE
+2024,1,ngernenz,QB,FLEX,Diontae Johnson,11.56,3.9,4.9 below his bench option,Geno Smith,16.48,18.84,FALSE
