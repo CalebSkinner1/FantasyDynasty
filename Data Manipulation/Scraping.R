@@ -873,6 +873,41 @@ if (nrow(new_proj) > 0) {
   write_csv(bind_rows(existing, new_proj), proj_path)
 }
 
+# the next fantasy week's projections, for the Best Available page (Scripts/Best
+# Available.R): fetched every run, so they follow the injury news. Empty when no fantasy
+# week is left this season; when Sleeper has none, the saved file is kept if it is for that
+# week.
+upcoming_path <- here("Data/raw/projections/upcoming_projections.csv")
+upcoming_week <- if (length(current_start) == 1) {
+  min(setdiff(league_weeks, current_completed), Inf)
+} else {
+  Inf
+}
+upcoming_proj <- if (is.finite(upcoming_week)) {
+  fetch_sleeper_projections(current_season, upcoming_week, current_scoring, player_info)
+}
+saved_week <- if (file.exists(upcoming_path)) {
+  read_csv(upcoming_path, col_types = cols(.default = col_character()))$week[1]
+}
+if (!is.null(upcoming_proj)) {
+  write_csv(upcoming_proj, upcoming_path)
+} else if (!is.finite(upcoming_week) || !identical(saved_week, as.character(upcoming_week))) {
+  if (is.finite(upcoming_week)) {
+    warning("Sleeper projections unavailable for upcoming week ", upcoming_week)
+  }
+  write_csv(
+    tibble(
+      name = character(),
+      projection = double(),
+      week = double(),
+      position = character(),
+      player_id = character(),
+      source = character()
+    ),
+    upcoming_path
+  )
+}
+
 # older seasons' projections (Data/raw/projections/projections24.csv, ...) are read directly by
 # Player Value Added.R
 
@@ -1405,6 +1440,10 @@ rm(
       "existing",
       "new_proj",
       "weeks_needed",
+      "upcoming_path",
+      "upcoming_week",
+      "upcoming_proj",
+      "saved_week",
       "min_projected",
       "scraped",
       "n_players",

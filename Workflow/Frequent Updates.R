@@ -62,6 +62,9 @@ run_step("Scripts/Team Rankings.R")
 # Current Matchups (needs Future Standings)
 run_step("Scripts/Current Matchups.R")
 
+# Best Available (needs Individual Players and Trade Machine)
+run_step("Scripts/Best Available.R")
+
 # History
 run_step("Scripts/History.R")
 

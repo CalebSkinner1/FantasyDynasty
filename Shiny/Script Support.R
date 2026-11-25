@@ -583,9 +583,10 @@ team_composition <- function(player_avenues, enter_roster_id, shiny = FALSE) {
   }
 }
 
-# a team's bio for the Fantasy Teams page, one row per stat (label, value, and a detail
-# line) in display order: this season (record, future value, playoff odds, Elo), then
-# all time (record, championships, playoff berths, composite rating)
+# a team's bio for the Fantasy Teams page, one row per stat (label, value, a detail line,
+# and link: where clicking it goes, see tile_links in app.R) in display order: this season
+# (record, future value, playoff odds, Elo), then all time (record, championships,
+# playoff berths, composite rating)
 team_bio <- function(enter_team) {
   ordinal <- function(n) {
     suffix <- case_when(
@@ -683,6 +684,16 @@ team_bio <- function(enter_team) {
         "no playoff games yet"
       ),
       str_c(ordinal(composite$rank), " of ", n_teams)
+    ),
+    link = c(
+      "records_season",
+      "future_assets",
+      "playoff_odds",
+      "elo",
+      "records_all",
+      "championships",
+      "playoff_berths",
+      "composite"
     )
   )
 }
@@ -1993,4 +2004,87 @@ plot_ktc_fit <- function(toy_ktc_plot_data) {
 
   as_plotly(p, tooltip = "text") |>
     facet_position_legend()
+}
+
+# Best Available -------------------------------------------------------------------------
+# players on no roster (best_available, Scripts/Best Available.R)
+
+# the players in a position filter: QB, RB, WR, TE, FLEX (RB, WR, and TE), or All
+best_available_players <- function(enter_position) {
+  positions <- switch(
+    enter_position,
+    All = c("QB", "RB", "WR", "TE"),
+    FLEX = c("RB", "WR", "TE"),
+    enter_position
+  )
+  best_available |>
+    filter(position %in% positions)
+}
+
+# the table: rest-of-season (or next season's) value first, then the rest
+best_available_table <- function(enter_position) {
+  df <- best_available_players(enter_position)
+  value_label <- str_c(first(best_available$value_label, default = "Rest of season"), " value")
+  week <- first(best_available$projection_week, default = NA)
+  projection_label <- if (is.na(week)) "Next week projection" else str_c("Week ", week, " projection")
+
+  df |>
+    arrange(desc(value), desc(future_value)) |>
+    transmute(
+      Player = name,
+      Position = position,
+      Age = age,
+      !!value_label := round(value, 1),
+      !!projection_label := round(projection, 1),
+      `Last 3 weeks` = round(recent_points, 1),
+      `Future Value` = round(future_value, 1),
+      `7-day change` = round(change_7, 1),
+      `30-day change` = round(change_30, 1)
+    ) |>
+    dt(page = 15)
+}
+
+# rest-of-season (or next season's) value against future value, colored by position: the
+# 40 best available by each, so players who help now sit to the right and those worth
+# stashing at the top
+plot_best_available <- function(enter_position, n_top = 40) {
+  df <- best_available_players(enter_position)
+  shiny::validate(shiny::need(nrow(df) > 0, "No available players at this position."))
+  df <- df |>
+    filter(
+      min_rank(desc(value)) <= n_top | min_rank(desc(future_value)) <= n_top
+    ) |>
+    mutate(
+      text = str_c(
+        "<b>", name, "</b> (", position, ")<br>",
+        value_label, " value: ", round(value, 1), "<br>",
+        "Future value: ", round(future_value, 1)
+      )
+    )
+  value_label <- str_c(first(df$value_label), " value added")
+
+  chart <- plotly::plot_ly()
+  for (pos in intersect(names(asset_colors), unique(df$position))) {
+    chart <- chart |>
+      plotly::add_trace(
+        data = filter(df, position == pos),
+        x = ~value,
+        y = ~future_value,
+        name = pos,
+        type = "scatter",
+        mode = "markers",
+        marker = list(color = asset_colors[[pos]], size = 9, opacity = 0.85),
+        text = ~text,
+        hovertemplate = "%{text}<extra></extra>"
+      )
+  }
+
+  chart |>
+    plotly::layout(
+      font = list(family = font_stack),
+      hovermode = "closest",
+      xaxis = list(title = value_label, gridcolor = "#ebebeb", zeroline = FALSE),
+      yaxis = list(title = "Future value", gridcolor = "#ebebeb", zeroline = FALSE),
+      legend = list(orientation = "h", y = -0.15)
+    )
 }

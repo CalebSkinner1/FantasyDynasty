@@ -111,6 +111,9 @@ app_data <- list(
     col_types = cols(team = "c", weight = "d", .default = "i")
   ),
 
+  # best available
+  best_available = read_saved("best_available.csv", col_types = ids),
+
   # team rankings
   weekly_elo = read_saved("weekly_elo.csv"),
   all_assets_summary_df = read_saved("all_assets_summary_df.csv"),
@@ -169,8 +172,8 @@ app_data$home_trade <- app_data$trade_grades_time |>
     by = join_by(trade_id)
   )
 
-# this week's game with the most at stake in the playoff race (current_matchups is in
-# that order; none when no regular-season week is left)
+# this week's game with the most at stake (current_matchups is in that order, see
+# Current Matchups.R; none when no regular-season week is left)
 app_data$home_matchup <- app_data$current_matchups |>
   filter(game == first(game))
 

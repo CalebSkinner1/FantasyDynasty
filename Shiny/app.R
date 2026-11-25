@@ -115,19 +115,27 @@ team_link <- function(team) {
 
 # one game (its two rows of current_matchups): each team's chance to win (the blend of the
 # Future Standings model and Elo: the numbers and the bar, in the teams' colors) and its
-# playoff odds with a win, now, and with a loss
+# playoff odds, championship odds, and expected draft pick with a win, now, and with a loss
 matchup_card <- function(game) {
   ta <- game[game$side == "a", ]
   tb <- game[game$side == "b", ]
   colors <- team_colors()
-  odds_row <- function(t) {
-    tags$tr(
-      tags$td(team_link(t$team)),
-      tags$td(pct_or_dash(t$playoffs_win)),
-      tags$td(pct_or_dash(t$playoffs_now)),
-      tags$td(pct_or_dash(t$playoffs_loss))
+  # a heading row, then a row per team: what (playoffs, champion, or pick) with a win, now,
+  # and with a loss
+  odds_rows <- function(heading, what, fmt) {
+    tagList(
+      tags$tr(class = "matchup-odds-heading", tags$th(colspan = 4, heading)),
+      map(list(ta, tb), \(t) {
+        tags$tr(
+          tags$td(team_link(t$team)),
+          tags$td(fmt(t[[str_c(what, "_win")]])),
+          tags$td(fmt(t[[str_c(what, "_now")]])),
+          tags$td(fmt(t[[str_c(what, "_loss")]]))
+        )
+      })
     )
   }
+  pick_or_dash <- function(x) if_else(is.na(x), "–", format(round(x, 1), nsmall = 1))
 
   div(
     class = "matchup-card",
@@ -152,12 +160,16 @@ matchup_card <- function(game) {
     tags$table(
       class = "matchup-odds",
       tags$thead(tags$tr(
-        tags$th("Playoff odds"),
+        tags$th(),
         tags$th("With a win"),
         tags$th("Now"),
         tags$th("With a loss")
       )),
-      tags$tbody(odds_row(ta), odds_row(tb))
+      tags$tbody(
+        odds_rows("Championship odds", "champion", pct_or_dash),
+        odds_rows("Playoff odds", "playoffs", pct_or_dash),
+        odds_rows("Expected draft slot", "pick", pick_or_dash)
+      )
     )
   )
 }
@@ -207,7 +219,8 @@ ui <- dashboardPage(
         menuSubItem("Individual Players", tabName = "players"),
         menuSubItem("Fantasy Teams", tabName = "teams"),
         menuSubItem("Team Rankings", tabName = "team_rankings"),
-        menuSubItem("Current Matchups", tabName = "current_matchups")
+        menuSubItem("Current Matchups", tabName = "current_matchups"),
+        menuSubItem("Best Available", tabName = "best_available")
       ),
 
       menuItem(
@@ -286,8 +299,8 @@ ui <- dashboardPage(
         @media (max-width: 768px) {
           .home-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
-        a.stat-tile.home-tile { display: block; color: inherit; text-decoration: none; }
-        a.stat-tile.home-tile:hover { border-color: #00a65a; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); }
+        a.stat-tile.home-tile, a.stat-tile.tile-link { display: block; color: inherit; text-decoration: none; }
+        a.stat-tile.home-tile:hover, a.stat-tile.tile-link:hover { border-color: #00a65a; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); }
         .home-tile .stat-value { font-size: 1.25rem; overflow-wrap: anywhere; }
         .explore-row { margin-bottom: 1.25rem; }
         .explore-row h4 { margin: 0.75rem 0 0.1rem; }
@@ -363,6 +376,7 @@ ui <- dashboardPage(
         table.matchup-odds { width: 100%; font-size: 0.85rem; }
         table.matchup-odds th { font-weight: 600; color: #6c757d; text-align: right; }
         table.matchup-odds td { text-align: right; padding-top: 0.15rem; }
+        table.matchup-odds tr.matchup-odds-heading th { color: #343a40; padding-top: 0.45rem; }
         table.matchup-odds th:first-child, table.matchup-odds td:first-child { text-align: left; }
         .whatif-grid {
           display: grid;
@@ -415,6 +429,23 @@ ui <- dashboardPage(
           Shiny.setInputValue(input, String(link.data('id')), {priority: 'event'});
           window.scrollTo(0, 0);
         });
+        // a Fantasy Teams tile opens its page and scrolls to the section behind it
+        // (app.R server: goto_tile, tile_links)
+        $(document).on('click', 'a.tile-link', function(e) {
+          e.preventDefault();
+          Shiny.setInputValue('goto_tile', String($(this).data('id')), {priority: 'event'});
+        });
+        $(function() {
+          Shiny.addCustomMessageHandler('scroll_to', function(id) {
+            var scroll = function() {
+              var section = $('#' + id).closest('.card');
+              if (section.length) section[0].scrollIntoView({behavior: 'smooth', block: 'start'});
+            };
+            // after the tab is shown, and again as its tables and charts draw (they draw
+            // when the tab is shown, which moves the sections down)
+            [350, 1000, 1800].forEach(function(ms) { setTimeout(scroll, ms); });
+          });
+        });
         "
       ))
     ),
@@ -440,8 +471,8 @@ ui <- dashboardPage(
               "future_standings"
             )
           },
-          # this week's game with the most at stake in the playoff race, and each team's
-          # chance to win (the model's)
+          # this week's game with the most at stake (championship odds, playoff odds, and
+          # draft pick value; Current Matchups.R), and each team's chance to win
           if (nrow(home_matchup) > 0) {
             home_tile(
               str_c("Matchup of the Week"),
@@ -538,7 +569,13 @@ ui <- dashboardPage(
             "current_matchups",
             "Current Matchups",
             "calendar-week",
-            "This week's games, each team's chances, and what a win or loss means for the playoffs."
+            "This week's games, each team's chances, and what a win or loss means for the playoffs, the title, and the draft."
+          ),
+          explore_card(
+            "best_available",
+            "Best Available",
+            "user-check",
+            "The best players on no roster, for the rest of this season and for the long run."
           )
         ),
         explore_row(
@@ -1355,8 +1392,10 @@ ui <- dashboardPage(
                 " Matchups"
               ),
               p(
-                "This week's games, ordered by impact on the playoff race. Win probabilities come
-                from the Future Standings and Elo models. Playoff odds are derived from ",
+                "This week's games, ordered by what is at stake: how much winning or losing moves
+                each team's championship odds (half of the weight), playoff odds (30%), and the
+                value of its next rookie draft picks (20%). Win probabilities come from the Future
+                Standings and Elo models. The odds and draft slots are derived from ",
                 format(
                   sum(matchup_scenarios$n) / nrow(users),
                   big.mark = ",",
@@ -1389,6 +1428,37 @@ ui <- dashboardPage(
             )
           )
         }
+      ),
+
+      tabItem(
+        tabName = "best_available",
+        h2("Best Available"),
+        panel(
+          title = "Best Available",
+          p(
+            "Every player on no roster with a future value. The first value column is his projected value
+            added for the rest of the season (next season's in the offseason), with seasons below replacement
+            counted as zero, and the table starts sorted by it. Next to it are Sleeper's projection for the
+            coming week and his average points over the last three weeks he played. The changes are in his
+            smoothed future value over the last 7 and 30 days. Click a column to sort by it."
+          ),
+          radioButtons(
+            inputId = "best_position",
+            label = NULL,
+            choices = c("All", "QB", "RB", "WR", "TE", "FLEX"),
+            inline = TRUE
+          ),
+          DTOutput("best_available")
+        ),
+        panel(
+          title = "Now or Later",
+          p(
+            "The best available players by projected value for the rest of the season (right) and by
+            future value (up), for the position chosen above. Players to the right can help now; players
+            near the top are worth stashing. Hover over a point for the numbers."
+          ),
+          plotlyOutput("best_available_plot", height = "460px")
+        )
       ),
 
       tabItem(
@@ -2024,15 +2094,54 @@ server <- function(input, output, session) {
     bio <- team_bio(input$team_name)
     div(
       class = "stat-grid four", # two rows: this season, then all time
-      pmap(bio, \(label, value, detail) {
-        div(
-          class = "stat-tile",
+      # each tile opens the page behind it (tile_links)
+      pmap(bio, \(label, value, detail, link) {
+        a(
+          class = "stat-tile tile-link",
+          href = "#",
+          `data-id` = link,
           div(class = "stat-label", label),
           div(class = "stat-value", value),
           div(class = "stat-detail", detail)
         )
       })
     )
+  })
+
+  # where each Fantasy Teams tile goes: the tab, the section to scroll to (by an output or
+  # input in it), and the inputs to set there first (the History records start at this season or all seasons, both
+  # regular season only)
+  tile_links <- list(
+    records_season = list(
+      tab = "history",
+      scroll = "enter_season_history",
+      inputs = list(
+        enter_season_history = max(wins_df$season),
+        enter_round_history = "regular season"
+      )
+    ),
+    future_assets = list(tab = "team_rankings", scroll = "future_assets"),
+    playoff_odds = list(tab = "future_standings", scroll = "odds_table"),
+    elo = list(tab = "team_rankings", scroll = "elo_rankings"),
+    records_all = list(
+      tab = "history",
+      scroll = "enter_season_history",
+      inputs = list(
+        enter_season_history = unique(wins_df$season),
+        enter_round_history = "regular season"
+      )
+    ),
+    championships = list(tab = "history", scroll = "championship"),
+    playoff_berths = list(tab = "history", scroll = "playoffs"),
+    composite = list(tab = "team_rankings", scroll = "total_success")
+  )
+
+  observeEvent(input$goto_tile, {
+    link <- tile_links[[input$goto_tile]]
+    req(link)
+    iwalk(link$inputs, \(value, id) updateSelectizeInput(session, id, selected = value))
+    updateTabItems(session, "sidebar", selected = link$tab)
+    session$sendCustomMessage("scroll_to", link$scroll)
   })
 
   output$team_assets_title <- renderUI({
@@ -2644,6 +2753,19 @@ server <- function(input, output, session) {
       comparable_players(player_total_value, input$enter_player)
   }) |>
     bindCache(input$enter_player)
+
+  # Reactivity for Best Available
+
+  output$best_available <- renderDT({
+    req(input$best_position)
+    best_available_table(input$best_position)
+  })
+
+  output$best_available_plot <- renderPlotly({
+    req(input$best_position)
+    plot_best_available(input$best_position)
+  }) |>
+    bindCache(input$best_position)
 
   # Reactivity for Current Matchups
 
