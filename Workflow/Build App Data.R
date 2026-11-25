@@ -112,6 +112,10 @@ app_data <- list(
     col_types = cols(team = "c", weight = "d", .default = "i")
   ),
 
+  # activity rating
+  activity_weekly = read_saved("activity_weekly.csv"),
+  activity_penalties = read_saved("activity_penalties.csv"),
+
   # best available
   best_available = read_saved("best_available.csv", col_types = ids),
 

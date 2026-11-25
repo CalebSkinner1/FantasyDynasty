@@ -201,6 +201,29 @@ if (nrow(box_score_def_current) > 0) {
   )
 }
 
+# game-day roster status (ACT active, INA inactive, RES reserve, ...) for the Activity
+# Rating, which counts a starter with no stats as an empty roster spot only when he wasn't
+# active: the current season every run, earlier seasons once (kept if nflverse is down)
+dir.create(here("Data/raw/rosters_weekly"), showWarnings = FALSE)
+for (s in league_seasons) {
+  path <- here(str_c("Data/raw/rosters_weekly/roster_weekly", s %% 100, ".csv"))
+  if (s < current_season && file.exists(path)) {
+    next
+  }
+  weekly_rosters <- tryCatch(
+    nflreadr::load_rosters_weekly(seasons = s) |>
+      filter(game_type == "REG") |>
+      transmute(season, week, team, status, gsis_id, sleeper_id = as.character(sleeper_id)),
+    error = function(e) {
+      message("no ", s, " weekly rosters: ", conditionMessage(e))
+      NULL
+    }
+  )
+  if (!is.null(weekly_rosters) && nrow(weekly_rosters) > 0) {
+    write_csv(weekly_rosters, path)
+  }
+}
+
 # NFL weeks with stats so far (empty before week 1)
 nfl_weeks_with_stats <- if (nrow(box_score_off_current) > 0) {
   sort(unique(box_score_off_current$week))
@@ -275,16 +298,40 @@ write_csv(completed_weeks, here("Data/derived/completed_weeks.csv"))
 # https://docs.sleeper.com
 
 # rosters
-rosters <- parse_api(str_c(
+rosters_raw <- parse_api(str_c(
   "https://api.sleeper.app/v1/league/",
   current_league_id,
   "/rosters"
-)) |>
+))
+rosters <- rosters_raw |>
   select(roster_id, owner_id, players) |>
   unnest(cols = c(players)) |>
   rename(player_id = players)
 
 write_csv(rosters, here("Data/derived/current_roster.csv"))
+
+# today's IR (reserve) and taxi squads, added to the saved days (today's replaced): the
+# Activity Rating leaves them out of a week's max points. Sleeper keeps no history of them.
+status_path <- here("Data/derived/roster_status_time.csv")
+roster_status_today <- map(c("reserve", "taxi"), \(status) {
+  if (!status %in% names(rosters_raw)) {
+    return(NULL)
+  }
+  tibble(roster_id = rosters_raw$roster_id, player_id = rosters_raw[[status]]) |>
+    unnest(player_id, keep_empty = FALSE) |>
+    filter(!is.na(player_id)) |>
+    mutate(status = status)
+}) |>
+  bind_rows()
+roster_status_time <- bind_rows(
+  if (file.exists(status_path)) {
+    read_csv(status_path, col_types = cols(date = col_date(), .default = col_character())) |>
+      filter(date != today())
+  },
+  roster_status_today |>
+    transmute(date = today(), roster_id = as.character(roster_id), player_id = as.character(player_id), status)
+)
+write_csv(roster_status_time, status_path)
 
 # users (one call), joined to rosters by user id
 league_users <- parse_api(str_c(
@@ -809,8 +856,7 @@ write_csv(future_draft_picks, here("Data/derived/future_draft_picks.csv"))
 # Weekly pre-game projections pick each team's replacement player (see Player
 # Value Added.R). They come from Sleeper's projections endpoint, scored with the
 # league's settings, and carry Sleeper ids, so no name matching is needed and K/DST
-# have projected points. (Through week 5 of 2026 the files hold FFToday projections,
-# which have no player_id and rank K/DST; source = NA or "fftoday".)
+# have projected points. Every saved week, 2024 on, is Sleeper's.
 
 # only completed fantasy weeks that are not already saved (past projections don't
 # change), so a week's projections are saved after its last game, with every injury
@@ -1423,6 +1469,11 @@ rm(
   list = intersect(
     c(
       "combine_week",
+      "rosters_raw",
+      "status_path",
+      "roster_status_today",
+      "roster_status_time",
+      "weekly_rosters",
       "current_scoring",
       "grab_projection",
       "grab_rankings",

@@ -2185,3 +2185,129 @@ plot_best_available <- function(enter_position, n_top = 40) {
       legend = list(orientation = "h", y = -0.15)
     )
 }
+
+# Activity Rating -------------------------------------------------------------------------
+# how actively each team is managed (activity_weekly and activity_penalties, Scripts/
+# Activity Rating.R)
+
+# a season's standings: the season's score (the sum of its weekly scores), its average per
+# week, the rolling score after the season's last week, and the pieces of the score
+activity_standings_table <- function(enter_season) {
+  record <- function(won) str_c(sum(won), "-", sum(!won))
+  activity_weekly |>
+    filter(season == enter_season) |>
+    arrange(week) |>
+    summarize(
+      Score = sum(weekly_score),
+      Average = mean(weekly_score),
+      `Rolling (18 weeks)` = last(rolling_score),
+      Efficiency = sum(efficiency),
+      ERS = sum(ers),
+      QB = sum(qb),
+      ODN = sum(odn),
+      Trades = sum(trades),
+      Waivers = sum(waivers),
+      Bids = sum(bids),
+      Points = sum(points),
+      `Max Points` = sum(max_points),
+      Record = record(won),
+      `Adjusted Record` = record(adjusted_won),
+      .by = team
+    ) |>
+    arrange(desc(Score)) |>
+    rename(Team = team) |>
+    mutate(across(c(Score, Average, `Rolling (18 weeks)`, Efficiency, Points, `Max Points`), \(x) round(x, 1))) |>
+    dt(page = 12, paging = FALSE)
+}
+
+# every team's rolling score (the last 18 weekly scores) after each regular-season week,
+# across seasons, one line per team in its color
+plot_activity_rolling <- function() {
+  weeks <- activity_weekly |>
+    distinct(season, week) |>
+    arrange(season, week) |>
+    mutate(index = row_number(), label = str_c(season, " W", week))
+  df <- activity_weekly |>
+    inner_join(weeks, by = join_by(season, week)) |>
+    mutate(
+      text = str_c(
+        "<b>", team, "</b><br>", label, "<br>Rolling score: ", round(rolling_score, 1),
+        "<br>That week: ", round(weekly_score, 1)
+      )
+    )
+  colors <- team_colors()
+  step <- ceiling(nrow(weeks) / 18)
+  ticks <- weeks |> filter((index - 1) %% step == 0)
+
+  chart <- plotly::plot_ly()
+  for (t in sort(unique(df$team))) {
+    chart <- chart |>
+      plotly::add_trace(
+        data = df |> filter(team == t) |> arrange(index),
+        x = ~index,
+        y = ~rolling_score,
+        name = t,
+        type = "scatter",
+        mode = "lines",
+        line = list(color = colors[[t]], width = 2, shape = "spline", smoothing = 0.6),
+        text = ~text,
+        hovertemplate = "%{text}<extra></extra>"
+      )
+  }
+  chart |>
+    plotly::layout(
+      font = list(family = font_stack),
+      hovermode = "closest",
+      xaxis = list(
+        title = "",
+        tickvals = ticks$index,
+        ticktext = ticks$label,
+        gridcolor = "#ebebeb",
+        zeroline = FALSE
+      ),
+      yaxis = list(title = "Rolling score (last 18 weeks)", gridcolor = "#ebebeb", zeroline = FALSE),
+      legend = list(orientation = "h", y = -0.15)
+    )
+}
+
+# a season's weekly scores, team by week, shaded from red (below 0) to green
+activity_weekly_grid <- function(enter_season) {
+  df <- activity_weekly |>
+    filter(season == enter_season) |>
+    mutate(weekly_score = round(weekly_score, 1)) |>
+    select(Team = team, week, weekly_score) |>
+    arrange(week) |>
+    pivot_wider(names_from = week, names_prefix = "Week ", values_from = weekly_score) |>
+    arrange(Team)
+  week_cols <- setdiff(names(df), "Team")
+  dt(df, page = 12, paging = FALSE) |>
+    formatStyle(
+      week_cols,
+      backgroundColor = styleInterval(
+        c(0, 5, 8, 10, 15),
+        c("#f4c7c3", "#fbe3c8", "#fff7d6", "#e6f4ea", "#c8e6c9", "#a5d6a7")
+      )
+    )
+}
+
+# a season's penalties, for one team or all, most recent first
+activity_penalty_table <- function(enter_season, enter_team = "All teams") {
+  df <- activity_penalties |>
+    filter(season == enter_season, enter_team == "All teams" | team == enter_team)
+  df |>
+    transmute(
+      Week = week,
+      Team = team,
+      Penalty = if_else(penalty == "ERS", "Empty roster spot", "Questionable benching"),
+      Slot = slot,
+      Started = started,
+      `Started Proj.` = round(started_projection, 1),
+      `Started Pts.` = round(started_points, 1),
+      Reason = reason,
+      `Bench Option` = bench,
+      `Bench Proj.` = round(bench_projection, 1),
+      `Bench Pts.` = round(bench_points, 1),
+      `Decided Game` = if_else(decided, "Yes", "")
+    ) |>
+    dt(page = 15)
+}

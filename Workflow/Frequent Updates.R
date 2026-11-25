@@ -65,6 +65,9 @@ run_step("Scripts/Current Matchups.R")
 # Best Available (needs Individual Players and Trade Machine)
 run_step("Scripts/Best Available.R")
 
+# Activity Rating (needs Scraping and Matchups)
+run_step("Scripts/Activity Rating.R")
+
 # History
 run_step("Scripts/History.R")
 

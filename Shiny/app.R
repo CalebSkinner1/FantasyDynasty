@@ -219,6 +219,7 @@ ui <- dashboardPage(
         menuSubItem("Individual Players", tabName = "players"),
         menuSubItem("Fantasy Teams", tabName = "teams"),
         menuSubItem("Team Rankings", tabName = "team_rankings"),
+        menuSubItem("Activity Rating", tabName = "activity"),
         menuSubItem("Current Matchups", tabName = "current_matchups"),
         menuSubItem("Best Available", tabName = "best_available")
       ),
@@ -565,6 +566,12 @@ ui <- dashboardPage(
             "Team Rankings",
             "ranking-star",
             "The league ordered by Elo rating and by the total future value of each team's assets."
+          ),
+          explore_card(
+            "activity",
+            "Activity Rating",
+            "list-check",
+            "How actively each team is managed: lineup choices, penalties, and moves, week by week."
           ),
           explore_card(
             "current_matchups",
@@ -1436,6 +1443,60 @@ ui <- dashboardPage(
             )
           )
         }
+      ),
+
+      tabItem(
+        tabName = "activity",
+        h2("Activity Rating"),
+        panel(
+          title = "Activity Standings",
+          p(
+            "How actively each team is managed through the regular season. Each week a team scores its lineup
+            efficiency (10 times its points over its max points, the best lineup it could have set), loses 7
+            for each empty roster spot (ERS: an empty slot, or a starter on bye or not active for his game), 3
+            for each questionable benching (QB: a bench player who could have filled the starter's spot was
+            projected higher by more than 3.5 at QB, 2.5 at RB or WR, 2 at K, or 1.5 at TE or DEF), and 2
+            when those penalties cost it the game (ODN: outcome determined), and gains 5 for each trade, 1 for
+            each waiver claim or free agent pickup of a player projected to play, and 0.5 for each failed
+            waiver claim (moves count from September 1). The score is the season's total, the rolling score
+            the last 18 weeks' total across seasons, and the adjusted record counts the games the penalties
+            cost as wins."
+          ),
+          selectizeInput(
+            inputId = "activity_season",
+            label = "Select a Season",
+            choices = sort(unique(activity_weekly$season), decreasing = TRUE)
+          ),
+          DTOutput("activity_standings")
+        ),
+        panel(
+          title = "Rolling Score",
+          p(
+            "Each team's score over its last 18 regular-season weeks, after every week since 2024 (it carries
+            over from one season to the next). Hover over a line for the numbers, and click a team in the
+            legend to hide it."
+          ),
+          plotlyOutput("activity_rolling", height = "440px")
+        ),
+        panel(
+          title = uiOutput("activity_grid_title", inline = TRUE),
+          p("Each team's score every week of the season selected above."),
+          DTOutput("activity_grid")
+        ),
+        panel(
+          title = uiOutput("activity_penalties_title", inline = TRUE),
+          p(
+            "Every empty roster spot and questionable benching in the season selected above: the starter, his
+            projection and points, and the bench player who could have played instead. Decided Game marks
+            the games the team's penalties cost it."
+          ),
+          selectizeInput(
+            inputId = "activity_team",
+            label = "Select a Team",
+            choices = c("All teams", sort(users$display_name))
+          ),
+          DTOutput("activity_penalties")
+        )
       ),
 
       tabItem(
@@ -2771,6 +2832,38 @@ server <- function(input, output, session) {
       comparable_players(player_total_value, input$enter_player)
   }) |>
     bindCache(input$enter_player)
+
+  # Reactivity for Activity Rating
+
+  output$activity_standings <- renderDT({
+    req(input$activity_season)
+    activity_standings_table(input$activity_season)
+  })
+
+  output$activity_rolling <- renderPlotly({
+    plot_activity_rolling()
+  }) |>
+    bindCache("activity_rolling")
+
+  output$activity_grid_title <- renderUI({
+    req(input$activity_season)
+    str_c(input$activity_season, " Weekly Scores")
+  })
+
+  output$activity_grid <- renderDT({
+    req(input$activity_season)
+    activity_weekly_grid(input$activity_season)
+  })
+
+  output$activity_penalties_title <- renderUI({
+    req(input$activity_season)
+    str_c(input$activity_season, " Penalty Log")
+  })
+
+  output$activity_penalties <- renderDT({
+    req(input$activity_season, input$activity_team)
+    activity_penalty_table(input$activity_season, input$activity_team)
+  })
 
   # Reactivity for Best Available
 
