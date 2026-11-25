@@ -193,8 +193,8 @@ ordinal <- function(n) {
   str_c(n, suffix)
 }
 
-# a player's bio for the Individual Players page, one row per stat (label, value, and a
-# detail line) in display order, four to a row: position (and fantasy team), experience,
+# a player's bio for the Individual Players page, one row per stat (label, value, a detail
+# line, and link: where clicking it goes, see tile_links in app.R) in display order, four to a row: position (and fantasy team), experience,
 # future value, points per game, then age, games missed, realized value, volatility. Points
 # per game, games missed, and volatility are his weekly production (player_production,
 # Individual Players.R), each weighted toward recent games.
@@ -281,6 +281,17 @@ player_bio <- function(enter_id) {
         scales::comma(coalesce(info[[latest_col]], 0), accuracy = .1)
       ),
       if (has_games) rank_detail(production$sd_rank) else ""
+    ),
+    # where each tile goes when clicked (tile_links in app.R; NA: no link)
+    link = c(
+      "player_team",
+      NA,
+      "player_rankings",
+      "player_weekly",
+      NA,
+      "player_weekly",
+      "player_realized",
+      "player_weekly"
     )
   )
 }
@@ -2158,7 +2169,7 @@ plot_best_available <- function(enter_position, n_top = 40) {
         "Future value: ", round(future_value, 1)
       )
     )
-  value_label <- str_c(first(df$value_label), " value added")
+  value_label <- first(df$value_label)
 
   chart <- plotly::plot_ly()
   for (pos in intersect(names(asset_colors), unique(df$position))) {
@@ -2180,8 +2191,8 @@ plot_best_available <- function(enter_position, n_top = 40) {
     plotly::layout(
       font = list(family = font_stack),
       hovermode = "closest",
-      xaxis = list(title = value_label, gridcolor = "#ebebeb", zeroline = FALSE),
-      yaxis = list(title = "Future value", gridcolor = "#ebebeb", zeroline = FALSE),
+      xaxis = list(title = str_c(str_to_title(value_label), " Value Added") |> str_replace(" Of ", " of "), gridcolor = "#ebebeb", zeroline = FALSE),
+      yaxis = list(title = "Future Value", gridcolor = "#ebebeb", zeroline = FALSE),
       legend = list(orientation = "h", y = -0.15)
     )
 }
@@ -2190,84 +2201,67 @@ plot_best_available <- function(enter_position, n_top = 40) {
 # how actively each team is managed (activity_weekly and activity_penalties, Scripts/
 # Activity Rating.R)
 
-# a season's standings: the season's score (the sum of its weekly scores), its average per
-# week, the rolling score after the season's last week, and the pieces of the score
+# a season's standings, every column a weekly average: the score, the rolling average after
+# the season's last week (the last 14 weekly scores, across seasons), and the pieces of the
+# score
 activity_standings_table <- function(enter_season) {
-  record <- function(won) str_c(sum(won), "-", sum(!won))
   activity_weekly |>
     filter(season == enter_season) |>
     arrange(week) |>
     summarize(
-      Score = sum(weekly_score),
-      Average = mean(weekly_score),
-      `Rolling (18 weeks)` = last(rolling_score),
-      Efficiency = sum(efficiency),
-      ERS = sum(ers),
-      QB = sum(qb),
-      ODN = sum(odn),
-      Trades = sum(trades),
-      Waivers = sum(waivers),
-      Bids = sum(bids),
-      Points = sum(points),
-      `Max Points` = sum(max_points),
-      Record = record(won),
-      `Adjusted Record` = record(adjusted_won),
+      Score = mean(weekly_score),
+      `Rolling Average` = last(rolling_average),
+      Efficiency = mean(efficiency),
+      `Empty Roster Spots` = mean(ers),
+      `Questionable Benchings` = mean(qb),
+      `Outcome Determined` = mean(odn),
+      Trades = mean(trades),
+      Waivers = mean(waivers),
+      Bids = mean(bids),
       .by = team
     ) |>
     arrange(desc(Score)) |>
     rename(Team = team) |>
-    mutate(across(c(Score, Average, `Rolling (18 weeks)`, Efficiency, Points, `Max Points`), \(x) round(x, 1))) |>
+    mutate(
+      across(c(Score, `Rolling Average`, Efficiency), \(x) round(x, 1)),
+      across(c(`Empty Roster Spots`:Bids), \(x) round(x, 2))
+    ) |>
     dt(page = 12, paging = FALSE)
 }
 
-# every team's rolling score (the last 18 weekly scores) after each regular-season week,
-# across seasons, one line per team in its color
-plot_activity_rolling <- function() {
+# every team's rolling average (its last 14 weekly scores) after each regular-season week,
+# across seasons, with dashed lines at each season's start. With a team to highlight, the
+# others are gray (team_lines()).
+plot_activity_rolling <- function(highlight = NULL) {
   weeks <- activity_weekly |>
     distinct(season, week) |>
     arrange(season, week) |>
-    mutate(index = row_number(), label = str_c(season, " W", week))
+    mutate(index = row_number())
   df <- activity_weekly |>
     inner_join(weeks, by = join_by(season, week)) |>
     mutate(
       text = str_c(
-        "<b>", team, "</b><br>", label, "<br>Rolling score: ", round(rolling_score, 1),
+        team, "<br>", season, " week ", week, "<br>Rolling average: ", round(rolling_average, 1),
         "<br>That week: ", round(weekly_score, 1)
       )
     )
-  colors <- team_colors()
-  step <- ceiling(nrow(weeks) / 18)
-  ticks <- weeks |> filter((index - 1) %% step == 0)
+  season_starts <- weeks |>
+    filter(week == min(week), .by = season)
 
-  chart <- plotly::plot_ly()
-  for (t in sort(unique(df$team))) {
-    chart <- chart |>
-      plotly::add_trace(
-        data = df |> filter(team == t) |> arrange(index),
-        x = ~index,
-        y = ~rolling_score,
-        name = t,
-        type = "scatter",
-        mode = "lines",
-        line = list(color = colors[[t]], width = 2, shape = "spline", smoothing = 0.6),
-        text = ~text,
-        hovertemplate = "%{text}<extra></extra>"
-      )
-  }
-  chart |>
-    plotly::layout(
-      font = list(family = font_stack),
-      hovermode = "closest",
-      xaxis = list(
-        title = "",
-        tickvals = ticks$index,
-        ticktext = ticks$label,
-        gridcolor = "#ebebeb",
-        zeroline = FALSE
-      ),
-      yaxis = list(title = "Rolling score (last 18 weeks)", gridcolor = "#ebebeb", zeroline = FALSE),
-      legend = list(orientation = "h", y = -0.15)
-    )
+  p <- df |>
+    ggplot(aes(x = index, y = rolling_average, color = team, group = team, text = text)) +
+    geom_vline(
+      data = season_starts,
+      aes(xintercept = index),
+      linetype = "dashed",
+      color = "grey70"
+    ) +
+    team_lines(df, highlight) +
+    scale_x_continuous(breaks = season_starts$index, labels = season_starts$season) +
+    labs(x = "", y = "Rolling Average") +
+    theme(legend.position = "none", panel.grid.minor = element_blank())
+
+  as_plotly(p, tooltip = "text")
 }
 
 # a season's weekly scores, team by week, shaded from red (below 0) to green

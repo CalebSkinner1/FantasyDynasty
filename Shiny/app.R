@@ -135,7 +135,9 @@ matchup_card <- function(game) {
       })
     )
   }
-  pick_or_dash <- function(x) if_else(is.na(x), "–", format(round(x, 1), nsmall = 1))
+  pick_or_dash <- function(x) {
+    if_else(is.na(x), "–", format(round(x, 1), nsmall = 1))
+  }
 
   div(
     class = "matchup-card",
@@ -571,19 +573,19 @@ ui <- dashboardPage(
             "activity",
             "Activity Rating",
             "list-check",
-            "How actively each team is managed: lineup choices, penalties, and moves, week by week."
+            "Scoring each manager's activity - per Noah Gernenz's formula."
           ),
           explore_card(
             "current_matchups",
             "Current Matchups",
             "calendar-week",
-            "This week's games, each team's chances, and what a win or loss means for the playoffs, the title, and the draft."
+            "Each team's win probability and the consequences of a win or loss."
           ),
           explore_card(
             "best_available",
             "Best Available",
             "user-check",
-            "The best players on no roster, for the rest of this season and for the long run."
+            "The best unrostered players, for the rest of this season and for the long run."
           )
         ),
         explore_row(
@@ -747,14 +749,7 @@ ui <- dashboardPage(
                 maxOptions = 5 # Limit the number of suggestions shown
               )
             ),
-            uiOutput("player_bio"),
-            p(
-              class = "stat-note",
-              "Realized value is his value added in every season so far. Points per game, volatility (the
-              standard deviation of his points), and games missed come from his NFL games since 2024, with
-              byes left out and each game counting 0.96 times as much as the one after it. A game he missed
-              is one his team played without him."
-            )
+            uiOutput("player_bio")
           ),
           column(3, uiOutput("player_image"))
         ),
@@ -1407,9 +1402,8 @@ ui <- dashboardPage(
                 " Matchups"
               ),
               p(
-                "This week's games, ordered by what is at stake: how much winning or losing moves
-                each team's championship odds (half of the weight), playoff odds (30%), and the
-                value of its next rookie draft picks (20%). Win probabilities come from the Future
+                "This week's games, ordered by league impact on championship odds (50%), playoff odds (30%), and the
+                value of the draft position (20%). Win probabilities integrate the Future
                 Standings and Elo models. The odds and draft slots are derived from ",
                 format(
                   sum(matchup_scenarios$n) / nrow(users),
@@ -1449,18 +1443,11 @@ ui <- dashboardPage(
         tabName = "activity",
         h2("Activity Rating"),
         panel(
-          title = "Activity Standings",
+          title = "Fantasy Team Activity Ranking",
           p(
-            "How actively each team is managed through the regular season. Each week a team scores its lineup
-            efficiency (10 times its points over its max points, the best lineup it could have set), loses 7
-            for each empty roster spot (ERS: an empty slot, or a starter on bye or not active for his game), 3
-            for each questionable benching (QB: a bench player who could have filled the starter's spot was
-            projected higher by more than 3.5 at QB, 2.5 at RB or WR, 2 at K, or 1.5 at TE or DEF), and 2
-            when those penalties cost it the game (ODN: outcome determined), and gains 5 for each trade, 1 for
-            each waiver claim or free agent pickup of a player projected to play, and 0.5 for each failed
-            waiver claim (moves count from September 1). The score is the season's total, the rolling score
-            the last 18 weeks' total across seasons, and the adjusted record counts the games the penalties
-            cost as wins."
+            "Following the formula written by Noah Gernenz,
+            each week a team scores points for an efficient lineup and making roster moves. It
+            loses points for empty roster spots and questionable benchings."
           ),
           selectizeInput(
             inputId = "activity_season",
@@ -1472,9 +1459,13 @@ ui <- dashboardPage(
         panel(
           title = "Rolling Score",
           p(
-            "Each team's score over its last 18 regular-season weeks, after every week since 2024 (it carries
-            over from one season to the next). Hover over a line for the numbers, and click a team in the
-            legend to hide it."
+            "Each team's activity score over its last 14 regular-season weeks. Hover for the rolling score."
+          ),
+          selectizeInput(
+            inputId = "activity_highlight",
+            label = "Highlight a Team",
+            choices = c("None" = "none", users$display_name),
+            selected = "none"
           ),
           plotlyOutput("activity_rolling", height = "440px")
         ),
@@ -1486,9 +1477,7 @@ ui <- dashboardPage(
         panel(
           title = uiOutput("activity_penalties_title", inline = TRUE),
           p(
-            "Every empty roster spot and questionable benching in the season selected above: the starter, his
-            projection and points, and the bench player who could have played instead. Decided Game marks
-            the games the team's penalties cost it."
+            "Empty roster spots and questionable benching logged."
           ),
           selectizeInput(
             inputId = "activity_team",
@@ -1503,14 +1492,7 @@ ui <- dashboardPage(
         tabName = "best_available",
         h2("Best Available"),
         panel(
-          title = "Best Available",
-          p(
-            "Every player on no roster with a future value. The first value column is his projected value
-            added for the rest of the season (next season's in the offseason), with seasons below replacement
-            counted as zero, and the table starts sorted by it. Next to it are Sleeper's projection for the
-            coming week and his average points over the last three weeks he played. The changes are in his
-            smoothed future value over the last 7 and 30 days. Click a column to sort by it."
-          ),
+          title = "Best Available Unrostered Players",
           radioButtons(
             inputId = "best_position",
             label = NULL,
@@ -1522,9 +1504,8 @@ ui <- dashboardPage(
         panel(
           title = "Now or Later",
           p(
-            "The best available players by projected value for the rest of the season (right) and by
-            future value (up), for the position chosen above. Players to the right can help now; players
-            near the top are worth stashing. Hover over a point for the numbers."
+            "Best available players by projected value for the rest of the season (right) and by
+            future value (up). Hover over a point for the player."
           ),
           plotlyOutput("best_available_plot", height = "460px")
         )
@@ -2037,13 +2018,23 @@ server <- function(input, output, session) {
     bio <- player_bio(input$player_name)
     div(
       class = "stat-grid four", # two rows of four (player_bio)
-      pmap(bio, \(label, value, detail) {
-        div(
-          class = "stat-tile",
+      # a tile with a link opens what is behind it (tile_links); the others are plain
+      pmap(bio, \(label, value, detail, link) {
+        contents <- list(
           div(class = "stat-label", label),
           div(class = "stat-value", value),
           div(class = "stat-detail", detail)
         )
+        if (is.na(link)) {
+          div(class = "stat-tile", contents)
+        } else {
+          a(
+            class = "stat-tile tile-link",
+            href = "#",
+            `data-id` = link,
+            contents
+          )
+        }
       })
     )
   })
@@ -2212,13 +2203,66 @@ server <- function(input, output, session) {
     ),
     championships = list(tab = "history", scroll = "championship"),
     playoff_berths = list(tab = "history", scroll = "playoffs"),
-    composite = list(tab = "team_rankings", scroll = "total_success")
+    composite = list(tab = "team_rankings", scroll = "total_success"),
+
+    # Individual Players tiles, for the player shown: his fantasy team's page (or Best
+    # Available at his position when he is on no roster), Player Rankings at his position
+    # with him added to the comparison, and the sections lower on his own page
+    player_team = function() {
+      team <- first(
+        assets_df$display_name[assets_df$player_id == input$player_name],
+        default = NA
+      )
+      if (is.na(team)) {
+        position <- first(basic_info_df$position[
+          basic_info_df$player_id == input$player_name
+        ])
+        list(
+          tab = "best_available",
+          scroll = "best_available",
+          radios = list(best_position = position)
+        )
+      } else {
+        list(
+          tab = "teams",
+          scroll = "team_name",
+          inputs = list(team_name = team)
+        )
+      }
+    },
+    player_rankings = function() {
+      position <- first(basic_info_df$position[
+        basic_info_df$player_id == input$player_name
+      ])
+      list(
+        tab = "rankings",
+        scroll = "players_top_future_value",
+        inputs = list(
+          enter_position = position,
+          enter_players = union(input$enter_players, input$player_name)
+        )
+      )
+    },
+    player_weekly = list(tab = "players", scroll = "weekly_results"),
+    player_realized = list(
+      tab = "players",
+      scroll = "tabulate_realized_value",
+      inputs = list(player_season = unique(season_value_added$season))
+    )
   )
 
   observeEvent(input$goto_tile, {
     link <- tile_links[[input$goto_tile]]
     req(link)
-    iwalk(link$inputs, \(value, id) updateSelectizeInput(session, id, selected = value))
+    if (is.function(link)) {
+      link <- link()
+    }
+    iwalk(link$inputs, \(value, id) {
+      updateSelectizeInput(session, id, selected = value)
+    })
+    iwalk(link$radios, \(value, id) {
+      updateRadioButtons(session, id, selected = value)
+    })
     updateTabItems(session, "sidebar", selected = link$tab)
     session$sendCustomMessage("scroll_to", link$scroll)
   })
@@ -2841,9 +2885,9 @@ server <- function(input, output, session) {
   })
 
   output$activity_rolling <- renderPlotly({
-    plot_activity_rolling()
+    plot_activity_rolling(input$activity_highlight)
   }) |>
-    bindCache("activity_rolling")
+    bindCache(input$activity_highlight)
 
   output$activity_grid_title <- renderUI({
     req(input$activity_season)
@@ -2932,7 +2976,12 @@ server <- function(input, output, session) {
         fill = list(mass = 0)
       ) |>
       mutate(probability = round(100 * mass / sum(mass) * nrow(users), 1)) |>
-      transmute(season = current_matchups$season[1], team, finish, probability) |>
+      transmute(
+        season = current_matchups$season[1],
+        team,
+        finish,
+        probability
+      ) |>
       finish_grid(current_matchups$season[1])
   })
 

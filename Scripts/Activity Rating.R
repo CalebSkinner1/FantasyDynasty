@@ -24,7 +24,7 @@
 #                 that week (on an NFL roster and expected to play)
 #   + 0.5 * bids  failed waiver claims
 # Transactions count from September 1 (the FAAB reset), in their Sleeper week; those before
-# week 1 count in week 1. The rolling score is the sum of the last rolling_weeks weekly
+# week 1 count in week 1. The rolling average is the mean of the last rolling_weeks weekly
 # scores, carried across seasons.
 #
 # Reads Sleeper's matchups, league settings, and transactions (Data/raw/sleeper), the
@@ -34,7 +34,7 @@
 # all from Scraping.R.
 #   activity_weekly.csv     season, week, roster_id, team, points, max_points, efficiency,
 #                           ers, qb, odn, trades, waivers, bids, weekly_score, won,
-#                           adjusted_won, rolling_score
+#                           adjusted_won, rolling_average
 #   activity_penalties.csv  season, week, team, penalty (ERS or QB), slot, started,
 #                           started_projection, started_points, reason, bench,
 #                           bench_projection, bench_points, decided (whether the game
@@ -47,7 +47,7 @@ suppressPackageStartupMessages({
 
 message("begin computing the Activity Rating...")
 
-rolling_weeks <- 18
+rolling_weeks <- 14 # a full regular season
 qb_threshold <- c(QB = 3.5, RB = 2.5, WR = 2.5, TE = 1.5, K = 2, DST = 1.5)
 penalties <- c(ers = 7, qb = 3, odn = 2)
 transaction_points <- c(trades = 5, waivers = 1, bids = 0.5)
@@ -73,8 +73,8 @@ slot_map <- tribble(
 slot_names <- c(QB = "QB", RB = "RB", WR = "WR", TE = "TE", K = "K", DEF = "DST",
                 FLEX = "flex", SUPER_FLEX = "super_flex")
 
-# the sum of each value and the n - 1 before it
-rolling_sum <- function(x, n) map_dbl(seq_along(x), \(i) sum(x[max(1, i - n + 1):i]))
+# the mean of each value and the n - 1 before it (fewer at the start)
+rolling_mean <- function(x, n) map_dbl(seq_along(x), \(i) mean(x[max(1, i - n + 1):i]))
 
 # Load Data ---------------------------------------------------------------
 
@@ -485,7 +485,7 @@ activity_weekly <- lineups |>
   ) |>
   arrange(season, week, roster_id) |>
   mutate(
-    rolling_score = rolling_sum(weekly_score, rolling_weeks),
+    rolling_average = rolling_mean(weekly_score, rolling_weeks),
     .by = roster_id
   )
 
@@ -529,7 +529,7 @@ activity_penalties <- bind_rows(
 
 activity_weekly <- activity_weekly |>
   select(season, week, roster_id, team, points, max_points, efficiency, ers, qb, odn,
-         trades, waivers, bids, weekly_score, won, adjusted_won, rolling_score)
+         trades, waivers, bids, weekly_score, won, adjusted_won, rolling_average)
 
 # dfs to save -------------------------------------------------------------
 
